@@ -20,5 +20,5 @@
 | <team_name> | Lauren Guerra Hernández C-412, Dennis Fiallo Muñoz C-411 | Profe Leandro | |
 | Los Discretos | Kevin Talavera Díaz C411, Sergio Pérez Pantoja C411 | Sheyla, Lázaro y la libreta de chismes | |
 | yamete kudasai!  | Mauricio Mahmud Sánchez C412, Raúl Beltrán Gómez C412 | Sheyla, Lázaro y la libreta de chismes | |
-| Broken phone | Niley González Ferrales C411 | Tito el tramposo | |
-| Me dejaron cholo | Leandro Hernández Nuñez C412 | Tito el tramposo |  |
+| pss, it's broken | Niley González Ferrales C411, Gabriel Hernández Rodríguez C411 | Tito el tramposo | |
+| Cholo’s Company | Carlos Carret Miranda C412, Leandro Hernández Nuñez C412 | Tito el tramposo | |
