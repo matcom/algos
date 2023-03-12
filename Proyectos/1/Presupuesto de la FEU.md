@@ -1,7 +1,3 @@
----
-author:
-- Rodrigo
----
 
 Presupuesto de la FEU
 

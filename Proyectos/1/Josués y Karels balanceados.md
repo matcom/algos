@@ -1,7 +1,3 @@
----
-author:
-- Rodrigo
----
 
 Josués y Karels balanceados.
 

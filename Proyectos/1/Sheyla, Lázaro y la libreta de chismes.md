@@ -1,7 +1,4 @@
----
-author:
-- Rodrigo
----
+
 
 Sheyla, Lázaro y la libreta de chismes.
 

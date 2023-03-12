@@ -1,7 +1,3 @@
----
-author:
-- Rodrigo
----
 
 Tito el tramposo
 

@@ -1,7 +1,3 @@
----
-author:
-- Rodrigo
----
 
 Manager Mauro
 
