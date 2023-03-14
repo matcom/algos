@@ -22,4 +22,6 @@
 | yamete kudasai!  | Mauricio Mahmud Sánchez C412, Raúl Beltrán Gómez C412 | [Sheyla, Lázaro y la libreta de chismes](https://github.com/matcom/algos/blob/main/Proyectos/1/Sheyla%2C%20L%C3%A1zaro%20y%20la%20libreta%20de%20chismes.md) 
 | pss, it's broken | Niley González Ferrales C411, Gabriel Hernández Rodríguez C411 | [Tito el tramposo](https://github.com/matcom/algos/blob/main/Proyectos/1/Tito%20el%20tramposo.md) 
 | Cholo’s Company | Carlos Carret Miranda C412, Leandro Hernández Nuñez C412 | [Tito el tramposo](https://github.com/matcom/algos/blob/main/Proyectos/1/Tito%20el%20tramposo.md) 
-| Por favor un 3  | Abraham González Rivero C-412, Diamis Alfonso Pérez C-411 | [Minecraft](https://github.com/matcom/algos/blob/main/Proyectos/1/MineCraft.md) 
+| Por favor un 3  | Abraham González Rivero C-412, Diamis Alfonso Pérez C-411 | [Minecraft](https://github.com/matcom/algos/blob/main/Proyectos/1/MineCraft.md)
+| The Code Monkeys  | Jesus Aldair Alfonso Perez C412, Victor Manuel Amador Sosa C412 | [Minecraft](https://github.com/matcom/algos/blob/main/Proyectos/1/MineCraft.md)  
+| The Last Of Us  | Francisco Ayra Cáceres C412 | [Minecraft](https://github.com/matcom/algos/blob/main/Proyectos/1/MineCraft.md) 
