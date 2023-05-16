@@ -18,6 +18,11 @@
 | Por favor un 3  | Abraham González Rivero C-412, Diamis Alfonso Pérez C-411 | [Tito el corrupto](https://github.com/matcom/algos/blob/main/Proyectos/2/tito_el_corrupto.md)
 | Me dejaron cholo | Leandro Hernández Nuñez C412| [Tito el corrupto](https://github.com/matcom/algos/blob/main/Proyectos/2/tito_el_corrupto.md)
 | pss pss | Gabriel Hernández Rodríguez C411 | [Lázaro presidente del pcc](https://github.com/matcom/algos/blob/main/Proyectos/2/l%C3%A1zaro_presidente_del_pcc.md)
+
+## (discreta)
+
+| Equipo | integrantes | problema |
+| ------ | ----------- | -------- |
 | Myculinsky | Deborah Famadas Rodríguez, David M. García Aguilera | [¿Y si empezamos el proyecto?](https://github.com/matcom/algos/blob/main/Proyectos/2/%C2%BFY%20si%20empezamos%20el%20proyecto%3F.pdf)
 | Rojo C411 | Belsai Arango, Daniela Rodríguez | [Tito el corrupto](https://github.com/matcom/algos/blob/main/Proyectos/2/%C2%BFY%20si%20empezamos%20el%20proyecto%3F.pdf)
 | DAAemon Tardar yen | Javier A. Oramas López, Eduardo García Maleta | [El triángulo](https://github.com/matcom/algos/blob/main/Proyectos/2/el_tri%C3%A1ngulo.md)
