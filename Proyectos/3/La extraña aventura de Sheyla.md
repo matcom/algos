@@ -1,5 +1,5 @@
 
-# El extraño viaje de Sheyla
+# La extraña aventura de Sheyla
 
 Sheyla veía a Darío dormido en el sofá mientras pensaba: "Qué flojera, le ganó el cansancio luego de unos pocos champiñones. Yo comí muchos más
 que él y aquí estoy, enterita". Fue entonces cuando sintió sonidos de motores provenientes del patio. Cuando salió, se encontró con una inmnensa nave espacial de la que salía una criatura himanoide color azul marino con grandes ojos y cuello largo. La criatura gritaba tratando de hacerse oír sobre los sonidos del motor de la nave: "Comandante, monte, la galaxia la necesita". Sheyla montó en la nave sin pensarlo mucho pues, aunque no conocía a la criatura, alguien color azul marino no podía ser malvado.
