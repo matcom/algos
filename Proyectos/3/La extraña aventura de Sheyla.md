@@ -1,0 +1,7 @@
+
+# La extraña aventura de Sheyla
+
+Sheyla veía a Darío dormido en el sofá mientras pensaba: "Qué flojera, le ganó el cansancio luego de unos pocos champiñones. Yo comí muchos más
+que él y aquí estoy, enterita". Fue entonces cuando sintió sonidos de motores provenientes del patio. Cuando salió, se encontró con una inmnensa nave espacial de la que salía una criatura himanoide color azul marino con grandes ojos y cuello largo. La criatura gritaba tratando de hacerse oír sobre los sonidos del motor de la nave: "Comandante, monte, la galaxia la necesita". Sheyla montó en la nave sin pensarlo mucho pues, aunque no conocía a la criatura, alguien color azul marino no podía ser malvado.
+
+Una vez en la nave, la criatura le explicó la situación. Sucede que los $n$ planetas de la galaxia se estaban apuntando entre sí con $m$ láseres de largo alcance. El mapa de ataques entre planetas conformaba un grafo. Sheyla podía intervenir para cancelar algunos de estos ataques, pero había un número límite $k < m$ de forma que, como mínimo, $m-k$ ataques debían realizarse. Para reducir al mínimo el daño de la galaxia, los altos mandos decidieron que lo mejor sería cancelar ataques de forma que se pudiera separar a los planetas en dos facciones. Estas facciones formarían un grafo bipartito en el que miembros de una facción no se atacarían mutuamente y así al menos la guerra se pudiera controlar. Ayude a Sheyla a encontrar si existe una forma de cancelar hasta $k$ ataques de forma que se obtenga un grafo bipartito.
