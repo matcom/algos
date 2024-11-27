@@ -38,7 +38,9 @@ Hallar el número cromático en un grafo.
 
 ### Conjunto Dominante
 
-En un grafo $G=(V,E)$, un conjunto de vértices $D \subseteq V$ es un conjunto dominante si cada vértice de $V$ que no está en $D$ es adyacente a al menos un vértice en $D$. Una partición de los vértices $V$ en $k$ conjuntos $D_1,D_2,…,D_k$​ es una partición domática si cada $D_i$​ (para $i=1,2,…,k$) es un conjunto dominante. El numero dominante es la cardinalidad del menor conjunto dominante de $G$.
+En un grafo $G=(V,E)$, un conjunto de vértices $D \subseteq V$ es un conjunto dominante si cada vértice de $V$ que no está en $D$ es adyacente a al menos un vértice en $D$.
+
+Una partición de los vértices $V$ en $k$ conjuntos $D_1,D_2,…,D_k$​ es una partición domática si cada $D_i$​ (para $i=1,2,…,k$) es un conjunto dominante. El numero dominante es la cardinalidad del menor conjunto dominante de $G$.
 
 Hallar el numero dominante de $G$.
 
@@ -58,11 +60,15 @@ El problema consiste en encontrar una disposición $f$ que minimice este valor, 
 
 ### Retroalimentación de Vértices
 
-Dado un grafo $G=(V,E)$, un conjunto de retroalimentación de vértices es un subconjunto de vértices $F \subseteq V$ tal que al eliminar todos los vértices en $F$ (y sus aristas incidentes), el grafo resultante no contiene ciclos (es un grafo acíclico o un bosque, si es no dirigido). El objetivo del problema es encontrar el conjunto de retroalimentación de vértices de tamaño mínimo.
+Dado un grafo $G=(V,E)$, un conjunto de retroalimentación de vértices es un subconjunto de vértices $F \subseteq V$ tal que al eliminar todos los vértices en $F$ (y sus aristas incidentes), el grafo resultante no contiene ciclos (es un grafo acíclico o un bosque, si es no dirigido).
+
+El objetivo del problema es encontrar el conjunto de retroalimentación de vértices de tamaño mínimo.
 
 ### Retroalimentación de Arcos
 
-Dado un grafo $G=(V,E)$, un conjunto de retroalimentación de arcos es un subconjunto de arcos $F \subseteq E$ tal que al eliminar todos los arcos en $F$, el grafo resultante no contiene ciclos (es un grafo acíclico o un bosque, si es no dirigido). El objetivo del problema es encontrar el conjunto de retroalimentación de arcos de tamaño mínimo.
+Dado un grafo $G=(V,E)$, un conjunto de retroalimentación de arcos es un subconjunto de arcos $F \subseteq E$ tal que al eliminar todos los arcos en $F$, el grafo resultante no contiene ciclos (es un grafo acíclico o un bosque, si es no dirigido).
+
+El objetivo del problema es encontrar el conjunto de retroalimentación de arcos de tamaño mínimo.
 
 ### 3D Matching
 
@@ -74,7 +80,9 @@ El objetivo es determinar si existe un subconjunto de $T$ de tamaño $n$ (es dec
 
 ### Dimensión Bipartita
 
-Para un grafo $G=(V,E)$, la dimensión bipartita $b(G)$ es el menor entero $k$ tal que las aristas de $G$ pueden particionarse en k conjuntos $E1,E2,…,Ek$ donde cada subgrafo $Gi=(V,Ei)$ es bipartito. Determinar la dimensión bipartita de un grafo cualquiera.
+Para un grafo $G=(V,E)$, la dimensión bipartita $b(G)$ es el menor entero $k$ tal que las aristas de $G$ pueden particionarse en k conjuntos $E1,E2,…,Ek$ donde cada subgrafo $Gi=(V,Ei)$ es bipartito.
+
+Determinar la dimensión bipartita de un grafo cualquiera.
 
 ### Numero de Intersección
 
@@ -87,7 +95,7 @@ En otras palabras, el número de intersección mide cuántos conjuntos son neces
 
 ### Subgrafo Máximo Bipartito
 
-El problema consiste en encontrar dado  un grafo $G=(V,E)$ el subgrafo $G'=(V',E')$ con $V' \subseteq V$ y $E' \subseteq E$ de forma que $G'$ sea bipartito y $|E'|$ es máximo.
+El problema consiste en encontrar dado un grafo $G=(V,E)$ el subgrafo $G'=(V',E')$ con $V' \subseteq V$ y $E' \subseteq E$ de forma que $G'$ sea bipartito y $|E'|$ es máximo.
 
 ### Máximo Corte
 
