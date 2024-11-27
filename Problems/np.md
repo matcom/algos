@@ -80,12 +80,12 @@ Para un grafo $G=(V,E)$, la dimensión bipartita $b(G)$ es el menor entero $k$ t
 
 Sea $G=(V,E)$ un grafo no dirigido con $V$ como el conjunto de vértices y $E$ como el conjunto de aristas. El número de intersección de $G$, denotado como $int(G)$, es el mínimo entre las cardinalidades de una colección de conjuntos $\{S_v​:v \in V\}$, tal que:
 
-1- A cada vértice $v \in V$ se le asigna un conjunto $S_v$​.
-2- Existe una arista $(u,v) \in E$ si y solo si $S_u \cap S_v \neq \emptyset$
+1. A cada vértice $v \in V$ se le asigna un conjunto $S_v$​.
+2. Existe una arista $(u,v) \in E$ si y solo si $S_u \cap S_v \neq \emptyset$.
 
 En otras palabras, el número de intersección mide cuántos conjuntos son necesarios para representar todas las relaciones (aristas) entre los vértices mediante intersecciones de conjuntos.
 
-### Subgrafo Máximo Bipartito.
+### Subgrafo Máximo Bipartito
 
 El problema consiste en encontrar dado  un grafo $G=(V,E)$ el subgrafo $G'=(V',E')$ con $V' \subseteq V$ y $E' \subseteq E$ de forma que $G'$ sea bipartito y $|E'|$ es máximo.
 
