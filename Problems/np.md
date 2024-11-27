@@ -84,7 +84,7 @@ Sea $G=(V,E)$ un grafo no dirigido con $V$ como el conjunto de vértices y $E$ c
 
 En otras palabras, el número de intersección mide cuántos conjuntos son necesarios para representar todas las relaciones (aristas) entre los vértices mediante intersecciones de conjuntos.
 
-### Subgrafo Máximo Bipartito.
+### Subgrafo Máximo Bipartito
 
 El problema consiste en encontrar dado  un grafo $G=(V,E)$ el subgrafo $G'=(V',E')$ con $V'⊆V$ y $E'⊆E$ de forma que $G'$ sea bipartito y $|E'|$ es máximo.
 
