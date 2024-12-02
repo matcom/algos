@@ -229,7 +229,7 @@ Both the memoization and tabulation approaches have better time complexity than 
 
 ### Matrix Chain Multiply
 
-### Problem Statement
+#### Problem Statement
 
 The **Matrix Chain Multiplication** problem involves finding the most efficient way to multiply a given sequence of matrices. The objective is to determine the minimum number of scalar multiplications needed to compute the product of these matrices. The matrices are represented by an array where each entry corresponds to the dimensions of the matrices. For instance, if you have matrices $A_1, A_2, \ldots, A_n$ with dimensions specified in an array $p$ such that matrix $A_i$ has dimensions $p[i-1] \times p[i]$, the goal is to find the optimal way to parenthesize the product $A_1 A_2 \ldots A_n$.
 
@@ -348,9 +348,129 @@ def lcs_dp(X, Y):
 
 Note that we can reduce the space complexity by keeping only the last two rows in the `dp`.
 
+### Weighted Interval Scheduling Problem
+
+The **Weighted Interval Scheduling** problem involves selecting a subset of non-overlapping intervals (jobs) such that the total weight (or value) of the selected intervals is maximized. Each interval has a start time, finish time, and associated weight. The challenge is to find the optimal combination of intervals that do not overlap.
+
+#### Recursive Formulation
+
+To solve this problem using dynamic programming, we can define a recursive function based on whether we include the last interval in our optimal solution or not. Here's how this works:
+
+1. **Sort Intervals**: First, sort the intervals by their finish times.
+
+2. **Define the Recursive Function**:
+   - Let $\text{opt}(j)$ represent the maximum weight of non-overlapping intervals from the first $j$ intervals.
+   - Let $p(j)$ be the last interval that is compatible with $j$ (finishes before $j$ starts).
+   - We have two cases to consider for the $j$-th interval:
+     - **Case 1**: The $j$-th interval is included in the optimal solution. In this case, we must also include the optimal solution from the compatible intervals that finish before this interval starts. This can be represented as:
+       $$
+       \text{opt}(j) = v_j + \text{opt}(p(j))
+       $$
+       where $v_j$ is the weight of the $j$-th interval and $p(j)$ is the index of the last non-overlapping interval before $j$.
+     - **Case 2**: The $j$-th interval is not included in the optimal solution. In this case, we simply take the optimal solution from the first $j-1$ intervals:
+       $$
+       \text{opt}(j) = \text{opt}(j-1)
+       $$
+
+3. **Combining Cases**: The overall recursive formula can be expressed as:
+   $$
+   \text{opt}(j) = \max(\text{opt}(j-1), v_j + \text{opt}(p(j)))
+   $$
+
+4. **Base Case**: If there are no intervals (i.e., $j = 0$), then:
+   $$
+   \text{opt}(0) = 0
+   $$
+
+#### Dynamic Programming Approach
+
+The dynamic programming approach builds upon this recursive formulation to avoid redundant calculations by storing intermediate results in a table.
+
+```python
+def weighted_interval_scheduling(intervals):
+    # Sort intervals based on finish times
+    intervals.sort(key=lambda x: x[1])  # Sorting by finish time
+
+    n = len(intervals)
+    M = [0] * (n + 1)
+    p = [0] * (n + 1)
+
+    # Compute p(j)
+    for j in range(1, n + 1):
+        p[j] = _non_conflicts(intervals, j - 1)
+
+    # Fill M array using DP approach
+    for j in range(1, n + 1):
+        M[j] = max(M[j - 1], intervals[j - 1][2] + M[p[j]])
+
+    return M[n]
+
+def _non_conflicts(intervals, index):
+    # Find the latest non-conflicting job
+    for j in range(index - 1, -1, -1):
+        if intervals[j][1] <= intervals[index][0]:
+            return j + 1
+    return 0
+```
+
+### Knapsack Problem
+
+The **Knapsack Problem** is a classic optimization problem where the goal is to maximize the total value of items placed in a knapsack without exceeding its weight capacity. Given a set of items, each with a weight and a value, the challenge is to determine the most valuable combination of items that can fit into the knapsack.
+
+#### Pseudopolynomial Dynamic Programming Solution
+
+The Knapsack Problem can be solved using dynamic programming in a pseudopolynomial time complexity. The key idea is to use a table to store the maximum value that can be achieved for every possible weight up to the maximum capacity of the knapsack.
+
+If the weight of the current item $i$ is less than or equal to $w$:
+$$
+dp[i][w] = \max(dp[i-1][w], \text{value}[i-1] + dp[i-1][w - \text{weight}[i-1]])
+$$
+
+If the weight of the current item $i$ exceeds $w$:
+$$
+dp[i][w] = dp[i-1][w]
+$$
+
+**Base Case**: When there are no items or the capacity is zero, the maximum value is zero:
+$$
+dp[w] = 0 \quad \text{for all } w \\
+dp[i] = 0 \quad \text{for all } i
+$$
+
+#### Implementation
+
+```python
+def knapsack(weights, values, capacity):
+    n = len(weights)
+    # Create a DP table with (n+1) x (capacity+1)
+    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
+
+    # Fill the DP table
+    for i in range(1, n + 1):
+        for w in range(1, capacity + 1):
+            if weights[i - 1] <= w:
+                dp[i][w] = max(dp[i - 1][w], values[i - 1] + dp[i - 1][w - weights[i - 1]])
+            else:
+                dp[i][w] = dp[i - 1][w]
+
+    return dp[n][capacity]
+```
+
+#### Time Complexity Analysis
+
+The time complexity of this dynamic programming solution is $O(nW)$.
+
+However, this complexity is considered **pseudopolynomial** because it depends on both $n$ and $W$. Specifically, while $n$ is a count of items (which is polynomial in terms of input size), $W$ represents a numeric value (the maximum weight), which can be very large and thus affects performance disproportionately.
+
+#### Why This Does Not Prove P = NP
+
+The fact that the Knapsack problem can be solved in pseudopolynomial time does not imply that P equals NP for several reasons:
+
+The running time of $O(nW)$ is polynomial only in terms of $n$ and not necessarily in terms of the input size. The input size for $W$ is proportional to $\log W$, meaning that as $W$ increases (e.g., to very large values), it can lead to exponential running times relative to input size.
+
+The Knapsack problem is classified as **weakly NP-complete** because it has pseudopolynomial time solutions but remains NP-complete when considering arbitrary weights or when weights are represented as binary numbers (in which case they may require exponential time).
 
 ## On the nature of problem structure
-
 
 Consider the **Shortest-Path** and **Longest-Path** problems in graph theory. They are very similar in surface, but they exhibit distinct characteristics in terms of their subproblem structures and optimality.
 
