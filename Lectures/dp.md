@@ -231,7 +231,7 @@ Both the memoization and tabulation approaches have better time complexity than 
 
 ### Problem Statement
 
-The **Matrix Chain Multiplication** problem involves finding the most efficient way to multiply a given sequence of matrices. The objective is to determine the minimum number of scalar multiplications needed to compute the product of these matrices. The matrices are represented by an array where each entry corresponds to the dimensions of the matrices. For instance, if you have matrices $$ A_1, A_2, \ldots, A_n $$ with dimensions specified in an array $$ p $$ such that matrix $$ A_i $$ has dimensions $$ p[i-1] \times p[i] $$, the goal is to find the optimal way to parenthesize the product $$ A_1 A_2 \ldots A_n $$.
+The **Matrix Chain Multiplication** problem involves finding the most efficient way to multiply a given sequence of matrices. The objective is to determine the minimum number of scalar multiplications needed to compute the product of these matrices. The matrices are represented by an array where each entry corresponds to the dimensions of the matrices. For instance, if you have matrices $A_1, A_2, \ldots, A_n$ with dimensions specified in an array $p$ such that matrix $A_i$ has dimensions $p[i-1] \times p[i]$, the goal is to find the optimal way to parenthesize the product $A_1 A_2 \ldots A_n$.
 
 #### Naive Recursive Method
 
