@@ -68,7 +68,7 @@
 - Both techniques involve breaking down a problem into smaller subproblems.
 - Both techniques required optimal substructure, that is, independent subproblems.
 
-## Exercises
+## Examples
 
 ### Rod Cutting Problem
 
@@ -227,6 +227,141 @@ The time complexity of the dynamic programming approach is $O(n^2)$, as we have 
 
 Both the memoization and tabulation approaches have better time complexity than the naive recursive solution. However, the tabulation approach is more space-efficient than the memoization approach, as it only uses a single array to store the results, while the memoization approach uses a dictionary and the call stack.
 
+### Coin Change Problem
+
+The **Coin Change Problem** involves finding the minimum number of coins needed to make a specific amount of money using a given set of coin denominations. The problem can be stated as follows:
+
+**Problem Statement**: Given an amount `N` and an array of coin denominations, determine the minimum number of coins required to make the amount `N`. If it is not possible to make the amount with the given denominations, return -1.
+
+#### Naive Recursive Method
+
+The naive recursive approach explores all possible combinations of coins to find the minimum number needed to make the target amount.
+
+1. **Recursive Exploration**: For each coin denomination, we have two choices:
+   - Include the coin in our solution and reduce the target amount by the coin's value.
+   - Exclude the coin and try with the next denomination.
+
+2. **Base Case**: If `N` is 0, we need 0 coins (base case).
+
+3. **Combining Results**: The minimum number of coins needed is determined by taking the minimum across all recursive calls for each coin.
+
+
+```python
+def coin_change_naive(coins, N):
+    # Base case: If N is 0, no coins are needed
+    if N == 0:
+        return 0
+
+    min_coins = float('inf')
+
+    # Try every coin
+    for coin in coins:
+        if coin > N:
+            break
+
+        result = coin_change_naive(coins, N - coin)
+        min_coins = min(min_coins, result + 1)
+
+    return min_coins
+```
+
+The time complexity of this naive approach is exponential, specifically $O(2^N)$ in the worst case, because it explores all combinations of coins recursively.
+
+#### Dynamic Programming Method
+
+The dynamic programming approach optimizes the naive method by storing results in a table to avoid redundant calculations.
+
+1. **DP Array**: We create an array `dp` where `dp[i]` represents the minimum number of coins needed to make amount `i`.
+
+2. **Initialization**:
+   - Set `dp = 0`, because no coins are needed to make amount 0.
+   - Initialize all other entries as infinity (or a large number) since they are initially unreachable.
+
+3. **Filling DP Array**:
+   - For each coin in the list of denominations, iterate through all amounts from that coin's value up to `N`.
+   - Update `dp[i]` as:
+     $$
+     dp[i] = \min(dp[i], dp[i - \text{coin}] + 1)
+     $$
+   - This means that if we can reach `i - coin`, then we can reach `i` by adding one more coin.
+
+4. **Result Extraction**: The value at `dp[N]` will give us the minimum number of coins needed for amount `N`. If it remains infinity, it means it's not possible to form that amount with the given denominations.
+
+```python
+def coin_change_dp(coins, N):
+    # Initialize DP array with infinity
+    dp = [float('inf')] * (N + 1)
+    dp[0] = 0  # Base case: No coins needed to make amount 0
+
+    # Fill DP array
+    for coin in coins:
+        for i in range(coin, N + 1):
+            dp[i] = min(dp[i], dp[i - coin] + 1)
+
+    return dp[N]
+
+```
+
+### Longest Common Subsequence (LCS) Problem
+
+The **Longest Common Subsequence (LCS)** problem is a classic algorithmic problem in computer science and bioinformatics. It involves finding the longest subsequence common to two sequences (strings). A subsequence is defined as a sequence that appears in the same relative order but not necessarily consecutively.
+
+#### Problem Statement
+
+Given two sequences (strings) $X$ and $Y$, find the length of their longest common subsequence. For example:
+
+- **Input**:
+  - X: "AGGTAB"
+  - Y: "GXTXAYB"
+- **Output**: Length of LCS = 4 (The LCS is "GTAB").
+
+#### Problem analysis
+
+Note that this problem has optimal substructure. If the last two (or the first two) symbols of `X` and `Y` match, then they must belong to the LCS. Otherwise we could grow the LCS appending these last characters. In the other case, if `X[n-1] != Y[n-1]` then we must find the `LCS(X, Y[:n-1])` and the `LCS(X[:n-1], Y)`.
+
+#### Recursive Solution
+
+The naive recursive approach to solving the LCS problem involves comparing characters from both sequences and recursively determining the length of the LCS based on these comparisons.
+
+```python
+def lcs(X, Y, m, n):
+    # Base case: If either string is empty
+    if m == 0 or n == 0:
+        return 0
+
+    # If last characters match
+    if X[m - 1] == Y[n - 1]:
+        return 1 + lcs(X, Y, m - 1, n - 1)
+
+    # If last characters do not match
+    return max(lcs(X, Y, m, n - 1), lcs(X, Y, m - 1, n))
+```
+
+#### Dynamic Programming Approach
+
+The dynamic programming approach optimizes the naive recursive solution by storing intermediate results in a table to avoid redundant calculations. This approach builds up solutions for smaller subproblems to solve larger instances efficiently.
+
+```python
+def lcs_dp(X, Y):
+    m = len(X)
+    n = len(Y)
+
+    # Create a DP table to store lengths of longest common subsequence
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # Build the DP table
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if X[i - 1] == Y[j - 1]:  # Characters match
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:                      # Characters do not match
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+    return dp[m][n]
+```
+
+Note that we can reduce the space complexity by keeping only the last two rows in the `dp`.
+
 ### Matrix Chain Multiply
 
 #### Problem Statement
@@ -286,67 +421,6 @@ def matrix_chain_dp(p):
 
     return dp[1][n]
 ```
-
-### Longest Common Subsequence (LCS) Problem
-
-The **Longest Common Subsequence (LCS)** problem is a classic algorithmic problem in computer science and bioinformatics. It involves finding the longest subsequence common to two sequences (strings). A subsequence is defined as a sequence that appears in the same relative order but not necessarily consecutively.
-
-#### Problem Statement
-
-Given two sequences (strings) $X$ and $Y$, find the length of their longest common subsequence. For example:
-
-- **Input**:
-  - X: "AGGTAB"
-  - Y: "GXTXAYB"
-- **Output**: Length of LCS = 4 (The LCS is "GTAB").
-
-#### Problem analysis
-
-Note that this problem has optimal substructure. If the last two (or the first two) symbols of `X` and `Y` match, then they must belong to the LCS. Otherwise we could grow the LCS appending these last characters. In the other case, if `X[n-1] != Y[n-1]` then we must find the `LCS(X, Y[:n-1])` and the `LCS(X[:n-1], Y)`.
-
-
-#### Recursive Solution
-
-The naive recursive approach to solving the LCS problem involves comparing characters from both sequences and recursively determining the length of the LCS based on these comparisons.
-
-```python
-def lcs(X, Y, m, n):
-    # Base case: If either string is empty
-    if m == 0 or n == 0:
-        return 0
-
-    # If last characters match
-    if X[m - 1] == Y[n - 1]:
-        return 1 + lcs(X, Y, m - 1, n - 1)
-
-    # If last characters do not match
-    return max(lcs(X, Y, m, n - 1), lcs(X, Y, m - 1, n))
-```
-
-#### Dynamic Programming Approach
-
-The dynamic programming approach optimizes the naive recursive solution by storing intermediate results in a table to avoid redundant calculations. This approach builds up solutions for smaller subproblems to solve larger instances efficiently.
-
-```python
-def lcs_dp(X, Y):
-    m = len(X)
-    n = len(Y)
-
-    # Create a DP table to store lengths of longest common subsequence
-    dp = [[0] * (n + 1) for _ in range(m + 1)]
-
-    # Build the DP table
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            if X[i - 1] == Y[j - 1]:  # Characters match
-                dp[i][j] = dp[i - 1][j - 1] + 1
-            else:                      # Characters do not match
-                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
-
-    return dp[m][n]
-```
-
-Note that we can reduce the space complexity by keeping only the last two rows in the `dp`.
 
 ### Weighted Interval Scheduling Problem
 
