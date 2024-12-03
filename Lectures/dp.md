@@ -302,7 +302,7 @@ def coin_change_dp(coins, N):
 
 ```
 
-### Longest Common Subsequence (LCS) Problem
+### Longest Common Subsequence
 
 The **Longest Common Subsequence (LCS)** problem is a classic algorithmic problem in computer science and bioinformatics. It involves finding the longest subsequence common to two sequences (strings). A subsequence is defined as a sequence that appears in the same relative order but not necessarily consecutively.
 
@@ -422,7 +422,7 @@ def matrix_chain_dp(p):
     return dp[1][n]
 ```
 
-### Weighted Interval Scheduling Problem
+### Weighted Interval Scheduling
 
 The **Weighted Interval Scheduling** problem involves selecting a subset of non-overlapping intervals (jobs) such that the total weight (or value) of the selected intervals is maximized. Each interval has a start time, finish time, and associated weight. The challenge is to find the optimal combination of intervals that do not overlap.
 
@@ -487,7 +487,7 @@ def _non_conflicts(intervals, index):
     return 0
 ```
 
-### Longest Increasing Subsequence (LIS) Problem
+### Longest Increasing Subsequence
 
 The **Longest Increasing Subsequence (LIS)** problem involves finding the longest subsequence in a given sequence of numbers such that all elements of the subsequence are sorted in increasing order. The subsequence does not need to be contiguous, meaning that elements can be omitted as long as their order is preserved.
 
