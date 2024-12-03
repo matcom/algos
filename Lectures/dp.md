@@ -102,9 +102,9 @@ The naive recursive approach to the Rod Cutting Problem involves solving the pro
 1. **Recursive Formulation**:
    We can define a recursive function `cutRod(n)` that computes the maximum revenue obtainable for a rod of length $n$:
 
-   $$
-   \text{cutRod}(n) = \max(p[i] + \text{cutRod}(n-i)) \quad \text{for } i = 1, ..., n
-   $$
+ $$
+ \text{cutRod}(n) = \max(p[i] + \text{cutRod}(n-i)) \quad \text{for } i = 1, ..., n
+ $$
 
    where $p[i]$ is the price of a rod of length $i$.
 
@@ -279,10 +279,7 @@ The dynamic programming approach optimizes the naive method by storing results i
 
 3. **Filling DP Array**:
    - For each coin in the list of denominations, iterate through all amounts from that coin's value up to `N`.
-   - Update `dp[i]` as:
-     $$
-     dp[i] = \min(dp[i], dp[i - \text{coin}] + 1)
-     $$
+   - Update `dp[i]` as: $dp[i] = \min(dp[i], dp[i - \text{coin}] + 1)$
    - This means that if we can reach `i - coin`, then we can reach `i` by adding one more coin.
 
 4. **Result Extraction**: The value at `dp[N]` will give us the minimum number of coins needed for amount `N`. If it remains infinity, it means it's not possible to form that amount with the given denominations.
@@ -299,7 +296,6 @@ def coin_change_dp(coins, N):
             dp[i] = min(dp[i], dp[i - coin] + 1)
 
     return dp[N]
-
 ```
 
 ### Longest Common Subsequence
@@ -436,25 +432,21 @@ To solve this problem using dynamic programming, we can define a recursive funct
    - Let $\text{opt}(j)$ represent the maximum weight of non-overlapping intervals from the first $j$ intervals.
    - Let $p(j)$ be the last interval that is compatible with $j$ (finishes before $j$ starts).
    - We have two cases to consider for the $j$-th interval:
-     - **Case 1**: The $j$-th interval is included in the optimal solution. In this case, we must also include the optimal solution from the compatible intervals that finish before this interval starts. This can be represented as:
-       $$
-       \text{opt}(j) = v_j + \text{opt}(p(j))
-       $$
+     - **Case 1**: The $j$-th interval is included in the optimal solution. In this case, we must also include the optimal solution from the compatible intervals that finish before this interval starts. This can be represented as: $\text{opt}(j) = v_j + \text{opt}(p(j))$
        where $v_j$ is the weight of the $j$-th interval and $p(j)$ is the index of the last non-overlapping interval before $j$.
-     - **Case 2**: The $j$-th interval is not included in the optimal solution. In this case, we simply take the optimal solution from the first $j-1$ intervals:
-       $$
-       \text{opt}(j) = \text{opt}(j-1)
-       $$
+     - **Case 2**: The $j$-th interval is not included in the optimal solution. In this case, we simply take the optimal solution from the first $j-1$ intervals: $\text{opt}(j) = \text{opt}(j-1)$
 
 3. **Combining Cases**: The overall recursive formula can be expressed as:
-   $$
-   \text{opt}(j) = \max(\text{opt}(j-1), v_j + \text{opt}(p(j)))
-   $$
+
+$$
+\text{opt}(j) = \max(\text{opt}(j-1), v_j + \text{opt}(p(j)))
+$$
 
 4. **Base Case**: If there are no intervals (i.e., $j = 0$), then:
-   $$
-   \text{opt}(0) = 0
-   $$
+
+$$
+\text{opt}(0) = 0
+$$
 
 #### Dynamic Programming Approach
 
@@ -595,11 +587,13 @@ The **Knapsack Problem** is a classic optimization problem where the goal is to 
 The Knapsack Problem can be solved using dynamic programming in a pseudopolynomial time complexity. The key idea is to use a table to store the maximum value that can be achieved for every possible weight up to the maximum capacity of the knapsack.
 
 If the weight of the current item $i$ is less than or equal to $w$:
+
 $$
 dp[i][w] = \max(dp[i-1][w], \text{value}[i-1] + dp[i-1][w - \text{weight}[i-1]])
 $$
 
 If the weight of the current item $i$ exceeds $w$:
+
 $$
 dp[i][w] = dp[i-1][w]
 $$
