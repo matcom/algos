@@ -413,6 +413,105 @@ def _non_conflicts(intervals, index):
     return 0
 ```
 
+### Longest Increasing Subsequence (LIS) Problem
+
+The **Longest Increasing Subsequence (LIS)** problem involves finding the longest subsequence in a given sequence of numbers such that all elements of the subsequence are sorted in increasing order. The subsequence does not need to be contiguous, meaning that elements can be omitted as long as their order is preserved.
+
+#### Recursive Method
+
+The (not so) naive recursive method involves computing all LISs ending with each element and returning the maximum of them.
+
+```python
+def _lis(arr, idx):
+
+    # Base case
+    if idx == 0:
+        return 1
+
+    # Consider all elements on the left of i,
+    # recursively compute LISs ending with
+    # them and consider the largest
+    mx = 1
+    for prev in range(idx):
+        if arr[prev] < arr[idx]:
+            mx = max(mx, _lis(arr, prev) + 1)
+    return mx
+
+def lis(arr):
+    n = len(arr)
+    res = 1
+
+    for idx in range(1, n):
+        res = max(res, _lis(arr, idx))
+
+    return res
+```
+
+The time complexity of this naive approach is $O(2^n)$ because it explores all possible subsequences, leading to an exponential number of recursive calls.
+
+#### Dynamic Programming Method
+
+The dynamic programming approach optimizes the naive method by storing results in a table (array) to avoid redundant calculations.
+
+1. **DP Array**: We create an array `dp` where `dp[i]` stores the length of the longest increasing subsequence that ends with the element at index `i`.
+
+2. **Building DP Array**:
+   - For each element at index `i`, we check all previous elements (from `0` to `i-1`).
+   - If a previous element is smaller than the current element (`arr[j] < arr[i]`), we update `dp[i]` as:
+     $$
+     dp[i] = \max(dp[i], dp[j] + 1)
+     $$
+   - This ensures that we are building upon previously computed results.
+
+3. **Result Extraction**: The length of the longest increasing subsequence will be the maximum value in the `dp` array.
+
+```python
+def lis_dp(arr):
+    n = len(arr)
+    dp = [1] * n  # Initialize DP array with 1s
+
+    for i in range(1, n):
+        for j in range(i):
+            if arr[i] > arr[j]:  # Check for increasing condition
+                dp[i] = max(dp[i], dp[j] + 1)
+
+    return max(dp)
+```
+
+The time complexity of this dynamic programming approach is $O(n^2)$ due to the nested loops iterating through pairs of elements.
+
+#### Efficient Method using Binary Search
+
+The efficient method utilizes binary search along with a dynamic programming-like approach to achieve a time complexity of $O(n \log n)$.
+
+1. **Tail Array**: We maintain an array called `tail`, where each index represents the smallest possible tail value for all increasing subsequences of different lengths found so far.
+
+2. **Binary Search**:
+   - For each element in the input array:
+     - Use binary search to determine its position in `tail`.
+     - If it can extend an existing subsequence (i.e., it's larger than any value in `tail`), append it.
+     - Otherwise, replace an existing value in `tail` to maintain potential for longer increasing subsequences.
+
+3. **Result Extraction**: The length of `tail` at the end gives us the length of the longest increasing subsequence.
+
+```python
+import bisect
+
+def lis_binary_search(arr):
+    tail = []  # This will store our increasing subsequences' tails
+
+    for num in arr:
+        pos = bisect.bisect_left(tail, num)  # Find position using binary search
+        if pos == len(tail):
+            tail.append(num)  # Extend tail if num is larger than any element
+        else:
+            tail[pos] = num   # Replace existing value to keep tail minimal
+
+    return len(tail)
+```
+
+The time complexity of this method is $O(n \log n)$ because we perform a binary search for each element in the input array.
+
 ### Knapsack Problem
 
 The **Knapsack Problem** is a classic optimization problem where the goal is to maximize the total value of items placed in a knapsack without exceeding its weight capacity. Given a set of items, each with a weight and a value, the challenge is to determine the most valuable combination of items that can fit into the knapsack.
