@@ -31,7 +31,7 @@
   - Situations where a quick, approximate solution is acceptable.
 - Mention common pitfalls where greedy algorithms may fail to produce an optimal solution, such as in problems like the **0/1 Knapsack Problem**, which requires dynamic programming for an optimal solution.
 
-## 2. Classic Problems (1 hour)
+## 2. Classic Problems
 
 ### 2.1 Frog Jumping Problem
 - **Problem Statement**: Given a series of stones placed at integer locations, and a maximum jump length, determine the minimum number of jumps need to reach the end.
