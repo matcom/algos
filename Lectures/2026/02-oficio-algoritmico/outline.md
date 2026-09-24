@@ -1,6 +1,6 @@
 # Outline — Conferencia 2: el oficio algorítmico
 
-Estado: propuesta, pendiente de aprobación de Alex.
+Estado: aprobado y redactado (2026-09-24). Las notas están en `notas.md`.
 Destino: `Lectures/2026/02-oficio-algoritmico/notas.md` + PDF con scriptorium.
 Extensión objetivo: 3 800–4 200 palabras (la conferencia 1 tiene 3 270; esta lleva
 tres algoritmos y tres demostraciones).
