@@ -126,6 +126,11 @@ deja huérfano todo lo anterior. Consecuencia práctica: **en un documento con c
 todas las figuras tienen que ir con `continue`**, aunque no necesiten nada de antes.
 No se pueden mezclar figuras autosuficientes y bloques encadenados.
 
+La condición de seguridad: **la regla vale mientras ningún bloque sin marca caiga
+entre un `continue` y las definiciones que ese `continue` necesita.** Con cadenas de
+dos o tres bloques se cumple casi siempre sin pensarlo; con una cadena larga se rompe
+en cuanto metes un diagrama en medio.
+
 Eso hace que la elección sea de documento, no de figura. Si todos tus bloques son
 independientes —como las conferencias de Programación, donde cada uno se lee solo—
 lo barato es que cada figura haga su propio `import figuras` y no encadenar nada: son
