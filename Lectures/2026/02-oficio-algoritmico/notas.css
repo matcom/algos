@@ -1,1 +1,8 @@
 thead th code { text-transform: none; letter-spacing: 0; font-size: 8.5pt; }
+
+body { counter-reset: figura; }
+figure { counter-increment: figura; margin: 5mm 0; text-align: center; }
+figure svg { display: block; margin: 0 auto; }
+figcaption { text-align: center; }
+figcaption::before { content: "Figura " counter(figura) ". "; font-weight: 600; }
+a.ref-fig::after { content: "figura " target-counter(attr(href url), figura); }

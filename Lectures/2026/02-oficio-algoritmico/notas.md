@@ -2,6 +2,9 @@
 theme: note
 css: notas.css
 title: "Conferencia 2: el oficio algorítmico"
+execute:
+  interpreters:
+    python: ["uv", "run", "--quiet", "--with", "tesserax", "python", "-"]
 ---
 
 # Conferencia 2: el oficio algorítmico
@@ -16,6 +19,19 @@ vez, sobre un solo problema. Al terminar vas a haber visto las cinco etapas
 completas, y vas a saber por qué la última —demostrar que no se puede hacer mejor—
 nunca es una afirmación sobre el problema a secas.
 
+```{python echo=false output=asis}
+import math
+import os
+import random
+import sys
+import time
+
+sys.path.insert(0, os.path.abspath(".."))   # Lectures/2026, donde vive figuras.py
+import figuras as F
+
+tiempos = {}   # lo que midan las secciones 4, 7 y 9 alimenta la figura final
+```
+
 ## 1. Las cinco preguntas
 
 Ante un problema computacional, el trabajo consiste en responder cinco preguntas, en
@@ -29,6 +45,11 @@ este orden:
 4. **¿Cuánto cuesta?** Analizar tiempo y memoria en el modelo de la conferencia 1.
 5. **¿Se puede hacer mejor?** Buscar una cota mínima: un costo por debajo del cual
    ningún algoritmo puede resolver el problema.
+
+```{python continue echo=false output=asis}
+print(F.ciclo(ident="ciclo", pie="El ciclo que recorre cada conferencia del curso. "
+              "Hoy lo damos entero sobre un solo problema."))
+```
 
 Ninguna se puede saltar. Un algoritmo sin la tercera es una conjetura: funciona en
 los casos que probaste. Un análisis sin la quinta no sabe si vale la pena seguir
@@ -63,6 +84,18 @@ el mínimo de esas $n$ respuestas, así que resolver el segundo resuelve el prim
 pero no al revés. Distinguir dos problemas que suenan igual es parte del oficio, y
 es la primera cosa que se hace mal.
 
+```{python continue echo=false output=asis}
+random.seed(4)
+_P18 = [(random.random(), random.random()) for _ in range(18)]
+_d2 = lambda p, q: (p[0]-q[0])**2 + (p[1]-q[1])**2
+_par = min(((p, q) for i, p in enumerate(_P18) for q in _P18[i+1:]), key=lambda pq: _d2(*pq))
+_vec = [(p, min((q for q in _P18 if q != p), key=lambda q: _d2(p, q))) for p in _P18]
+print(F.dos_problemas(_P18, _par, _vec, ident="dos-problemas",
+      pie="El mismo conjunto, dos preguntas distintas. A la izquierda el par más "
+          "cercano, una sola respuesta, marcada en rojo porque a esta escala los dos "
+          "puntos casi se tocan. A la derecha el vecino más cercano de cada punto."))
+```
+
 ## 3. Calentamiento: una dimensión
 
 Antes del plano, la recta. Dados $n$ números reales, ¿cuáles son los dos más
@@ -79,6 +112,14 @@ consecutivo que sigue siendo mínimo. $\square$
 Con el lema, el algoritmo es ordenar en $O(n \log n)$ y recorrer los $n-1$ pares
 consecutivos en $O(n)$. Total $O(n \log n)$.
 
+```{python continue echo=false output=asis}
+random.seed(9)
+_xs = sorted(round(random.uniform(0, 10), 2) for _ in range(7))
+_i = min(range(len(_xs)-1), key=lambda k: _xs[k+1]-_xs[k])
+print(F.recta_1d(_xs, _i, ident="recta-1d",
+      pie="Ordenados, solo quedan n − 1 huecos que mirar."))
+```
+
 Es la primera demostración de correctitud del curso y es corta a propósito, porque
 fija la forma que va a tener la larga: se supone que la solución óptima tiene cierta
 propiedad, se ve qué pasa si no la tiene, y se concluye.
@@ -93,7 +134,7 @@ infinitamente lejos en $y$. Ahí empieza la dificultad, y ahí empieza la clase.
 
 El algoritmo que siempre está disponible: mirar los $\binom{n}{2}$ pares.
 
-```{python}
+```{python continue}
 import random
 import time
 from itertools import combinations
@@ -111,7 +152,9 @@ for n in [500, 1000, 2000, 4000]:
     P = [(random.random(), random.random()) for _ in range(n)]
     inicio = time.perf_counter()
     fuerza_bruta(P)
-    print(f"{n:>7,} {n * (n - 1) // 2:>14,} {time.perf_counter() - inicio:>9.3f}s")
+    seg = time.perf_counter() - inicio
+    tiempos.setdefault("fuerza bruta", []).append((n, seg))
+    print(f"{n:>7,} {n * (n - 1) // 2:>14,} {seg:>9.3f}s")
 ```
 
 **Correctitud.** No hay nada que demostrar: el algoritmo examina todas las soluciones
@@ -150,6 +193,30 @@ pon todos los puntos sobre una recta vertical y $\delta$ será grande comparado 
 ancho de la nube. Si comparamos todos los pares de la franja, la recurrencia queda
 $T(n) = 2T(n/2) + O(n^2)$, que es $O(n^2)$, y no ganamos nada.
 
+```{python continue echo=false output=asis}
+def _primer_nivel(P):
+    """El primer corte del divide y vencerás. Los δ de cada mitad salen por fuerza
+    bruta, que es lo mismo que devuelve la recursión, y aquí todavía no la hemos
+    escrito."""
+    Q = sorted(P)
+    medio = len(Q) // 2
+    izq = fuerza_bruta(Q[:medio])
+    der = fuerza_bruta(Q[medio:])
+    izq, der = (izq[0] ** 2, izq[1]), (der[0] ** 2, der[1])
+    delta = min(izq[0], der[0]) ** 0.5
+    Y = sorted(range(len(Q)), key=lambda j: Q[j][1])
+    franja = [j for j in Y if abs(Q[j][0] - Q[medio][0]) < delta]
+    return Q, medio, delta, franja, izq, der
+
+random.seed(1)
+_Q, _medio, _delta, _franja, _izq, _der = _primer_nivel(
+    [(random.random(), random.random()) for _ in range(16)])
+print(F.corte_y_franja(_Q, _medio, _delta, _franja, _izq, _der, ident="franja",
+      pie=f"El estado real del algoritmo sobre 16 puntos: la mediana, los dos lados "
+          f"con su δ, y la franja de ancho 2δ. Solo {len(_franja)} de los 16 puntos "
+          f"caen dentro."))
+```
+
 Hace falta una observación más, y es el corazón de la clase.
 
 ## 6. Divide y vencerás: la correctitud
@@ -187,6 +254,25 @@ entero a la derecha, o cruzado. Los dos primeros casos los cubre la hipótesis d
 inducción y dan $\delta$. El tercero, si mejora a $\delta$, tiene sus dos puntos en la
 franja y, por el lema, el algoritmo lo examina. $\square$
 
+```{python continue echo=false output=asis}
+print(F.empaquetamiento(ident="empaquetamiento",
+      pie="El rectángulo R partido en ocho cuadrados de lado δ/2. Cada cuadrado "
+          "está entero de un lado de L y aguanta a lo sumo un punto, así que R "
+          "aguanta ocho. Los puntos van numerados por su posición en el orden de y."))
+_pts, _ip, _iq = F.rectangulo_extremo()
+_orden = sorted(range(8), key=lambda i: -_pts[i][1])   # de abajo hacia arriba
+_rango = {k: i for i, k in enumerate(_orden)}
+print(F.orden_por_y(8, _rango[_ip], _rango[_iq], ident="orden-y",
+      pie="Los mismos ocho puntos, vistos solo como orden de y. Es la configuración "
+          "extrema: q es el último punto que p tiene que mirar."))
+```
+
+Esa configuración es el peor caso, no el caso típico. En una nube uniforme la franja
+casi nunca llega a tener ocho puntos, y el par que la mejora resulta casi siempre
+consecutivo en el orden de $y$. Por eso el 7 es una garantía y no una descripción, y
+por eso, como vamos a medir en la sección 7, se puede escribir 1 en lugar de 7 y
+pasar las pruebas.
+
 Dos comentarios sobre el 7. Primero, es una cota, no el óptimo: con un análisis más
 fino del rectángulo se baja, y el ejercicio 2 pide hacerlo. Segundo, la constante no
 cambia la complejidad, así que en la práctica nadie se molesta; Kleinberg y Tardos
@@ -205,6 +291,13 @@ lista entre las dos mitades en tiempo lineal, igual que el paso de mezcla del
 ordenamiento por mezcla, pero al bajar en lugar de al subir. La recurrencia queda
 $$T(n) = 2T(n/2) + O(n),$$
 y por el Teorema Maestro, $T(n) = \Theta(n \log n)$. La memoria es $O(n)$.
+
+```{python continue echo=false output=asis}
+print(F.arbol_recursion(ident="arbol-recursion",
+      pie="Repartir la lista ordenada por y cuesta O(n) por nivel, y hay log₂ n "
+          "niveles. Ordenar la franja en cada nivel costaría O(n log n) por nivel, "
+          "y ahí sale el logaritmo de más."))
+```
 
 Vale la pena detenerse en lo que acaba de pasar: el algoritmo es el mismo, el
 resultado es el mismo, y el costo bajó un factor logarítmico por una decisión de
@@ -250,7 +343,9 @@ for n in [1_000, 10_000, 100_000]:
     P = [(random.random(), random.random()) for _ in range(n)]
     inicio = time.perf_counter()
     par_mas_cercano(P)
-    print(f"n = {n:>7,}   {time.perf_counter() - inicio:6.3f}s")
+    seg = time.perf_counter() - inicio
+    tiempos.setdefault("divide y vencerás", []).append((n, seg))
+    print(f"n = {n:>7,}   {seg:6.3f}s")
 ```
 
 Cien mil puntos en poco más de un segundo, contra los días que costaría la fuerza
@@ -310,6 +405,12 @@ de $x_i - x_j$; comparar distancias es una prueba de signo de
 $d(p,q)^2 - d(r,s)^2$, un polinomio de grado 2. El algoritmo de Bentley y Shamos es un
 árbol de decisión algebraico de profundidad $O(n \log n)$.
 
+```{python continue echo=false output=asis}
+print(F.arbol_decision(ident="arbol-decision",
+      pie="Un árbol de decisión algebraico para distinción de elementos. Cada nodo "
+          "prueba el signo de un polinomio de la entrada y ramifica en tres."))
+```
+
 Ahora el resultado que vamos a usar, y que no demostramos.
 
 **Teorema (Ben-Or, 1983).** El problema de **distinción de elementos** —dados $n$
@@ -339,6 +440,13 @@ Supongamos que existiera un algoritmo para par más cercano con profundidad
 $T(n) = o(n \log n)$. Componiéndolo con la construcción y con una prueba final de si
 el resultado es 0, tendríamos un algoritmo para distinción de elementos de
 profundidad $T(n) + 1 = o(n \log n)$, contra el teorema de Ben-Or. $\square$
+
+```{python continue echo=false output=asis}
+print(F.reduccion([0.5, 2.1, 3.4, 5.0, 5.0, 7.2, 8.6], ident="reduccion",
+      pie="La reducción: los n reales se vuelven n puntos sobre el eje x. Dos "
+          "valores iguales son dos puntos a distancia 0, así que la respuesta de "
+          "un problema es la respuesta del otro."))
+```
 
 Conclusión: el algoritmo de la sección 7 es óptimo, y la búsqueda se acabó.
 
@@ -382,6 +490,39 @@ sumo un punto por el invariante: 25 accesos a la tabla hash, $O(1)$.
   $p_{i+1}$ en su celda y seguimos. Costo $O(1)$.
 - Si lo hay, $\delta$ baja a un $\delta'$ nuevo, la rejilla vieja ya no sirve y hay
   que reconstruirla entera con lado $\delta'/2$. Costo $O(i)$.
+
+```{python continue echo=false output=asis}
+def _rejilla_en_paso(P, paso, semilla=0):
+    """El algoritmo de la sección 9, detenido justo antes de insertar `paso`."""
+    pts = list(P)
+    random.Random(semilla).shuffle(pts)
+    d2 = dist2(pts[0], pts[1])
+    lado = d2 ** 0.5 / 2
+    celda = lambda q: (int(q[0] // lado), int(q[1] // lado))
+    g = {celda(q): q for q in pts[:2]}
+    for i in range(2, paso):
+        q_nuevo, antes = pts[i], d2
+        cx, cy = celda(q_nuevo)
+        for dx in (-2, -1, 0, 1, 2):
+            for dy in (-2, -1, 0, 1, 2):
+                q = g.get((cx + dx, cy + dy))
+                if q is not None and dist2(q_nuevo, q) < d2:
+                    d2 = dist2(q_nuevo, q)
+        if d2 < antes:
+            lado = d2 ** 0.5 / 2
+            g = {celda(q): q for q in pts[:i + 1]}
+        else:
+            g[(cx, cy)] = q_nuevo
+    return g, lado, pts[paso]
+
+random.seed(138)
+_g, _lado, _nuevo = _rejilla_en_paso(
+    [(random.random(), random.random()) for _ in range(60)], 9, semilla=38)
+print(F.rejilla(_g, _lado, _nuevo, ident="rejilla",
+      pie=f"La rejilla real en el paso 9, recortada alrededor de p. Hay "
+          f"{len(_g)} celdas ocupadas de unas {int(1 / _lado) ** 2}: por eso la "
+          f"rejilla es una tabla hash y no un arreglo."))
+```
 
 El costo del algoritmo es entonces $O(n)$ más el costo de las reconstrucciones, y todo
 depende de cuántas haya.
@@ -440,6 +581,7 @@ malos = sum(abs(fuerza_bruta(P)[0] - par_mas_cercano_aleatorio(P)[0]) > 1e-12
                       for _ in range(40)))
 print("fallos contra la fuerza bruta, 40 instancias de n=200:", malos, "\n")
 
+medidas = []
 print(f"{'n':>8} {'reconstrucciones':>18} {'2 ln n':>8} {'tiempo':>9}")
 for n in [1_000, 10_000, 100_000]:
     P = [(random.random(), random.random()) for _ in range(n)]
@@ -447,7 +589,21 @@ for n in [1_000, 10_000, 100_000]:
     inicio = time.perf_counter()
     par_mas_cercano_aleatorio(P)
     seg = time.perf_counter() - inicio
+    tiempos.setdefault("incremental aleatorio", []).append((n, seg))
+    medidas.append((n, sum(rs) / len(rs), 2 * math.log(n)))
     print(f"{n:>8,} {sum(rs) / len(rs):>18.1f} {2 * math.log(n):>8.1f} {seg:>8.3f}s")
+```
+
+```{python continue echo=false output=asis}
+print(F.grafica_barras([f"n = {n:,}".replace(",", " ") for n, _, _ in medidas],
+      {"medido": [m for _, m, _ in medidas],
+       "2 ln n": [t for _, _, t in medidas]},
+      titulo_y="reconstrucciones", ident="reconstrucciones",
+      pie="Lo que predice el análisis hacia atrás y lo que reconstruye el programa."))
+print(F.grafica_log_log(tiempos, "n", "segundos", ident="tiempos",
+      pie="Los tres algoritmos de la clase, en ejes logarítmicos, con los tiempos "
+          "que este documento acaba de medir. La pendiente es el exponente: 2 para "
+          "la fuerza bruta, 1 para los otros dos."))
 ```
 
 Una veintena de reconstrucciones para cien mil puntos, del orden de $2 \ln n$, y la
