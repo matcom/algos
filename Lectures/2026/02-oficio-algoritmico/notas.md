@@ -2,6 +2,9 @@
 theme: note
 css: notas.css
 title: "Conferencia 2: el oficio algorítmico"
+vars:
+  figure-label: "Figura"
+  figure-ref-label: "figura"
 execute:
   interpreters:
     python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
@@ -228,7 +231,7 @@ ese orden difieren en a lo sumo 7.
 *Demostración.* Sean $p$ y $q$ dos puntos de la franja con $d(p,q) < \delta$, y
 supongamos sin perder generalidad que $p_y \le q_y$. Como $|p_y - q_y| \le d(p,q) <
 \delta$, ambos están dentro del rectángulo $R$ de ancho $2\delta$ (el de la franja) y
-alto $\delta$, con base en la altura de $p$.
+alto $\delta$, con base en la altura de $p$, que es el de la @fig-empaquetamiento.
 
 Partimos $R$ en ocho cuadrados de lado $\delta/2$: dos filas de cuatro. El diámetro de
 cada cuadrado es su diagonal, $\frac{\delta}{2}\sqrt{2} = \frac{\delta}{\sqrt 2} <
@@ -618,8 +621,9 @@ está ninguna.
 
 Mira qué hace el algoritmo de la sección 9 que no hacía ninguno de los anteriores:
 
-- Calcula $\lfloor q_x / (\delta/2) \rfloor$. La función parte entera no es un
-  polinomio, ni es continua. Un árbol de decisión algebraico no puede evaluarla.
+- Calcula $\lfloor q_x / (\delta/2) \rfloor$, que es lo que convierte un punto en la
+  celda de la @fig-rejilla. La función parte entera no es un polinomio, ni es
+  continua. Un árbol de decisión algebraico no puede evaluarla.
 - Usa el resultado como **dirección**: va a buscar a la tabla hash la celda cuyo
   índice acaba de calcular. Un árbol de decisión no tiene direccionamiento indirecto;
   su única operación es ramificar según el signo de un polinomio de la entrada.

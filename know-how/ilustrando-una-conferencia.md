@@ -46,28 +46,37 @@ Las tres partes son obligatorias y cada una arregla un fallo concreto:
 
 ## Numeración y referencias cruzadas
 
-Las llevan contadores de CSS, no números a mano. En `notas.css`:
+Las lleva scriptorium desde `adb91d1`. El tema `base` numera cualquier `<figure>` que
+lleve `id="fig-…"` —el mismo id al que apunta `@fig-…`— y rellena la referencia en
+las dos direcciones, también hacia adelante. Una `<figure>` sin ese id no se toca.
 
-```css
-body { counter-reset: figura; }
-figure { counter-increment: figura; margin: 5mm 0; text-align: center; }
-figure svg { display: block; margin: 0 auto; }
-figcaption { text-align: center; }
-figcaption::before { content: "Figura " counter(figura) ". "; font-weight: 600; }
-a.ref-fig::after { content: "figura " target-counter(attr(href url), figura); }
+En el frontmatter, dos variables:
+
+```yaml
+vars:
+  figure-label: "Figura"        # abre el pie: "Figura 5. El rectángulo…"
+  figure-ref-label: "figura"    # va dentro de una frase: "el de la figura 5"
 ```
 
-En la prosa, `@fig-empaquetamiento` resuelve a "figura 5" y funciona en las dos
-direcciones, también hacia adelante. El `id` lo pone `figuras._figura`, que envuelve
-el SVG en `<figure id="fig-…">` con su `<figcaption>`. **Ningún tema de scriptorium numera
-figuras**: `base` da estilo a `figure` y `figcaption`, y el `a.ref-fig` de `book`
-renderiza el texto del pie más el número de página, no un número de figura. El
-esquema de contadores de arriba es nuestro, así que hay que copiarlo en el CSS de
-cada conferencia hasta que alguien lo suba a `base`.
+Son dos y no una porque en inglés "Figure 5" sirve en los dos sitios y en español no:
+un pie abre una frase y una referencia va a mitad de otra. `figure-ref-label` cae a
+`figure-label` si no se declara.
 
-Tampoco sirve sacar la paleta del CSS: medido el 2026-09-25, WeasyPrint no resuelve
-`currentColor` ni `var(--acento)` dentro de un SVG en línea, los dos caen a negro.
-Los colores tienen que ir como hex literal en el Python.
+El `id` lo pone `figuras._figura`, que envuelve el SVG en `<figure id="fig-…">` con su
+`<figcaption>`. En el CSS local no hace falta ningún contador; queda solo la
+apariencia, que aquí es una línea:
+
+```css
+figure[id^="fig-"] { margin: 5mm 0; text-align: center; }
+```
+
+Antes de `adb91d1` no numeraba ningún tema y cada documento se escribía sus propios
+contadores. Si te encuentras un `counter-reset: figura` en el CSS de una conferencia
+vieja, bórralo: con la regla de `base` encima, el pie sale numerado dos veces.
+
+Lo que sigue sin poderse hacer por CSS es el color. Medido el 2026-09-25, WeasyPrint
+no resuelve `currentColor` ni `var(--acento)` dentro de un SVG en línea, los dos caen
+a negro. La paleta tiene que ir como hex literal en el Python.
 
 ## La regla que hace que una figura no pueda mentir
 
