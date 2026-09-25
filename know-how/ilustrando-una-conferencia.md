@@ -59,9 +59,15 @@ a.ref-fig::after { content: "figura " target-counter(attr(href url), figura); }
 
 En la prosa, `@fig-empaquetamiento` resuelve a "figura 5" y funciona en las dos
 direcciones, también hacia adelante. El `id` lo pone `figuras._figura`, que envuelve
-el SVG en `<figure id="fig-…">` con su `<figcaption>`. El tema `note` no trae esta
-regla —la trae el tema `book`—, así que hay que copiarla en el CSS de cada
-conferencia.
+el SVG en `<figure id="fig-…">` con su `<figcaption>`. **Ningún tema de scriptorium numera
+figuras**: `base` da estilo a `figure` y `figcaption`, y el `a.ref-fig` de `book`
+renderiza el texto del pie más el número de página, no un número de figura. El
+esquema de contadores de arriba es nuestro, así que hay que copiarlo en el CSS de
+cada conferencia hasta que alguien lo suba a `base`.
+
+Tampoco sirve sacar la paleta del CSS: medido el 2026-09-25, WeasyPrint no resuelve
+`currentColor` ni `var(--acento)` dentro de un SVG en línea, los dos caen a negro.
+Los colores tienen que ir como hex literal en el Python.
 
 ## La regla que hace que una figura no pueda mentir
 

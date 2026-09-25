@@ -37,7 +37,8 @@ _SUP = {"-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
 
 
 def sub(n):
-    return "".join(_SUB[int(c)] for c in str(n))
+    # el menos lleva su propio subíndice (U+208B); sin esto, sub(-1) revienta
+    return "".join("\u208b" if c == "-" else _SUB[int(c)] for c in str(n))
 
 
 def sup(n):
