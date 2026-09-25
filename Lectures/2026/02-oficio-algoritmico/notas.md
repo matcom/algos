@@ -4,7 +4,7 @@ css: notas.css
 title: "Conferencia 2: el oficio algorítmico"
 execute:
   interpreters:
-    python: ["uv", "run", "--quiet", "--with", "tesserax", "python", "-"]
+    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
 ---
 
 # Conferencia 2: el oficio algorítmico

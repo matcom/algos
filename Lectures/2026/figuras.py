@@ -83,9 +83,15 @@ def _punto(xy, color=TINTA, r=2.6):
     return Circle(r, fill=color, stroke=color, width=0.5).move_to(xy)
 
 
+# El `anchor` de Text no coloca nada: tesserax compensa el translate para que la
+# caja quede igual, y move_to la recentra sobre el punto. El que alinea de verdad
+# es el `anchor` de move_to, que sí es de caja.
+_ANCLA = {"middle": "center", "start": "left", "end": "right"}
+
+
 def _txt(texto, xy, color=TINTA, size=CUERPO, anchor="middle"):
-    return Text(texto, size=size, fill=color, anchor=anchor,
-                font="Inter, sans-serif").move_to(xy)
+    return Text(texto, size=size, fill=color, anchor="middle",
+                font="Inter, sans-serif").move_to(xy, anchor=_ANCLA[anchor])
 
 
 def _cota_h(a, b, y, texto, color=CALIDO, dy=-6):

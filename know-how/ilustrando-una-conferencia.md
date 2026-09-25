@@ -105,6 +105,39 @@ cada bloque posterior. La conferencia 2 tarda 1 m 25 s en frío y unos 35 s con 
 caché de `freeze` caliente. Si se dispara, hay que bajar los tamaños de los bucles de
 medición, no partir la cadena.
 
+**El caché de `freeze` no ve `figuras.py`.** La clave del caché es el código del
+bloque más el intérprete, no los módulos que el bloque importa. Editas una figura,
+renderizas, y scriptorium devuelve rc=0 y un PDF **idéntico**. Comprobado el
+2026-09-25 con un módulo de una línea: primer render "VERSIÓN UNO", edito el módulo a
+"VERSIÓN DOS", segundo render "VERSIÓN UNO", borro `.scriptorium/freeze.json`, tercer
+render "VERSIÓN DOS". Es el patrón de
+[checks-that-cannot-fail](../../../vault/Atlas/Know-how/checks-that-cannot-fail.md)
+en estado puro: el render verde no depende de lo que dice medir.
+
+**Después de tocar `figuras.py`, `rm -rf .scriptorium` antes de renderizar.** Si no,
+estás mirando el PDF de antes. Durante el trabajo de la conferencia 2 me salvó la
+casualidad de que casi siempre editaba también el `.md` en el mismo paso, lo que sí
+invalida el bloque.
+
+**Un bloque sin marca corta la cadena.** Medido: bloque 1 define una variable, bloque
+2 va sin `continue`, bloque 3 con `continue` y revienta con `NameError`. `continue`
+reejecuta "los bloques desde el último sin marca", así que un bloque suelto en medio
+deja huérfano todo lo anterior. Consecuencia práctica: **en un documento con cadena,
+todas las figuras tienen que ir con `continue`**, aunque no necesiten nada de antes.
+No se pueden mezclar figuras autosuficientes y bloques encadenados.
+
+Eso hace que la elección sea de documento, no de figura. Si todos tus bloques son
+independientes —como las conferencias de Programación, donde cada uno se lee solo—
+lo barato es que cada figura haga su propio `import figuras` y no encadenar nada: son
+0.13 s de `uv run` por figura en vez de arrastrar la reejecución. Si tus figuras
+necesitan el estado que calculó un bloque anterior, como aquí, la cadena es
+obligatoria y el coste se paga.
+
+**`uv run` no usa el Python del sistema.** Medido: `uv run --with tesserax` resuelve
+3.13.1 y este zion corre 3.14.4. Si las notas imprimen trazas de error, o prometen
+ser la versión que se usa en clase, hay que fijarla: `"--python", "3.14"` en el
+intérprete del frontmatter.
+
 **`canvas.fit(padding)` va después del `with`, nunca dentro.** Dentro no hay formas
 que medir todavía y el SVG sale con `width="1000" height="1000"`.
 
@@ -121,6 +154,7 @@ mirar el PDF: `pdftotext notas.pdf - | grep -ci traceback` tiene que dar 0.
 Renderizar no es comprobar. La secuencia que uso:
 
 ```bash
+rm -rf .scriptorium                  # si tocaste figuras.py, el caché no lo ve
 scriptorium render notas.md          # leer el rc directo, nunca por un pipe
 pdftotext notas.pdf - | grep -ci traceback     # 0
 pdftotext notas.pdf - | grep -c '^Figura '     # el número de figuras que esperas
