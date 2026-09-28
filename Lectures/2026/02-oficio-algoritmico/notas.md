@@ -387,6 +387,12 @@ el contraejemplo: el lema usa que los puntos de un mismo lado están a distancia
 $\ge \delta$, así que las entradas que lo tensan son las que amontonan puntos contra
 la recta de corte.
 
+El mismo experimento se lee también al revés. Antes de tener la demostración, correr
+el algoritmo con 1, 2, 3 vecinos y ver cuándo dejan de aparecer fallos sugiere que
+basta una constante pequeña, que es justo lo que el lema de la franja demuestra. El
+experimento da la conjetura y la demostración la convierte en teorema. Ninguno de los
+dos reemplaza al otro.
+
 El algoritmo es de Bentley y Shamos, 1976.
 
 ## 8. La cota mínima
@@ -627,6 +633,12 @@ Mira qué hace el algoritmo de la sección 9 que no hacía ninguno de los anteri
 - Usa el resultado como **dirección**: va a buscar a la tabla hash la celda cuyo
   índice acaba de calcular. Un árbol de decisión no tiene direccionamiento indirecto;
   su única operación es ramificar según el signo de un polinomio de la entrada.
+
+Fíjate en lo que no está en la lista: el azar. Barajar los puntos no es lo que rompe
+la cota. Grigoriev, Karpinski, Meyer auf der Heide y Smolensky (1996) demostraron que
+distinción de elementos sigue requiriendo $\Omega(n \log n)$ en árboles de decisión
+algebraicos aleatorizados. El azar le sirve al algoritmo para que se esperen pocas
+reconstrucciones. Lo que lo saca del modelo son la parte entera y la tabla hash.
 
 La cota de Ben-Or vale para los árboles de decisión algebraicos. El algoritmo
 aleatorio no es uno. No hay contradicción: hay dos modelos distintos, y el segundo es
