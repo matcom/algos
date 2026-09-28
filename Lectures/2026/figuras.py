@@ -564,3 +564,109 @@ def grafica_barras(grupos, series, titulo_y="", ident="reconstrucciones", pie=""
         if titulo_y:
             _txt(titulo_y, Point(-8, -12), color=APAGADO, size=PIE, anchor="end")
     return _figura(canvas, ident, pie)
+
+
+# ==========================================================================
+# Conferencia 3: demostrar que un algoritmo es correcto
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# 10. la fila de votos de Boyer-Moore
+# --------------------------------------------------------------------------
+
+def votos(A, parejas, contadores, candidatos, ident="votos", pie=""):
+    """`parejas` son los pares de índices que el algoritmo canceló; `contadores` y
+    `candidatos` son el estado después de procesar cada posición. Todo sale de
+    correr el algoritmo: la figura no decide qué se cancela con qué."""
+    paso, lado = 36.0, 24.0
+    emparejado = {i for par in parejas for i in par}
+    with Canvas() as canvas:
+        for i, x in enumerate(A):
+            c = Point(i * paso, 0)
+            sobrevive = i not in emparejado
+            Rect(lado, lado, fill=ACENTO.transparent(0.16) if sobrevive else Colors.White,
+                 stroke=OSCURO if sobrevive else APAGADO,
+                 width=1.5 if sobrevive else 0.9).move_to(c)
+            _txt(str(x), c, color=TINTA if sobrevive else APAGADO, size=CUERPO)
+            _txt(str(i + 1), Point(c.x, -lado / 2 - 34), color=REGLA.darker(0.4),
+                 size=PIE)
+            _txt(str(candidatos[i]), Point(c.x, lado / 2 + 13), color=APAGADO, size=PIE)
+            _txt(str(contadores[i]), Point(c.x, lado / 2 + 27), color=CALIDO, size=PIE)
+        for i, j in parejas:
+            Line(Point(i * paso, -lado / 2 - 2), Point(j * paso, -lado / 2 - 2),
+                 curvature=0.45, stroke=APAGADO, width=1.0)
+        izq = -paso / 2 - 6
+        _txt("candidato", Point(izq, lado / 2 + 13), color=APAGADO, size=PIE,
+             anchor="end")
+        _txt("contador", Point(izq, lado / 2 + 27), color=CALIDO, size=PIE,
+             anchor="end")
+        _txt("posición", Point(izq, -lado / 2 - 34), color=REGLA.darker(0.4),
+             size=PIE, anchor="end")
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 11. un emparejamiento y la pareja que lo bloquea
+# --------------------------------------------------------------------------
+
+def emparejamiento(pref_a, pref_b, M, bloqueo=None, ident="emparejamiento", pie=""):
+    """`pref_a[i]` es la lista de a_i (índices de b, de mejor a peor), y al revés
+    `pref_b`. `M[i]` es el receptor de a_i. `bloqueo` es un par (i, j) que el
+    llamador calculó con el verificador de estabilidad."""
+    n = len(pref_a)
+    paso_y, xa, xb = 34.0, 0.0, 190.0
+    with Canvas() as canvas:
+        pos_a = [Point(xa, k * paso_y) for k in range(n)]
+        pos_b = [Point(xb, k * paso_y) for k in range(n)]
+        for i, j in enumerate(M):
+            Line(pos_a[i], pos_b[j], stroke=ACENTO, width=1.6)
+        if bloqueo is not None:
+            i, j = bloqueo
+            Line(pos_a[i], pos_b[j], stroke=ALARMA, width=1.6)
+        for k in range(n):
+            for p, nombre, lista, lado in ((pos_a[k], f"a{sub(k + 1)}", pref_a[k], -1),
+                                           (pos_b[k], f"b{sub(k + 1)}", pref_b[k], 1)):
+                marca = bloqueo is not None and k == (bloqueo[0] if lado < 0 else bloqueo[1])
+                Circle(9, fill=Colors.White, stroke=ALARMA if marca else TINTA,
+                       width=1.4 if marca else 0.9).move_to(p)
+                _txt(nombre, p, color=TINTA, size=PIE)
+                otro = "b" if lado < 0 else "a"
+                texto = " > ".join(f"{otro}{sub(x + 1)}" for x in lista)
+                _txt(texto, Point(p.x + lado * 18, p.y), color=APAGADO, size=PIE,
+                     anchor="end" if lado < 0 else "start")
+        _txt("proponentes y sus listas", Point(xa - 40, -24), color=APAGADO, size=PIE)
+        _txt("receptores y sus listas", Point(xb + 40, -24), color=APAGADO, size=PIE)
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 12. el primer rechazo por una pareja válida
+# --------------------------------------------------------------------------
+
+def primer_rechazo(ident="primer-rechazo", pie=""):
+    """Diagrama de la demostración de optimalidad: no ilustra una ejecución, así
+    que no recibe estado."""
+    W = 170.0
+    with Canvas() as canvas:
+        for k, titulo in enumerate(["en el emparejamiento estable M′",
+                                    "en la ejecución, al primer rechazo"]):
+            with Group() as panel:
+                a, a2 = Point(0, 0), Point(0, 64)
+                b, b2 = Point(110, 0), Point(110, 64)
+                if k == 0:
+                    Line(a, b, stroke=ACENTO, width=1.6)
+                    Line(a2, b2, stroke=ACENTO, width=1.6)
+                else:
+                    Line(a2, b, stroke=OSCURO, width=1.6)
+                    Arrow(Point(98, 6), Point(14, 6), stroke=ALARMA, width=1.1,
+                          marker_end="arrow")
+                    _txt("rechaza", Point(56, -6), color=ALARMA, size=PIE)
+                for p, nombre in ((a, "a"), (a2, "a′"), (b, "b"), (b2, "b′")):
+                    Circle(9, fill=Colors.White, stroke=TINTA, width=0.9).move_to(p)
+                    _txt(nombre, p, color=TINTA, size=PIE)
+                _txt(titulo, Point(55, 96), color=APAGADO, size=PIE)
+            panel.translated(k * (W + 24), 0)
+        _txt("a′ prefiere b a b′ (todavía no lo ha rechazado ninguna pareja válida) "
+             "y b prefiere a′ a a: (a′, b) bloquea M′",
+             Point((2 * W + 24) / 2 - 30, 122), color=ALARMA, size=PIE)
+    return _figura(canvas, ident, pie)
