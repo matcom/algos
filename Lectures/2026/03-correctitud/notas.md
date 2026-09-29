@@ -737,13 +737,15 @@ vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan
    diferencia entre las dos cuentas, y deduce que el atajo de la sección 5 nunca se
    equivoca en ese caso.
 4. **Compañeros de cuarto.** Exhibe cuatro personas con preferencias tales que ningún
-   emparejamiento de a dos sea estable. Di qué paso de la demostración de la sección 8
-   deja de valer cuando hay un solo grupo.
+   emparejamiento de a dos sea estable. ¿En qué lugar del algoritmo de la sección 7 se
+   usa que hay dos lados, y por qué no se puede aplicar tal cual con un solo grupo?
 5. Demuestra que Gale-Shapley le da a cada receptor su **peor** pareja válida.
 6. Construye una instancia y un emparejamiento inicial en los que la reparación local de
    la sección 6 vuelva a un emparejamiento que ya visitó.
-7. Una búsqueda binaria escribe `lo = mid` en lugar de `lo = mid + 1`. Encuentra una
-   entrada donde no termina y di en qué paso deja de bajar el potencial `hi - lo`.
-8. Un proponente miente sobre sus preferencias. ¿Puede conseguir con Gale-Shapley una
-   pareja mejor que la que obtiene diciendo la verdad? ¿Y un receptor? Justifica, o da
-   un contraejemplo.
+7. Escribe la búsqueda binaria con el invariante de la sección 1. Después cambia
+   `lo = mid + 1` por `lo = mid`, encuentra una entrada donde no termina y di en qué
+   paso deja de bajar el potencial `hi - lo`.
+8. Un receptor miente sobre sus preferencias. Construye una instancia de $3 \times 3$
+   en la que, con Gale-Shapley, consigue una pareja mejor que diciendo la verdad. (Un
+   proponente, en cambio, nunca gana mintiendo. Es un teorema de Dubins y Freedman,
+   de 1981, cuya demostración queda fuera del curso.)

@@ -128,3 +128,8 @@ evaluación, como se dijo en la conferencia 1.
   un repaso conviene que estén juntos, pero los puedo cambiar por otros.
 
 Resueltas el 2026-09-29: todo aprobado como está.
+
+Revisado el 2026-09-29 tras la evaluación de los ejercicios: son catorce, cada uno
+dice qué conferencias usa (no todos tocan dos), y el 9, el 11 y el 12 se
+reemplazaron por la cota como detector de errores, el tamaño en bits de la mochila y
+Gale-Shapley con listas incompletas. Se agregó uno de splay (el 13).

@@ -178,9 +178,9 @@ examen no tiene que ser más larga que esto para un problema de este tamaño.
 
 ## 5. Ejercicios del tema
 
-Cada ejercicio toca al menos dos conferencias, y lo dice entre paréntesis. La
-dificultad va de ★ a ★★★. No llevan solución: como se dijo en la conferencia 1, las
-soluciones bien presentadas cuentan para la evaluación.
+Cada ejercicio dice entre paréntesis qué conferencias usa, y la dificultad va de ★ a
+★★★. No llevan solución: como se dijo en la conferencia 1, las soluciones bien
+presentadas cuentan para la evaluación.
 
 1. ★ Una computadora mil veces más rápida. ¿Cuánto crece el tamaño de entrada que se
    resuelve en una hora con un algoritmo $\Theta(n^2)$? ¿Y con uno $\Theta(n \log n)$?
@@ -189,37 +189,47 @@ soluciones bien presentadas cuentan para la evaluación.
    que la hace óptima. (C3, C5)
 3. ★ Una pila con una operación `minimo` que cuesta $O(1)$ en el peor caso. Diseña la
    estructura, enuncia el invariante que la hace correcta y da el costo de cada
-   operación. (C3, C4)
-4. ★★ El contador binario en una máquina de Turing, del ejercicio 7 de la conferencia
-   1. Demuestra con un potencial que $m$ incrementos desde 0 cuestan $O(m)$ pasos en
+   operación. (C3)
+4. ★★ El contador binario en una máquina de Turing, del ejercicio 7 de la conferencia 1.
+   Demuestra con un potencial que $m$ incrementos desde 0 cuestan $O(m)$ pasos en
    total, aunque uno solo pueda costar $\Theta(\log m)$. Es la pregunta que la
    conferencia 1 dejó abierta. (C1, C4)
 5. ★★ Detección de ciclos en una lista enlazada con dos punteros que avanzan a
    velocidades 1 y 2 (algoritmo de Floyd). Demuestra que se encuentran si y solo si hay
    un ciclo, con un invariante, y que termina, con un potencial. Da el costo. (C3)
 6. ★★ Una matriz $n \times n$ tiene filas y columnas ordenadas de forma creciente.
-   Diseña un algoritmo que decida si contiene un valor $x$ en $O(n)$ comparaciones, y
-   demuestra con un adversario que no se puede en $o(n)$. (C2, C5)
-7. ★★ Mediana de dos arreglos ordenados de largo $n$. Diseña un algoritmo
-   $O(\log n)$, demuestra su correctitud y da la cota de información. (C2, C3, C5)
+   Diseña un algoritmo que decida si contiene un valor $x$ en $O(n)$ comparaciones,
+   demuestra su correctitud con un invariante, y demuestra con un adversario que no se
+   puede en $o(n)$. (C3, C5)
+7. ★★★ Mediana de dos arreglos ordenados de largo $n$: el $n$-ésimo menor de los $2n$
+   elementos. Diseña un algoritmo $O(\log n)$, demuestra su correctitud y da la cota
+   de información. (C2, C3, C5)
 8. ★★ El elemento que aparece más de $n/3$ veces. Generaliza Boyer-Moore con dos
-   candidatos, enuncia el invariante reforzado y demuéstralo. ¿Cuál sería el atajo
-   equivocado análogo al de la conferencia 3, y qué generador de pruebas no lo
-   detecta? (C3)
-9. ★★ Máximo y mínimo a la vez con $\lceil 3n/2 \rceil - 2$ comparaciones, y la cota
-   mínima por adversario. (C5)
-10. ★★★ Par más cercano en una dimensión. Demuestra $\Omega(n \log n)$ en árboles de
+   candidatos, enuncia el invariante reforzado y demuéstralo. Después escribe la
+   versión que devuelve los candidatos con contador positivo sin verificarlos, y
+   busca un generador de pruebas que no la atrape. Cuidado: el análogo del generador
+   binario de la conferencia 3 sí la atrapa. (C3)
+9. ★★ Una mezcla "optimizada" de dos listas ordenadas de largo $n$ deja de comparar
+   cuando a la primera lista le queda un solo elemento, y lo pone al final. Cuenta
+   cuántas comparaciones hace en el peor caso. Sin probarla, usa la sección 6 de la
+   conferencia 5 para decidir si es correcta, y construye con el adversario la entrada
+   en la que falla. (C5)
+10. ★★ Par más cercano en una dimensión. Demuestra $\Omega(n \log n)$ en árboles de
     decisión algebraicos por reducción desde distinción de elementos. Después di qué
     algoritmo de la conferencia 2 rompe la cota, en qué modelo, y adáptalo a una
     dimensión. (C2, C5)
-11. ★★★ Un arreglo dinámico que duplica al llenarse y se reduce a la mitad al quedar a
-    un cuarto. Encuentra el potencial y demuestra $O(1)$ amortizado. Explica con una
-    secuencia concreta por qué reducir a la mitad al quedar **a la mitad** cuesta
-    $\Theta(n)$ por operación. (C4)
-12. ★★★ Union-find solo con compresión de caminos, sin unión por rango. Mide el costo
-    promedio por operación sobre entradas que construyas para que sea malo, y compáralo
-    con la cota de la conferencia 4. ¿Qué parte de la demostración de la conferencia 4
-    deja de valer? (C4)
-13. ★★★ Escoge un problema que no hayamos visto, recorre el ciclo completo de la
+11. ★★ La mochila entera se resuelve con programación dinámica en $O(nW)$, donde $W$ es
+    la capacidad (lo vieron en Estructuras de Datos). Mide el tamaño de la entrada en
+    bits, como en la sección 8 de la conferencia 1. ¿Es polinomial ese algoritmo? ¿En
+    qué se parece a la primalidad por división? (C1)
+12. ★★★ Gale-Shapley con listas incompletas: cada proponente lista solo a algunos
+    receptores, y prefiere quedarse solo antes que con uno que no listó. Adapta el
+    algoritmo, su potencial y la definición de pareja bloqueante. ¿Sigue siendo
+    estable el resultado? Demuéstralo. (C3)
+13. ★★ En un splay tree que empieza como un camino de $n$ nodos se accede a las claves
+    $1, \dots, n$ en orden. Acota el costo total con el lema de acceso y la cuenta de
+    la sección 5 de la conferencia 4, y compáralo con lo que mide la sección 6. ¿Es
+    ajustada la cota? (C4)
+14. ★★★ Escoge un problema que no hayamos visto, recorre el ciclo completo de la
     conferencia 2 sobre él y consigue que el algoritmo y la cota mínima coincidan. Es
     el formato de la pregunta larga del examen final. (C2 a C5)

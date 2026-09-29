@@ -381,7 +381,7 @@ Stein, y *Algorithm Design* de Kleinberg y Tardos.
    compruébalo modificando el programa de la sección 7.
 5. Demuestra que un algoritmo que corre $T(n)$ pasos en el modelo RAM usa $O(T(n))$
    celdas de memoria además de la entrada.
-6. El siguiente algoritmo calcula el $n$-ésimo número de Fibonacci con $n - 1$ sumas.
+6. El siguiente algoritmo calcula el $n$-ésimo número de Fibonacci con $n$ sumas.
 
    ```python
    def fibonacci(n):
@@ -395,6 +395,7 @@ Stein, y *Algorithm Design* de Kleinberg y Tardos.
    Después exprésalo en función del tamaño de la entrada $b = \lfloor \log_2 n
    \rfloor + 1$. ¿Es polinomial?
 7. Diseña una máquina de Turing de una cinta que sume 1 a un número escrito en
-   binario, con el cabezal empezando en el bit menos significativo. ¿Cuántos pasos da
-   en el peor caso? Si se aplica $m$ veces seguidas empezando desde 0, ¿cuántos pasos
-   da en total? Vamos a volver sobre esta pregunta en la conferencia 4.
+   binario, con el cabezal empezando en el bit menos significativo y volviendo a él al
+   terminar. ¿Cuántos pasos da en el peor caso? Si se aplica $m$ veces seguidas
+   empezando desde 0, ¿cuántos pasos da en total? El ejercicio 4 del resumen del Tema 1
+   vuelve sobre esta pregunta con las herramientas de la conferencia 4.

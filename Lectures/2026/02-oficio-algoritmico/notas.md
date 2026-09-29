@@ -261,18 +261,23 @@ franja y, por el lema, el algoritmo lo examina. $\square$
 print(F.empaquetamiento(ident="empaquetamiento",
       pie="El rectángulo R partido en ocho cuadrados de lado δ/2. Cada cuadrado "
           "está entero de un lado de L y aguanta a lo sumo un punto, así que R "
-          "aguanta ocho. Los puntos van numerados por su posición en el orden de y."))
+          "aguanta ocho. El dibujo ilustra el conteo, no una configuración posible: "
+          "con un punto en cada cuadrado, dos puntos del mismo lado quedan a menos "
+          "de δ."))
 _pts, _ip, _iq = F.rectangulo_extremo()
 _orden = sorted(range(8), key=lambda i: -_pts[i][1])   # de abajo hacia arriba
 _rango = {k: i for i, k in enumerate(_orden)}
 print(F.orden_por_y(8, _rango[_ip], _rango[_iq], ident="orden-y",
-      pie="Los mismos ocho puntos, vistos solo como orden de y. Es la configuración "
-          "extrema: q es el último punto que p tiene que mirar."))
+      pie="Los mismos ocho puntos, vistos solo como orden de y. Es el caso que la "
+          "cuenta de la demostración no descarta, con q como el último punto que p "
+          "tendría que mirar."))
 ```
 
-Esa configuración es el peor caso, no el caso típico. En una nube uniforme la franja
-casi nunca llega a tener ocho puntos, y el par que la mejora resulta casi siempre
-consecutivo en el orden de $y$. Por eso el 7 es una garantía y no una descripción, y
+Esa configuración no puede ocurrir. Con un punto en cada cuadrado hay puntos del
+mismo lado a menos de $\delta$, contra la hipótesis de inducción, así que la cuenta
+de la demostración es holgada y el peor caso real está por debajo de 7. En una nube
+uniforme la franja casi nunca llega a tener ocho puntos, y el par que la mejora
+resulta casi siempre consecutivo en el orden de $y$. Por eso el 7 es una garantía y no una descripción, y
 por eso, como vamos a medir en la sección 7, se puede escribir 1 en lugar de 7 y
 pasar las pruebas.
 
@@ -687,18 +692,22 @@ esperado son la conferencia 21. Las reducciones son el Tema 3 entero, leídas al
 
 1. Demuestra formalmente el lema de la sección 3, cubriendo el caso de empates: si
    hay varios pares mínimos, ¿la demostración sigue funcionando?
-2. El lema de la franja da 7. Demuestra la mejor constante que puedas con el mismo
-   tipo de argumento, y exhibe una configuración de puntos que la alcance.
-3. Par más cercano en $\mathbb{R}^3$. ¿En qué se convierte la franja? Diseña el
-   algoritmo, demuestra su correctitud y analiza su costo. ¿Qué pasa en
-   $\mathbb{R}^d$ con $d$ fijo, y qué pasa si $d$ crece con $n$?
+2. El lema de la franja da 7, pero la configuración de la @fig-empaquetamiento no es
+   realizable. Mejora la constante con el mismo tipo de argumento: ¿cuántos puntos a
+   distancia al menos $\delta$ entre sí caben de cada lado de $L$ dentro del
+   rectángulo?
+3. Par más cercano en $\mathbb{R}^3$, cortando por un plano. ¿En qué se convierte
+   la franja? Explica por qué ordenar la franja por una coordenada y mirar un número
+   constante de vecinos ya no alcanza. (Existe un algoritmo $O(n \log n)$ en
+   dimensión fija, pero usa técnicas que no vimos.)
 4. El par más **lejano** (el diámetro del conjunto). ¿Funciona el mismo divide y
    vencerás? Di exactamente cuál paso falla y por qué.
 5. **Par más cercano bicromático**: cada punto es rojo o azul, y se busca el par más
    cercano con un punto de cada color. ¿Sobrevive el lema de la franja? Justifica.
 6. Implementa el algoritmo de la sección 9, cuenta las reconstrucciones para
    $n = 10^3, 10^4, 10^5$ y compara con $2 \ln n$. Después quita la permutación
-   aleatoria e inserta los puntos en el orden en que vienen: ¿qué le pasa a la cuenta?
+   aleatoria. Explica por qué, con puntos uniformes, la cuenta no cambia, y qué
+   clase de entrada sí la cambia (el ejercicio 7 la pide).
 7. Construye una entrada y un orden de inserción que fuercen al algoritmo de la
    sección 9 a $\Theta(n^2)$. ¿Por qué la permutación aleatoria lo hace
    improbable, y qué es exactamente lo que se vuelve improbable?

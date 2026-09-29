@@ -555,8 +555,9 @@ flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
 2. Demuestra que decidir si un arreglo está ordenado requiere $n - 1$ comparaciones.
 3. Mezclar una lista de largo $m$ con otra de largo $n$: da la cota de información en
    función de $m$ y $n$, y un algoritmo que la alcance cuando $m = 1$.
-4. Demuestra que la mediana de 5 elementos se puede encontrar con 6 comparaciones, y
-   que con 5 no alcanza.
+4. Da un algoritmo que encuentre la mediana de 5 elementos con 6 comparaciones. (Que
+   con 5 no alcanza también es cierto, pero la demostración es un análisis de casos
+   largo.)
 5. **Distinción de elementos en el modelo de comparaciones.** Demuestra
    $\Omega(n \log n)$ con un árbol de decisión. ¿Por qué no basta contar salidas, si
    solo hay dos ("sí" o "no")?

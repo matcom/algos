@@ -83,11 +83,24 @@ la prosa es uno que imprime el código del propio documento.
 Una conferencia publicada tiene lectores que citan páginas, y audios que citan
 páginas y números. Para cambiarla hay tres reglas:
 
-- **Renderizar con la caché puesta.** Los bloques que no cambiaron salen de
-  `.scriptorium/freeze.json` y conservan las mediciones de la versión publicada. Si
-  borras `.scriptorium`, los tiempos se vuelven a medir y dejan de coincidir con lo
-  que dicen la prosa y los audios. Si hace falta borrarla, por ejemplo porque se
-  tocó `figuras.py`, hay que comparar los números después.
+- **Renderizar con la caché puesta, y saber qué invalida.** Un bloque sale de
+  `.scriptorium/freeze.json` solo si ni él ni **ningún bloque anterior de su cadena**
+  cambió. Cambiar un bloque, aunque sea solo el texto del pie de una figura, obliga a
+  volver a correr todos los bloques `continue` que vienen después, y los tiempos se
+  miden de nuevo. Pasó el 2026-09-29: corregir el pie de dos figuras de la sección 6
+  de la conferencia 2 cambió 1,254 s por 1,766 s y 0,706 s por 0,847 s en las
+  secciones 7 y 9, que son números que citan los audios. Borrar `.scriptorium`
+  produce el mismo efecto sobre el documento entero. Si una corrección se puede hacer
+  en prosa, fuera de los bloques, hazla ahí.
+- **Si hubo que tocar un bloque, restaurar las mediciones publicadas.** La caché
+  acumula entradas y no borra las viejas. Antes de renderizar, copia
+  `freeze.json`. Después del render, cada bloque que se volvió a medir tiene dos
+  entradas con el mismo tipo de salida: la vieja (más arriba en el dict, en el orden
+  de inserción) y la nueva (de las últimas). Búscalas por un texto de su salida
+  (`"1.254s"`, `'id="fig-tiempos"'`), copia la salida vieja sobre la clave nueva y
+  renderiza otra vez. Después comprueba que los números sean idénticos a los de la
+  versión publicada, y compara píxel a píxel (`pdftoppm` y `cmp`) las páginas con
+  figuras que dependen de mediciones.
 - **Comparar el mapa de páginas antes y después:**
 
   ```bash

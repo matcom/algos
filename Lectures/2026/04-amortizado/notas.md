@@ -786,8 +786,9 @@ sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
 4. Demuestra que, empezando desde un camino de $n$ nodos, acceder a las claves
    $1, \dots, n$ en orden cuesta $\Theta(n^2)$ en total con subir a la raíz.
 5. Union-find con unión por rango, pero olvidando incrementar el rango cuando los dos
-   rangos empatan. ¿Qué profundidad pueden alcanzar los árboles? ¿Qué pasa si además
-   hay compresión? Mide antes de demostrar.
+   rangos empatan. ¿Qué profundidad pueden alcanzar los árboles? Si además hay
+   compresión, ¿cuál de las tres propiedades del rango de la sección 8 deja de valer,
+   y qué parte de la demostración cae con ella?
 6. Demuestra que la **unión por tamaño** (colgar el árbol con menos nodos del que tiene
    más) también garantiza profundidad $O(\log n)$ sin compresión.
 7. Demuestra que $A_2(j) = 2^{j+1}(j + 1) - 1$ y calcula $\log^* n$ y $\alpha(n)$ para
