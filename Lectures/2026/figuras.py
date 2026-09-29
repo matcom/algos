@@ -844,52 +844,37 @@ def compresion(antes, despues, nodos, camino, ident="compresion", pie=""):
 
 def arbol_comparaciones(arbol, ident="arbol-comparaciones", pie=""):
     """`arbol` es ("pregunta", sí, no) o ("hoja", texto). Sale de correr un
-    algoritmo sobre todas las permutaciones, no se escribe a mano."""
-    hojas = []
-
-    def contar(t):
-        if t[0] == "hoja":
-            hojas.append(t)
-            return
-        contar(t[1])
-        contar(t[2])
-
-    contar(arbol)
+    algoritmo sobre todas las entradas, no se escribe a mano. Primero se calculan
+    las posiciones, después se dibujan las aristas y al final las cajas, para que
+    ninguna línea tache una pregunta."""
     dx, dy = 62.0, 50.0
-    x = [0.0]
+    nodos, aristas, x = [], [], [0.0]
 
     def colocar(t, d):
         if t[0] == "hoja":
             p = Point(x[0], d * dy)
             x[0] += dx
-            return p
-        a, b = colocar(t[1], d + 1), colocar(t[2], d + 1)
-        p = Point((a.x + b.x) / 2, d * dy)
-        for hijo, texto in ((a, "sí"), (b, "no")):
-            Line(p, hijo, stroke=APAGADO, width=0.9)
-            _txt(texto, Point((p.x + hijo.x) / 2 + (-9 if hijo is a else 9),
-                              (p.y + hijo.y) / 2 - 4), color=APAGADO, size=PIE)
-        Rect(46, 16, fill=Colors.White, stroke=TINTA, width=0.9).move_to(p)
-        _txt(t[0], p, color=TINTA, size=PIE)
+        else:
+            a, b = colocar(t[1], d + 1), colocar(t[2], d + 1)
+            p = Point((a.x + b.x) / 2, d * dy)
+            aristas.extend([(p, a, "sí", -9), (p, b, "no", 9)])
+        nodos.append((t, p))
         return p
 
     with Canvas() as canvas:
         colocar(arbol, 0)
-        # las hojas van al final, encima de las aristas, en el mismo orden
-        prof = {}
-
-        def profundidades(t, d):
+        for p, hijo, texto, desvio in aristas:
+            Line(p, hijo, stroke=APAGADO, width=0.9)
+            _txt(texto, Point((p.x + hijo.x) / 2 + desvio, (p.y + hijo.y) / 2 - 4),
+                 color=APAGADO, size=PIE)
+        for t, p in nodos:
             if t[0] == "hoja":
-                prof[id(t)] = d
-                return
-            profundidades(t[1], d + 1)
-            profundidades(t[2], d + 1)
-
-        profundidades(arbol, 0)
-        for k, h in enumerate(hojas):
-            p = Point(k * dx, prof[id(h)] * dy)
-            Rect(52, 16, fill=ACENTO.transparent(0.16), stroke=OSCURO, width=0.9).move_to(p)
-            _txt(h[1], p, color=TINTA, size=PIE)
+                Rect(52, 16, fill=ACENTO.transparent(0.16), stroke=OSCURO,
+                     width=0.9).move_to(p)
+                _txt(t[1], p, color=TINTA, size=PIE)
+            else:
+                Rect(46, 16, fill=Colors.White, stroke=TINTA, width=0.9).move_to(p)
+                _txt(t[0], p, color=TINTA, size=PIE)
     return _figura(canvas, ident, pie)
 
 
@@ -927,4 +912,98 @@ def cuadro_torneo(arbol, ident="torneo", pie=""):
     y "+" para sus rivales. Sale de correr el torneo."""
     with Canvas() as canvas:
         _dibujar_arbol(arbol, dx=24.0, dy=32.0)
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 19. un árbol binario completo: cada nivel duplica
+# --------------------------------------------------------------------------
+
+def arbol_completo(h, ident="arbol-completo", pie=""):
+    ancho, paso_y = 300.0, 44.0
+    with Canvas() as canvas:
+        for d in range(h + 1):
+            k = 2 ** d
+            y = d * paso_y
+            xs = [(i + 0.5) * ancho / k for i in range(k)]
+            if d < h:
+                hijos = [(i + 0.5) * ancho / (2 * k) for i in range(2 * k)]
+                for i, x in enumerate(xs):
+                    for hx in hijos[2 * i: 2 * i + 2]:
+                        Line(Point(x, y), Point(hx, y + paso_y), stroke=APAGADO, width=0.9)
+            for x in xs:
+                hoja = d == h
+                Circle(6, fill=ACENTO.transparent(0.25) if hoja else Colors.White,
+                       stroke=OSCURO if hoja else TINTA, width=0.9).move_to(Point(x, y))
+            _txt(f"nivel {d}: a lo sumo {k} nodo{'s' if k > 1 else ''}",
+                 Point(ancho + 16, y), color=OSCURO if d == h else APAGADO,
+                 size=PIE, anchor="start")
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 20. la suma de log₂ k contra la integral
+# --------------------------------------------------------------------------
+
+def escalera_log(n, ident="escalera-log", pie=""):
+    ancho, alto = 300.0, 150.0
+    tope = math.log2(n) * 1.1
+    px = lambda x: (x - 1) / (n - 1) * ancho
+    py = lambda y: alto - y / tope * alto
+    with Canvas() as canvas:
+        Line(Point(0, alto), Point(ancho, alto), stroke=APAGADO, width=0.9)
+        for k in range(2, n + 1):
+            Rect(px(k) - px(k - 1), alto - py(math.log2(k)),
+                 fill=CALIDO.transparent(0.2), stroke=CALIDO, width=0.7).move_to(
+                Point(px(k - 1), py(math.log2(k))), anchor="topleft")
+            _txt(str(k), Point((px(k - 1) + px(k)) / 2, alto + 10), color=APAGADO, size=PIE)
+        Polyline([Point(px(1 + i * (n - 1) / 80), py(math.log2(1 + i * (n - 1) / 80)))
+                  for i in range(81)], stroke=OSCURO, width=1.6)
+        _txt("rectángulo k: alto log₂ k, suma = log₂ n!", Point(ancho + 10, 20),
+             color=CALIDO, size=PIE, anchor="start")
+        _txt("curva log₂ x: el área debajo es la integral", Point(ancho + 10, 36),
+             color=OSCURO, size=PIE, anchor="start")
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 21. los n + 1 huecos de un arreglo ordenado
+# --------------------------------------------------------------------------
+
+def huecos(n, marcados=(), testigo=None, ident="huecos", pie=""):
+    """`marcados` son dos huecos donde caen x₁ y x₂; los elementos entre ellos se
+    marcan como "no comparados", y `testigo` es la posición del que se usa como x."""
+    lado, paso = 26.0, 44.0
+    entre = range(marcados[0], marcados[1]) if len(marcados) == 2 else range(0)
+    with Canvas() as canvas:
+        if len(entre):
+            x0, x1 = entre[0] * paso + 4, entre[-1] * paso + paso - 4
+            Rect(x1 - x0, lado + 12, fill=ALARMA.transparent(0.07),
+                 stroke=ALARMA.transparent(0.5), width=0.8).move_to(
+                Point((x0 + x1) / 2, 0))
+            _txt("el algoritmo no comparó x con ninguno de estos",
+                 Point((x0 + x1) / 2, -lado / 2 - 34), color=ALARMA, size=PIE)
+        for i in range(n):
+            c = Point(i * paso + paso / 2, 0)
+            es_testigo = testigo == i
+            Rect(lado, lado,
+                 fill=ALARMA.transparent(0.2) if es_testigo else Colors.White,
+                 stroke=ALARMA if es_testigo else TINTA,
+                 width=1.4 if es_testigo else 0.9).move_to(c)
+            _txt(f"a{sub(i + 1)}", c, color=TINTA, size=PIE)
+        for g in range(n + 1):
+            x = g * paso
+            marcado = g in marcados
+            Line(Point(x, -lado / 2 - 4), Point(x, lado / 2 + 4),
+                 stroke=CALIDO if marcado else REGLA.darker(0.3),
+                 width=2.2 if marcado else 0.8)
+            _txt(f"h{sub(g)}", Point(x, lado / 2 + 16),
+                 color=CALIDO if marcado else APAGADO, size=PIE)
+        for k, g in enumerate(marcados):
+            _punto(Point(g * paso, -lado / 2 - 14), CALIDO, r=3.2)
+            _txt(f"x{sub(k + 1)}", Point(g * paso, -lado / 2 - 24), color=CALIDO,
+                 size=CUERPO)
+        if testigo is not None:
+            _txt(f"x = a{sub(testigo + 1)}: mismas respuestas, misma hoja",
+                 Point(testigo * paso + paso / 2, lado / 2 + 32), color=ALARMA, size=PIE)
     return _figura(canvas, ident, pie)

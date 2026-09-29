@@ -128,62 +128,142 @@ dice por qué.
 
 ## 3. El argumento de información
 
-La cota de ordenamiento sale en tres pasos, y cada uno es un lema corto: cuántas hojas
-puede tener un árbol de altura $h$, cuántas hojas necesita un algoritmo que ordena, y
-cuánto vale $\log_2 n!$.
+La cota de ordenamiento sale en tres pasos, y cada paso es un lema corto:
+
+1. Un árbol de decisión bajo no puede tener muchas hojas.
+2. Un algoritmo que ordena necesita muchas hojas: una por cada orden posible de la
+   entrada.
+3. Cuánto es "muchas": el valor de $\log_2 n!$.
+
+Juntando los tres sale que el árbol no puede ser bajo, que es lo mismo que decir que
+el algoritmo hace muchas comparaciones en el peor caso.
+
+### Paso 1: un árbol bajo tiene pocas hojas
 
 **Lema 1.** Un árbol binario de altura $h$ tiene a lo sumo $2^h$ hojas.
 
-*Demostración.* Por inducción sobre $h$. Con $h = 0$ el árbol es una sola hoja, y
-$1 = 2^0$. Con $h > 0$, la raíz tiene a lo sumo dos subárboles, cada uno de altura a
-lo sumo $h - 1$, y por hipótesis cada uno tiene a lo sumo $2^{h-1}$ hojas. En total,
-a lo sumo $2 \cdot 2^{h-1} = 2^h$. $\square$
+```{python continue echo=false output=asis}
+print(F.arbol_completo(3, ident="arbol-completo",
+      pie="Un árbol binario de altura 3 con todos sus niveles llenos. Cada nivel tiene "
+          "a lo sumo el doble de nodos que el anterior, así que el último tiene a lo "
+          "sumo 2³ = 8 hojas."))
+```
 
-Dicho al revés: un árbol con al menos $L$ hojas tiene altura al menos $\log_2 L$.
+La idea está en la @fig-arbol-completo: cada nodo tiene a lo sumo dos hijos, así que
+cada nivel tiene a lo sumo el doble de nodos que el anterior. El nivel 0 tiene un
+nodo, el nivel 1 a lo sumo dos, el nivel 2 a lo sumo cuatro, y el nivel $h$ a lo sumo
+$2^h$.
+
+*Demostración.* Por inducción sobre $h$.
+
+- Si $h = 0$, el árbol es una sola hoja, y $1 = 2^0$.
+- Si $h > 0$, la raíz tiene a lo sumo dos subárboles. Cada uno tiene altura a lo sumo
+  $h - 1$, así que, por hipótesis de inducción, cada uno tiene a lo sumo $2^{h-1}$
+  hojas. Entre los dos, a lo sumo $2 \cdot 2^{h-1} = 2^h$. $\square$
+
+Lo vamos a usar al revés: **si un árbol tiene al menos $L$ hojas, su altura es al menos
+$\log_2 L$**, porque con altura menor tendría menos de $2^{\log_2 L} = L$ hojas.
+
+### Paso 2: ordenar necesita $n!$ hojas
 
 **Lema 2.** El árbol de decisión de un algoritmo de comparaciones que ordena $n$
 elementos tiene al menos $n!$ hojas.
 
-*Demostración.* Basta mirar entradas con los $n$ elementos distintos, y hay $n!$
-órdenes posibles entre ellos. Cada entrada recorre un camino desde la raíz hasta una
-hoja, según las respuestas que recibe. El algoritmo no ve los valores, solo las
-respuestas, así que su salida en una hoja tiene que estar escrita en términos de
-posiciones: "el elemento de la posición 3 va primero, el de la 1 va segundo…". Esa
-salida depende solo de la hoja.
+Antes de demostrarlo, veámoslo pasar. La tabla siguiente corre el ordenamiento por
+inserción de la sección 2 sobre las seis entradas posibles con tres elementos
+distintos, y anota las respuestas que recibe cada una y la hoja donde termina.
 
-Supongamos que dos entradas con órdenes distintos llegan a la misma hoja. Como los
-órdenes son distintos, hay dos posiciones $i$ y $j$ tales que en una entrada
-$a_i < a_j$ y en la otra $a_i > a_j$. La salida correcta pone $i$ antes que $j$ en el
-primer caso y $j$ antes que $i$ en el segundo. La hoja da una sola salida, así que el
-algoritmo se equivoca en una de las dos. Por tanto, entradas con órdenes distintos
-terminan en hojas distintas, y hacen falta al menos $n!$ hojas. $\square$
+```{python continue echo=false output=asis}
+_nombres = [f"a{F.sub(i + 1)}" for i in range(3)]
+print("| entrada ($a_1, a_2, a_3$) | respuestas, en orden | hoja: la salida |")
+print("|---|---|---|")
+_hojas = set()
+for _valores in permutations(range(1, 4)):
+    _valor = dict(zip(_nombres, _valores))
+    _respuestas = []
+
+    def _menor(x, y):
+        r = _valor[x] < _valor[y]
+        _respuestas.append(f"{x} < {y}: {'sí' if r else 'no'}")
+        return r
+
+    _salida = "<".join(ordenar_por_insercion(_nombres, _menor))
+    _hojas.add(_salida)
+    print(f"| {', '.join(map(str, _valores))} | {'; '.join(_respuestas)} | {_salida} |")
+print()
+print(f"Seis entradas, **{len(_hojas)} hojas distintas**.")
+```
+
+Cada entrada termina en una hoja distinta, y no es casualidad de este algoritmo. Es
+obligatorio para cualquier algoritmo que ordene, y la razón tiene dos partes.
+
+*Demostración.*
+
+- **La salida depende solo de la hoja.** El algoritmo nunca ve los valores; solo ve las
+  respuestas. Por eso su salida tiene que estar escrita en términos de posiciones, como
+  en la última columna de la tabla: "primero el de la posición 2, después el de la 1,
+  después el de la 3". Y dos entradas que reciben las mismas respuestas recorren el
+  mismo camino, llegan a la misma hoja y producen la misma salida.
+- **Dos órdenes distintos necesitan salidas distintas.** Si dos entradas tienen órdenes
+  distintos, hay dos posiciones $i$ y $j$ tales que en una $a_i < a_j$ y en la otra
+  $a_i > a_j$. La salida correcta pone $i$ antes que $j$ en la primera y $j$ antes que
+  $i$ en la segunda.
+
+Si dos entradas con órdenes distintos llegaran a la misma hoja, recibirían la misma
+salida por la primera parte, y por la segunda esa salida estaría mal para una de las
+dos. Así que cada uno de los $n!$ órdenes tiene su propia hoja. $\square$
+
+### Paso 3: cuánto vale $\log_2 n!$
 
 **Lema 3.** $\log_2 n! \ge \frac{n}{2}\log_2 \frac{n}{2}$, y con más cuidado,
 $\log_2 n! \ge n \log_2 n - 1{,}443\,n$.
 
-*Demostración.* La primera es elemental. De los $n$ factores de
-$n! = 1 \cdot 2 \cdots n$, la mitad más grande son todos al menos $n/2$, así que
-$n! \ge (n/2)^{n/2}$. Tomando logaritmo sale la cota, que ya es $\Omega(n \log n)$.
+La primera cota es elemental. Con $n = 8$:
+$$8! = 1 \cdot 2 \cdot 3 \cdot 4 \cdot \underbrace{5 \cdot 6 \cdot 7 \cdot 8}_{\text{cada uno} \ge 4}
+\ \ge\ 4^4.$$
+En general, la mitad más grande de los factores de $n!$ son todos al menos $n/2$, así
+que $n! \ge (n/2)^{n/2}$. Tomando logaritmo,
+$\log_2 n! \ge \frac{n}{2} \log_2 \frac{n}{2}$, que ya es $\Omega(n \log n)$.
 
-Para la segunda, como $\log_2$ es creciente, cada término de la suma es al menos el
-área bajo la curva en el intervalo anterior: $\log_2 k \ge \int_{k-1}^{k} \log_2 x \,
-dx$. Sumando de $k = 2$ a $n$,
-$$\log_2 n! = \sum_{k=2}^{n} \log_2 k \ge \int_1^n \log_2 x \, dx
-= n \log_2 n - (n - 1)\log_2 e \ge n \log_2 n - 1{,}443\, n,$$
+La segunda afina la constante comparando la suma con una integral.
+
+```{python continue echo=false output=asis}
+print(F.escalera_log(10, ident="escalera-log",
+      pie="log₂ 10! es la suma de las áreas de los rectángulos: el rectángulo k tiene "
+          "base 1 y alto log₂ k. Como log₂ es creciente, cada rectángulo queda por "
+          "encima de la curva en su intervalo, así que la suma es al menos el área "
+          "bajo la curva, que es la integral."))
+```
+
+En la @fig-escalera-log, el rectángulo número $k$ ocupa el intervalo $[k-1, k]$ y tiene
+alto $\log_2 k$. Como $\log_2$ crece, en ese intervalo la curva nunca pasa de
+$\log_2 k$, así que el rectángulo cubre el área bajo la curva:
+$\log_2 k \ge \int_{k-1}^{k} \log_2 x \, dx$. Sumando de $k = 2$ a $n$,
+$$\log_2 n! = \sum_{k=2}^{n} \log_2 k \ \ge\ \int_1^n \log_2 x \, dx
+\ =\ n \log_2 n - (n - 1)\log_2 e \ \ge\ n \log_2 n - 1{,}443\, n,$$
 porque una primitiva de $\log_2 x$ es $x \log_2 x - x \log_2 e$, y
 $\log_2 e \approx 1{,}4427$. $\square$
+
+### El teorema
 
 **Teorema.** Todo algoritmo de ordenamiento por comparaciones hace, en el peor caso, al
 menos $\lceil \log_2 n! \rceil \ge n \log_2 n - 1{,}443\,n$ comparaciones.
 
-*Demostración.* Por el lema 2, el árbol tiene al menos $n!$ hojas. Por el lema 1, su
-altura es al menos $\log_2 n!$, y es un entero. El peor caso es la altura. El lema 3
-da el valor. $\square$
+*Demostración.* El peor caso es la altura del árbol. Por el lema 2 el árbol tiene al
+menos $n!$ hojas, y por el lema 1 su altura es al menos $\log_2 n!$. La altura es un
+entero, así que es al menos $\lceil \log_2 n! \rceil$. El lema 3 da el valor. $\square$
 
-Con números: para $n = 3$, $\log_2 6 \approx 2{,}58$, así que hacen falta 3
-comparaciones, y el árbol de la @fig-arbol-insercion es óptimo. Para $n = 4$,
-$\log_2 24 \approx 4{,}58$, así que hacen falta 5. Para $n = 5$, $\log_2 120 \approx
-6{,}91$, así que hacen falta 7.
+Con números:
+
+| $n$ | $n!$ | $\log_2 n!$ | comparaciones necesarias |
+|---|---|---|---|
+| 3 | 6 | 2,58 | 3 |
+| 4 | 24 | 4,58 | 5 |
+| 5 | 120 | 6,91 | 7 |
+| 10 | 3 628 800 | 21,79 | 22 |
+
+Para $n = 3$ hacen falta 3, y el árbol de la @fig-arbol-insercion, que tiene altura 3,
+es óptimo.
 
 ¿Está cerca de lo que hacen los algoritmos reales? Contemos el peor caso exacto de
 mergesort, recorriendo **todas** las permutaciones para $n \le 8$.
@@ -238,19 +318,108 @@ unas $0{,}44\,n$ comparaciones. Coinciden en el término principal, que es lo qu
 que mergesort es óptimo salvo por el término lineal. El ejercicio 8 pregunta qué
 pasaría con un algoritmo que prometiera menos.
 
-**Búsqueda en un arreglo ordenado.** Buscamos $x$ en un arreglo ordenado de $n$
-elementos distintos, comparando $x$ con elementos del arreglo, y cada comparación
-responde $<$, $=$ o $>$. Un árbol de tres ramas por nodo no sirve directamente, porque
-con tres ramas el lema 1 daría solo $\log_3$. El argumento mira los casos en que $x$
-**no está**. Hay $n + 1$ huecos donde puede caer: antes del primero, entre dos
-consecutivos, o después del último, y en esos casos ninguna comparación responde $=$,
-así que solo se usan dos ramas. Dos valores de $x$ en huecos distintos no pueden
-terminar en la misma hoja: entre los dos huecos hay un elemento $a_i$ con el que el
-algoritmo no comparó, porque habría recibido respuestas distintas, y entonces
-$x = a_i$ recibe las mismas respuestas y el algoritmo diría "no está" cuando sí está.
-Son $n + 1$ hojas en un árbol binario, así que hacen falta
-$\lceil \log_2 (n+1) \rceil$ comparaciones, y la búsqueda binaria las alcanza. Es
-óptima.
+### La búsqueda binaria también es óptima
+
+El mismo argumento sirve para buscar. Tenemos un arreglo ordenado
+$a_1 < a_2 < \dots < a_n$ y un valor $x$, y el algoritmo compara $x$ con elementos del
+arreglo. Cada comparación responde $<$, $=$ o $>$.
+
+Aquí hay una trampa. Con tres respuestas posibles, el árbol tiene tres ramas por nodo,
+y el lema 1 adaptado a tres ramas solo daría $\log_3$. Para conseguir $\log_2$ miramos
+solo los casos en que $x$ **no está** en el arreglo.
+
+**Los huecos.** Si $x$ no está, cae en uno de los $n + 1$ huecos entre elementos:
+antes de $a_1$, entre $a_1$ y $a_2$, …, o después de $a_n$. En esos casos ninguna
+comparación puede responder $=$, así que solo se usan dos ramas.
+
+```{python continue echo=false output=asis}
+print(F.huecos(7, ident="huecos",
+      pie="Un arreglo ordenado de siete elementos y sus ocho huecos, h₀ a h₇. Si x no "
+          "está en el arreglo, está en exactamente uno de ellos."))
+```
+
+**Lema 4.** Si $x_1$ y $x_2$ caen en huecos distintos, un algoritmo correcto los lleva
+a hojas distintas.
+
+*Demostración.* Supongamos que $x_1$ cae en un hueco a la izquierda del de $x_2$, y que
+los dos terminan en la misma hoja.
+
+- Entre sus huecos hay al menos un elemento $a_i$, con $x_1 < a_i < x_2$.
+- El algoritmo no comparó con ese $a_i$. Si lo hubiera hecho, $x_1$ habría recibido
+  "$<$" y $x_2$ habría recibido "$>$", y habrían seguido caminos distintos.
+- Ahora tomemos $x = a_i$. En cada comparación que el algoritmo hace, con un elemento a
+  la izquierda de los dos huecos o a la derecha, $a_i$ recibe la misma respuesta que
+  $x_1$ y $x_2$. Así que $x = a_i$ recorre el mismo camino y llega a la misma hoja.
+- En esa hoja el algoritmo dice "no está", porque es la hoja de $x_1$. Pero $a_i$ sí
+  está. El algoritmo se equivoca. $\square$
+
+```{python continue echo=false output=asis}
+print(F.huecos(7, marcados=(1, 4), testigo=2, ident="huecos-testigo",
+      pie="La demostración del lema 4 con x₁ en el hueco h₁ y x₂ en el h₄. Si llegan a "
+          "la misma hoja, el algoritmo no comparó con a₂, a₃ ni a₄. Entonces x = a₃ "
+          "recibe las mismas respuestas y el algoritmo dice que no está."))
+```
+
+**Consecuencia.** Los $n + 1$ huecos necesitan $n + 1$ hojas distintas, en la parte del
+árbol que solo usa las ramas $<$ y $>$, que es un árbol binario. Por el lema 1, hacen
+falta al menos $\lceil \log_2 (n + 1) \rceil$ comparaciones.
+
+**La búsqueda binaria las alcanza.** Cada comparación parte por la mitad el rango donde
+todavía puede estar $x$, así que después de $\lceil \log_2 (n+1) \rceil$ comparaciones
+queda un solo hueco. El árbol de abajo sale de correr la búsqueda binaria sobre un
+valor de cada hueco.
+
+```{python continue}
+def busqueda_binaria(A, x, comparar):
+    """Devuelve ("está", posición) o ("hueco", número de hueco)."""
+    lo, hi = 0, len(A)                  # invariante: si x está, está en A[lo:hi]
+    while lo < hi:
+        m = (lo + hi) // 2
+        r = comparar(x, A[m])           # -1, 0 o 1
+        if r == 0:
+            return ("está", m)
+        if r < 0:
+            hi = m
+        else:
+            lo = m + 1
+    return ("hueco", lo)
+```
+
+```{python continue echo=false output=asis}
+def _arbol_busqueda(n):
+    A = list(range(2, 2 * n + 1, 2))           # 2, 4, ..., 2n
+    raiz = {}
+    for g in range(n + 1):
+        camino = []
+
+        def comparar(x, y):
+            i = A.index(y)
+            camino.append((f"x < a{F.sub(i + 1)}", x < y))
+            return (x > y) - (x < y)
+
+        resultado = busqueda_binaria(A, 2 * g + 1, comparar)   # 2g + 1 cae en el hueco g
+        assert resultado == ("hueco", g)
+        nodo = raiz
+        for pregunta, r in camino:
+            assert nodo.setdefault("pregunta", pregunta) == pregunta
+            nodo = nodo.setdefault(r, {})
+        nodo["hoja"] = f"h{F.sub(g)}"
+
+    def a_tupla(nodo):
+        if "hoja" in nodo:
+            return ("hoja", nodo["hoja"])
+        return (nodo["pregunta"], a_tupla(nodo[True]), a_tupla(nodo[False]))
+
+    return a_tupla(raiz)
+
+print(F.arbol_comparaciones(_arbol_busqueda(7), ident="arbol-busqueda",
+      pie="El árbol de decisión de la búsqueda binaria sobre siete elementos, obtenido "
+          "corriéndola con un valor de cada hueco. Ocho hojas, una por hueco, y altura "
+          "3 = ⌈log₂ 8⌉: justo la cota del lema 4."))
+```
+
+Con $n = 7$ hay ocho huecos, y la búsqueda binaria los separa con tres comparaciones,
+que es exactamente $\lceil \log_2 8 \rceil$. Es óptima.
 
 ## 4. Cuándo la información no alcanza
 
