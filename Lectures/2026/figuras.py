@@ -670,3 +670,161 @@ def primer_rechazo(ident="primer-rechazo", pie=""):
              "y b prefiere a′ a a: (a′, b) bloquea M′",
              Point((2 * W + 24) / 2 - 30, 122), color=ALARMA, size=PIE)
     return _figura(canvas, ident, pie)
+
+
+# ==========================================================================
+# Conferencia 4: análisis amortizado
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# 13. costo real, costo amortizado y potencial de la cola
+# --------------------------------------------------------------------------
+
+def cola_potencial(costos, amortizados, potencial, ident="cola-potencial", pie=""):
+    """Tres series de la misma longitud, medidas por el código de la conferencia."""
+    ancho, alto_c, alto_p = 360.0, 90.0, 55.0
+    k = len(costos)
+    paso = ancho / k
+    tope_c = max(costos + amortizados)
+    tope_p = max(potencial) or 1
+    with Canvas() as canvas:
+        Line(Point(0, alto_c), Point(ancho, alto_c), stroke=APAGADO, width=0.9)
+        for i, c in enumerate(costos):
+            h = c / tope_c * alto_c
+            Rect(paso * 0.72, h, fill=CALIDO.transparent(0.25), stroke=CALIDO,
+                 width=0.6).move_to(Point(i * paso, alto_c - h), anchor="topleft")
+        Polyline([Point((i + 0.36) * paso, alto_c - a / tope_c * alto_c)
+                  for i, a in enumerate(amortizados)], stroke=OSCURO, width=1.5)
+        _txt("costo real", Point(ancho + 8, alto_c - 12), color=CALIDO, size=PIE,
+             anchor="start")
+        _txt("costo amortizado", Point(ancho + 8, alto_c - 26), color=OSCURO,
+             size=PIE, anchor="start")
+        base = alto_c + 24 + alto_p
+        Line(Point(0, base), Point(ancho, base), stroke=APAGADO, width=0.9)
+        Polyline([Point((i + 0.36) * paso, base - p / tope_p * alto_p)
+                  for i, p in enumerate(potencial)], stroke=ACENTO, width=1.4)
+        _txt("potencial Φ", Point(ancho + 8, base - alto_p / 2), color=ACENTO,
+             size=PIE, anchor="start")
+        _txt("operación", Point(ancho / 2, base + 12), color=APAGADO, size=PIE)
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 14. árboles binarios: un dibujante y sus usos
+# --------------------------------------------------------------------------
+# Un árbol es None o una tupla (etiqueta, izquierdo, derecho). Una etiqueta que
+# empieza con "△" se dibuja como subárbol colgante, un triángulo.
+
+def _dibujar_arbol(arbol, dx=22.0, dy=30.0, resaltar=(), origen=(0.0, 0.0)):
+    orden = []
+
+    def recorrer(t, d):
+        if t is None:
+            return
+        recorrer(t[1], d + 1)
+        orden.append((t, d))
+        recorrer(t[2], d + 1)
+
+    recorrer(arbol, 0)
+    pos = {id(t): Point(origen[0] + i * dx, origen[1] + d * dy)
+           for i, (t, d) in enumerate(orden)}
+    for t, _ in orden:
+        for hijo in (t[1], t[2]):
+            if hijo is not None:
+                Line(pos[id(t)], pos[id(hijo)], stroke=APAGADO, width=0.9)
+    for t, _ in orden:
+        p, etiqueta = pos[id(t)], str(t[0])
+        if etiqueta.startswith("△"):
+            Polyline([Point(p.x, p.y - 7), Point(p.x - 8, p.y + 8),
+                      Point(p.x + 8, p.y + 8)], closed=True,
+                     fill=REGLA.transparent(0.5), stroke=APAGADO, width=0.8)
+            _txt(etiqueta[1:], Point(p.x, p.y + 16), color=APAGADO, size=PIE)
+        else:
+            activo = t[0] in resaltar
+            Circle(8.5, fill=ACENTO.transparent(0.18) if activo else Colors.White,
+                   stroke=OSCURO if activo else TINTA,
+                   width=1.4 if activo else 0.9).move_to(p)
+            _txt(etiqueta, p, color=TINTA, size=PIE)
+    return len(orden) * dx, max((d for _, d in orden), default=0) * dy
+
+
+def splay_casos(ident="splay-casos", pie=""):
+    """Diagrama de la demostración: los tres pasos del splay, antes y después."""
+    A, B, C, D = ("△A", None, None), ("△B", None, None), ("△C", None, None), ("△D", None, None)
+    casos = [
+        ("zig", ("y", ("x", A, B), C), ("x", A, ("y", B, C))),
+        ("zig-zig", ("z", ("y", ("x", A, B), C), D), ("x", A, ("y", B, ("z", C, D)))),
+        ("zig-zag", ("z", ("y", A, ("x", B, C)), D), ("x", ("y", A, B), ("z", C, D))),
+    ]
+    with Canvas() as canvas:
+        y = 0.0
+        for nombre, antes, despues in casos:
+            _txt(nombre, Point(-14, y + 20), color=OSCURO, size=CUERPO, anchor="end")
+            ancho, _ = _dibujar_arbol(antes, dy=25.0, resaltar=("x",), origen=(0, y))
+            Arrow(Point(ancho + 6, y + 26), Point(ancho + 46, y + 26),
+                  stroke=APAGADO, width=1.0, marker_end="arrow")
+            _dibujar_arbol(despues, dy=25.0, resaltar=("x",), origen=(ancho + 60, y))
+            y += 100
+    return _figura(canvas, ident, pie)
+
+
+def arboles_comparados(paneles, ident="arboles-comparados", pie=""):
+    """`paneles` es una lista de (título, árbol); los árboles salen del estado
+    real de las estructuras de la conferencia."""
+    with Canvas() as canvas:
+        x = 0.0
+        for titulo, arbol in paneles:
+            ancho, alto = _dibujar_arbol(arbol, dx=15.0, dy=19.0, origen=(x, 0))
+            _txt(titulo, Point(x + ancho / 2 - 7, -18), color=APAGADO, size=PIE)
+            x += ancho + 30
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 15. un bosque de union-find antes y después de comprimir
+# --------------------------------------------------------------------------
+
+def _dibujar_bosque(padre, nodos, camino=(), dx=24.0, dy=30.0, origen=(0.0, 0.0)):
+    hijos = {v: [] for v in nodos}
+    raices = []
+    for v in nodos:
+        (raices if padre[v] == v else hijos[padre[v]]).append(v)
+    pos, x = {}, [0.0]
+
+    def colocar(v, d):
+        if not hijos[v]:
+            pos[v] = Point(origen[0] + x[0], origen[1] + d * dy)
+            x[0] += dx
+            return
+        for h in hijos[v]:
+            colocar(h, d + 1)
+        pos[v] = Point((pos[hijos[v][0]].x + pos[hijos[v][-1]].x) / 2,
+                       origen[1] + d * dy)
+
+    for r in raices:
+        colocar(r, 0)
+    for v in nodos:
+        if padre[v] != v:
+            en_camino = v in camino and padre[v] in camino
+            Line(pos[v], pos[padre[v]], stroke=CALIDO if en_camino else APAGADO,
+                 width=1.5 if en_camino else 0.9)
+    for v in nodos:
+        activo = v in camino
+        Circle(8.5, fill=CALIDO.transparent(0.18) if activo else Colors.White,
+               stroke=CALIDO if activo else TINTA, width=1.3 if activo else 0.9).move_to(pos[v])
+        _txt(str(v), pos[v], color=TINTA, size=PIE)
+    return x[0]
+
+
+def compresion(antes, despues, nodos, camino, ident="compresion", pie=""):
+    """`antes` y `despues` son los arreglos de padres reales, antes y después de
+    un find sobre el primer nodo de `camino`."""
+    with Canvas() as canvas:
+        ancho = _dibujar_bosque(antes, nodos, camino=camino)
+        _txt("antes del find", Point(ancho / 2 - 12, -20), color=APAGADO, size=PIE)
+        Arrow(Point(ancho + 4, 45), Point(ancho + 40, 45), stroke=APAGADO, width=1.0,
+              marker_end="arrow")
+        ancho2 = _dibujar_bosque(despues, nodos, camino=camino, origen=(ancho + 56, 0))
+        _txt("después: todo el camino cuelga de la raíz",
+             Point(ancho + 56 + ancho2 / 2 - 12, -20), color=APAGADO, size=PIE)
+    return _figura(canvas, ident, pie)
