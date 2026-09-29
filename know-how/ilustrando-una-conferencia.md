@@ -189,7 +189,12 @@ conferencia 2:
   Con 16 puntos y la semilla 1, `δ = 0.116` y la franja se ve, con 3 puntos dentro.
 - En 2 400 instancias (4 tamaños × 600 semillas) **nunca** salió un par de la franja
   separado más de dos posiciones en el orden de `y`. Por eso la figura del orden por
-  `y` usa la configuración extrema construida, y la prosa dice que lo es.
+  `y` usa una configuración construida. La primera versión puso un punto en cada uno
+  de los ocho cuadrados, y no era realizable: quedaban puntos del mismo lado a 0,47δ,
+  contra la hipótesis del lema. La que se usa ahora salió de una búsqueda al azar
+  que exige esa hipótesis, y deja a q tres posiciones después de p. Una figura
+  construida a mano tiene que cumplir las mismas hipótesis que el teorema que
+  ilustra, y eso se comprueba con código antes de dibujarla.
 - La rejilla real es casi toda celdas vacías (9 ocupadas de unas 121), porque su lado
   es `δ/2`. La figura recorta una ventana alrededor del punto que se inserta, y el
   pie da los dos números, que es justo el argumento de por qué es una tabla hash.

@@ -236,23 +236,22 @@ def corte_y_franja(Q, medio, delta, franja, par_izq, par_der,
 # 5 y 6. el rectángulo extremo, compartido por las dos figuras
 # --------------------------------------------------------------------------
 
-# Un punto por cuadrado, que es lo máximo que permite el lema. Coordenadas en
-# unidades de δ: x ∈ [0, 2], y ∈ [0, 1], con la y creciendo hacia arriba.
-_RELLENO = [(0.32, 0.36), (0.70, 0.22), (0.34, 0.70), (0.78, 0.58),
-            (0.26, 0.30), (0.62, 0.34), (0.42, 0.68), (0.72, 0.72)]
-_CELDAS = [(i, j) for j in range(2) for i in range(4)]
-# el par a distancia menor que δ; p es el de abajo, que es el que escanea
-_P, _Q = 6, 1
+# Una configuración que sí puede ocurrir. Coordenadas en unidades de δ, con L en
+# x = 1 y la base de R a la altura de p, y la y creciendo hacia arriba. Los puntos
+# del mismo lado están a distancia al menos δ (1,076δ y 1,075δ), como exige la
+# hipótesis de inducción, y p y q a 0,968δ. Salió de una búsqueda al azar de la
+# configuración que más separa a p de q en el orden por y: con puntos del mismo
+# lado a distancia δ o más caben pocos en cada mitad, y q queda tres posiciones
+# después de p, lejos del 7 que permite la cuenta.
+_CONFIGURACION = [(0.93, 0.00), (1.95, 0.16), (0.05, 0.62), (1.20, 0.93)]
+_P, _Q = 0, 3
 
 
 def rectangulo_extremo():
-    """Los ocho puntos del rectángulo δ×2δ, en unidades de δ, en coordenadas de
-    dibujo (la y crece hacia abajo), y las posiciones de p y q. Las figuras 5 y 6
-    dibujan exactamente la misma configuración."""
-    pts = []
-    for k, (i, j) in enumerate(_CELDAS):
-        fx, fy = _RELLENO[k]
-        pts.append(((i + fx) / 2, (j + fy) / 2))
+    """Los puntos del rectángulo δ×2δ, en unidades de δ, en coordenadas de dibujo
+    (la y crece hacia abajo), y las posiciones de p y q. Las figuras 5 y 6 dibujan
+    exactamente la misma configuración."""
+    pts = [(x, 1 - y) for x, y in _CONFIGURACION]
     return pts, _P, _Q
 
 
@@ -281,7 +280,7 @@ def empaquetamiento(ident="empaquetamiento", pie=""):
                 q = c
             else:
                 _punto(c, APAGADO, r=2.4)
-            _txt(f"y{sub(sorted(range(8), key=lambda i: -pts[i][1]).index(k) + 1)}",
+            _txt(f"y{sub(sorted(range(len(pts)), key=lambda i: -pts[i][1]).index(k) + 1)}",
                  Point(c.x + 10, c.y - 7), color=REGLA.darker(0.45), size=PIE)
         Line(p, q, stroke=ACENTO, width=1.7)
         _punto(p, OSCURO, r=3.4)
@@ -331,7 +330,7 @@ def orden_por_y(k, a, b, ident="orden-y", pie=""):
         _txt("q", Point(13, alto - b * paso), color=OSCURO, size=CUERPO,
              anchor="start")
         _cota_v(78, alto - a * paso, alto - hasta * paso,
-                "los 7 siguientes", color=ACENTO, dx=8)
+                "p mira hasta 7", color=ACENTO, dx=8)
         _cota_v(-52, alto - a * paso, alto - b * paso, "d(p,q) < δ",
                 color=CALIDO, dx=-8)
         _txt("y creciente ↑", Point(0, alto + 26), color=APAGADO, size=PIE)
