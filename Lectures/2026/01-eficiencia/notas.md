@@ -329,8 +329,8 @@ se pueda, demostrar que no se puede hacer mejor.
   Aproximación. 19. TSP métrico y programación lineal. 20. Esquemas de aproximación.
   21. Algoritmos aleatorios.
 
-El curso asume lo que viste en Estructuras de Datos y Algoritmos: ordenamientos,
-búsqueda binaria, BFS y DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, árboles
+El curso asume la búsqueda binaria, que viste en Programación en primer año, y lo que
+viste en Estructuras de Datos y Algoritmos: ordenamientos, BFS y DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, árboles
 recubridores mínimos, union-find, heaps, tablas hash, el Teorema Maestro y la
 programación dinámica clásica. No asume nada sobre P, NP ni reducciones.
 

@@ -20,13 +20,15 @@ cuando se pueda, dar una cota mínima para el problema. Después de cada confere
 orientan ejercicios para la casa, y la clase práctica siguiente se dedica a problemas
 que el estudiante no ha visto.
 
-El curso asume lo que el estudiante vio en Estructuras de Datos y Algoritmos:
-ordenamientos por comparación, búsqueda binaria, BFS y DFS, Dijkstra, Bellman-Ford,
+El curso asume la búsqueda binaria, que el estudiante vio en Programación en primer
+año, y lo que vio en Estructuras de Datos y Algoritmos: ordenamientos por
+comparación, BFS y DFS, Dijkstra, Bellman-Ford,
 Floyd-Warshall, árboles recubridores mínimos, union-find, heaps, tablas hash, el
 Teorema Maestro y la programación dinámica clásica (subsecuencia común más larga,
 mochila entera, subsecuencia creciente más larga). Esos algoritmos aparecen aquí como
 herramientas o como punto de partida, y cada conferencia trae técnicas y problemas
-nuevos. El curso no asume nada sobre P, NP ni reducciones.
+nuevos. El curso no asume nada sobre P, NP ni reducciones, ni la demostración de la
+cota $\Omega(n \log n)$ para ordenar por comparaciones, que la conferencia 5 hace entera.
 
 Las demostraciones de correctitud, los análisis de complejidad, las cotas mínimas, las
 reducciones y las garantías de aproximación o probabilísticas se escriben a mano, sin

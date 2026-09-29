@@ -201,3 +201,8 @@ Total estimado: 34 minutos.
   que tiene su propio outline.
 
 Resueltas el 2026-09-29: todo aprobado como está.
+
+Revisado el 2026-09-29: la §3 se detalló en tres lemas (hojas y altura, $n!$ hojas,
+valor de $\log_2 n!$) porque los estudiantes no vieron esa demostración en Estructuras
+de Datos (lo confirmó Eduardo Brito). La cota de la búsqueda binaria se
+reescribió con el argumento de los $n + 1$ huecos. El guion de audio suma uno.

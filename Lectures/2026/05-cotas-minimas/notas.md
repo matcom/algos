@@ -58,8 +58,9 @@ Hay tres maneras de demostrar una cota mínima, y las tres tienen nombre:
   para otro problema que ya sabemos difícil. Es lo que hicimos con Ben-Or en la
   conferencia 2, y es la herramienta del Tema 3 entero.
 
-En Estructuras de Datos vieron enunciado que ordenar por comparaciones cuesta
-$\Omega(n \log n)$. Hoy se demuestra, y vemos hasta dónde llega esa técnica.
+La cota $\Omega(n \log n)$ para ordenar por comparaciones se suele enunciar sin
+demostración. Hoy se demuestra entera, paso por paso, y después vemos hasta dónde
+llega esa técnica.
 
 ## 2. Árboles de decisión
 
@@ -127,19 +128,62 @@ dice por qué.
 
 ## 3. El argumento de información
 
-Un árbol binario de altura $h$ tiene a lo sumo $2^h$ hojas: cada nivel duplica, como
-mucho, los nodos del anterior. Si un problema tiene $L$ salidas distintas que el
-algoritmo tiene que poder dar, el árbol tiene al menos $L$ hojas, y entonces
-$$h \ge \log_2 L.$$
+La cota de ordenamiento sale en tres pasos, y cada uno es un lema corto: cuántas hojas
+puede tener un árbol de altura $h$, cuántas hojas necesita un algoritmo que ordena, y
+cuánto vale $\log_2 n!$.
 
-**Ordenamiento.** Un algoritmo que ordena tiene que poder producir cualquiera de las
-$n!$ permutaciones, así que $h \ge \log_2 n!$. Para ver cuánto es, acotamos la suma de
-logaritmos por una integral, porque $\log_2$ es creciente:
-$$\log_2 n! = \sum_{k=1}^{n} \log_2 k \ge \int_1^n \log_2 x \, dx
-= n \log_2 n - (n - 1)\log_2 e \ge n \log_2 n - 1{,}443\, n.$$
+**Lema 1.** Un árbol binario de altura $h$ tiene a lo sumo $2^h$ hojas.
+
+*Demostración.* Por inducción sobre $h$. Con $h = 0$ el árbol es una sola hoja, y
+$1 = 2^0$. Con $h > 0$, la raíz tiene a lo sumo dos subárboles, cada uno de altura a
+lo sumo $h - 1$, y por hipótesis cada uno tiene a lo sumo $2^{h-1}$ hojas. En total,
+a lo sumo $2 \cdot 2^{h-1} = 2^h$. $\square$
+
+Dicho al revés: un árbol con al menos $L$ hojas tiene altura al menos $\log_2 L$.
+
+**Lema 2.** El árbol de decisión de un algoritmo de comparaciones que ordena $n$
+elementos tiene al menos $n!$ hojas.
+
+*Demostración.* Basta mirar entradas con los $n$ elementos distintos, y hay $n!$
+órdenes posibles entre ellos. Cada entrada recorre un camino desde la raíz hasta una
+hoja, según las respuestas que recibe. El algoritmo no ve los valores, solo las
+respuestas, así que su salida en una hoja tiene que estar escrita en términos de
+posiciones: "el elemento de la posición 3 va primero, el de la 1 va segundo…". Esa
+salida depende solo de la hoja.
+
+Supongamos que dos entradas con órdenes distintos llegan a la misma hoja. Como los
+órdenes son distintos, hay dos posiciones $i$ y $j$ tales que en una entrada
+$a_i < a_j$ y en la otra $a_i > a_j$. La salida correcta pone $i$ antes que $j$ en el
+primer caso y $j$ antes que $i$ en el segundo. La hoja da una sola salida, así que el
+algoritmo se equivoca en una de las dos. Por tanto, entradas con órdenes distintos
+terminan en hojas distintas, y hacen falta al menos $n!$ hojas. $\square$
+
+**Lema 3.** $\log_2 n! \ge \frac{n}{2}\log_2 \frac{n}{2}$, y con más cuidado,
+$\log_2 n! \ge n \log_2 n - 1{,}443\,n$.
+
+*Demostración.* La primera es elemental. De los $n$ factores de
+$n! = 1 \cdot 2 \cdots n$, la mitad más grande son todos al menos $n/2$, así que
+$n! \ge (n/2)^{n/2}$. Tomando logaritmo sale la cota, que ya es $\Omega(n \log n)$.
+
+Para la segunda, como $\log_2$ es creciente, cada término de la suma es al menos el
+área bajo la curva en el intervalo anterior: $\log_2 k \ge \int_{k-1}^{k} \log_2 x \,
+dx$. Sumando de $k = 2$ a $n$,
+$$\log_2 n! = \sum_{k=2}^{n} \log_2 k \ge \int_1^n \log_2 x \, dx
+= n \log_2 n - (n - 1)\log_2 e \ge n \log_2 n - 1{,}443\, n,$$
+porque una primitiva de $\log_2 x$ es $x \log_2 x - x \log_2 e$, y
+$\log_2 e \approx 1{,}4427$. $\square$
 
 **Teorema.** Todo algoritmo de ordenamiento por comparaciones hace, en el peor caso, al
 menos $\lceil \log_2 n! \rceil \ge n \log_2 n - 1{,}443\,n$ comparaciones.
+
+*Demostración.* Por el lema 2, el árbol tiene al menos $n!$ hojas. Por el lema 1, su
+altura es al menos $\log_2 n!$, y es un entero. El peor caso es la altura. El lema 3
+da el valor. $\square$
+
+Con números: para $n = 3$, $\log_2 6 \approx 2{,}58$, así que hacen falta 3
+comparaciones, y el árbol de la @fig-arbol-insercion es óptimo. Para $n = 4$,
+$\log_2 24 \approx 4{,}58$, así que hacen falta 5. Para $n = 5$, $\log_2 120 \approx
+6{,}91$, así que hacen falta 7.
 
 ¿Está cerca de lo que hacen los algoritmos reales? Contemos el peor caso exacto de
 mergesort, recorriendo **todas** las permutaciones para $n \le 8$.
@@ -194,9 +238,19 @@ unas $0{,}44\,n$ comparaciones. Coinciden en el término principal, que es lo qu
 que mergesort es óptimo salvo por el término lineal. El ejercicio 8 pregunta qué
 pasaría con un algoritmo que prometiera menos.
 
-**Búsqueda en un arreglo ordenado.** Hay $n + 1$ salidas posibles: una de las $n$
-posiciones, o "no está". Así que hacen falta $\lceil \log_2 (n+1) \rceil$
-comparaciones de tres vías, y la búsqueda binaria las alcanza. Es óptima.
+**Búsqueda en un arreglo ordenado.** Buscamos $x$ en un arreglo ordenado de $n$
+elementos distintos, comparando $x$ con elementos del arreglo, y cada comparación
+responde $<$, $=$ o $>$. Un árbol de tres ramas por nodo no sirve directamente, porque
+con tres ramas el lema 1 daría solo $\log_3$. El argumento mira los casos en que $x$
+**no está**. Hay $n + 1$ huecos donde puede caer: antes del primero, entre dos
+consecutivos, o después del último, y en esos casos ninguna comparación responde $=$,
+así que solo se usan dos ramas. Dos valores de $x$ en huecos distintos no pueden
+terminar en la misma hoja: entre los dos huecos hay un elemento $a_i$ con el que el
+algoritmo no comparó, porque habría recibido respuestas distintas, y entonces
+$x = a_i$ recibe las mismas respuestas y el algoritmo diría "no está" cuando sí está.
+Son $n + 1$ hojas en un árbol binario, así que hacen falta
+$\lceil \log_2 (n+1) \rceil$ comparaciones, y la búsqueda binaria las alcanza. Es
+óptima.
 
 ## 4. Cuándo la información no alcanza
 

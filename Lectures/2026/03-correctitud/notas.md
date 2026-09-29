@@ -78,8 +78,8 @@ Las tres son la inducción de la conferencia 2 con otra ropa: el invariante es i
 sobre el número de vueltas, el potencial es inducción sobre los naturales en sentido
 descendente, y el primer fallo es inducción fuerte escrita al revés.
 
-Ya las usaste sin nombrarlas. La búsqueda binaria que viste en Estructuras de Datos
-funciona por el invariante "si $x$ está en el arreglo, está entre `lo` y `hi`", y
+Ya las usaste sin nombrarlas. La búsqueda binaria que viste en Programación, en
+primer año, funciona por el invariante "si $x$ está en el arreglo, está entre `lo` y `hi`", y
 termina porque el potencial `hi - lo` baja en cada vuelta. El ejercicio 7 cambia un
 `+ 1` y el potencial deja de bajar.
 
