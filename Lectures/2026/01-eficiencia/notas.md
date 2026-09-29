@@ -320,14 +320,15 @@ se pueda, demostrar que no se puede hacer mejor.
 
 - Tema 1, fundamentos: 1. Eficiencia y modelos de cómputo. 2. El oficio algorítmico.
   3. Correctitud. 4. Análisis amortizado. 5. Cotas mínimas.
-- Tema 2, técnicas: 6. Transformada rápida de Fourier. 7. Golosos y argumentos de
-  intercambio. 8. Matroides. 9. Programación dinámica sobre árboles y subconjuntos.
-  10. Optimizaciones de programación dinámica. 11. Flujo máximo con Dinic. 12. Flujo
-  máximo con push-relabel.
-- Tema 3, intratabilidad: 13. P, NP y reducciones. 14. Cook-Levin. 15. Reducciones a
-  grafos. 16. Reducciones a secuencias y números. 17. Algoritmos exactos. 18.
-  Aproximación. 19. TSP métrico y programación lineal. 20. Esquemas de aproximación.
-  21. Algoritmos aleatorios.
+- Tema 2, técnicas: 6. Divide y vencerás y recurrencias. 7. Transformada rápida de
+  Fourier. 8. Algoritmos aleatorios: Las Vegas. 9. Golosos y argumentos de
+  intercambio. 10. Matroides. 11. Programación dinámica sobre árboles y subconjuntos.
+  12. Optimizaciones de programación dinámica. 13. Flujo máximo con Dinic. 14. Flujo
+  máximo con push-relabel. 15. Algoritmos aleatorios: Monte Carlo.
+- Tema 3, intratabilidad: 16. P, NP y reducciones. 17. Cook-Levin. 18. Reducciones a
+  grafos. 19. Reducciones a secuencias y números. 20. Algoritmos exactos. 21.
+  Aproximación. 22. TSP métrico y programación lineal. 23. Esquemas de aproximación.
+- Cierre: 24. Fronteras del diseño y análisis de algoritmos.
 
 El curso asume la búsqueda binaria, que viste en Programación en primer año, y lo que
 viste en Estructuras de Datos y Algoritmos: ordenamientos, BFS y DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, árboles

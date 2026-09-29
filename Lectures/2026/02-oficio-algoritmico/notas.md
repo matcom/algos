@@ -469,7 +469,7 @@ objetivo. Una reducción del problema $A$ al problema $B$ transforma entradas de
 entradas de $B$ de modo que la respuesta se preserva. Eso permite leerla en dos
 direcciones: **un algoritmo bueno para $B$ da uno bueno para $A$**, que es como se
 usa para diseñar, y **una cota mínima para $A$ da una cota mínima para $B$**, que es
-como la acabamos de usar. Las reducciones de la conferencia 13 en adelante son las
+como la acabamos de usar. Las reducciones de la conferencia 16 en adelante son las
 mismas, leídas en la segunda dirección: si $A$ es difícil y $A$ se reduce a $B$,
 entonces $B$ es difícil.
 
@@ -662,7 +662,8 @@ a veces el trabajo consiste en cambiar de herramientas.
 
 El curso vuelve sobre las tres piezas de hoy. Las cotas mínimas y los argumentos de
 adversario son la conferencia 5. Los algoritmos aleatorios y el análisis de su costo
-esperado son la conferencia 21. Las reducciones son el Tema 3 entero, leídas al revés.
+esperado son las conferencias 8 y 15. Las reducciones son el Tema 3 entero, leídas al
+revés.
 
 ## 11. Resumen
 

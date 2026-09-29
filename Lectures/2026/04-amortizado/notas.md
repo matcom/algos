@@ -749,7 +749,7 @@ costo total de cualquier secuencia. No garantiza nada sobre una operación suelt
 `desencolar` puede costar $\Theta(n)$, y un acceso a un splay tree también. Si una
 aplicación necesita que **cada** operación sea rápida (un sistema de tiempo real, una
 interfaz que no puede congelarse), el costo amortizado no sirve, y el ejercicio 8
-pide un ejemplo. En la conferencia 21 aparece otra clase de garantía, la esperada, que
+pide un ejemplo. En la conferencia 8 aparece otra clase de garantía, la esperada, que
 sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
 
 ## 11. Resumen
