@@ -1,0 +1,3 @@
+thead th code { text-transform: none; letter-spacing: 0; font-size: 8.5pt; }
+
+figure[id^="fig-"] { margin: 5mm 0; text-align: center; }

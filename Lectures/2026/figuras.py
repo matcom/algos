@@ -740,10 +740,14 @@ def _dibujar_arbol(arbol, dx=22.0, dy=30.0, resaltar=(), origen=(0.0, 0.0)):
                      fill=REGLA.transparent(0.5), stroke=APAGADO, width=0.8)
             _txt(etiqueta[1:], Point(p.x, p.y + 16), color=APAGADO, size=PIE)
         else:
-            activo = t[0] in resaltar
-            Circle(8.5, fill=ACENTO.transparent(0.18) if activo else Colors.White,
-                   stroke=OSCURO if activo else TINTA,
-                   width=1.4 if activo else 0.9).move_to(p)
+            # "*" y "+" al principio de la etiqueta marcan dos resaltados distintos
+            color = None
+            if etiqueta[0] in "*+":
+                color, etiqueta = (OSCURO if etiqueta[0] == "*" else CALIDO), etiqueta[1:]
+            elif t[0] in resaltar:
+                color = OSCURO
+            Circle(8.5, fill=color.transparent(0.18) if color else Colors.White,
+                   stroke=color or TINTA, width=1.4 if color else 0.9).move_to(p)
             _txt(etiqueta, p, color=TINTA, size=PIE)
     return len(orden) * dx, max((d for _, d in orden), default=0) * dy
 
@@ -827,4 +831,101 @@ def compresion(antes, despues, nodos, camino, ident="compresion", pie=""):
         ancho2 = _dibujar_bosque(despues, nodos, camino=camino, origen=(ancho + 56, 0))
         _txt("después: todo el camino cuelga de la raíz",
              Point(ancho + 56 + ancho2 / 2 - 12, -20), color=APAGADO, size=PIE)
+    return _figura(canvas, ident, pie)
+
+
+
+# ==========================================================================
+# Conferencia 5: cotas mínimas
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# 16. un árbol de decisión de comparaciones
+# --------------------------------------------------------------------------
+
+def arbol_comparaciones(arbol, ident="arbol-comparaciones", pie=""):
+    """`arbol` es ("pregunta", sí, no) o ("hoja", texto). Sale de correr un
+    algoritmo sobre todas las permutaciones, no se escribe a mano."""
+    hojas = []
+
+    def contar(t):
+        if t[0] == "hoja":
+            hojas.append(t)
+            return
+        contar(t[1])
+        contar(t[2])
+
+    contar(arbol)
+    dx, dy = 62.0, 50.0
+    x = [0.0]
+
+    def colocar(t, d):
+        if t[0] == "hoja":
+            p = Point(x[0], d * dy)
+            x[0] += dx
+            return p
+        a, b = colocar(t[1], d + 1), colocar(t[2], d + 1)
+        p = Point((a.x + b.x) / 2, d * dy)
+        for hijo, texto in ((a, "sí"), (b, "no")):
+            Line(p, hijo, stroke=APAGADO, width=0.9)
+            _txt(texto, Point((p.x + hijo.x) / 2 + (-9 if hijo is a else 9),
+                              (p.y + hijo.y) / 2 - 4), color=APAGADO, size=PIE)
+        Rect(46, 16, fill=Colors.White, stroke=TINTA, width=0.9).move_to(p)
+        _txt(t[0], p, color=TINTA, size=PIE)
+        return p
+
+    with Canvas() as canvas:
+        colocar(arbol, 0)
+        # las hojas van al final, encima de las aristas, en el mismo orden
+        prof = {}
+
+        def profundidades(t, d):
+            if t[0] == "hoja":
+                prof[id(t)] = d
+                return
+            profundidades(t[1], d + 1)
+            profundidades(t[2], d + 1)
+
+        profundidades(arbol, 0)
+        for k, h in enumerate(hojas):
+            p = Point(k * dx, prof[id(h)] * dy)
+            Rect(52, 16, fill=ACENTO.transparent(0.16), stroke=OSCURO, width=0.9).move_to(p)
+            _txt(h[1], p, color=TINTA, size=PIE)
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 17. la mezcla intercalada y las comparaciones forzadas
+# --------------------------------------------------------------------------
+
+def intercalado(n, comparados, ident="intercalado", pie=""):
+    """La entrada a₁ < b₁ < a₂ < … < bₙ. `comparados` son los pares (lista, índice)
+    que la mezcla comparó de verdad al correr sobre ella."""
+    paso = 34.0
+    pos = {}
+    for i in range(n):
+        pos[("a", i)] = Point(2 * i * paso, 0)
+        pos[("b", i)] = Point((2 * i + 1) * paso, 46)
+    with Canvas() as canvas:
+        for u, v in comparados:
+            Line(pos[u], pos[v], stroke=CALIDO, width=1.4)
+        for (lista, i), p in pos.items():
+            Circle(10, fill=Colors.White, stroke=TINTA, width=0.9).move_to(p)
+            _txt(f"{lista}{sub(i + 1)}", p, color=TINTA, size=PIE)
+        _txt("lista A", Point(-20, 0), color=APAGADO, size=PIE, anchor="end")
+        _txt("lista B", Point(-20, 46), color=APAGADO, size=PIE, anchor="end")
+        _txt(f"{len(comparados)} comparaciones, una por cada par de vecinos en el orden",
+             Point((2 * n - 1) * paso / 2, 76), color=CALIDO, size=PIE)
+    return _figura(canvas, ident, pie)
+
+
+# --------------------------------------------------------------------------
+# 18. el cuadro de un torneo
+# --------------------------------------------------------------------------
+
+def cuadro_torneo(arbol, ident="torneo", pie=""):
+    """`arbol` usa las marcas de _dibujar_arbol: "*" para los partidos del máximo
+    y "+" para sus rivales. Sale de correr el torneo."""
+    with Canvas() as canvas:
+        _dibujar_arbol(arbol, dx=24.0, dy=32.0)
     return _figura(canvas, ident, pie)
