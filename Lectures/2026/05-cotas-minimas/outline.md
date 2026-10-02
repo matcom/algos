@@ -146,6 +146,12 @@ la demostración del adversario dice en qué entrada.
 - **Código ejecutable**: conteo contra el `sorted` de Python en enteros pequeños.
 - La regla de la conferencia 2, otra vez: una cota viene con su modelo pegado. La cota
   de Fredman y Saks de la conferencia 4 era en otro modelo más, el de sondeo de celdas.
+- **Cotas mínimas polinomiales**, como tabla de resumen: palíndromos en una cinta
+  (Hennie, 1965), propiedades monótonas de grafos en la matriz de adyacencia (Rivest y
+  Vuillemin, 1976, $v^2/16$), producto booleano en circuitos monótonos (Paterson, 1975,
+  $n^3$ conjunciones exactas) y 3SUM en árboles de decisión 3-lineales (Erickson, 1995).
+  Cada fila dice qué la rompe fuera del modelo. Solo las cuatro que no necesitan
+  contexto. Las cotas condicionales (SETH, 3SUM, APSP) quedan para la conferencia 24.
 
 ### 10. Cierre del Tema 1
 
@@ -184,9 +190,9 @@ la demostración del adversario dice en qué entrada.
 | 4 | 6 | 4 |
 | 5 | 7 | 7 |
 | 6 | 8 | 4 |
-| 7 | 9 y 10 | 4 |
+| 7 | 9 y 10 | 7 |
 
-Total estimado: 34 minutos.
+Total estimado: 37 minutos.
 
 ## Decisiones que quiero confirmar
 
@@ -206,3 +212,9 @@ Revisado el 2026-09-29: la §3 se detalló en tres lemas (hojas y altura, $n!$ h
 valor de $\log_2 n!$) porque los estudiantes no vieron esa demostración en Estructuras
 de Datos (lo confirmó Eduardo Brito). La cota de la búsqueda binaria se
 reescribió con el argumento de los $n + 1$ huecos. El guion de audio suma uno.
+
+Revisado el 2026-10-02: la §9 suma la tabla de cotas mínimas polinomiales, a pedido
+de Alex. Las cuatro citas se verificaron contra los resúmenes originales (Hennie en
+Information and Control; Rivest y Vuillemin, Paterson y Grønlund y Pettie en sus
+artículos; Erickson en SODA 1995). Solo se agregó prosa: ningún bloque de código se
+volvió a correr, y desde el Cierre del Tema 1 todo se corre una página.

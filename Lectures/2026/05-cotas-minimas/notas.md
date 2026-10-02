@@ -736,6 +736,59 @@ Ben-Or, en árboles de decisión algebraicos. La de Fredman y Saks de la confere
 en sondeo de celdas. Antes de citar una cota, hay que saber cuál es su modelo y qué
 deja fuera.
 
+### Cotas mínimas polinomiales
+
+Todas las cotas de esta conferencia están entre $n$ y $n \log n$. Hay cotas
+demostradas más altas, de $n^2$ y de $n^3$, y siguen la misma regla: valen en un
+modelo restringido y dejan de valer fuera de él. Estas cuatro no necesitan nada que
+no hayas visto.
+
+| Problema | Cota mínima | Modelo |
+|---|---|---|
+| ¿La cadena es un palíndromo? | $\Omega(n^2)$ pasos | Máquina de Turing de una cinta |
+| ¿El grafo tiene una propiedad monótona? | $v^2/16$ consultas | Consultas a la matriz de adyacencia |
+| Producto de matrices booleanas | $n^3$ conjunciones | Circuitos con solo $\wedge$ y $\vee$ |
+| ¿Hay tres números que sumen cero? | $\Omega(n^2)$ preguntas | Preguntas sobre tres números a la vez |
+
+**Palíndromos.** Es la cota de Hennie (1965) que vimos en la conferencia 1. La cinta
+obliga al cabezal a ir y volver entre los dos extremos. En la RAM se lee cualquier
+posición en un paso, y $O(n)$ alcanza.
+
+**Grafos.** Una propiedad de un grafo es monótona si agregar aristas no la destruye,
+como ser conexo o tener un triángulo, y no es trivial si unos grafos la tienen y
+otros no. Rivest y Vuillemin (1976) demostraron que decidir cualquier propiedad así
+obliga a mirar, en el peor caso, al menos $v^2/16$ entradas de la matriz de adyacencia
+de un grafo con $v$ vértices. La cota no habla del grafo sino de cómo está guardado. Con listas de
+adyacencia, un recorrido decide si el grafo es conexo en $O(v + m)$, y eso es mucho
+menos que $v^2$ cuando el grafo tiene pocas aristas.
+
+**Matrices booleanas.** La entrada $C_{ij}$ del producto es
+$\bigvee_k (A_{ik} \wedge B_{kj})$, y calcularla así cuesta $n^3$ conjunciones en
+total. Paterson (1975) demostró que ningún circuito que use solo $\wedge$ y $\vee$
+puede hacerlo con menos, así que en ese modelo la cota es exacta. Strassen (1969)
+multiplica matrices de enteros en $O(n^{\log_2 7}) = O(n^{2{,}81})$ con siete
+productos por cada bloque de $2 \times 2$ en vez de ocho, y para eso necesita restar.
+Para multiplicar matrices booleanas basta tratarlas como matrices de enteros y mirar
+qué entradas del producto no son cero. La resta es justo la operación que el modelo
+de Paterson no tiene.
+
+**3SUM.** Dados $n$ números, ¿hay tres que sumen cero? El algoritmo directo ordena y,
+para cada número, recorre el resto con dos punteros, en $O(n^2)$. Cada pregunta que
+hace es el signo de $a_i + a_j + a_k$. Erickson (1995) demostró $\Omega(n^2)$ para
+los árboles de decisión donde cada nodo pregunta el signo de una combinación lineal
+de a lo sumo tres entradas. El modelo de comparaciones de esta conferencia es el caso
+de dos entradas, porque $a_i < a_j$ es el signo de $a_j - a_i$. En ese modelo la cota
+es exacta. Grønlund y Pettie (2014) permitieron preguntas sobre cuatro entradas, y les
+alcanzaron $O(n^{3/2} \sqrt{\log n})$ preguntas. También dieron un algoritmo que baja
+de $n^2$ por un factor logarítmico. Nadie sabe si 3SUM se puede resolver en
+$O(n^{2 - \varepsilon})$ para algún $\varepsilon > 0$. Se cree que no, y esa creencia
+es una de las hipótesis con las que trabaja la conferencia 24.
+
+En las cuatro filas pasa lo mismo que con el ordenamiento por conteo. La cota es un
+teorema, y un algoritmo que usa una herramienta que el modelo no tiene, como el acceso
+directo, otra representación, la resta o una pregunta más grande, hace menos de lo que
+la cota permite.
+
 ## 10. Cierre del Tema 1
 
 Con esta conferencia termina el Tema 1. Después de cinco conferencias tenemos las
@@ -768,6 +821,9 @@ flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
   un rival falla con probabilidad $1/(n-1)$, y la cota lo detecta sin pruebas.
 - El ordenamiento por conteo no contradice la cota: no compara. Toda cota viene con su
   modelo.
+- Hay cotas demostradas de $n^2$ y $n^3$: palíndromos, propiedades de grafos en la
+  matriz de adyacencia, matrices booleanas y 3SUM. Todas valen en un modelo
+  restringido, y fuera de él hay algoritmos que hacen menos.
 
 ## Ejercicios
 
