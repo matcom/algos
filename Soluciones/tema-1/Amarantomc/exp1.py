@@ -1,59 +1,56 @@
-import math
+import time
+import sys
 
-def resolver_mayor_n(costo_fn, presupuesto):
+def mochila_dp(pesos, valores, W):
     """
-    Encuentra el mayor n tal que costo_fn(n) <= presupuesto
-    utilizando Búsqueda Binaria sobre el espacio de enteros.
+    Algoritmo clásico de Programación Dinámica O(n*W)
     """
-    alto = 2
-    while costo_fn(alto) <= presupuesto:
-        alto *= 2
+    n = len(pesos)
     
-    bajo = alto // 2
-    while bajo + 1 < alto:
-        medio = (bajo + alto) // 2
-        if costo_fn(medio) <= presupuesto:
-            bajo = medio
-        else:
-            alto = medio
-    return bajo
+    dp = [[0] * (W + 1) for _ in range(n + 1)]
+    
+    for i in range(1, n + 1):
+        w_i = pesos[i - 1]
+        v_i = valores[i - 1]
+        for w in range(1, W + 1):
+            if w_i <= w:
+                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - w_i] + v_i)
+            else:
+                dp[i][w] = dp[i - 1][w]
+                
+    return dp[n][W]
 
-def simular_ejercicio_1():
+def simular_ejercicio_2():
+    n = 100 # Número fijo de elementos
+    # Generar pesos y valores arbitrarios
+    pesos = [(i % 20) + 1 for i in range(n)]
+    valores = [(i % 50) + 10 for i in range(n)]
     
-    ops_por_segundo = 10**9
-    segundos_hora = 3600
-    presupuesto_base = ops_por_segundo * segundos_hora 
-    
-    factores_mult = [1, 10, 1000]
-    
-    costos = {
-        "n": lambda n: n,
-        "n log2 n": lambda n: n * math.log2(n),
-        "n^2": lambda n: n**2,
-        "n^3": lambda n: n**3,
-        "2^n": lambda n: 2**n if n < 1024 else float('inf')
-    }
+    print("=" * 85)
+    print(f"{'DEMOSTRACIÓN DE COMPLEJIDAD PSEUDOPOLINOMIAL EN LA MOCHILA O(n W)':^85}")
+    print("=" * 85)
+    print(f"{'Bits de W (b_W)':<15} | {'Valor W':<12} | {'Tamaño Tabla (n*W)':<20} | {'Tiempo (ms)':<15} | {'Ratio T(b)/T(b-1)':<15}")
+    print("-" * 85)
 
-    print("=" * 80)
-    print(f"{'TABLA DE CAPACIDAD DE ENTRADA Y FACTORES DE CRECIMIENTO (1 Hora)':^80}")
-    print("=" * 80)
-    print(f"{'Costo':<12} | {'Actual (1x)':<14} | {'10x Speed':<14} | {'1000x Speed':<14} | {'Factor (1000x/1x)':<18}")
-    print("-" * 80)
+    tiempo_anterior = None
 
-    for nombre, fn in costos.items():
-        n_actual = resolver_mayor_n(fn, presupuesto_base * 1)
-        n_10x = resolver_mayor_n(fn, presupuesto_base * 10)
-        n_1000x = resolver_mayor_n(fn, presupuesto_base * 1000)
+    for bits in range(10, 26): # Incrementamos la cantidad de bits de W de 10 a 25 bits
+        W = 2**bits
         
-        if nombre == "2^n":
-            factor_str = f"+{n_1000x - n_actual} (aditivo)"
-        else:
-            factor = n_1000x / n_actual
-            factor_str = f"{factor:>15.2f}x"
-            
-        print(f"{nombre:<12} | {n_actual:>14.3g} | {n_10x:>14.3g} | {n_1000x:>14.3g} | {factor_str}")
+        # Para evitar problemas de memoria en la demo, detenemos la simulación si W sobrepasa los 2^24
+        inicio = time.perf_counter()
+        res = mochila_dp(pesos, valores, W)
+        fin = time.perf_counter()
+        
+        duracion_ms = (fin - inicio) * 1000
+        ratio_str = f"{duracion_ms / tiempo_anterior:.2f}x" if tiempo_anterior and tiempo_anterior > 0 else "N/A"
+        tiempo_anterior = duracion_ms
+        
+        print(f"{bits:<15} | {W:<12,} | {n * W:<20,} | {duracion_ms:<15.3f} | {ratio_str:<15}")
 
-    print("=" * 80)
+    print("=" * 85)
 
 if __name__ == "__main__":
-    simular_ejercicio_1()
+    # Ajustamos el límite de recursión por seguridad
+    sys.setrecursionlimit(2000)
+    simular_ejercicio_2()
