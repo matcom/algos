@@ -1,56 +1,67 @@
-import time
 import sys
 
-def mochila_dp(pesos, valores, W):
-    """
-    Algoritmo clásico de Programación Dinámica O(n*W)
-    """
-    n = len(pesos)
+class TupleMinStack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, x):
+        if not self.stack:
+            min_val = x
+        else:
+            min_val = min(x, self.stack[-1][1])
+        self.stack.append((x, min_val))
+
+    def pop(self):
+        if not self.stack:
+            raise IndexError("pop from empty stack")
+        return self.stack.pop()[0]
+
+    def top(self):
+        if not self.stack:
+            raise IndexError("top from empty stack")
+        return self.stack[-1][0]
+
+    def get_min(self):
+        if not self.stack:
+            raise IndexError("min from empty stack")
+        return self.stack[-1][1]
+
+# --- Casos de Prueba e Ilustración en Tabla ---
+def probar_pila_tuplas():
+    operaciones = [
+        ("push", 5),
+        ("push", 2),
+        ("push", 8),
+        ("min", None),
+        ("push", 1),
+        ("min", None),
+        ("pop", None),
+        ("min", None),
+        ("pop", None),
+        ("min", None),
+        ("pop", None),
+        ("min", None)
+    ]
+
+    pila = TupleMinStack()
     
-    dp = [[0] * (W + 1) for _ in range(n + 1)]
-    
-    for i in range(1, n + 1):
-        w_i = pesos[i - 1]
-        v_i = valores[i - 1]
-        for w in range(1, W + 1):
-            if w_i <= w:
-                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - w_i] + v_i)
-            else:
-                dp[i][w] = dp[i - 1][w]
-                
-    return dp[n][W]
+    print(f"{'OPERACIÓN':<15} | {'ARG':<5} | {'ESTADO DE LA PILA (VAL, MIN)':<35} | {'MÍNIMO RETORNADO':<18}")
+    print("-" * 81)
 
-def simular_ejercicio_2():
-    n = 100 # Número fijo de elementos
-    # Generar pesos y valores arbitrarios
-    pesos = [(i % 20) + 1 for i in range(n)]
-    valores = [(i % 50) + 10 for i in range(n)]
-    
-    print("=" * 85)
-    print(f"{'DEMOSTRACIÓN DE COMPLEJIDAD PSEUDOPOLINOMIAL EN LA MOCHILA O(n W)':^85}")
-    print("=" * 85)
-    print(f"{'Bits de W (b_W)':<15} | {'Valor W':<12} | {'Tamaño Tabla (n*W)':<20} | {'Tiempo (ms)':<15} | {'Ratio T(b)/T(b-1)':<15}")
-    print("-" * 85)
-
-    tiempo_anterior = None
-
-    for bits in range(10, 20): # Incrementamos la cantidad de bits de W de 10 a 25 bits
-        W = 2**bits
+    for op, val in operaciones:
+        res = "-"
+        if op == "push":
+            pila.push(val)
+            res = f"insertado {val}"
+        elif op == "pop":
+            res = f"removido {pila.pop()}"
+        elif op == "min":
+            res = str(pila.get_min())
         
-        # Para evitar problemas de memoria en la demo, detenemos la simulación si W sobrepasa los 2^24
-        inicio = time.perf_counter()
-        res = mochila_dp(pesos, valores, W)
-        fin = time.perf_counter()
+        stack_str = str(pila.stack)
+        arg_str = str(val) if val is not None else ""
         
-        duracion_ms = (fin - inicio) * 1000
-        ratio_str = f"{duracion_ms / tiempo_anterior:.2f}x" if tiempo_anterior and tiempo_anterior > 0 else "N/A"
-        tiempo_anterior = duracion_ms
-        
-        print(f"{bits:<15} | {W:<12,} | {n * W:<20,} | {duracion_ms:<15.3f} | {ratio_str:<15}")
-
-    print("=" * 85)
+        print(f"{op:<15} | {arg_str:<5} | {stack_str:<35} | {res:<18}")
 
 if __name__ == "__main__":
-    # Ajustamos el límite de recursión por seguridad
-    sys.setrecursionlimit(2000)
-    simular_ejercicio_2()
+    probar_pila_tuplas()
