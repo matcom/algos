@@ -100,7 +100,7 @@ En ambos algoritmos, el analista cae en la trampa de considerar el parámetro nu
 
 ## Código de Demostración en Python
 
-El siguiente script en Python mide empíricamente el tiempo de ejecución y el consumo de memoria al resolver el problema de la mochila por Programación Dinámica manteniendo el número de elementos $n$ constante mientras se incrementa la representación en bits del parámetro $W$.
+El siguiente script en Python mide empíricamente el tiempo de ejecución y el consumo de memoria al resolver el problema de la mochila por Programación Dinámica manteniendo el número de elementos $n$ constante mientras se incrementa la representación en bits del parámetro $W$ (Incrementa solo hasta 19 bits por temas de seguridad y crasheo de la pc).
 
 ```python
 import time
@@ -139,7 +139,7 @@ def simular_ejercicio_2():
 
     tiempo_anterior = None
 
-    for bits in range(10, 26): # Incrementamos la cantidad de bits de W de 10 a 25 bits
+    for bits in range(10, 20): # Incrementamos la cantidad de bits de W de 10 a 25 bits
         W = 2**bits
         
         # Para evitar problemas de memoria en la demo, detenemos la simulación si W sobrepasa los 2^24

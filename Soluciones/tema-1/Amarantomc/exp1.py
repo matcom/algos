@@ -34,7 +34,7 @@ def simular_ejercicio_2():
 
     tiempo_anterior = None
 
-    for bits in range(10, 26): # Incrementamos la cantidad de bits de W de 10 a 25 bits
+    for bits in range(10, 20): # Incrementamos la cantidad de bits de W de 10 a 25 bits
         W = 2**bits
         
         # Para evitar problemas de memoria en la demo, detenemos la simulación si W sobrepasa los 2^24
