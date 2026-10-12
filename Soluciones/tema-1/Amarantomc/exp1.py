@@ -1,69 +1,113 @@
-class Node:
-    def __init__(self, val):
-        self.val = val
-        self.next = None
+from collections import Counter
+import random
 
-def detectar_ciclo_floyd(head):
-    if not head or not head.next:
-        return False, []
+def con_atajo(A):
+    c1, c2 = None, None
+    v1, v2 = 0, 0
+    for x in A:
+        if v1 > 0 and x == c1:
+            v1 += 1
+        elif v2 > 0 and x == c2:
+            v2 += 1
+        elif v1 == 0:
+            c1, v1 = x, 1
+        elif v2 == 0:
+            c2, v2 = x, 1
+        else:
+            v1 -= 1
+            v2 -= 1
+            
+     
+    resultado = []
+    if v1 > 0: resultado.append(c1)
+    if v2 > 0: resultado.append(c2)
+    return set(resultado)
 
-    tortuga = head
-    liebre = head
-    paso = 0
-    traza = []
+def dos_pasadas_correcto(A):
+    c1, c2 = None, None
+    v1, v2 = 0, 0
+    for x in A:
+        if v1 > 0 and x == c1:
+            v1 += 1
+        elif v2 > 0 and x == c2:
+            v2 += 1
+        elif v1 == 0:
+            c1, v1 = x, 1
+        elif v2 == 0:
+            c2, v2 = x, 1
+        else:
+            v1 -= 1
+            v2 -= 1
+            
+    # Segunda pasada de verificación exacta
+    candidatos = {c for c in (c1, c2) if c is not None}
+    validos = set()
+    n = len(A)
+    for c in candidatos:
+        if A.count(c) * 3 > n:
+            validos.add(c)
+    return validos
 
-    while liebre and liebre.next:
-        paso += 1
-        tortuga = tortuga.next
-        liebre = liebre.next.next
-        
-        t_val = tortuga.val if tortuga else "None"
-        l_val = liebre.val if liebre else "None"
-        traza.append((paso, t_val, l_val))
+def gen_mayoria_plantada(n):
+    # Inserta elementos con frecuencia claramente superior a n/3
+    m = random.choice(["A", "B", "C", "D", "E"])
+    A = [m] * (n // 3 + 2) + [random.choice(["A", "B", "C", "D", "E"]) for _ in range(n - (n // 3 + 2))]
+    random.shuffle(A)
+    return A
 
-        if tortuga == liebre:
-            return True, traza
+def gen_3_simbolos(n):
+    return [random.choice(["A", "B", "C"]) for _ in range(n)]
 
-    return False, traza
+def gen_4_simbolos(n):
+    return [random.choice(["A", "B", "C", "D"]) for _ in range(n)]
 
-# --- Casos de Prueba e Ilustración en Tabla ---
-def probar_algoritmo_floyd():
-    print("=== CASO 1: Lista CON Ciclo (1 -> 2 -> 3 -> 4 -> 2 ...) ===")
-    n1 = Node(1)
-    n2 = Node(2)
-    n3 = Node(3)
-    n4 = Node(4)
-    n1.next = n2
-    n2.next = n3
-    n3.next = n4
-    n4.next = n2 # Crea un ciclo apuntando al nodo 2
+def gen_5_simbolos(n):
+    return [random.choice(["A", "B", "C", "D", "E"]) for _ in range(n)]
 
-    tiene_ciclo, traza = detectar_ciclo_floyd(n1)
+generadores = {
+    "mayoría plantada": gen_mayoria_plantada,
+    "3 símbolos": gen_3_simbolos,
+    "4 símbolos": gen_4_simbolos,
+    "5 símbolos": gen_5_simbolos,
+}
+def oraculo_n3(A):
+    n = len(A)
+    conteo = Counter(A)
+    return {elem for elem, count in conteo.items() if count * 3 > n}
+
+# Simulación de pruebas
+random.seed(42)
+pct_atajo = []
+pct_correcto = []
+
+for nombre, generar in generadores.items():
+    casos = [generar(random.randint(10, 30)) for _ in range(2000)]
+    fallos_atajo = sum(1 for A in casos if con_atajo(A) != oraculo_n3(A))
+    fallos_correcto = sum(1 for A in casos if dos_pasadas_correcto(A) != oraculo_n3(A))
     
-    print(f"{'PASO':<6} | {'POSICIÓN TORTUGA':<18} | {'POSICIÓN LIEBRE':<18} | {'ESTADO':<15}")
-    print("-" * 63)
-    for p, t, l in traza:
-        estado = "¡Colisión!" if t == l else "Avanzando"
-        print(f"{p:<6} | {str(t):<18} | {str(l):<18} | {estado:<15}")
-    
-    print(f"\nResultado final: ¿Tiene ciclo? -> {tiene_ciclo}\n")
+    pct_atajo.append((fallos_atajo / len(casos)) * 100)
+    pct_correcto.append((fallos_correcto / len(casos)) * 100)
+    print(f"{nombre:>20} | {pct_atajo[-1]:>13.1f}% | {pct_correcto[-1]:>17.1f}%")
 
-    print("=== CASO 2: Lista SIN Ciclo (1 -> 2 -> 3 -> 4 -> None) ===")
-    m1 = Node(1)
-    m2 = Node(2)
-    m3 = Node(3)
-    m4 = Node(4)
-    m1.next = m2
-    m2.next = m3
-    m3.next = m4
+    import matplotlib.pyplot as plt
 
-    tiene_ciclo_2, traza_2 = detectar_ciclo_floyd(m1)
-    print(f"{'PASO':<6} | {'POSICIÓN TORTUGA':<18} | {'POSICIÓN LIEBRE':<18} | {'ESTADO':<15}")
-    print("-" * 63)
-    for p, t, l in traza_2:
-        print(f"{p:<6} | {str(t):<18} | {str(l):<18} | {'Avanzando':<15}")
-    
-    print(f"\nResultado final: ¿Tiene ciclo? -> {tiene_ciclo_2}")
+nombres = ["Mayoría Plantada", "3 Símbolos", "4 Símbolos", "5 Símbolos"]
 
-if __name__ == "__main__":
-    probar_algoritmo_floyd()
+
+x = range(len(nombres))
+ancho = 0.35
+
+fig, ax = plt.subplots(figsize=(8, 5))
+rects1 = ax.bar([i - ancho/2 for i in x], pct_atajo, ancho, label='Versión con Atajo', color='#e74c3c')
+rects2 = ax.bar([i + ancho/2 for i in x], pct_correcto, ancho, label='Dos Pasadas (Correcto)', color='#2ecc71')
+
+ax.set_ylabel('% de Arreglos con Errores')
+ax.set_title('Porcentaje de Fallos según el Generador de Pruebas (Umbral > n/3)')
+ax.set_xticks(x)
+ax.set_xticklabels(nombres)
+ax.legend()
+ax.set_ylim(0, 100)
+
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.savefig('grafica_fallos_n3.png', dpi=300)
