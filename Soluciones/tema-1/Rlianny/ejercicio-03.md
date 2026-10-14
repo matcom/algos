@@ -80,18 +80,24 @@ Cada operación hace una cantidad constante, independiente de `n`, de operacione
 **Espacio extra:** O(n), porque `stack_min` tiene tantos elementos como `stack`.
 
 ## Casos de prueba
-Se eligieron casos que cubren la pila vacía, los extremos de orden (creciente, decreciente), los valores repetidos y los `pop` que cambian el mínimo. La secuencia del ejemplo ilustrado es el caso C5.
+Se eligieron casos que cubren la pila vacía, los extremos de orden (creciente y decreciente), los valores repetidos, los `pop` que restauran un mínimo anterior y la violación de la precondición. El caso C5 es la secuencia del ejemplo ilustrado.¹
 
-| ID | Qué prueba | Operaciones | `stack_min` esperada | `min()` esperado |
-|----|------------|-------------|----------------------|------------------|
+| ID | Qué prueba | Operaciones | `stack_min` final | `min()` final |
+|----|------------|-------------|-------------------|---------------|
 | C1 | primer `push` con pila vacía | `push(4)` | (4) | 4 |
 | C2 | orden creciente: el mínimo no cambia | `push(1), push(2), push(3)` | (1,1,1) | 1 |
 | C3 | orden decreciente: el mínimo cambia siempre | `push(3), push(2), push(1)` | (3,2,1) | 1 |
 | C4 | valores repetidos | `push(4), push(4), pop(), min()` | (4) | 4 |
-| C5 | ejemplo ilustrado | ver ejemplo | ver ejemplo | ver ejemplo |
+| C5 | ejemplo ilustrado | `push(5), push(3), push(7), push(3), pop(), pop(), pop()` | (5) | 5 |
 | C6 | `pop` que restaura un mínimo anterior | `push(5), push(2), pop(), min()` | (5) | 5 |
 | C7 | vaciar la pila y volver a usarla | `push(1), pop(), push(9), min()` | (9) | 9 |
 | C8 | precondición | `pop()` o `min()` sobre pila vacía | error | error |
+
+¹ **Verificación en código** (`verificar_ejercicio_03.py`, Python 3, generado con un LLM a partir del pseudocódigo). Se implementó la estructura tal como el pseudocódigo, contando las primitivas `push`, `pop`, `top` e `isEmpty`, y se comprobó lo siguiente:
+- **Invariante:** `|stack_min| = n` y `stack_min[i] = min(stack[1..i])` se cumplen después de cada operación de los casos C1 a C7.
+- **Casos de la tabla:** los valores finales de `stack_min` y `min()` coinciden con los calculados a mano, y en C8 tanto `pop()` como `min()` lanzan error.
+- **Pruebas aleatorias:** 3000 secuencias de 120 operaciones (360 000 en total), con rangos de valores pequeños para forzar repetidos, comparadas contra una pila ingenua que recorre todo para hallar el mínimo. No hubo ninguna discrepancia y el invariante se mantuvo en todos los pasos.
+- **Costo:** con n = 0, 10, 1000 y 100 000, `push` usó como máximo 5 primitivas, `pop` 2 y `min` 1. Esos números no dependen de n, lo que respalda el costo O(1) en el peor caso.
 
 ## Alternativas descartadas
 1. Mantener una variable `min` que llevara el mínimo en cada momento. La variable se actualizaría en el momento del `push()` (si el valor nuevo que entra a la cola es menor que el que hay en la variable, se actualiza `min`). Al momento del `push()`, si el valor que sale coincide con el de `min`, se recorren los valores de la pila para actualizar el valor de `min` pues podría haber cambiado. Esto hace el `push()` y el `min()` O(1) pero el `pop()` podría ser O(n) y no se puede amortizar el costo, se descartó por esta misma razón (demasiado costoso).
