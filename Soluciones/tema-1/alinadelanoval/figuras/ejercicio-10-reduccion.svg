@@ -1,0 +1,81 @@
+<svg width="401.5" height="206.25" viewBox="-34.0 -54.5 401.5 206.25" xmlns="http://www.w3.org/2000/svg"><rect x="-34.0" y="-54.5" width="401.5" height="206.25" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <g transform="translate(150.0 -36.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">distinción de elementos: ¿hay dos xᵢ iguales?</text>
+</g>
+  <path d="M -14 0 L 314.0 0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="1.0"   />
+  <circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+  <g transform="translate(59.21052631578947 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(102.63157894736842 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(248.6842105263158 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(300.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 -14.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5,0 dos veces</text>
+</g>
+  <path d="M 0.0 14 L 0.0 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 1.4 50.8 L 0.0 54 L -2.8 47.6 L 2.8 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <path d="M 59.21052631578947 14 L 59.21052631578947 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 60.61052631578947 50.8 L 59.21052631578947 54 L 56.410526315789475 47.6 L 62.01052631578947 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <path d="M 102.63157894736842 14 L 102.63157894736842 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 104.03157894736842 50.8 L 102.63157894736842 54 L 99.83157894736843 47.6 L 105.43157894736842 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <path d="M 157.89473684210526 14 L 157.89473684210526 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 159.29473684210527 50.8 L 157.89473684210526 54 L 155.09473684210525 47.6 L 160.69473684210527 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <path d="M 248.6842105263158 14 L 248.6842105263158 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 250.08421052631581 50.8 L 248.6842105263158 54 L 245.8842105263158 47.6 L 251.48421052631582 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <path d="M 300.0 14 L 300.0 47.6" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.9"   />
+  <path d="M 301.4 50.8 L 300.0 54 L 297.2 47.6 L 302.8 47.6 Z" fill="rgba(8,145,178,1.0)" stroke="rgba(8,145,178,1.0)" stroke-width="0.5"   />
+  <g transform="translate(337.75 33.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(8,145,178,1.0)" text-anchor="middle" dominant-baseline="middle">xᵢ ↦ xᵢ</text>
+</g>
+  <g transform="translate(150.0 78.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-170.0" y="-20.0" width="340.0" height="40" stroke="rgba(216,220,227,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <path d="M -14 78 L 314.0 78" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="1.0"   />
+  <g transform="translate(0.0 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(59.21052631578947 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(102.63157894736842 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(248.6842105263158 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(300.0 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.8" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,1.0)" />
+</g>
+  <g transform="translate(157.89473684210526 78.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="11" stroke="rgba(190,18,60,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(157.89473684210526 92.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">distancia 0</text>
+</g>
+  <g transform="translate(150.0 118.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">par más cercano: ¿es 0 la distancia mínima?</text>
+</g>
+  <g transform="translate(150.0 134.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">la construcción es la identidad y no prueba el signo de ningún polinomio</text>
+</g>
+</svg>

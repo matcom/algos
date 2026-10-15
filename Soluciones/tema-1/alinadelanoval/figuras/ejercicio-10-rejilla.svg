@@ -1,0 +1,99 @@
+<svg width="355.5" height="129.5" viewBox="-19.5 -53.75 355.5 129.5" xmlns="http://www.w3.org/2000/svg"><rect x="-19.5" y="-53.75" width="355.5" height="129.5" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <g transform="translate(17.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(17.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">0</text>
+</g>
+  <g transform="translate(51.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(51.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">1</text>
+</g>
+  <g transform="translate(85.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(85.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">2</text>
+</g>
+  <g transform="translate(119.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(119.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">3</text>
+</g>
+  <g transform="translate(153.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(153.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(187.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(187.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(221.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(221.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">6</text>
+</g>
+  <g transform="translate(255.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(255.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">7</text>
+</g>
+  <g transform="translate(289.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-17.0" y="-10.0" width="34.0" height="20" stroke="rgba(190,193,199,1.0)" fill="rgba(0,0,0,0.0)" />
+</g>
+  <g transform="translate(289.0 30.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(187.0 10.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-85.0" y="-10.0" width="170.0" height="20" stroke="rgba(8,145,178,1.0)" fill="rgba(8,145,178,0.14)" />
+</g>
+  <g transform="translate(78.07407407407408 10.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.5" stroke="rgba(107,114,128,1.0)" fill="rgba(107,114,128,1.0)" />
+</g>
+  <g transform="translate(78.07407407407408 -10.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">3,1</text>
+</g>
+  <g transform="translate(236.74074074074073 10.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.5" stroke="rgba(107,114,128,1.0)" fill="rgba(107,114,128,1.0)" />
+</g>
+  <g transform="translate(236.74074074074073 -10.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">9,4</text>
+</g>
+  <g transform="translate(10.074074074074073 10.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="2.5" stroke="rgba(107,114,128,1.0)" fill="rgba(107,114,128,1.0)" />
+</g>
+  <g transform="translate(10.074074074074073 -10.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">0,4</text>
+</g>
+  <g transform="translate(198.96296296296296 10.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="3.4" stroke="rgba(190,18,60,1.0)" fill="rgba(190,18,60,1.0)" />
+</g>
+  <g transform="translate(180.96296296296296 -10.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">p₄ = 7,9</text>
+</g>
+  <path d="M 130.96296296296296 -26 L 266.962962962963 -26" fill="rgba(0,0,0,0.0)" stroke="rgba(190,18,60,1.0)" stroke-width="1.0"   />
+  <path d="M 130.96296296296296 -30 L 130.96296296296296 -22" fill="rgba(0,0,0,0.0)" stroke="rgba(190,18,60,1.0)" stroke-width="1.0"   />
+  <path d="M 266.962962962963 -30 L 266.962962962963 -22" fill="rgba(0,0,0,0.0)" stroke="rgba(190,18,60,1.0)" stroke-width="1.0"   />
+  <g transform="translate(198.962962962963 -36.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">a menos de δ = 2,7 de p₄</text>
+</g>
+  <path d="M 0 46 L 34.0 46" fill="rgba(0,0,0,0.0)" stroke="rgba(180,83,9,1.0)" stroke-width="1.0"   />
+  <path d="M 0 42 L 0 50" fill="rgba(0,0,0,0.0)" stroke="rgba(180,83,9,1.0)" stroke-width="1.0"   />
+  <path d="M 34.0 42 L 34.0 50" fill="rgba(0,0,0,0.0)" stroke="rgba(180,83,9,1.0)" stroke-width="1.0"   />
+  <g transform="translate(17.0 58.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">δ/2 = 1,35</text>
+</g>
+  <g transform="translate(187.0 58.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">celda de p₄: ⌊7,9/1,35⌋ = 5; se consultan las celdas 3, …, 7</text>
+</g>
+</svg>

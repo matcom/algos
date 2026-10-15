@@ -1,0 +1,79 @@
+<svg width="434.0" height="204.5" viewBox="-71.5 -29.75 434.0 204.5" xmlns="http://www.w3.org/2000/svg"><rect x="-71.5" y="-29.75" width="434.0" height="204.5" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <path d="M 0 145.0 L 280.0 145.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-10.25 145.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">0</text>
+</g>
+  <path d="M 0 127.58237336184219 L 280.0 127.58237336184219" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-10.25 127.58237336184219) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <path d="M 0 110.16474672368437 L 280.0 110.16474672368437" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 110.16474672368437) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10</text>
+</g>
+  <path d="M 0 92.74712008552655 L 280.0 92.74712008552655" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 92.74712008552655) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">15</text>
+</g>
+  <path d="M 0 75.32949344736873 L 280.0 75.32949344736873" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 75.32949344736873) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">20</text>
+</g>
+  <path d="M 0 57.911866809210906 L 280.0 57.911866809210906" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 57.911866809210906) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">25</text>
+</g>
+  <path d="M 0 40.49424017105309 L 280.0 40.49424017105309" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 40.49424017105309) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">30</text>
+</g>
+  <path d="M 0 23.076613532895294 L 280.0 23.076613532895294" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 23.076613532895294) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">35</text>
+</g>
+  <path d="M 0 5.658986894737467 L 280.0 5.658986894737467" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-12.5 5.658986894737467) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">40</text>
+</g>
+  <path d="M 0 145.0 L 280.0 145.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="1.0"   />
+  <g transform="translate(50.55555555555556 145.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-19.444444444444443" y="-0.0" width="38.888888888888886" height="0.0" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,0.22)" />
+</g>
+  <g transform="translate(50.55555555555556 138.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">0.0</text>
+</g>
+  <g transform="translate(89.44444444444444 145.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-19.444444444444443" y="-0.0" width="38.888888888888886" height="0.0" stroke="rgba(180,83,9,1.0)" fill="rgba(180,83,9,0.22)" />
+</g>
+  <g transform="translate(89.44444444444444 138.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">0.0</text>
+</g>
+  <g transform="translate(70.0 157.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">dos plantados</text>
+</g>
+  <g transform="translate(190.55555555555554 83.5593220338983) rotate(0.0) scale(1.0 1.0)">
+<rect x="-19.444444444444443" y="-61.440677966101696" width="38.888888888888886" height="122.88135593220339" stroke="rgba(14,116,144,1.0)" fill="rgba(14,116,144,0.22)" />
+</g>
+  <g transform="translate(190.55555555555554 15.118644067796609) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">35.3</text>
+</g>
+  <g transform="translate(229.44444444444446 145.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-19.444444444444443" y="-0.0" width="38.888888888888886" height="0.0" stroke="rgba(180,83,9,1.0)" fill="rgba(180,83,9,0.22)" />
+</g>
+  <g transform="translate(229.44444444444446 138.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">0.0</text>
+</g>
+  <g transform="translate(210.0 157.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">binario</text>
+</g>
+  <g transform="translate(319.25 12.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">sin verificar</text>
+</g>
+  <g transform="translate(314.75 27.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">dos pasadas</text>
+</g>
+  <g transform="translate(-32.75 -12.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">% de fallos</text>
+</g>
+</svg>

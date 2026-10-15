@@ -1,0 +1,66 @@
+<svg width="353.6" height="159.75" viewBox="-14.0 -14.0 353.6 159.75" xmlns="http://www.w3.org/2000/svg"><rect x="-14.0" y="-14.0" width="353.6" height="159.75" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <path d="M 0 74.0 L 140.0 0 L 280.0 74.0 L 0 74.0" fill="rgba(180,83,9,0.14)" stroke="rgba(180,83,9,1.0)" stroke-width="1.2"   />
+  <g transform="translate(140.0 48.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">árbol para par más cercano</text>
+</g>
+  <g transform="translate(140.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">sobre la misma lista</text>
+</g>
+  <path d="M 40 74.0 L 40 88.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.9"   />
+  <g transform="translate(40.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-35.0" y="-8.0" width="70" height="16" stroke="rgba(14,116,144,1.0)" fill="rgba(8,145,178,0.14)" />
+</g>
+  <g transform="translate(40.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">signo de x₁ − x₄</text>
+</g>
+  <path d="M 40 104.0 L 24 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(24.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">= 0: sí</text>
+</g>
+  <path d="M 40 104.0 L 56 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(56.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">≠ 0: no</text>
+</g>
+  <path d="M 120 74.0 L 120 88.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.9"   />
+  <g transform="translate(120.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-35.0" y="-8.0" width="70" height="16" stroke="rgba(14,116,144,1.0)" fill="rgba(8,145,178,0.14)" />
+</g>
+  <g transform="translate(120.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">signo de x₂ − x₅</text>
+</g>
+  <path d="M 120 104.0 L 104 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(104.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">= 0: sí</text>
+</g>
+  <path d="M 120 104.0 L 136 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(136.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">≠ 0: no</text>
+</g>
+  <path d="M 240 74.0 L 240 88.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.9"   />
+  <g transform="translate(240.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-35.0" y="-8.0" width="70" height="16" stroke="rgba(14,116,144,1.0)" fill="rgba(8,145,178,0.14)" />
+</g>
+  <g transform="translate(240.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">signo de x₃ − x₇</text>
+</g>
+  <path d="M 240 104.0 L 224 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(224.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">= 0: sí</text>
+</g>
+  <path d="M 240 104.0 L 256 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.8"   />
+  <g transform="translate(256.0 128.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">≠ 0: no</text>
+</g>
+  <g transform="translate(180.0 96.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">···</text>
+</g>
+  <path d="M 298.0 0 L 298.0 74.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.9"   />
+  <g transform="translate(314.8 37.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">T(n)</text>
+</g>
+  <path d="M 298.0 88.0 L 298.0 104.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="0.9"   />
+  <g transform="translate(309.4 96.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">+1</text>
+</g>
+</svg>

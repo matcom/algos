@@ -1,0 +1,69 @@
+<svg width="548.5" height="247.5" viewBox="-71.5 -29.75 548.5 247.5" xmlns="http://www.w3.org/2000/svg"><rect x="-71.5" y="-29.75" width="548.5" height="247.5" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <path d="M 0 170.0 L 320.0 170.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-14.75 170.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10⁰</text>
+</g>
+  <path d="M 0 136.0 L 320.0 136.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-17.0 136.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10¹⁰</text>
+</g>
+  <path d="M 0 102.0 L 320.0 102.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-17.0 102.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10²⁰</text>
+</g>
+  <path d="M 0 68.0 L 320.0 68.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-17.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10³⁰</text>
+</g>
+  <path d="M 0 34.0 L 320.0 34.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-17.0 34.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10⁴⁰</text>
+</g>
+  <path d="M 0 0.0 L 320.0 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(216,220,227,1.0)" stroke-width="0.7"   />
+  <g transform="translate(-17.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">10⁵⁰</text>
+</g>
+  <g transform="translate(21.333333333333332 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">16</text>
+</g>
+  <g transform="translate(64.0 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">32</text>
+</g>
+  <g transform="translate(106.66666666666666 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">48</text>
+</g>
+  <g transform="translate(149.33333333333334 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">64</text>
+</g>
+  <g transform="translate(192.0 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">80</text>
+</g>
+  <g transform="translate(234.66666666666666 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">96</text>
+</g>
+  <g transform="translate(277.33333333333337 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">112</text>
+</g>
+  <g transform="translate(320.0 182.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">128</text>
+</g>
+  <path d="M 0 113.90405753641974 L 320.0 113.90405753641974" fill="rgba(0,0,0,0.0)" stroke="rgba(190,18,60,1.0)" stroke-width="1.0"   />
+  <g transform="translate(58.0 106.90405753641974) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">un año a 10⁹ por segundo</text>
+</g>
+  <path d="M 0.0 154.99729144707874 L 21.333333333333332 146.80927556501842 L 42.666666666666664 138.62125968295814 L 64.0 130.43324380089786 L 85.33333333333333 122.24522791883757 L 106.66666666666666 114.05721203677729 L 128.0 105.869196154717 L 149.33333333333334 97.68118027265672 L 170.66666666666666 89.49316439059642 L 192.0 81.30514850853613 L 213.33333333333331 73.11713262647585 L 234.66666666666666 64.92911674441554 L 256.0 56.74110086235527 L 277.33333333333337 48.55308498029498 L 298.6666666666667 40.36506909823467 L 320.0 32.177053216174386" fill="rgba(0,0,0,0.0)" stroke="rgba(180,83,9,1.0)" stroke-width="1.7"   />
+  <g transform="translate(388.75 32.177053216174386) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">mochila: (n + 1)·2^b celdas</text>
+</g>
+  <path d="M 0.0 165.90599205896984 L 21.333333333333332 161.81198411793972 L 42.666666666666664 157.71797617690956 L 64.0 153.62396823587943 L 85.33333333333333 149.52996029484927 L 106.66666666666666 145.43595235381915 L 128.0 141.341944412789 L 149.33333333333334 137.24793647175886 L 170.66666666666666 133.1539285307287 L 192.0 129.05992058969855 L 213.33333333333331 124.96591264866842 L 234.66666666666666 120.87190470763827 L 256.0 116.77789676660814 L 277.33333333333337 112.68388882557798 L 298.6666666666667 108.58988088454784 L 320.0 104.4958729435177" fill="rgba(0,0,0,0.0)" stroke="rgba(14,116,144,1.0)" stroke-width="1.7"   />
+  <g transform="translate(395.5 104.4958729435177) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(14,116,144,1.0)" text-anchor="middle" dominant-baseline="middle">primalidad: 2^(b/2) divisiones</text>
+</g>
+  <g transform="translate(160.0 200.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">b, bits del número</text>
+</g>
+  <g transform="translate(-32.75 -12.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">operaciones</text>
+</g>
+</svg>

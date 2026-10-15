@@ -1,0 +1,204 @@
+<svg width="306.5" height="165.5" viewBox="-14.0 -29.75 306.5 165.5" xmlns="http://www.w3.org/2000/svg"><rect x="-14.0" y="-29.75" width="306.5" height="165.5" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <g transform="translate(13.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(13.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">0</text>
+</g>
+  <g transform="translate(39.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(39.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">2</text>
+</g>
+  <g transform="translate(65.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(65.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(91.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(91.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(13.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(13.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">2</text>
+</g>
+  <g transform="translate(39.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(39.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(65.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(65.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(91.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(91.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(13.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(13.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(39.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(39.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(65.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(65.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(91.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(91.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">10</text>
+</g>
+  <g transform="translate(13.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(13.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(39.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(39.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(65.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(65.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">10</text>
+</g>
+  <g transform="translate(91.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(91.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">12</text>
+</g>
+  <g transform="translate(52.0 -12.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">A₀: x = 6 no está</text>
+</g>
+  <g transform="translate(163.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(163.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">0</text>
+</g>
+  <g transform="translate(189.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(189.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">2</text>
+</g>
+  <g transform="translate(215.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(215.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(241.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(241.0 13.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(163.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(163.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">2</text>
+</g>
+  <g transform="translate(189.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(189.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(215.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(215.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(241.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(241.0 39.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(163.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(163.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">4</text>
+</g>
+  <g transform="translate(215.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(215.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(241.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(241.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">10</text>
+</g>
+  <g transform="translate(163.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(163.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">5</text>
+</g>
+  <g transform="translate(189.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(189.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">8</text>
+</g>
+  <g transform="translate(215.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(215.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">10</text>
+</g>
+  <g transform="translate(241.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(172,176,181,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(241.0 91.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">12</text>
+</g>
+  <g transform="translate(189.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-13.0" y="-13.0" width="26.0" height="26.0" stroke="rgba(190,18,60,1.0)" fill="rgba(180,83,9,0.2)" />
+</g>
+  <g transform="translate(189.0 65.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">6</text>
+</g>
+  <g transform="translate(202.0 -12.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">A′₂: x = 6 sí está</text>
+</g>
+  <g transform="translate(202.0 118.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(190,18,60,1.0)" text-anchor="middle" dominant-baseline="middle">solo difieren en la casilla (2, 1)</text>
+</g>
+</svg>

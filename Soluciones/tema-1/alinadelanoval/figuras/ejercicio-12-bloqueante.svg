@@ -1,0 +1,81 @@
+<svg width="406.5" height="166.75" viewBox="-108.0 -41.75 406.5 166.75" xmlns="http://www.w3.org/2000/svg"><rect x="-108.0" y="-41.75" width="406.5" height="166.75" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <path d="M 0.0 34.0 L 190.0 68.0" fill="rgba(0,0,0,0.0)" stroke="rgba(107,114,128,1.0)" stroke-width="1.0"   />
+  <path d="M 0.0 0.0 L 190.0 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="1.6"   />
+  <path d="M 0.0 68.0 L 190.0 34.0" fill="rgba(0,0,0,0.0)" stroke="rgba(8,145,178,1.0)" stroke-width="1.6"   />
+  <path d="M 0.0 102.0 L 190.0 34.0" fill="rgba(0,0,0,0.0)" stroke="rgba(190,18,60,1.0)" stroke-width="1.6"   />
+  <circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+  <text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">a₁</text>
+  <g transform="translate(-33.75 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">b₁ &gt; b₂</text>
+</g>
+  <g transform="translate(190.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(190.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">b₁</text>
+</g>
+  <g transform="translate(246.25 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">a₃ &gt; a₁ &gt; a₂ &gt; a₄</text>
+</g>
+  <g transform="translate(0.0 34.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(0.0 34.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">a₂</text>
+</g>
+  <g transform="translate(-22.5 34.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">b₁</text>
+</g>
+  <g transform="translate(190.0 34.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(190.0 34.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">b₂</text>
+</g>
+  <g transform="translate(246.25 34.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">a₄ &gt; a₁ &gt; a₃ &gt; a₂</text>
+</g>
+  <g transform="translate(0.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(0.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">a₃</text>
+</g>
+  <g transform="translate(-45.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">b₂ &gt; b₁ &gt; b₃</text>
+</g>
+  <g transform="translate(190.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(190.0 68.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">b₃</text>
+</g>
+  <g transform="translate(246.25 68.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">a₁ &gt; a₂ &gt; a₃ &gt; a₄</text>
+</g>
+  <g transform="translate(0.0 102.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(0.0 102.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">a₄</text>
+</g>
+  <g transform="translate(-22.5 102.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">b₂</text>
+</g>
+  <g transform="translate(190.0 102.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="9" stroke="rgba(26,26,26,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(190.0 102.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">b₄</text>
+</g>
+  <g transform="translate(246.25 102.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">a₁ &gt; a₂ &gt; a₃ &gt; a₄</text>
+</g>
+  <g transform="translate(-40.0 -24.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">proponentes y sus listas</text>
+</g>
+  <g transform="translate(230.0 -24.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">receptores y sus listas</text>
+</g>
+</svg>

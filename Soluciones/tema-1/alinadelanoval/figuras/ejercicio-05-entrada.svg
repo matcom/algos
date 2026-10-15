@@ -1,0 +1,201 @@
+<svg width="564.0" height="221.1612779451189" viewBox="-103.0 -23.0 564.0 221.1612779451189" xmlns="http://www.w3.org/2000/svg"><rect x="-103.0" y="-23.0" width="564.0" height="221.1612779451189" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <g transform="translate(-75.5 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">L.head</text>
+</g>
+  <path d="M -58.0 0 L -28.8 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M -26.4 -1.0499999999999998 L -24.0 0 L -28.8 2.0999999999999996 L -28.8 -2.0999999999999996 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(-6.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(15.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(-6.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₀</text>
+</g>
+  <g transform="translate(15.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 15.0 0 L 42.2 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 44.6 -1.0499999999999998 L 47.0 0 L 42.2 2.0999999999999996 L 42.2 -2.0999999999999996 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(64.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(85.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(64.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₁</text>
+</g>
+  <g transform="translate(85.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 85.0 0 L 112.2 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 114.6 -1.0499999999999998 L 117.0 0 L 112.2 2.0999999999999996 L 112.2 -2.0999999999999996 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(134.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(155.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(134.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₂</text>
+</g>
+  <g transform="translate(155.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 155.0 0 L 182.2 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 184.6 -1.0499999999999998 L 187.0 0 L 182.2 2.0999999999999996 L 182.2 -2.0999999999999996 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(204.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(225.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(204.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₃</text>
+</g>
+  <g transform="translate(225.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 225.0 0 L 252.2 0.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 254.6 -1.0499999999999998 L 257.0 0 L 252.2 2.0999999999999996 L 252.2 -2.0999999999999996 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(274.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(295.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(274.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₄</text>
+</g>
+  <path d="M 289.0 9.0 L 301.0 -9.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.9"   />
+  <g transform="translate(388.5 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">sin ciclo: n = 5, x₅ = NIL</text>
+</g>
+  <g transform="translate(-75.5 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">L.head</text>
+</g>
+  <path d="M -58.0 120 L -28.8 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M -26.4 118.95 L -24.0 120 L -28.8 122.1 L -28.8 117.9 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(-6.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(15.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(-6.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₀</text>
+</g>
+  <g transform="translate(15.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 15.0 120 L 42.2 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 44.6 118.95 L 47.0 120 L 42.2 122.1 L 42.2 117.9 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(64.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(85.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(64.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₁</text>
+</g>
+  <g transform="translate(85.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 85.0 120 L 112.2 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 114.6 118.95 L 117.0 120 L 112.2 122.1 L 112.2 117.9 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(134.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(155.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(134.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₂</text>
+</g>
+  <g transform="translate(155.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<circle cx="0" cy="0" r="1.4" stroke="rgba(26,26,26,1.0)" fill="rgba(26,26,26,1.0)" />
+</g>
+  <path d="M 155.0 120 L 182.2 120.0" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 184.6 118.95 L 187.0 120 L 182.2 122.1 L 182.2 117.9 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(204.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(225.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(204.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₃</text>
+</g>
+  <path d="M 218.71851033606433 108.0 L 238.53713477918484 80.72200362788084" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 239.0983515405931 78.16318832647386 L 241.35850399018872 76.83872205488109 L 240.23607046737223 81.95635265769504 L 236.83819909099745 79.48765459806664 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(244.07701432625305 64.83872205488109) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(265.07701432625305 64.83872205488109) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(244.07701432625305 64.83872205488109) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₄</text>
+</g>
+  <path d="M 274.07701432625305 72.63679476447084 L 286.3579143955302 76.62710108444705" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 288.9649178787323 76.37013252883702 L 290.92298567374695 78.11038265744679 L 285.7089787073428 78.62431976866687 L 287.0068500837176 74.62988240022723 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(308.92298567374695 85.90845536703654) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(329.92298567374695 85.90845536703654) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(308.92298567374695 85.90845536703654) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₅</text>
+</g>
+  <path d="M 314.92298567374695 97.90845536703654 L 314.92298567374695 137.29154463296342" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 315.97298567374696 139.69154463296343 L 314.92298567374695 142.09154463296343 L 312.8229856737469 137.29154463296342 L 317.022985673747 137.29154463296342 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(308.92298567374695 154.09154463296343) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(329.92298567374695 154.09154463296343) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(308.92298567374695 154.09154463296343) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₆</text>
+</g>
+  <path d="M 290.92298567374695 161.88961734255318 L 278.64208560446986 165.8799236625294" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 276.6840178094552 167.6201737911392 L 274.0770143262531 167.36320523552916 L 277.99314991628245 163.88270497830956 L 279.29102129265726 167.87714234674922 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(244.07701432625308 175.1612779451189) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.0" width="30.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(265.0770143262531 175.1612779451189) rotate(0.0) scale(1.0 1.0)">
+<rect x="-6.0" y="-9.0" width="12.0" height="18.0" stroke="rgba(107,114,128,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(244.07701432625308 175.1612779451189) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₇</text>
+</g>
+  <path d="M 241.35850399018875 163.1612779451189 L 221.5398795470682 135.88328157299975" fill="rgba(0,0,0,0.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.8"   />
+  <path d="M 219.27972709747257 134.55881530140698 L 218.71851033606433 132.0 L 223.2388152352556 134.64893254318557 L 219.84094385888082 137.11763060281393 Z" fill="rgba(26,26,26,1.0)" stroke="rgba(26,26,26,1.0)" stroke-width="0.5"   />
+  <g transform="translate(268.0 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(8,145,178,1.0)" text-anchor="middle" dominant-baseline="middle">C = 5</text>
+</g>
+  <g transform="translate(370.7 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">x</text>
+</g>
+  <g transform="translate(378.4 123.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="6.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">i+C</text>
+</g>
+  <g transform="translate(393.1 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">= x</text>
+</g>
+  <g transform="translate(399.8 123.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="6.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">i</text>
+</g>
+  <g transform="translate(424.6 120.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="9.0" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">si i ≥ a</text>
+</g>
+  <path d="M -21 140 L 161 140" fill="rgba(0,0,0,0.0)" stroke="rgba(180,83,9,1.0)" stroke-width="1.0"   />
+  <g transform="translate(70.0 153.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">a = 3 nodos antes del ciclo</text>
+</g>
+</svg>

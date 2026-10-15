@@ -1,0 +1,84 @@
+<svg width="473.5" height="205.19" viewBox="-71.75 -25.0 473.5 205.19" xmlns="http://www.w3.org/2000/svg"><rect x="-71.75" y="-25.0" width="473.5" height="205.19" fill="white"/>
+  <defs><marker id="arrow" viewBox="-10 -4 10 8" refX="0" refY="0" orient="auto" markerWidth="10" markerHeight="8"><path d="M -10 -4 L 0 0 L -10 4 Z" fill="rgba(0,0,0,1.0)" stroke="rgba(0,0,0,0.0)" stroke-width="1.0"   /></marker></defs>
+  <path d="M 165.0 0.0 L 55.0 62.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <g transform="translate(100.0 29.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">&lt; 0</text>
+</g>
+  <path d="M 165.0 0.0 L 165.0 62.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <g transform="translate(155.0 29.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">= 0</text>
+</g>
+  <path d="M 165.0 0.0 L 275.0 62.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <g transform="translate(210.0 29.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">&gt; 0</text>
+</g>
+  <path d="M 55.0 62.0 L 27.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <path d="M 55.0 62.0 L 82.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <path d="M 55.0 62.0 L 137.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <path d="M 275.0 62.0 L 192.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <path d="M 275.0 62.0 L 247.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <path d="M 275.0 62.0 L 302.5 124.0" fill="rgba(0,0,0,0.0)" stroke="rgba(162,165,170,1.0)" stroke-width="0.9"   />
+  <g transform="translate(165.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(165.0 0.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₁ − x₂</text>
+</g>
+  <g transform="translate(55.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(55.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₁ − x₃</text>
+</g>
+  <g transform="translate(165.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.5" width="30" height="19" stroke="rgba(180,83,9,1.0)" fill="rgba(180,83,9,0.16)" />
+</g>
+  <g transform="translate(165.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">sí</text>
+</g>
+  <g transform="translate(275.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(275.0 62.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">x₂ − x₃</text>
+</g>
+  <g transform="translate(27.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(27.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">…</text>
+</g>
+  <g transform="translate(82.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.5" width="30" height="19" stroke="rgba(180,83,9,1.0)" fill="rgba(180,83,9,0.16)" />
+</g>
+  <g transform="translate(82.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">sí</text>
+</g>
+  <g transform="translate(137.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(137.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">…</text>
+</g>
+  <g transform="translate(192.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(192.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">…</text>
+</g>
+  <g transform="translate(247.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-15.0" y="-9.5" width="30" height="19" stroke="rgba(180,83,9,1.0)" fill="rgba(180,83,9,0.16)" />
+</g>
+  <g transform="translate(247.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(180,83,9,1.0)" text-anchor="middle" dominant-baseline="middle">sí</text>
+</g>
+  <g transform="translate(302.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<rect x="-23.0" y="-11.0" width="46" height="22" stroke="rgba(14,116,144,1.0)" fill="rgba(255,255,255,1.0)" />
+</g>
+  <g transform="translate(302.5 124.0) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(26,26,26,1.0)" text-anchor="middle" dominant-baseline="middle">…</text>
+</g>
+  <g transform="translate(165.0 162.44) rotate(0.0) scale(1.0 1.0)">
+<text x="0" y="0" font-family="Inter, sans-serif" font-size="7.5" fill="rgba(107,114,128,1.0)" text-anchor="middle" dominant-baseline="middle">cada nodo prueba el signo de un polinomio de la entrada; la profundidad es el costo en el peor caso</text>
+</g>
+</svg>
