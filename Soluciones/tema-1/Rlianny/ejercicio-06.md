@@ -56,10 +56,42 @@ return "no"                         // el puntero salió de la matriz
 ![Ejemplo 2, frame 6](ejercicio-06-ejemplo02-06.png)
 
 ## Invariante
+Al inicio de cada iteración del `while` (y también al salir de él) se cumple:
 
+1. **Rangos:** `1 ≤ r ≤ n + 1` y `0 ≤ c ≤ n`. La **región viva** es el rectángulo
+   `V = { (i, j) : r ≤ i ≤ n, 1 ≤ j ≤ c }`,
+   es decir, las filas `r..n` y las columnas `1..c`. Queda vacía cuando `r = n + 1` o `c = 0`.
+2. **Lo descartado:** ninguna casilla fuera de `V` es igual a `x`. Es decir, para toda `(i, j) ∉ V`, `A[i][j] ≠ x`.
+
+**Corolario:** si `x` está en `A`, está en `V`. (Es la contrapositiva del punto 2.)
+
+**Consecuencia sobre el puntero:** dentro del ciclo se cumple `r ≤ n` y `c ≥ 1`, así que `(r, c)` es la esquina superior derecha de `V` y, en particular, pertenece a `V`. Por tanto, el algoritmo nunca compara una casilla ya descartada ("tachada").
 
 ## Correctitud
+Se usa solo el orden no estricto: `A[i][j] ≤ A[i][j+1]` (filas) y `A[i][j] ≤ A[i+1][j]` (columnas).
 
+- **Inicialización:** al comenzar, `r = 1` y `c = n`, así que los rangos se cumplen y `V` es toda la matriz. No hay casillas fuera de `V`, por lo que el punto 2 se cumple vacuamente.
+
+- **Mantenimiento:** se supone el invariante al inicio de una iteración en la que se entra al ciclo, es decir, `r ≤ n` y `c ≥ 1`. Se demuestra que se cumple al inicio de la siguiente. Se distinguen tres casos según `A[r][c]` frente a `x`:
+  - **`A[r][c] = x`:** el algoritmo devuelve "sí" y no hay iteración siguiente. Se trata en la terminación.
+  - **`A[r][c] > x`:** el algoritmo hace `c = c − 1`.
+    - *Rangos:* como `c ≥ 1`, el nuevo `c` es `≥ 0`, y sigue siendo `≤ n`. `r` no cambia.
+    - *Región:* la nueva región es `V' = V \ { (i, c) : r ≤ i ≤ n }`, o sea que sale de `V` la parte viva de la columna `c`.
+    - *Casillas nuevas fuera de `V'`:* para `r ≤ i ≤ n`, por el orden de la columna, `A[i][c] ≥ A[r][c] > x`. Luego `A[i][c] ≠ x`.
+    - *Casillas que ya estaban fuera de `V`:* son `≠ x` por hipótesis.
+    - Por tanto, toda casilla fuera de `V'` es `≠ x`.
+  - **`A[r][c] < x`:** el algoritmo hace `r = r + 1`.
+    - *Rangos:* como `r ≤ n`, el nuevo `r` es `≤ n + 1`, y sigue siendo `≥ 1`. `c` no cambia.
+    - *Región:* la nueva región es `V' = V \ { (r, j) : 1 ≤ j ≤ c }`, o sea que sale de `V` la parte viva de la fila `r`.
+    - *Casillas nuevas fuera de `V'`:* para `1 ≤ j ≤ c`, por el orden de la fila, `A[r][j] ≤ A[r][c] < x`. Luego `A[r][j] ≠ x`.
+    - *Casillas que ya estaban fuera de `V`:* son `≠ x` por hipótesis.
+    - Por tanto, toda casilla fuera de `V'` es `≠ x`.
+
+- **Terminación:** en cada iteración que no devuelve, `s = (n − r + 1) + c` baja exactamente en 1, y por los rangos del invariante `s ≥ 0`. Por tanto, el ciclo se ejecuta un número finito de veces (a lo sumo `2n`; la cota exacta se estudia en la sección Complejidad). Solo hay dos formas de terminar:
+  - **Por igualdad:** el algoritmo devuelve "sí" porque `A[r][c] = x`. Como en ese momento `1 ≤ r ≤ n` y `1 ≤ c ≤ n`, `(r, c)` es una casilla real de `A`, así que `x` está en `A`. La respuesta es correcta.
+  - **Porque el puntero salió de la matriz:** falla la condición del `while`, es decir, `r = n + 1` o `c = 0`. Entonces `V` está vacía y todas las casillas de `A` quedan fuera de ella. Por el punto 2 del invariante, ninguna es igual a `x`, así que `x` no está en `A`. La respuesta "no" es correcta.
+
+**Conclusión:** el algoritmo termina siempre y devuelve "sí" si y solo si `x` está en `A`.
 
 ## Complejidad
 Los elementos de las filas y columnas descartadas se consideran "tachados". La región viva es siempre un rectángulo: las filas `r..n` por las columnas `1..c`. Se define
@@ -111,4 +143,6 @@ Todos los casos cumplen `comparaciones ≤ 2n − 1 = 5`, y los peores casos (C7
 - **Cuándo se alcanza:** solo cuando el puntero pasa por la esquina inferior izquierda (n,1). En la matriz A el único `x` entero que llega a 5 comparaciones es el 7, y no hay ningún entero ausente que lo logre. Por eso C7b usa la matriz C.
 - **Familia general:** con `A[i][j] = 2·((j−1)·n + i)` y `x = 2n + 1`, que está ausente, se obtienen exactamente 2n − 1 comparaciones. Está verificada para n = 1 a 40.
 - **Pruebas aleatorias contra fuerza bruta:** 36 750 búsquedas en matrices aleatorias de n = 1 a 30, con repetidos. Todas dieron la respuesta correcta y ninguna superó 2n − 1 comparaciones.
-## Cota inferior (adversario)
+
+## Alternativas descartadas
+1. LLevar dos punteros: uno en (1, n) y otro en (n, 1), el segundo puntero funcionaba similar al primero pero de forma simétrica, se turnaban para comparar y moverse. Se descartó por redundancia: el primer puntero por sí solo ya decide la búsqueda y la complejidad seguía siendo O(n).
