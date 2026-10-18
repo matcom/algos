@@ -38,21 +38,21 @@ Por la naturaleza LIFO de la pila, cuando se hace `pop` de un elemento el estado
 ## Ejemplo ilustrado
 Secuencia: `push(5)`, `push(3)`, `push(7)`, `push(3)`, `pop()`, `pop()`, `pop()`.
 
-![Ejemplo 1, frame 1](ejercicio-03-ejemplo01-01.png)
+![Ejemplo 1, frame 1](imágenes/ejercicio-03-ejemplo01-01.png)
 
-![Ejemplo 1, frame 2](ejercicio-03-ejemplo01-02.png)
+![Ejemplo 1, frame 2](imágenes/ejercicio-03-ejemplo01-02.png)
 
-![Ejemplo 1, frame 3](ejercicio-03-ejemplo01-03.png)
+![Ejemplo 1, frame 3](imágenes/ejercicio-03-ejemplo01-03.png)
 
-![Ejemplo 1, frame 4](ejercicio-03-ejemplo01-04.png)
+![Ejemplo 1, frame 4](imágenes/ejercicio-03-ejemplo01-04.png)
 
-![Ejemplo 1, frame 5](ejercicio-03-ejemplo01-05.png)
+![Ejemplo 1, frame 5](imágenes/ejercicio-03-ejemplo01-05.png)
 
-![Ejemplo 1, frame 6](ejercicio-03-ejemplo01-06.png)
+![Ejemplo 1, frame 6](imágenes/ejercicio-03-ejemplo01-06.png)
 
-![Ejemplo 1, frame 7](ejercicio-03-ejemplo01-07.png)
+![Ejemplo 1, frame 7](imágenes/ejercicio-03-ejemplo01-07.png)
 
-![Ejemplo 1, frame 8](ejercicio-03-ejemplo01-08.png)
+![Ejemplo 1, frame 8](imágenes/ejercicio-03-ejemplo01-08.png)
 
 
 ## Invariante

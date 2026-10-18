@@ -58,7 +58,7 @@ Para precisarlo, sea `n'` el tamaño que se resuelve con la computadora rápida 
 
 ## Resultados
 
-![Frame 1](ejercicio-01-ejemplo01-01.png)
+![Frame 1](imágenes/ejercicio-01-ejemplo01-01.png)
 
 ## Casos de prueba
 
