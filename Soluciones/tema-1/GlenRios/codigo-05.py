@@ -1,3 +1,7 @@
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
+
 class Nodo:
     def __init__(self, val):
         self.val = val

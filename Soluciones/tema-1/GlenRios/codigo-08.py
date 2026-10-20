@@ -17,6 +17,9 @@ from collections import Counter
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 
 # ----------------------------------------------------------------------
@@ -205,7 +208,7 @@ def experimento_tasas(n_sims=50000, n_min=3, n_max=50):
                     f"{t:.2f}%", ha="center", va="bottom", fontsize=8,
                     color="tab:green")
     fig.tight_layout()
-    fig.savefig("fig_p8_tasas.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p8_tasas.png"), dpi=150)
     plt.close(fig)
     print("\n  guardada fig_p8_tasas.png")
 
@@ -245,7 +248,7 @@ def experimento_por_n(generadores_elegidos, n_vals, n_sims=10000):
     ax.legend()
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p8_por_n.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p8_por_n.png"), dpi=150)
     plt.close(fig)
     print("\n  guardada fig_p8_por_n.png")
 
@@ -285,7 +288,7 @@ def experimento_ejemplo():
                 ha="center", va="center", transform=ax.transAxes)
         ax.axis("off")
     fig.tight_layout()
-    fig.savefig("fig_p8_ejemplo.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p8_ejemplo.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p8_ejemplo.png")
 

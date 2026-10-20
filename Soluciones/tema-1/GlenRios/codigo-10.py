@@ -12,6 +12,9 @@ import time
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 
 def fuerza_bruta_1d(P):
@@ -91,7 +94,7 @@ def experimento_tiempos():
     ax.set_title("Par más cercano en 1D: tiempos")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p10_tiempos.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p10_tiempos.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p10_tiempos.png")
 
@@ -114,7 +117,7 @@ def experimento_reconstrucciones():
     ax.set_title("Reconstrucciones vs $2\\ln n$")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p10_reconstrucciones.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p10_reconstrucciones.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p10_reconstrucciones.png")
 
@@ -137,7 +140,7 @@ def experimento_verificacion():
     ax.set_title("Verificación del algoritmo aleatorio contra fuerza bruta")
     ax.grid(True, axis="y", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p10_verificacion.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p10_verificacion.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p10_verificacion.png")
 

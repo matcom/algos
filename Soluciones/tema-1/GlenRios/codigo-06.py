@@ -14,7 +14,9 @@ import time
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 def matriz_ordenada(n, rng):
     """Genera una matriz n x n con filas y columnas crecientes."""
@@ -154,7 +156,7 @@ def experimento():
     ax.set_title("Búsqueda en matriz ordenada: mezcla de consultas")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p6_comparaciones.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p6_comparaciones.png"), dpi=150)
     plt.close(fig)
 
     # ---------- Figura 2: tiempos ----------
@@ -166,7 +168,7 @@ def experimento():
     ax.set_title("Tiempo de la búsqueda con mezcla de consultas")
     ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p6_tiempos.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p6_tiempos.png"), dpi=150)
     plt.close(fig)
 
     # ---------- Figura 3: histograma de comparaciones para un n fijo ----------
@@ -185,7 +187,7 @@ def experimento():
                  f"(2000 consultas)")
     ax.legend(); ax.grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p6_histograma.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p6_histograma.png"), dpi=150)
     plt.close(fig)
 
     print("\nFiguras generadas: fig_p6_comparaciones.png, "

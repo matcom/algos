@@ -1,9 +1,3 @@
----
-noteId: "c5695060c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 1 ★
 
 **Enunciado.** ¿Cuánto crece el tamaño de entrada que se resuelve en una hora con un algoritmo $\Theta(n^2)$? ¿Y con uno $\Theta(n \log n)$? Estima los dos factores.

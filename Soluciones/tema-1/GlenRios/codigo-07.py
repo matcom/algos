@@ -12,6 +12,9 @@ import math
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 
 # ----------------------------------------------------------------------
@@ -180,7 +183,7 @@ def figura_comparaciones():
     ax.set_title("Mediana de dos arreglos: comparaciones vs $n$")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p7_comparaciones.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p7_comparaciones.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p7_comparaciones.png")
 
@@ -198,7 +201,7 @@ def figura_boxplot():
     ax.set_title("Distribución de comparaciones (500 instancias por $n$)")
     ax.grid(True, axis="y", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p7_boxplot.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p7_boxplot.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p7_boxplot.png")
 
@@ -230,7 +233,7 @@ def figura_traza():
     axes[1].grid(True, alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig("fig_p7_traza.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p7_traza.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p7_traza.png")
 
@@ -250,7 +253,7 @@ def figura_tipos_entrada():
     ax.set_title("Comparaciones según el tipo de entrada")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p7_tipos_entrada.png", dpi=150)
+    fig.savefig(os.path.join(RUTA,"fig_p7_tipos_entrada.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p7_tipos_entrada.png")
 

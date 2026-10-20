@@ -1,9 +1,3 @@
----
-noteId: "c5751030c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 2 ★
 
 **Enunciado.** Da el invariante y el potencial de la búsqueda binaria, y la cota de información que la hace óptima.

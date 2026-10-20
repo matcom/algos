@@ -17,7 +17,7 @@
 **Cambio en el número de unos.** Al incrementar, los $k$ bits 1 menos significativos se convierten en 0 (se pierden $k$ unos) y el siguiente bit 0 se convierte en 1 (se gana 1 uno). Por tanto,
 
 $$
-\Delta(\No.\text{unos}) = 1 - k.
+\Delta(\#\text{unos}) = 1 - k.
 $$
 
 El potencial cambia en

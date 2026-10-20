@@ -1,9 +1,3 @@
----
-noteId: "c58c8fd1c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 9 ★★
 
 **Enunciado.** Una mezcla "optimizada" de dos listas ordenadas de largo $n$ deja de comparar cuando a la primera lista le queda un solo elemento, y lo pone al final. Cuenta cuántas comparaciones hace en el peor caso. Sin probarla, usa la sección 6 de la conferencia 5 para decidir si es correcta, y construye con el adversario la entrada en la que falla.

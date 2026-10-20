@@ -1,4 +1,7 @@
 import math
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 def max_n(costo, presupuesto):
     """Mayor n tal que costo(n) <= presupuesto."""

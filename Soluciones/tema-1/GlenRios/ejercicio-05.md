@@ -1,9 +1,3 @@
----
-noteId: "c5699e80c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 5 ★★
 
 **Enunciado.** Detección de ciclos en una lista enlazada con dos punteros que avanzan a velocidades 1 y 2. Demuestra que se encuentran si y solo si hay un ciclo, con un invariante, y que termina, con un potencial. Da el costo.

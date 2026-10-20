@@ -1,9 +1,3 @@
----
-noteId: "c58c8fd3c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 6 ★★
 
 **Enunciado.** Una matriz $n \times n$ tiene filas y columnas ordenadas de forma creciente. Diseña un algoritmo que decida si contiene un valor $x$ en $O(n)$ comparaciones, demuestra su correctitud con un invariante, y demuestra con un adversario que no se puede en $o(n)$.

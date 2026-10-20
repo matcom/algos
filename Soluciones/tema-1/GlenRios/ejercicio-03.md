@@ -1,9 +1,3 @@
----
-noteId: "c5695061c5b211f1b9b18d2c6f3471ce"
-tags: []
-
----
-
 # Problema 3 ★
 
 **Enunciado.** Diseña una pila con una operación `mínimo` que cuesta $O(1)$ en el peor caso. Enuncia el invariante que la hace correcta y da el costo de cada operación.

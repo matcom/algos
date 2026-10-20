@@ -1,3 +1,7 @@
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
+
 def incrementar(bits, head=0):
     """bits: lista de 0/1, LSB en índice 0. Devuelve pasos."""
     pasos = 0

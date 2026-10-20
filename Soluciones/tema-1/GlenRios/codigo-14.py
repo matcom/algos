@@ -20,6 +20,9 @@ from collections import Counter
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 
 # ----------------------------------------------------------------------
@@ -103,7 +106,7 @@ def verificar(n_sims=20000):
     for i, v in enumerate([fallos]):
         ax.text(i, v + 0.05, str(v), ha="center", va="bottom")
     fig.tight_layout()
-    fig.savefig("fig_p14_verificacion.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p14_verificacion.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p14_verificacion.png")
 
@@ -160,7 +163,7 @@ def experimento_swaps():
     ax.set_title("Swaps del algoritmo in-place vs cota $n$")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p14_swaps.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p14_swaps.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p14_swaps.png")
 
@@ -178,7 +181,7 @@ def experimento_histograma():
     ax.set_title(f"Distribución de swaps para $n={n}$ (3000 instancias aleatorias)")
     ax.legend(); ax.grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p14_histograma.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p14_histograma.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p14_histograma.png")
 
@@ -226,7 +229,7 @@ def experimento_tiempos():
     ax.set_title("MEX: comparación de tiempos")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p14_tiempos.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p14_tiempos.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p14_tiempos.png")
 

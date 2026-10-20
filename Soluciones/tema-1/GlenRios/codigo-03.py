@@ -15,6 +15,9 @@ class PilaMin:
         return self.minimos[-1]
 
 import random
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 p = PilaMin()
 for _ in range(10000):
     op = random.choice(['push', 'pop', 'min'])

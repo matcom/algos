@@ -14,6 +14,9 @@ import random
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import os
+RUTA = os.path.join("Soluciones", "tema-1", "GlenRios")
+os.makedirs(RUTA, exist_ok=True)  # crea la carpeta si no existe
 
 
 def mezcla_estandar(A, B):
@@ -98,7 +101,7 @@ def experimento_comparaciones():
     ax.set_title("Mezcla estándar vs optimizada (entrada intercalada)")
     ax.legend(); ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p9_comparaciones.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p9_comparaciones.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p9_comparaciones.png")
 
@@ -133,7 +136,7 @@ def experimento_fallos():
     ax.set_title("Tasa de fallo de la mezcla optimizada")
     ax.grid(True, axis="y", alpha=0.3)
     fig.tight_layout()
-    fig.savefig("fig_p9_fallos.png", dpi=150)
+    fig.savefig(os.path.join(RUTA, "fig_p9_fallos.png"), dpi=150)
     plt.close(fig)
     print("  guardada fig_p9_fallos.png")
 
