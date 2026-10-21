@@ -1,0 +1,88 @@
+=== 1. Correctitud: la tabla contra fuerza bruta, e invariante T[i][c] vigilado ===
+  3000 instancias (n<=9): tabla == una fila == fuerza bruta; invariante comprobado en 370707 celdas T[i][c]
+
+=== 2. Por que c va hacia abajo: con c ascendente el objeto se puede usar varias veces ===
+  un objeto de peso 2 y valor 3, W=4: descendente -> 3 (correcto: 3); ascendente -> 6 (usa el objeto 2 veces)
+  3000 instancias: el ascendente falla en 2373 (79.1 %), y coincide con la mochila con repeticion en 3000 de 3000
+
+=== 3. El costo: n (W + 1) celdas, y la memoria; con una fila O(W) ===
+  n= 4, W= 1000: tabla 4004 celdas evaluadas = n(W+1) = 4004, memoria 5005 celdas; una fila: 1001 celdas, 3957 actualizaciones
+  n=10, W= 5000: tabla 50010 celdas evaluadas = n(W+1) = 50010, memoria 55011 celdas; una fila: 5001 celdas, 49729 actualizaciones
+  n=50, W= 2000: tabla 100050 celdas evaluadas = n(W+1) = 100050, memoria 102051 celdas; una fila: 2001 celdas, 98710 actualizaciones
+
+=== 4. Tamano de la entrada en bits y la familia que no es polinomial en N ===
+  Familia F_k: n = 4 fijo, pesos y valores de k bits (con el bit alto en 1), W = 2^k.
+    k  N (bits)          n W  celdas evaluadas  celdas/2^k      N^2       N^3
+    3        28           32                36        4.50      784     21952
+    4        37           64                68        4.25     1369     50653
+    5        46          128               132        4.12     2116     97336
+    6        55          256               260        4.06     3025    166375
+    7        64          512               516        4.03     4096    262144
+    8        73         1024              1028        4.02     5329    389017
+    9        82         2048              2052        4.01     6724    551368
+   10        91         4096              4100        4.00     8281    753571
+   11       100         8192              8196        4.00    10000   1000000
+   12       109        16384             16388        4.00    11881   1295029
+   13       118        32768             32772        4.00    13924   1643032
+   14       127        65536             65540        4.00    16129   2048383
+   15       136       131072            131076        4.00    18496   2515456
+   16       145       262144            262148        4.00    21025   3048625
+   17       154       524288            524292        4.00    23716   3652264
+   18       163      1048576           1048580        4.00    26569   4330747
+  Cada bit mas de W (y de los demas numeros) duplica las celdas: costo = 2^{Theta(N)} para n fijo.
+  Como cada numero tiene exactamente k bits, N = 2nk + (k+1) = 9k+1 con n = 4, y las celdas son n(2^k+1) (verificado arriba hasta k = 18).
+  Primer k donde la tabla supera N^c (con esas formulas exactas):
+    N^2 : desde k =  12  (N = 109)
+    N^3 : desde k =  21  (N = 190)
+    N^5 : desde k =  41  (N = 370)
+    N^10: desde k =  96  (N = 865)
+  Ninguna potencia fija de N acota n(2^k+1) cuando k crece: para toda potencia hay un k a partir del cual la tabla es mayor.
+
+=== 5. La primalidad por division (C1 sec. 8): divisiones contra bits ===
+  bits de p              primo p  divisiones     sqrt(p)  divisiones/sqrt(p)
+          9                  257          15          16              0.9375
+         11                 1031          31          32              0.9688
+         13                 4099          63          64              0.9844
+         15                16411         127         128              0.9922
+         17                65537         255         256              0.9961
+         19               262147         511         512              0.9980
+         21              1048583        1023        1024              0.9990
+         23              4194319        2047        2048              0.9995
+         25             16777259        4095        4096              0.9998
+         27             67108879        8191        8192              0.9999
+         29            268435459       16383       16384              0.9999
+         31           1073741827       32767       32768              1.0000
+         33           4294967311       65535       65536              1.0000
+         35          17179869209      131071      131072              1.0000
+         37          68719476767      262143      262144              1.0000
+         39         274877906951      524287      524288              1.0000
+         41        1099511627791     1048575     1048576              1.0000
+         43        4398046511119     2097151     2097152              1.0000
+  Cada 2 bits mas multiplican las divisiones por 2 (cada bit, por raiz de 2): ~2^{b/2}, exponencial en los bits.
+
+=== 6. El mismo bucle, en unario: polinomial ===
+  Con W escrito en unario (W simbolos) la entrada mide N' >= W + n, y n(W+1) <= n N': lineal en N'.
+    W=   10: N' >= 14 simbolos, celdas = 44 <= n*N' = 56
+    W=  100: N' >= 104 simbolos, celdas = 404 <= n*N' = 416
+    W= 1000: N' >= 1004 simbolos, celdas = 4004 <= n*N' = 4016
+
+=== 7. Cambiar de unidades: la misma instancia en gramos y en miligramos ===
+     unidad          W  N (bits)       celdas  celdas/base  bits extra  mejor valor
+      x10^0        800        86         4005          1.0           0  440
+      x10^1       8000       106        40005         10.0          20  440
+      x10^2      80000       127       400005         99.9          41  440
+      x10^3     800000       146      4000005        998.8          60  440
+      x10^4    8000000       166     40000005       9987.5          80  (no se corre; celdas = n(W+1))
+      x10^5   80000000       187    400000005      99875.2         101  (no se corre; celdas = n(W+1))
+  Multiplicar los pesos y la capacidad (6 numeros) por 10 agrega ~3,3 bits a cada uno: ~20 bits en total por cada factor 10,
+  pero multiplica por 10 el costo. Un algoritmo cuyo costo depende de la unidad elegida no es polinomial en el tamano.
+
+=== 8. Otra pseudopolinomial: la tabla por valores, O(n V) con V = suma de valores ===
+  2000 instancias: la tabla por valores == la tabla por peso
+  pesos chicos, capacidad W = 10^6: tabla por peso: 5999936 actualizaciones; tabla por valores con V = 70: 356 (mucho menos)
+  valores grandes (x10^6, V = 70000000), W = 1000: por peso 5936 actualizaciones, por valores 350000006 (mucho mas)
+  Cada una es pseudopolinomial en SU parametro: elegir bien depende de cual es chico.
+
+=== 9. La idea del esquema de aproximacion: escalar los valores (solo como idea) ===
+  300 instancias con valores hasta 10^9, eps = 0.1: valor de la solucion escalada / optimo >= 0.9949 (garantia: >= 0.9)
+  Con los valores escalados V' = O(n^2/eps), la tabla por valores cuesta O(n^3/eps): polinomial en n y 1/eps.

@@ -1,0 +1,48 @@
+=== 1. Correctitud contra fuerza bruta: enteros, con muchos repetidos y bordes ===
+  20000 instancias (n 2..60, rangos de 3 a 10^9 con repetidos, negativos): rejilla == fuerza bruta == ordenar+recorrer; 11730 con repetidos
+  bordes: P = [0, 5, 10, 15, 20, 25]: 50 permutaciones, distancia 5 correcta: True
+  bordes: P = [0, 7, 14, 21, 28, 35, 42]: 50 permutaciones, distancia 7 correcta: True
+  bordes: P = [0, 5, 10, 15, 20, 26]: 50 permutaciones, distancia 5 correcta: True
+  bordes: P = [1, 2]: 50 permutaciones, distancia 1 correcta: True
+  bordes: P = [4, 4]: 50 permutaciones, distancia 0 correcta: True
+  bordes: P = [0, 100, 101]: 50 permutaciones, distancia 1 correcta: True
+  3000 instancias con racionales (Fraction): correcto; la division por d es exacta, sin errores de redondeo
+  400 progresiones aritmeticas (todas las distancias iguales a delta, puntos justo en los bordes de celda): correcto
+
+=== 2. El caso delta = 0 (repetidos): se devuelve 0 al detectar la colision ===
+  P=[3, 3, 9, 12]                        semilla 0: distancia 0, par (3, 3), busquedas 3, reconstrucciones 0
+  P=[3, 3, 9, 12]                        semilla 1: distancia 0, par (3, 3), busquedas 6, reconstrucciones 1
+  P=[9, 12, 3, 3]                        semilla 0: distancia 0, par (3, 3), busquedas 6, reconstrucciones 1
+  P=[9, 12, 3, 3]                        semilla 1: distancia 0, par (3, 3), busquedas 3, reconstrucciones 0
+  P=[1, 5, 9, 13, 5]                     semilla 0: distancia 0, par (5, 5), busquedas 6, reconstrucciones 0
+  P=[1, 5, 9, 13, 5]                     semilla 1: distancia 0, par (5, 5), busquedas 9, reconstrucciones 0
+  P=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,   semilla 0: distancia 0, par (57, 57), busquedas 99, reconstrucciones 3
+  P=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,   semilla 1: distancia 0, par (57, 57), busquedas 276, reconstrucciones 3
+  sin repetidos delta > 0 siempre (distancia positiva entre enteros distintos); con repetidos no se construye lado 0:
+  delta = 0 solo se alcanza con un par igual, y el algoritmo termina ahi.
+
+=== 3. Operaciones contra n: rejilla (accesos a la tabla) contra ordenar (comparaciones) ===
+         n  accesos tabla  por punto  reconstr.  2H_n - 3  compar. ordenar     n log2 n  t rejilla  t sorted
+      1000           5868       5.87       11.8      12.0             8672         9966      0.00s     0.00s
+     10000          61581       6.16       17.2      16.6           120176       132877      0.01s     0.00s
+    100000         572829       5.73       20.4      21.2          1531973      1660964      0.06s     0.02s
+   1000000        5512936       5.51       17.0      25.8         18626522     19931569      1.20s     0.28s
+  (acceso de tabla = busqueda + insercion + insercion durante reconstruccion; el orden de ordenar es n log2 n)
+
+=== 4. Reconstrucciones: media sobre muchas permutaciones contra la cota 2 H_n - 3 ===
+       n  permutaciones   media  maximo  2H_n - 3
+      10           4000    2.84       8      2.86
+     100           4000    7.28      18      7.37
+    1000           1000   11.72      23     11.97
+
+=== 5. Sin el azar: un orden adversarial fuerza una reconstruccion por insercion ===
+  n=200: orden adversarial: 198 reconstrucciones, 20097 inserciones en reconstrucciones (~ n^2/2 = 20000);  barajado: 11 reconstrucciones, 670 inserciones
+  n=800: orden adversarial: 798 reconstrucciones, 320397 inserciones en reconstrucciones (~ n^2/2 = 320000);  barajado: 12 reconstrucciones, 1288 inserciones
+
+=== 6. Otra salida del modelo: radix sort sobre enteros de rango acotado ===
+         n        U = n^2  ops radix (2 pasadas + recorrido)  por punto     n log2 n
+      1000        1000000                               8999       9.00         9966
+     10000      100000000                              89999       9.00       132877
+    100000    10000000000                             899999       9.00      1660964
+   1000000  1000000000000                            8999999       9.00     19931569
+  2000 instancias pequenas (con repetidos): radix + recorrido == fuerza bruta

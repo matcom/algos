@@ -1,0 +1,90 @@
+=== 1. Casos limite ===
+  lista vacia:                 hay_ciclo=False, pasos=0
+  un nodo sin ciclo (n=1):     hay_ciclo=False, pasos=1
+  un nodo con autolazo (0,1):  hay_ciclo=True, pasos=1, lecturas=3
+  mu=0, lam=2: hay_ciclo=True, pasos=2 (formula 2), encuentro en el nodo 0
+  mu=1, lam=1: hay_ciclo=True, pasos=1 (formula 1), encuentro en el nodo 1
+  mu=3, lam=4: hay_ciclo=True, pasos=4 (formula 4), encuentro en el nodo 4
+  mu=5, lam=3: hay_ciclo=True, pasos=6 (formula 6), encuentro en el nodo 6
+
+=== 2. Con ciclo: pasos exactos, lecturas y nodo de encuentro, mu en 0..60, lam en 1..60 ===
+  3600 listas; casos donde falla alguna comprobacion: 0
+  max(pasos - (mu+lam)) = 0  (cota pasos <= mu+lam; igualdad solo con mu=0)
+  igualdad pasos = mu+lam solo cuando mu = 0: True  (60 casos)
+  invariante t=f(s), h=f(2s) y potenciales (fase1, fase2) vigilados en 21582 pasos, mu,lam <= 30: sin fallos
+
+=== 3. Sin ciclo: pasos y lecturas exactos para n = 0..300 ===
+  n=0..300: fallos = 0  (pasos = ceil(n/2); lecturas = 3n/2 si n par, (3n+1)/2 si impar)
+    n=  0: pasos=  0, lecturas=  0
+    n=  1: pasos=  1, lecturas=  2
+    n=  2: pasos=  1, lecturas=  3
+    n=  3: pasos=  2, lecturas=  5
+    n=  4: pasos=  2, lecturas=  6
+    n=  5: pasos=  3, lecturas=  8
+    n=100: pasos= 50, lecturas=150
+    n=101: pasos= 51, lecturas=152
+
+=== 4. Traza: mu=3, lam=4  (nodos v0 v1 v2 | v3 v4 v5 v6 -> v3) ===
+  paso s   t=f(s)   h=f(2s)   t==h
+       0   v0       v0        True
+       1   v1       v2        False
+       2   v2       v4        False
+       3   v3       v6        False
+       4   v4       v4        True
+  Floyd: hay_ciclo=True, pasos=4, encuentro en v4
+  fase 2: p desde la cabeza, q desde el encuentro, avanzan de a 1
+     j   p    q
+     0  v0  v4
+     1  v1  v5
+     2  v2  v6
+     3  v3  v3
+  se encuentran en v3 tras 3 pasos = mu; luego se recorre el ciclo desde v3
+
+=== 5. Fase 2: mu y lam, mu en 0..60, lam en 1..60 ===
+  3600 listas; fallos al recuperar (mu, lam): 0
+  mu=1000, lam=70: lecturas totales = 5220 (= 3*1050 + 2*1000 + 70 = 5220)
+
+=== 6. Memoria: Floyd (2 punteros) contra conjunto de visitados ===
+  mu=100000, lam=100000 (200000 nodos): Floyd hay_ciclo=True en 100000 pasos, pico de memoria 72 bytes;
+  visitados hay_ciclo=True, 200000 nodos guardados, pico de memoria 17616280 bytes (x244670)
+
+=== 7. Velocidades (1, k): siempre se encuentran, con la misma salida de partida ===
+  k=2: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  k=3: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  k=4: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  k=5: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  k=6: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  k=7: mu,lam <= 40 (1600 listas): se encuentran siempre y pasos = (lam/g)*ceil(max(mu,1)/(lam/g)), g=gcd(k-1,lam): fallos = 0
+  Lecturas de puntero hasta el encuentro, (k+1) * pasos:
+    mu  lam |       k=2       k=3       k=4       k=5
+     0   12 |        36        24        20        18
+     0    7 |        21        28        35        42
+     5   12 |        36        24        40        36
+   100   30 |       360       420       500       630
+   100   31 |       372       496       620       744
+     0 1000 |      3000      2000      5000      1500
+  1000 1000 |      3000      4000      5000      6000
+  Quien gana en lecturas (assert en mu,lam <= 60):
+    mu = 0: k=3 gana a k=2 si y solo si lam es par (4*lam/g < 3*lam  <=>  g = gcd(2,lam) = 2)
+    mu >= 3*lam - 2: k=2 gana estrictamente a todo k=3..7 (630 pares): 3(mu+lam-1) < 4mu <= (k+1)*s_k
+    mu=100, lam=30: k=2: s=120, lecturas 360;  k=3: g=2, s=105, lecturas 420  (mu >= 88)
+    mu=100, lam=31: k=2: s=124, lecturas 372;  k=3: g=1, s=124, lecturas 496
+
+=== 8. La variante que parece correcta: la liebre sale delta nodos adelantada ===
+  (al entrar al ciclo, la distancia d de h a t cumple d = -delta (mod g), g = gcd(k-1, lam);
+   se encuentran  sii  g divide a delta)
+  k=2: listas (de 156) donde NO se encuentran:  delta=0: 0,  delta=1: 0,  delta=2: 0,  delta=3: 0,  delta=4: 0
+  k=3: listas (de 156) donde NO se encuentran:  delta=0: 0,  delta=1: 78,  delta=2: 0,  delta=3: 78,  delta=4: 0
+  k=4: listas (de 156) donde NO se encuentran:  delta=0: 0,  delta=1: 52,  delta=2: 52,  delta=3: 0,  delta=4: 52
+  k=5: listas (de 156) donde NO se encuentran:  delta=0: 0,  delta=1: 78,  delta=2: 39,  delta=3: 78,  delta=4: 0
+  (assert: en cada una de las 4*5*156 pruebas, se encuentran  <=>  gcd(k-1, lam) | delta)
+  Ejemplos ejecutados:
+    k=3, mu=0, lam=2, delta=1: gcd(k-1,lam)=2, encuentro=None (sin encuentro en 3000 pasos)
+    k=4, mu=0, lam=3, delta=2: gcd(k-1,lam)=3, encuentro=None (sin encuentro en 3000 pasos)
+    k=4, mu=0, lam=3, delta=3: gcd(k-1,lam)=3, encuentro=True en 1 pasos
+    k=5, mu=0, lam=4, delta=2: gcd(k-1,lam)=4, encuentro=None (sin encuentro en 3000 pasos)
+
+=== 9. Contraejemplo minimo real (ciclo de largo 2, k=3, liebre adelantada 1 nodo) ===
+  la lista mas pequena (menos nodos) que rompe (1,3) con desfase 1: mu=0, lam=2 (2 nodos)
+  posiciones (t, h) en el ciclo de 2 nodos, k=3: [(0, 1), (1, 0), (0, 1), (1, 0), (0, 1), (1, 0)]  -> la distancia h-t vale siempre 1 (impar), nunca 0
+  con salida comun (desfase 0): encuentro en 1 paso;  (1,2) con desfase 1: (True, 1)

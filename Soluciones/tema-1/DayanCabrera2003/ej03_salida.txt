@@ -1,0 +1,66 @@
+=== 1. Exhaustivo: toda secuencia valida hasta largo 7, valores {0,1,2}, contra el oraculo ===
+  141519 secuencias
+  version      A: 0 secuencias que difieren del oraculo
+  version  B(<=): 0 secuencias que difieren del oraculo
+  version   B(<): 7168 secuencias que difieren del oraculo
+  version      C: 0 secuencias que difieren del oraculo
+  B con '<': secuencias mas cortas que la rompen (largo 4): 6
+    ['push(0)', 'push(0)', 'pop', 'pop']
+    ['push(0)', 'push(0)', 'pop', 'min']
+    ['push(1)', 'push(1)', 'pop', 'pop']
+    ['push(1)', 'push(1)', 'pop', 'min']
+    ['push(2)', 'push(2)', 'pop', 'pop']
+    ['push(2)', 'push(2)', 'pop', 'min']
+  ejecucion de la primera, B(<) contra el oraculo: ('ERROR', 'IndexError') vs [0, 0]
+  y con B(<=): [0, 0]
+
+=== 1b. El ejemplo de la figura: push 5,3,3,7,2,2,9 y luego pop, pop, minimo ===
+       A: salidas [9, 2, 2]   M final = [5, 3, 3, 3, 2]
+   B(<=): salidas [9, 2, 2]   M final = [5, 3, 3, 2]
+    B(<): salidas [9, 2, 3]   M final = [5, 3]
+  oraculo: salidas [9, 2, 2]
+  tras los 7 pushes:  M_A = [5, 3, 3, 3, 2, 2, 2]  M_B(<=) = [5, 3, 3, 2, 2]  M_B(<) = [5, 3, 2]
+
+=== 2. Aleatorio con invariante vigilado (A, B(<=)) y salidas contra el oraculo ===
+  3000 secuencias de 80 operaciones (alfabetos de 2, 3, 5 y 1000 valores): 240000 operaciones, sin fallos
+
+=== 3. Casos borde: pila vacia (precondicion) ===
+       A: pop: IndexError, top: IndexError, minimo: IndexError
+   B(<=): pop: IndexError, top: IndexError, minimo: IndexError
+       C: pop: IndexError, top: IndexError, minimo: IndexError
+
+=== 4. Memoria extra en el peor caso (|M| tras n pushes, n = 1000) ===
+       creciente: |S|=1000  A: |M|=1000  B(<=): |M|=1  B(<) [incorrecta]: |M|=1
+     decreciente: |S|=1000  A: |M|=1000  B(<=): |M|=1000  B(<) [incorrecta]: |M|=1000
+   todos iguales: |S|=1000  A: |M|=1000  B(<=): |M|=1000  B(<) [incorrecta]: |M|=1
+      permutacion: media |M| =    7.62, maximo   16  (H_n = 7.49)
+    alfabeto de 3: media |M| =  334.45, maximo  378
+  alfabeto de 100: media |M| =   14.90, maximo   25
+
+=== 5. Peor caso por operacion (comparaciones), 100000 operaciones aleatorias ===
+       A: maximo de comparaciones por operacion = {'push': 1, 'pop': 0, 'min': 0}
+   B(<=): maximo de comparaciones por operacion = {'push': 1, 'pop': 1, 'min': 0}
+
+=== 6. Arreglo dinamico (duplicando): coste de un push suelto vs amortizado ===
+     1025 pushes: peor push =    1025, media = 2.997
+    16385 pushes: peor push =   16385, media = 3.000
+   262145 pushes: peor push =  262145, media = 3.000
+
+=== 7. Version C (2x - min): memoria extra O(1) y desbordamiento en w bits ===
+  enteros sin limite: ya verificada contra el oraculo en la seccion 1 y 2
+  w=4: secuencias que rompen, por largo: largo 1: 0, largo 2: 0, largo 3: 128
+    la primera de largo minimo: ['push(-7)', 'push(-8)', 'pop'] -> [7] (oraculo: [-8] )
+  w=8: secuencias que rompen, por largo: largo 1: 0, largo 2: 0, largo 3: 32768
+    la primera de largo minimo: ['push(-127)', 'push(-128)', 'pop'] -> [127] (oraculo: [-128] )
+    detalle: push(100), push(-100): E = [100, -44], mn = -100; 2*(-100)-100 = -300 -> -44 en 8 bits
+    pop devuelve -44 (debia ser -100); pop devuelve 100 (debia ser 100)
+  w= 8: valores en todo el rango: fallan 12247/20000; en |x| <= 2^(w-3)=32: aciertan 20000/20000
+  w=16: valores en todo el rango: fallan 12305/20000; en |x| <= 2^(w-3)=8192: aciertan 20000/20000
+  w=32: valores en todo el rango: fallan 12254/20000; en |x| <= 2^(w-3)=536870912: aciertan 20000/20000
+
+=== 8. Cola con minimo con dos pilas (A): contra un oraculo y coste amortizado ===
+  500 secuencias de 300 operaciones: salidas iguales al oraculo (deque + min ingenuo);
+  en todos los prefijos: operaciones de pila reales <= 3*encolar + 1*desencolar (potencial 2|ent|)
+  1000 encolar + 1000 desencolar: 4000 operaciones de pila = 4m (cota amortizada 3m + m = 4m)
+  100000 encolar + 100000 desencolar: 400000 operaciones de pila = 4m (cota amortizada 3m + m = 4m)
+  un desencolar suelto con 10^5 elementos en la entrada cuesta 200001 operaciones de pila (O(n), no O(1))

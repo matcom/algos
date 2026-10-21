@@ -1,0 +1,98 @@
+=== 1. n = 2 es imposible con cualquier numero de pesadas (y n = 1 tambien) ===
+  pesadas posibles con 2 monedas (mismo tamano, disjuntas): [((), ()), ((0,), (1,)), ((1,), (0,))]
+  (a,pesada) y (b,liviana) dan el MISMO resultado en todas: True ; (a,liviana) y (b,pesada): True
+  minimax: n = 1, 2 resolubles con k = 1..5 pesadas? {1: False, 2: False}
+
+=== 2. Busqueda minimax independiente: n_max(k) y n_max(k)+1 ===
+   k  (3^k-3)/2  n_max (minimax)   n_max+1 resoluble?   2n <= 3^k mas grande
+   2          3                3                False                      4
+   3         12               12                False                     13
+   4         39               39                False                     40
+  para k = 2, 3, 4 y todo 3 <= n < 44: resoluble <=> n <= (3^k - 3)/2 : True
+  n = 13 con k = 3: 2n = 26 <= 27 (pasa la informacion) y minimax dice resoluble = False
+  n = 40 con k = 4: 2n = 80 <= 81 (pasa la informacion) y minimax dice resoluble = False
+
+=== 3. Los lemas auxiliares, por minimax ===
+  (i) estados (0,h,l,g): resoluble en k pesadas <=> h+l <= 3^k, salvo (1,1) con g = 0
+     k=1, g=0: h+l <= 3^k pero NO resolubles: [(1, 1)];  h+l > 3^k resolubles: []
+     k=1, g=1: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+     k=1, g=2: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+     k=2, g=0: h+l <= 3^k pero NO resolubles: [(1, 1)];  h+l > 3^k resolubles: []
+     k=2, g=1: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+     k=2, g=2: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+     k=3, g=0: h+l <= 3^k pero NO resolubles: [(1, 1)];  h+l > 3^k resolubles: []
+     k=3, g=1: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+     k=3, g=2: h+l <= 3^k pero NO resolubles: [];  h+l > 3^k resolubles: []
+  (ii) estados (u, 0, 0, g): u maximo resoluble
+     k=1, g=0: u resolubles = [0]
+     k=1, g=1: u resolubles = [0, 1]
+     k=1, g=2: u resolubles = [0, 1]
+     k=2, g=0: u resolubles = [0, 3]
+     k=2, g=1: u resolubles = [0, 1, 2, 3, 4]
+     k=2, g=2: u resolubles = [0, 1, 2, 3, 4]
+     k=3, g=0: u resolubles = [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+     k=3, g=1: u resolubles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+     k=3, g=2: u resolubles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+     (con g >= 1: u <= (3^k-1)/2 para k = 1, 2, 3;  k = 4, g = 1: u=40: True  u=41: False )
+
+=== 4. La REGLA (estrategia explicita) sobre todos los estados, a nivel de contadores ===
+  estados (0,h,l,g>=1), h+l <= 3^k, y (u,0,0,g>=1), u <= (3^k-1)/2, k <= 4:
+  11760 estados; la regla falla en 0
+  desde (n,0,0,0), 3 <= n <= 122: la regla resuelve todo n; profundidad = k(n) en 120 de 120 valores
+
+=== 5. Simulacion exhaustiva con monedas concretas: las 2n hipotesis, 3 <= n <= 120 ===
+     n  k(n)  peor caso  hojas usadas    2n  hojas 3^k
+     3     2          2             6     6          9
+     4     3          3             8     8         27
+     5     3          3            10    10         27
+     6     3          3            12    12         27
+     7     3          3            14    14         27
+     8     3          3            16    16         27
+     9     3          3            18    18         27
+    10     3          3            20    20         27
+    11     3          3            22    22         27
+    12     3          3            24    24         27
+    13     4          4            26    26         81
+    14     4          4            28    28         81
+    39     4          4            78    78         81
+    40     5          5            80    80        243
+    60     5          5           120   120        243
+   100     5          5           200   200        243
+   120     5          5           240   240        243
+  (assert para n = 3..40, 60, 100, 120: cada una de las 2n hipotesis termina en una hoja
+   distinta, con la hipotesis correcta, en <= k(n) pesadas)
+  el peor caso medido es exactamente k(n) en todos los n probados.
+  primer n con k(n) = k, es decir (3^(k-1)-3)/2 + 1: [(2, 1), (3, 4), (4, 13), (5, 40)]
+
+=== 6. La pesada inicial: m contra m, y las tres clases tienen tamano PAR ===
+  Tras pesar m contra m: clases '>' y '<' de 2m hipotesis, '=' de 2(n-2m). Todas pares.
+  Para cada (n, k): los m con las tres clases <= 3^(k-1) (el mayor, y sus tres clases):
+  n=12 k=3 (2n=24, 3^(k-1)= 9): m <= 4; con m=4: 8, 8, 8
+  n=13 k=3 (2n=26, 3^(k-1)= 9): NINGUN m sirve
+  n=13 k=4 (2n=26, 3^(k-1)=27): m <= 6; con m=6: 12, 12, 2
+  n=39 k=4 (2n=78, 3^(k-1)=27): m <= 13; con m=13: 26, 26, 26
+  n=40 k=4 (2n=80, 3^(k-1)=27): NINGUN m sirve
+  n=40 k=5 (2n=80, 3^(k-1)=81): m <= 20; con m=20: 40, 40, 0
+
+=== 7. Variantes: con una moneda genuina extra y 'basta decir cual es la falsa' ===
+   k  sin ref+sentido  con ref+sentido  sin ref+moneda  con ref+moneda
+   1                0                1               1               2
+   2                3                4               4               5
+   3               12               13              13              14
+  formulas: (3^k-3)/2, (3^k-1)/2, (3^k-1)/2, (3^k+1)/2
+
+=== 8. El arbol de decision para n = 12, k = 3 (las pesadas W1..W13) ===
+  W1: 1 2 3 4   | 5 6 7 8
+  W2: 1 2 9     | 3 4 5
+  W3: 9 10      | 1 11
+  W4: 5 6 9     | 1 7 8
+  W5: 1         | 2
+  W6: 6         | 7
+  W7: 3         | 1
+  W8: 9         | 10
+  W9: 12        | 1
+  W10: 9         | 10
+  W11: 5         | 6
+  W12: 2         | 3
+  W13: 7         | 1
+  profundidad 3; hojas con hipotesis: 24 de 27 posibles

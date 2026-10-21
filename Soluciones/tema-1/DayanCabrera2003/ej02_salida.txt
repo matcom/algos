@@ -1,0 +1,69 @@
+=== 1. Correctitud con invariante y potencial vigilados (aleatorio) ===
+  20000 casos (arreglos con duplicados, x dentro y fuera): sin fallos de aserto
+
+=== 2. Peor caso exacto sobre TODAS las entradas (2n+1 clases) = ceil(log2(n+1)) ===
+  n = 0..3000: peor caso == ceil(log2(n+1)) en todos salvo 0: []
+  borde y tipicos:  n  peor  cota
+               0    0    0
+               1    1    1
+               2    2    2
+               3    2    2
+               7    3    3
+               8    4    4
+              15    4    4
+              16    5    5
+            1000   10   10
+            1023   10   10
+            1024   11   11
+
+=== 3. Hojas: los n+1 huecos terminan en hojas distintas (lema 4 de C5) ===
+  n=    7: 8 caminos distintos para 8 huecos
+  n=    8: 9 caminos distintos para 9 huecos
+  n=  100: 101 caminos distintos para 101 huecos
+  n= 1000: 1001 caminos distintos para 1001 huecos
+
+=== 4. Comparaciones por entrada, n = 7 (arbol de la figura 7 de C5) ===
+  x en A  : [(1, 3), (2, 2), (3, 3), (4, 1), (5, 3), (6, 2), (7, 3)]
+  huecos  : [('h0', 3), ('h1', 3), ('h2', 3), ('h3', 3), ('h4', 3), ('h5', 3), ('h6', 3), ('h7', 3)]
+  histograma (comps -> entradas, 2n+1=15 entradas): {1: 1, 2: 2, 3: 12}
+
+=== 5. Huecos vecinos: los caminos se separan exactamente en A[g] ===
+  n = 0..200, 20100 pares de huecos vecinos (g, g+1): el primer desacuerdo es la comparacion con A[g]
+  Algoritmo que de verdad se salta el indice j (decision: esta x?):
+    n= 7: falla solo en x = A[j] para cada j  (7 fallos en 105 pruebas)
+    n= 8: falla solo en x = A[j] para cada j  (8 fallos en 136 pruebas)
+    n=15: falla solo en x = A[j] para cada j  (15 fallos en 465 pruebas)
+    n=50: falla solo en x = A[j] para cada j  (50 fallos en 5050 pruebas)
+
+=== 6. Variantes con un error de una unidad: el potencial las atrapa ===
+  [lo,hi) con lo = m: cuelga en 21 de 49 entradas (n <= 6); la primera: A=[1], x=2
+    traza (lo, hi, Phi): [(0, 1, 1), (0, 1, 1), (0, 1, 1), (0, 1, 1)] ... el potencial se queda en 1
+  [lo,hi] con hi = m: cuelga en 21 de 49 entradas (n <= 6); la primera: A=[1], x=0
+    traza (lo, hi, Phi): [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] ... el potencial se queda en 1
+  la version correcta termina en <= ceil(log2(n+1)) pasos en las mismas entradas: True
+  Caracterizacion (assert para n = 0..12, A distintos, x en 0..2n):
+    semi: cuelga <=> n>=1, x no esta y x > A[0];  cerr: cuelga <=> n>=1, x no esta y x < A[n-1]
+    con x presente nunca cuelga
+    verificado en 169 entradas; cuelgan 78 (semi) y 78 (cerr); por formula: sum_(n=1..12) n = 78
+    n <= 6: entradas = 49, x ausente = 28, de ellas en el hueco 0 (o n-1) = 7, cuelgan 28 - 7 = 21
+
+=== 6b. Modelo de 2 vias: lower_bound + comparacion de igualdad ===
+  n = 1..3000: peor caso == ceil(log2(n+1)) + 1 == ceil(log2(2n+1)) salvo 0: []
+    n=    1  peor=  2  ceil(log2(2n+1))=  2
+    n=    2  peor=  3  ceil(log2(2n+1))=  3
+    n=    3  peor=  3  ceil(log2(2n+1))=  3
+    n=    7  peor=  4  ceil(log2(2n+1))=  4
+    n=    8  peor=  5  ceil(log2(2n+1))=  5
+    n= 1000  peor= 11  ceil(log2(2n+1))= 11
+    n= 1023  peor= 11  ceil(log2(2n+1))= 11
+    n= 1024  peor= 12  ceil(log2(2n+1))= 12
+  5000 pruebas aleatorias: mismo veredicto que la binaria de 3 vias
+
+=== 7. Traza con el potencial, n = 20, x = 13 (hueco entre 12 y 14) ===
+  paso   lo   hi  Phi=hi-lo   m  A[m] x?
+     1    0   20         20  10    20  x<A[m]
+     2    0   10         10   5    10  x>A[m]
+     3    6   10          4   8    16  x<A[m]
+     4    6    8          2   7    14  x<A[m]
+     5    6    7          1   6    12  x>A[m]
+  resultado ('hueco', 7), comparaciones 5, cota ceil(log2 21) = 5

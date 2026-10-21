@@ -1,0 +1,147 @@
+=== 1. Correctitud contra sorted(A+B)[n-1] ===
+  n=1: todos los pares ordenados con valores en 0..5 (con duplicados): 36 entradas, correcto, invariante y potencial vigilados
+  n=2: todos los pares ordenados con valores en 0..4 (con duplicados): 225 entradas, correcto, invariante y potencial vigilados
+  n=3: todos los pares ordenados con valores en 0..3 (con duplicados): 400 entradas, correcto, invariante y potencial vigilados
+  n=4: todos los pares ordenados con valores en 0..3 (con duplicados): 1225 entradas, correcto, invariante y potencial vigilados
+  n=5: todos los pares ordenados con valores en 0..2 (con duplicados): 441 entradas, correcto, invariante y potencial vigilados
+  n = 1..9: todas las particiones de 0..2n-1 en dos arreglos (distintos): correcto y vigilado
+  aleatorios distintos                249 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  aleatorios con muchos duplicados    249 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  A toda menor que B                   83 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  B toda menor que A                   83 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  intercalados a1<b1<a2<...            83 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  intercalados b1<a1<b2<...            83 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  todos iguales                        83 entradas (n = 1..79, 200, 1000, 4096, 5000): correcto
+  108523 entradas en total hasta aqui (exhaustivas + aleatorias): sin fallos
+
+=== 2. Costo: comparaciones del peor caso, contadas ===
+       n  peor medido  ceil(log2(n+1))+1  cota inf: ceil(log2 2n)  iteraciones max
+       1            1                  2                        1                1
+       2            3                  3                        2                2
+       3            3                  3                        3                2
+       4            4                  4                        3                3
+       5            4                  4                        4                3
+       6            4                  4                        4                3
+       7            4                  4                        4                3
+       8            5                  5                        4                4
+       9            5                  5                        5                4
+      10            5                  5                        5                4
+      15            5                  5                        5                4
+      16            6                  6                        5                5
+      17            6                  6                        6                5
+      31            6                  6                        6                5
+      32            7                  7                        6                6
+      63            7                  7                        7                6
+      64            8                  8                        7                7
+     100            8                  8                        8                7
+     127            8                  8                        8                7
+     128            9                  9                        8                8
+    1000           11                 11                       11               10
+    1023           11                 11                       11               10
+    1024           12                 12                       11               11
+    4096           14                 14                       13               13
+  (el costo solo depende de i*, la particion correcta: n <= 10, todas las C(2n,n) entradas; n mayor, simulacion sobre todo i* = 0..n y ~44 entradas reales por n que la confirman)
+
+=== 3. Cota inferior: 2n posiciones distintas para la respuesta, y hojas distintas ===
+  n=1: posiciones distintas de la respuesta = 2 (= 2n = 2); hojas distintas del algoritmo = 2 (>= 2n); cota ceil(log2 2n) = 1; profundidad del algoritmo = 1
+  n=2: posiciones distintas de la respuesta = 4 (= 2n = 4); hojas distintas del algoritmo = 4 (>= 2n); cota ceil(log2 2n) = 2; profundidad del algoritmo = 3
+  n=3: posiciones distintas de la respuesta = 6 (= 2n = 6); hojas distintas del algoritmo = 6 (>= 2n); cota ceil(log2 2n) = 3; profundidad del algoritmo = 3
+  n=4: posiciones distintas de la respuesta = 8 (= 2n = 8); hojas distintas del algoritmo = 8 (>= 2n); cota ceil(log2 2n) = 3; profundidad del algoritmo = 4
+  n=5: posiciones distintas de la respuesta = 10 (= 2n = 10); hojas distintas del algoritmo = 10 (>= 2n); cota ceil(log2 2n) = 4; profundidad del algoritmo = 4
+  n=6: posiciones distintas de la respuesta = 12 (= 2n = 12); hojas distintas del algoritmo = 12 (>= 2n); cota ceil(log2 2n) = 4; profundidad del algoritmo = 4
+  n=7: posiciones distintas de la respuesta = 14 (= 2n = 14); hojas distintas del algoritmo = 14 (>= 2n); cota ceil(log2 2n) = 4; profundidad del algoritmo = 4
+
+=== 4. Versiones equivocadas (errores de una unidad) y quien las atrapa ===
+  defecto                         aleatorios distint  aleatorios con muc  A toda menor que B  B toda menor que A  intercalados a1<b1  intercalados b1<a1
+  hi=n-1                                          1%                  3%                100%                  0%                  3%                  0%
+  lo=1                                            2%                  1%                  0%                100%                  0%                  3%
+  A[i-1] sin centinela                            2%                  3%                  0%                100%                  0%                  3%
+  indice de B corrido en el max final                100%                 58%                100%                100%                100%                100%
+  entrada mas chica que rompe 'hi=n-1': A=[0], B=[1], correcto 0
+      devuelve 1
+  entrada mas chica que rompe 'lo=1': A=[1], B=[0], correcto 0
+      devuelve 1
+  entrada mas chica que rompe 'A[i-1] sin centinela': A=[1], B=[0], correcto 0
+      devuelve 1
+  entrada mas chica que rompe 'indice de B corrido en el max final': A=[0], B=[0], correcto 0
+      devuelve -inf
+
+=== 5. k-esimo menor con largos distintos m y n: O(log min(m,n)) ===
+  75691 casos exhaustivos pequenos (m 1..4, n 1..5, valores con duplicados, todo k): errores = 0
+      m       n       k  comp. particion (peor)  ceil(log2(min+1))+1  comp. descarte (peor)
+      8       8  varios                       4                    5                      5
+      8    1000  varios                       4                    5                     11
+     64   20000  varios                       7                    8                     16
+   1000    1000  varios                      11                   11                     12
+      3   50000  varios                       3                    3                     17
+  posiciones que pueden ser la respuesta (cota de informacion) con m=3, n=6, todos los k:
+    k=1: 2 posiciones posibles -> al menos ceil(log2 2) = 1 comparaciones
+    k=2: 4 posiciones posibles -> al menos ceil(log2 4) = 2 comparaciones
+    k=3: 6 posiciones posibles -> al menos ceil(log2 6) = 3 comparaciones
+    k=4: 7 posiciones posibles -> al menos ceil(log2 7) = 3 comparaciones
+    k=5: 7 posiciones posibles -> al menos ceil(log2 7) = 3 comparaciones
+    k=6: 7 posiciones posibles -> al menos ceil(log2 7) = 3 comparaciones
+    k=7: 6 posiciones posibles -> al menos ceil(log2 6) = 3 comparaciones
+    k=8: 4 posiciones posibles -> al menos ceil(log2 4) = 2 comparaciones
+    k=9: 2 posiciones posibles -> al menos ceil(log2 2) = 1 comparaciones
+
+=== 6. Busqueda minimax: el arbol de decision OPTIMO, n = 1..10 ===
+  Estados = conjuntos de intercalados consistentes; consultas = A[i] < B[j]?; hoja cuando todos dan la misma posicion de respuesta.
+    n  entradas  cota ceil(log2 2n)  optimo (minimax)  algoritmo de la particion  arbol verificado en todas  1a consulta del arbol
+    1         2                   1                 1                          1         si (profundidad 1)            A[0] < B[0]
+    2         6                   2                 2                          3         si (profundidad 2)            A[0] < B[0]
+    3        20                   3                 3                          3         si (profundidad 3)            A[0] < B[0]
+    4        70                   3                 3                          4         si (profundidad 3)            A[1] < B[1]
+    5       252                   4                 4                          4         si (profundidad 4)            A[0] < B[0]
+    6       924                   4                 4                          4         si (profundidad 4)            A[1] < B[1]
+    7      3432                   4                 4                          4         si (profundidad 4)            A[2] < B[2]
+    8     12870                   4                 4                          5         si (profundidad 4)            A[3] < B[3]
+    9     48620                   5                 5                          5         si (profundidad 5)            A[0] < B[0]
+   10    184756                   5                 5                          5         si (profundidad 5)            A[1] < B[1]
+  El optimo coincide con la cota de informacion ceil(log2 2n) en todos los n calculados; el algoritmo de la particion pierde una
+  comparacion exactamente cuando n es potencia de 2 (n = 2, 4, 8).
+
+  Arbol optimo para n = 2 (2 comparaciones):
+    A[0] < B[0]?  si:
+        A[1] < B[0]?  si:
+            -> la respuesta es A[1]
+                         no:
+            -> la respuesta es B[0]
+                     no:
+        A[0] < B[1]?  si:
+            -> la respuesta es A[0]
+                         no:
+            -> la respuesta es B[1]
+
+  Arbol optimo para n = 4 (3 comparaciones):
+    A[1] < B[1]?  si:
+        A[2] < B[0]?  si:
+            A[3] < B[0]?  si:
+                -> la respuesta es A[3]
+                             no:
+                -> la respuesta es B[0]
+                         no:
+            A[2] < B[1]?  si:
+                -> la respuesta es A[2]
+                             no:
+                -> la respuesta es B[1]
+                     no:
+        A[0] < B[2]?  si:
+            A[1] < B[2]?  si:
+                -> la respuesta es A[1]
+                             no:
+                -> la respuesta es B[2]
+                         no:
+            A[0] < B[3]?  si:
+                -> la respuesta es A[0]
+                             no:
+                -> la respuesta es B[3]
+
+  Reparto de las 2n posiciones de la respuesta que hace la primera consulta del algoritmo de la particion, A[mid] vs B[n-mid-1]:
+    n=   2: mid=1: se parten en 3 y 1 (dos numeros IMPARES: nunca 2 y 2)
+    n=   4: mid=2: se parten en 5 y 3 (dos numeros IMPARES: nunca 4 y 4)
+    n=   8: mid=4: se parten en 9 y 7 (dos numeros IMPARES: nunca 8 y 8)
+    n=  16: mid=8: se parten en 17 y 15 (dos numeros IMPARES: nunca 16 y 16)
+    n=1024: mid=512: se parten en 1025 y 1023 (dos numeros IMPARES: nunca 1024 y 1024)
+
+=== 7. La figura: A=[1, 4, 5, 8, 9, 12], B=[2, 3, 6, 7, 10, 11]: la mezcla pasa por la antidiagonal en i*=3; sondas (i, P(i)): [(3, True), (1, False), (2, False)]; mediana = 6 ===

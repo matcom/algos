@@ -1,0 +1,76 @@
+=== 1. El primer acceso (clave 1 desde camino(n)): costo exacto y forma del arbol ===
+  n = 1..300: rotaciones = n-1, zig-zig = floor((n-1)/2), zig = 1 si n es par (0 si es impar), y la forma coincide con la
+  del lema (raiz 1; hijo derecho = espina izquierda de pares 2,4,..; cada par 2j con el impar 2j+1 como hijo derecho): fallos = 0
+  n= 7: tras acceder a 1:  (1 . (6 (4 (2 . 3) 5) 7))   (zig-zig 3, zig 0)
+  n=15: tras acceder a 1:  (1 . (14 (12 (10 (8 (6 (4 (2 . 3) 5) 7) 9) 11) 13) 15))   (zig-zig 7, zig 0)
+  n=16: tras acceder a 1:  (1 . (16 (14 (12 (10 (8 (6 (4 (2 . 3) 5) 7) 9) 11) 13) 15) .))   (zig-zig 7, zig 1)
+  n=15 tras acceder a 1..1:  (1 . (14 (12 (10 (8 (6 (4 (2 . 3) 5) 7) 9) 11) 13) 15))
+  n=15 tras acceder a 1..2:  (2 1 (12 (8 (4 3 (6 5 7)) (10 9 11)) (14 13 15)))
+  n=15 tras acceder a 1..3:  (3 (2 1 .) (12 (4 . (8 (6 5 7) (10 9 11))) (14 13 15)))
+  n=15, subir a la raiz tras acceder a 1..1: (1 . (15 (14 (13 (12 (11 (10 (9 (8 (7 (6 (5 (4 (3 2 .) .) .) .) .) .) .) .) .) .) .) .) .))
+  n=15, subir a la raiz tras acceder a 1..2: (2 1 (15 (14 (13 (12 (11 (10 (9 (8 (7 (6 (5 (4 3 .) .) .) .) .) .) .) .) .) .) .) .))
+  n=15, subir a la raiz tras acceder a 1..3: (3 (2 1 .) (15 (14 (13 (12 (11 (10 (9 (8 (7 (6 (5 4 .) .) .) .) .) .) .) .) .) .) .))
+
+=== 2. El costo real de n accesos en orden desde camino(n), y las cotas del lema ===
+  Cota cruda (C4): sum c <= n (3 log2 n + 1) + log2 n!   [r(x) >= 0, Phi_final >= 0]
+  Cota cruda afinada con Phi_final >= log2 n (la raiz):  n (3 log2 n + 1) + log2 n! - log2 n
+  Cota fina: sum_k [3 (log2 n - r_k) + 1] + Phi_0 - Phi_final, con los r_k y Phi_final REALES de la ejecucion
+        n  costo total  total/n       cruda  cruda/n        fina   fina/n  cruda/total  fina/total
+       15           48    3.200         231    15.40         145     9.69         4.81        3.03
+       31          114    3.677         604    19.50         356    11.50         5.30        3.13
+       63          250    3.968        1483    23.53         834    13.23         5.93        3.33
+      127          528    4.157        3499    27.55        1908    15.03         6.63        3.61
+      255         1090    4.275        8047    31.56        4293    16.84         7.38        3.94
+      511         2216    4.337       18170    35.56        9545    18.68         8.20        4.31
+     1023         4472    4.371       40468    39.56       21024    20.55         9.05        4.70
+     4095        18038    4.405      194749    47.56       99715    24.35        10.80        5.53
+    16383        72276    4.412      910198    55.56      461610    28.18        12.59        6.39
+    65535       289254    4.414     4165232    63.56     2098008    32.01        14.40        7.25
+   262143      1157200    4.414    18758251    71.56     9399203    35.86        16.21        8.12
+  (verificado con assert: sum c = sum c_hat + Phi_0 - Phi_final, y total <= fina <= cruda afinada)
+
+=== 3. Reproduccion de la tabla de C4 sec. 6: 3 rondas, costo por acceso ===
+      n   splay  subir a la raiz   (C4: 4,2 4,2 4,3 4,4  y  50,5 100,5 200,5 400,5)
+    100     4.2             50.5
+    200     4.2            100.5
+    400     4.3            200.5
+    800     4.4            400.5
+
+=== 4. Por que la cota pierde: de donde sale (n accesos en orden) ===
+  Lema J_k (demostrado en el texto): tras acceder a 1..k la raiz es k y su subarbol izquierdo es la cadena izquierda k-1 -> ... -> 1, sin hijos derechos.
+  Consecuencia: tras acceder a 1..n el arbol es camino(n) y Phi_final = Phi_0.
+  J_k comprobado con assert tras CADA acceso para n = 1..300 (45150 comprobaciones): fallos = 0
+  forma final == camino(n) para n = 1..300: fallos = 0
+        n  costo real T  A=sum[3(log n - r_k)+1]  n(3 log n+1)  3 sum r_k      Phi_0  Phi_final  cota fina=A    A/T
+     1023          4472                    21024         31709      10685       8759       8759        21024   4.70
+    16383         72276                   461610        704465     242855     205733     205733       461610   6.39
+   262143       1157200                  9399203      14417861    5018658    4340390    4340390      9399203   8.12
+  La cota fina es A + (Phi_0 - Phi_final) = A: Phi_0 y Phi_final SE CANCELAN. Toda la perdida esta en los terminos 3(log n - r_k) + 1.
+  Cota cruda = n(3 log n + 1) + Phi_0; fina = cruda - 3 sum r_k - Phi_0 + (Phi_0 - Phi_final) = cruda - 3 sum r_k - Phi_final.
+  n = 1023: Phi_0 = 8759; tras el 1er acceso Phi = 4387; tras n/4 accesos 2737; tras n/2 4575; tras 3n/4 6606; final 8759  (baja y vuelve a subir)
+  costo amortizado c_hat_k: suma = 4472 = costo real (el potencial vuelve a su valor); 1er acceso c_hat = -3350 (el potencial cae), maximo 20.2, media de los demas 7.65
+  el tope del lema 3(log2 n - r_k) + 1 vale en media 20.6 por acceso; el costo real por acceso es 4.37
+  r_k reales (primeros 14): [0.0, 1.0, 0.0, 3.0, 0.0, 2.58, 0.0, 6.09, 0.0, 6.04, 0.0, 9.98, 0.0, 2.58]   (media 3.48; la cota cruda supone 0)
+
+=== 5. Constante empirica del acceso secuencial (Tarjan 1985: O(n) desde cualquier arbol inicial) ===
+         n  costo total   total/n
+         7           16    2.2857
+        15           48    3.2000
+        31          114    3.6774
+       100          416    4.1600
+      1000         4374    4.3740
+      4095        18038    4.4049
+     16383        72276    4.4116
+     65535       289254    4.4137
+    262143      1157200    4.4144
+   1048575      4629010    4.4146
+  maximo de total/n para 2 <= n <= 1500 (todos los n): 4.4055  en n = 1100
+  maximo de total/n en 40 valores de n entre 2^11 y 2^17 elegidos al azar: 4.4142 en n = 106164
+
+=== 6. Contraste: subir a la raiz en la misma secuencia ===
+  n = 2..200: costos por acceso = [n-1, n-1, n-2, ..., 1] y total = n(n+1)/2 - 1: fallos = 0
+       n  subir a la raiz   n(n+1)/2 - 1      splay  cociente
+      15              119            119         48       2.5
+     100             5049           5049        416      12.1
+    1000           500499         500499       4374     114.4
+    4000          8001999        8001999      17620     454.1

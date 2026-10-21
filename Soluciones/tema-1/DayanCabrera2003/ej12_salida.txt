@@ -1,0 +1,62 @@
+=== 1. Una instancia con n != m, listas incompletas, y su traza ===
+  a1 lista: b1 > b2 > b3
+  a2 lista: b1 > b3
+  a3 lista: b1 > b2
+  a4 lista: b2
+  b1 lista: a2 > a3 > a1
+  b2 lista: a1 > a4
+  b3 lista: a1
+  paso  a  propone a  tenia   se queda con  que pasa
+     1  a1         b1      -           a1  acepta
+     2  a2         b1     a1           a2  acepta
+     3  a3         b1     a2           a2  rechaza
+     4  a4         b2      -           a4  acepta
+     5  a1         b2     a4           a1  acepta
+     6  a3         b2     a1           a1  rechaza
+  resultado: a1-b2, a2-b1, a3 solo, a4 solo (6 propuestas; suma |L_a| = 8)
+  verificador independiente: individualmente racional = True, pares bloqueantes = []
+  emparejamientos estables (fuerza bruta, 73 emparejamientos posibles): [['a1-b2', 'a2-b1', 'a3 solo', 'a4 solo']]
+
+=== 2. Por que hace falta la racionalidad individual (a) ===
+  a lista: (nadie); b lista: a1. Emparejamiento {a1-b1}: racional = False, pares bloqueantes en el sentido ingenuo = []
+  Sin pares bloqueantes, pero a1 queda con alguien que no lista: no es estable. El vacio {a1 solo, b1 solo} si lo es: (True, [])
+  Algoritmo sobre esa instancia: ([None], 0)
+
+=== 3. Experimento principal: instancias aleatorias pequenas (n, m <= 5), TODOS los emparejamientos enumerados ===
+  4000 instancias (3253 con n != m, 1000 con receptores de lista completa, 333 con emparejamiento vacio)
+  (i)   el resultado de Gale-Shapley es estable (verificador independiente):                4000 de 4000
+  (ii)  el resultado no depende del orden (cola, pila, dos azares; mismo M y mismas propuestas): 4000 de 4000
+  (iii) optimo para quien propone (mejor pareja estable, o solo si no tiene ninguna):          4000 de 4000
+  (iv)  hospitales rurales: mismo conjunto de emparejados en TODO emparejamiento estable:       4000 de 4000
+  (iv') pesimalidad: en M0 cada receptor emparejado queda con su PEOR pareja valida (en todo estable lo iguala o mejora): 4000 de 4000
+  (v)   propuestas = sum_{a solo} |L_a| + sum_{a emparejado} lugar de su pareja:                4000 de 4000
+  (vi)  propuestas <= sum |L_a|:                                                               4000 de 4000
+
+=== 4. Propuestas contra sum |L_a|: instancias grandes y la igualdad ===
+      n     m  sum |L_a|  propuestas  cociente  proponentes solos
+     50    50       2500         169     0.068                  0
+     50    50        755         338     0.448                  7
+    200   100       9879        7337     0.743                100
+    100   200      10059         304     0.030                  0
+    400   400      16010        2164     0.135                  0
+    400   400      16088        7297     0.454                 67
+  Igualdad propuestas = sum |L_a|: sucede exactamente cuando todo proponente queda solo o con el ULTIMO de su lista.
+  (a) receptores con listas vacias: nadie acepta; propuestas 7 = sum |L_a| = 7
+  (b) con emparejamientos: a1:[b1,b2], a2:[b1]; b1: a2>a1; b2: a1 -> M = [1, 0], propuestas 3 = sum |L_a| = 3 (a1 con el ultimo de su lista, a2 con el unico)
+  Complejidad con listas completas (n x n), peor caso sobre TODAS las instancias de n = 2, 3:
+    n=2: maximo de propuestas = 3  (n^2 - n + 1 = 3; la cota del potencial es n^2 = 4)
+    n=3: maximo de propuestas = 7  (n^2 - n + 1 = 7; la cota del potencial es n^2 = 9)
+
+=== 5. Verificar el teorema de los hospitales rurales a mano: un ejemplo con varios estables ===
+  instancia 2x2 con dos estables: [['a1-b1', 'a2-b2'], ['a1-b2', 'a2-b1']]; Gale-Shapley: [0, 1]
+
+=== 6. Variantes con error que parecen correctas ===
+  V1 (el receptor acepta a quien no lista 'porque es mejor que estar solo'): instancia mas chica hallada: n=1, m=1
+     listas a: [[0]], listas b: [[]]; resultado [0]: individualmente racional = False, bloqueantes = []
+     instancia minima: a lista [b], b no lista a nadie: resultado [0] -> racional = False (b queda con un no listado)
+     en 3000 instancias aleatorias, la variante no es estable en 1624 (54.1 %)
+  V2 (el proponente que agoto su lista la reinicia): a lista [b], b no lista a nadie -> NO TERMINA (propuestas hechas: 5000, tope de pasos 5000)
+     con una instancia donde el original termina (M = [1, 0]), la variante: [1, 0] (3 propuestas)
+     en 500 instancias aleatorias pequenas, la variante no termina en 304 (60.8 %): el potencial ya no baja
+     con listas COMPLETAS (el caso de la conferencia) ningun proponente agota su lista y la variante nunca se activa:
+     500 de 500 instancias completas: la variante coincide con el original

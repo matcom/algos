@@ -1,0 +1,70 @@
+=== 1. Tabla de transiciones del incremento (6 pares estado-simbolo, completa) ===
+  estados: c (acarreo, inicial), r (regreso), h (parada).  simbolos: 0, 1, B (blanco)
+  delta(c, 1) = (c, 0, L)
+  delta(c, 0) = (r, 1, R)
+  delta(c, B) = (r, 1, R)
+  delta(r, 0) = (r, 0, R)
+  delta(r, 1) = (r, 1, R)
+  delta(r, B) = (h, B, L)
+
+=== 2. Un incremento paso a paso: 111 -> 1000 (c = 7 = 2^3 - 1, t = 3 unos finales; la cinta crece) ===
+  paso  estado cabezal  cinta (cabezal marcado con [ ])
+     0      c      0    B  1  1 [1] B 
+     1      c     -1    B  1 [1] 0  B 
+     2      c     -2    B [1] 0  0  B 
+     3      c     -3    B [B] 0  0  0  B 
+     4      r     -2    B  1 [0] 0  0  B 
+     5      r     -1    B  1  0 [0] 0  B 
+     6      r      0    B  1  0  0 [0] B 
+     7      r      1    B  1  0  0  0 [B] B 
+     8      h      0    B  1  0  0 [0] B 
+  pasos = 8 = 2(t+1) con t = 3;  cinta final 1000, cabezal en la posicion 0 (el LSB)
+
+=== 3. Simulador real: m incrementos seguidos desde 0, m = 1 .. 2^16 ===
+  comprobaciones por incremento (pasos = 2(t+1), cabezal vuelve al LSB, cinta = c+1): fallos = 0
+  costo amortizado (real + variacion de Phi = 2*unos) distinto de 4: 0 de 65536
+        m  total de pasos   4m - 2*s2(m)        4m  s2(m)
+        1               2              2         4      1
+        2               6              6         8      1
+        3               8              8        12      2
+        4              14             14        16      1
+        5              16             16        20      2
+        7              22             22        28      3
+        8              30             30        32      1
+      100             394            394       400      3
+     1000            3988           3988      4000      6
+     1023            4072           4072      4092     10
+     1024            4094           4094      4096      1
+     1025            4096           4096      4100      2
+    32768          131070         131070    131072      1
+    65535          262108         262108    262140     16
+    65536          262142         262142    262144      1
+  mayor costo de un incremento hasta m = 2^16: 34 pasos, en el incremento numero m = 65536 (2(k+1) con k = 16)
+
+=== 4. Formula del total para TODO m = 1..2^16 (acumulado del simulador) ===
+  m = 1..65536: total == 4m - 2*s2(m) y total <= 4m: fallos = 0
+  Costo por incremento = 2(t+1), t = v2(c+1);  suma = 2m + 2*v2(m!) = 2m + 2(m - s2(m))  (Legendre)
+
+=== 5. Salida desde un contador que no esta en 0: c0 = 2^k - 1 ===
+  c0=2^10-1, m=    1 incrementos: pasos =     22; 4m + Phi_0 - Phi_m =     22; 4m =     4   (media por operacion 22.0)
+  c0=2^10-1, m=    2 incrementos: pasos =     24; 4m + Phi_0 - Phi_m =     24; 4m =     8   (media por operacion 12.0)
+  c0=2^10-1, m=  100 incrementos: pasos =    410; 4m + Phi_0 - Phi_m =    410; 4m =   400   (media por operacion 4.1)
+  c0=2^10-1, m= 1000 incrementos: pasos =   4002; 4m + Phi_0 - Phi_m =   4002; 4m =  4000   (media por operacion 4.0)
+  c0=2^16-1, m=    5 incrementos: pasos =     48; 4m + Phi_0 - Phi_m =     48; 4m =    20   (media por operacion 9.6)
+
+=== 6. Con decremento: la secuencia 2^k - 1  <->  2^k  ===
+  decremento: ('c',0)->(c,1,L) ('c',1)->(r,0,R); misma tabla de regreso.
+  Convencion de esta seccion: contador de ANCHO FIJO k+1 (como el contador de k bits del ej. 2 de C4),
+  con ceros a la izquierda permitidos: 2^k-1 se escribe 0 1^k y 2^k se escribe 1 0^k. La cinta no crece.
+  k= 4: 1000 operaciones alternadas inc/dec: pasos totales = 10000 = 10 por operacion (cada una 2(k+1) = 10); cinta final = 01111...
+  k= 8: 1000 operaciones alternadas inc/dec: pasos totales = 18000 = 18 por operacion (cada una 2(k+1) = 18); cinta final = 011111111...
+  k=10: 1000 operaciones alternadas inc/dec: pasos totales = 22000 = 22 por operacion (cada una 2(k+1) = 22); cinta final = 01111111111...
+  k=16: 1000 operaciones alternadas inc/dec: pasos totales = 34000 = 34 por operacion (cada una 2(k+1) = 34); cinta final = 011111111111...
+  la misma cantidad de operaciones solo con incrementos cuesta < 4 por operacion (seccion 3).
+  Potencial Phi = 2*unos en esta secuencia:
+    inc: pasos reales 22, unos 10 -> 1, amortizado = 22 + 2*(1 - 10) = 4
+    dec: pasos reales 22, unos 1 -> 10, amortizado = 22 + 2*(10 - 1) = 40
+    inc: pasos reales 22, unos 10 -> 1, amortizado = 22 + 2*(1 - 10) = 4
+    dec: pasos reales 22, unos 1 -> 10, amortizado = 22 + 2*(10 - 1) = 40
+  Sobre un ciclo (inc, dec) el estado vuelve al mismo y Phi telescopa: suma amortizada = suma real = 4(k+1).
+  Para cualquier potencial: amortizado medio por operacion = 4(k+1)/2 = 2(k+1) = 22 (k = 10); no es O(1).

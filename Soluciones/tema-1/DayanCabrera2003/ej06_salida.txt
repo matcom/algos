@@ -1,0 +1,55 @@
+=== 1. Escalera contra fuerza bruta en matrices aleatorias con duplicados ===
+  58473 pares (matriz, x), n = 1..30: la escalera coincide con la fuerza bruta y usa <= 2n-1 comparaciones
+  maximo observado por n (aleatorias): {1: 1, 2: 3, 3: 5, 5: 9, 10: 19, 20: 39, 30: 55}
+
+=== 2. Peor caso exacto: A[i][j] = 2(i+j), x = 2n-3 ===
+  n = 1..100: comparaciones == 2n-1 en todos salvo 0
+  n=5: celdas consultadas en orden: [(0, 4), (0, 3), (1, 3), (1, 2), (2, 2), (2, 1), (3, 1), (3, 0), (4, 0)]
+  Exhaustivo para n = 2 (entradas 0..4) y n = 3 (entradas 0..3): maximo de comparaciones sobre toda matriz ordenada y todo x
+    n=2: 105 matrices ordenadas, maximo = 3 (2n-1 = 3)
+    n=3: 980 matrices ordenadas, maximo = 5 (2n-1 = 5)
+
+=== 3. El adversario como programa: x = 2n-3, responde segun N[i][j] = 2(i+j) ===
+  escalera:
+    n= 3:   5 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+    n= 6:  11 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+    n=12:  23 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+  omite (n-1,0):
+    n= 3:   4 comparaciones; celdas de las 2n-1 sin consultar: 1; ERROR en N_p con p=(2, 0)
+    n= 6:  10 comparaciones; celdas de las 2n-1 sin consultar: 1; ERROR en N_p con p=(5, 0)
+    n=12:  22 comparaciones; celdas de las 2n-1 sin consultar: 1; ERROR en N_p con p=(11, 0)
+  solo antidiagonal:
+    n= 3:   3 comparaciones; celdas de las 2n-1 sin consultar: 2; ERROR en N_p con p=(0, 1)
+    n= 6:   6 comparaciones; celdas de las 2n-1 sin consultar: 5; ERROR en N_p con p=(0, 4)
+    n=12:  12 comparaciones; celdas de las 2n-1 sin consultar: 11; ERROR en N_p con p=(0, 10)
+  esquina (0,0), n^2:
+    n= 3:   9 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+    n= 6:  36 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+    n=12: 144 comparaciones; celdas de las 2n-1 sin consultar: 0; correcto (consulto las 2n-1 celdas)
+  Matriz del adversario para 'solo antidiagonal', n=3 (x = 3, celda p = (0, 1) puesta a x):
+     [0, 3, 4]
+     [2, 4, 6]
+     [4, 6, 8]
+
+=== 4. Informacion contra el adversario (n x n) ===
+      n  log2(n^2+1)  log2 C(2n,n)  2n-1 (exacto)
+      1          1.0           1.0              1
+      2          2.3           2.6              3
+      5          4.7           8.0              9
+     10          6.7          17.5             19
+     50         11.3          96.3             99
+    100         13.3         195.9            199
+   1000         19.9        1994.2           1999
+  C(2n,n) = numero de fronteras monotonas posibles {A < x}; cada comparacion da 2 respuestas utiles
+
+=== 5. Matriz m x n con m <= n: escalera contra galopar por filas ===
+  m= 4, n=   4: escalera peor=   7 (m+n-1=   7);  galope peor medido=   9; cota 2m(log2(1+n/m)+2)+m =    28.0;  cota inferior m*ceil(log2(n/m+1)) = 4
+  m= 4, n=  64: escalera peor=  67 (m+n-1=  67);  galope peor medido=  31; cota 2m(log2(1+n/m)+2)+m =    52.7;  cota inferior m*ceil(log2(n/m+1)) = 20
+  m= 8, n= 512: escalera peor= 519 (m+n-1= 519);  galope peor medido=  68; cota 2m(log2(1+n/m)+2)+m =   136.4;  cota inferior m*ceil(log2(n/m+1)) = 56
+  m=16, n=4096: escalera peor=4111 (m+n-1=4111);  galope peor medido= 155; cota 2m(log2(1+n/m)+2)+m =   336.2;  cota inferior m*ceil(log2(n/m+1)) = 144
+  m=64, n=  64: escalera peor= 127 (m+n-1= 127);  galope peor medido= 143; cota 2m(log2(1+n/m)+2)+m =   448.0;  cota inferior m*ceil(log2(n/m+1)) = 64
+
+=== 6. Familia de bloques (cota inferior m x n): cada fila tiene su bloque, bloques disjuntos ===
+  familia valida (filas y columnas estrictamente crecientes, x=0 ausente) en 600 matrices aleatorias: True
+  m= 8, n= 512, s=64: el galope hace hasta 105 comparaciones; cota inferior m*ceil(log2(s+1)) = 56
+  m=16, n=4096, s=256: el galope hace hasta 273 comparaciones; cota inferior m*ceil(log2(s+1)) = 144

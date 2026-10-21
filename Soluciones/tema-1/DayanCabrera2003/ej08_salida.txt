@@ -1,0 +1,67 @@
+=== 1. Lema: un multiconjunto se parte en ternas de distintos  <=>  |S| multiplo de 3 y ningun valor > |S|/3 ===
+  715 multiconjuntos de tamano <= 9 sobre 4 valores: criterio == fuerza bruta
+
+=== 2. Invariante vigilado con assert (primera pasada, orden correcto) ===
+  6000 arreglos aleatorios (alfabetos de 2 a 5 simbolos): invariante comprobado en 44906 prefijos, sin fallos
+  exhaustivo: todos los arreglos sobre 4 simbolos de largo <= 8: 669924 prefijos, sin fallos
+
+=== 3. Traza de un ejemplo: A = B A C A B A D A C ===
+  i  x  caso      c1 k1  c2 k2
+  1  B  c1 libre   B  1   -  0
+  2  A  c2 libre   B  1   A  1
+  3  C  terna      -  0   -  0
+  4  A  c1 libre   A  1   -  0
+  5  B  c2 libre   A  1   B  1
+  6  A  x = c1     A  2   B  1
+  7  D  terna      A  1   -  0
+  8  A  x = c1     A  2   -  0
+  9  C  c2 libre   A  2   C  1
+  n = 9, terna = 3 copias distintas; pesados (> n/3 = 3.00): ['A']; candidatos: ['A', 'C']; con verificacion: ['A']
+
+=== 4. Correctitud contra el oraculo (con verificacion) y mitad buena del algoritmo sin verificar ===
+  todos los arreglos sobre 4 simbolos de largo <= 8: con_verificacion == oraculo; pesados contenidos en candidatos
+  20000 arreglos aleatorios mas (alfabetos de 2 a 10 simbolos, largo hasta 40): sin fallos
+
+=== 5. El orden equivocado de los if produce c1 == c2 y falla ===
+  entrada mas corta (alfabeto ABC) donde falta un pesado entre los candidatos: AAB
+  i  x   c1 k1  c2 k2   (orden equivocado)
+  1  A   A  1   -  0
+  2  A   A  1   A  1
+  3  B   -  0   -  0
+  candidatos finales: []; pesados: ['A']; con el orden correcto: ['A', 'B']
+  arreglos sobre ABC de largo <= 7 donde el orden equivocado pierde un pesado: 570 de 3279
+
+=== 6. La version sin verificar: falsos positivos y generadores de prueba ===
+  Entrada mas corta con falso positivo, por tamano de alfabeto (arreglos que usan EXACTAMENTE ese numero de simbolos):
+    2 simbolos: AAB  candidatos ['A', 'B'], pesados ['A']
+    3 simbolos: AAABBC  candidatos ['A', 'B'], pesados ['A']
+    4 simbolos: ABCD  candidatos ['D'], pesados []
+
+          generador  sin verificar  dos pasadas   (4000 arreglos de largo 4..15 por generador)
+      dos plantados           0.0%         0.0%
+       uno plantado          57.8%         0.0%
+   mayoria plantada          55.6%         0.0%
+            binario          37.0%         0.0%
+         3 simbolos          41.0%         0.0%
+         5 simbolos          58.3%         0.0%
+    todos distintos          67.4%         0.0%
+
+  Para los generadores de 'dos plantados': candidatos = pesados por cardinalidad (<= 2 candidatos, 2 pesados):
+    20000 arreglos con exactamente dos pesados: la version sin verificar acierta siempre
+
+=== 7. Alfabeto de 3 simbolos (el analogo del binario de C3): caracterizacion exacta ===
+  Toda terna de distintos sobre 3 simbolos tiene una copia de cada uno; luego cuenta(c_i) = k_i + T,
+  cuenta(v) = T para v no candidato, n = 3T + k1 + k2, y  c_i (k_i > 0) es frecuente  <=>  2 k_i > k_j.
+  assert en los 88573 arreglos sobre {A,B,C} de largo <= 10: cuenta(v) = T + k_i, y regla '2 k_i > k_j' == oraculo
+  (tambien exacta con 1 y 2 simbolos: son casos de 3 simbolos con alguna cuenta en 0)
+  AAABBC: estado A:2, B:1, T = 1;  B: 2*1 > 2? False -> falso positivo del atajo; regla 2k: ['A']; oraculo ['A']
+  Con 4 o mas simbolos la regla deja de ser exacta (las ternas ya no llevan todos los simbolos):
+    regla 2k: entrada mas corta sobre 4 simbolos donde falla: ABCD  (estado ('D', 1, 'B', 0), devuelve ['D'], oraculo [])
+
+   simbolos  atajo (k>0)  regla 2k_i>k_j   (4000 arreglos de largo 4..15 por tamano de alfabeto)
+          1         0.0%            0.0%
+          2        35.4%            0.0%
+          3        41.4%            0.0%
+          4        52.6%           25.1%
+          5        57.8%           40.0%
+          8        65.2%           59.3%
