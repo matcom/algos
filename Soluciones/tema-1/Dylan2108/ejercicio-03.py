@@ -101,7 +101,7 @@ if __name__ == "__main__":
     p.desapilar(); p.desapilar(); assert p.minimo() == 5
     p.desapilar(); assert p.vacia()
 
-    # 2. Pruebas aleatorias con invariante vigilado (como el de Boyer-Moore en C3, §4)
+    # 2. Pruebas aleatorias con invariante vigilado (como el de Boyer-Moore en la sección 4 de la conferencia 3)
     for _ in range(2000):
         assert contra_oraculo(PilaMin, secuencia(rng, 60, range(10)), vigilar=True)
     print("PilaMin: 2000 secuencias, invariante vigilado en cada paso, 0 fallos")

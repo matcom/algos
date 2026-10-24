@@ -83,7 +83,7 @@ $$\boxed{\text{comparaciones en el peor caso} \;\le\; \lceil \log_2 (n+1) \rceil
 
 ## Cota mínima: el argumento de información
 
-Esta es la cota de la conferencia 5, §3 (lema 4). Si $x$ no está en el arreglo, puede
+Esta es la cota de la sección 3 de la conferencia 5 (lema 4). Si $x$ no está en el arreglo, puede
 caer en $n + 1$ huecos, y un algoritmo correcto tiene que mandar huecos distintos a
 hojas distintas del árbol de decisión. La razón es que si $x_1$ y $x_2$ llegan a la
 misma hoja, cualquier $a_i$ entre ellos recorre el mismo camino, y el algoritmo diría

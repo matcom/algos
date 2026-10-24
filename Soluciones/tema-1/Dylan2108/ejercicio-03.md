@@ -86,7 +86,7 @@ La propiedad que queremos es "$m_{k-1}$ es el mínimo de la pila". Es verdadera,
 sola **no es inductiva**. Al desapilar, la afirmación sobre el nuevo tope no se puede
 deducir de la afirmación sobre el tope anterior. Para que la demostración funcione hay
 que reforzarla a "**todas** las celdas cumplen lo mismo para su prefijo", que es $I$.
-Es lo mismo que pasa con Boyer-Moore en la conferencia 3, §4: el invariante tiene que
+Es lo mismo que pasa con Boyer-Moore en la sección 4 de la conferencia 3: el invariante tiene que
 ser inductivo, no solo verdadero.
 
 ## Costo
