@@ -75,7 +75,7 @@ Si hay un ciclo de longitud $L$ dentro de una lista de tamaño $n$, la fase prev
 
 El siguiente script en Python implementa una lista enlazada, construye un ciclo de prueba, ejecuta el algoritmo de Floyd y genera una tabla detallada con la evolución de los punteros paso a paso.
 
-```
+```python
 class Node:
     def __init__(self, val):
         self.val = val
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 ### Salida esperada del script:
 
-```
+```text
 === CASO 1: Lista CON Ciclo (1 -> 2 -> 3 -> 4 -> 2 ...) ===
 PASO   | POSICIÓN TORTUGA   | POSICIÓN LIEBRE    | ESTADO         
 ---------------------------------------------------------------
