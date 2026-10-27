@@ -201,6 +201,8 @@ def graficar_analisis_amortizado_contador(m=32):
 graficar_analisis_amortizado_contador(32)
 ```
 
+![Grafica](grafica_analisis_amortizado.png)
+
 Cuando el costo real es alto (ej. Op 8, $c_{real} = 4$), el potencial cae bruscamente (de $3$ a $1$). El ahorro acumulado en las operaciones "baratas" paga el cambio masivo de bits.
 Cuando el costo real es bajo ($c_{real} = 1$, ej. Op 9), el potencial se incrementa suavemente, preparando crédito para el siguiente pico.
 
