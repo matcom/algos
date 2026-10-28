@@ -3,6 +3,7 @@
 En una pila convencional (Stack), las operaciones básicas de inserción (`push`) y extracción (`pop`) operan en un tiempo de $O(1)$ en el peor caso. Sin embargo, consultar el elemento mínimo presente en la pila normalmente requeriría recorrer todos sus elementos, lo que costaría $O(n)$ en el peor caso, o mantenerlos ordenados, afectando el costo de las inserciones.
 
 Queremos diseñar una estructura de datos basada en una pila que soporte las siguientes operaciones, **todas en el peor caso $O(1)$**:
+
 - `push(x)`: Inserta el elemento $x$ en la cima de la pila.
 - `pop()`: Remueve y devuelve el elemento de la cima de la pila.
 - `top()`: Devuelve el elemento de la cima sin removerlo.
@@ -13,18 +14,19 @@ Para lograr un costo de $O(1)$ en la operación `min()`, la solución propuesta 
 $$\text{Elemento en Pila} = (v, m)$$
 
 Donde:
-* $v$: El valor real insertado en la pila.
-* $m$: El valor mínimo acumulado en la pila desde la base hasta este exacto elemento $v$.
 
-### Diseño de la Estructura de Datos
+- $v$: El valor real insertado en la pila.
+- $m$: El valor mínimo acumulado en la pila desde la base hasta este exacto elemento $v$.
 
-* **`stack`**: Una única estructura lineal (como una lista) donde cada nodo o entrada contiene la tupla $(v, m)$.
+## Diseño de la Estructura de Datos
 
-#### Ilustración del Diseño
+- **`stack`**: Una única estructura lineal (como una lista) donde cada nodo o entrada contiene la tupla $(v, m)$.
+
+### Ilustración del Diseño
 
 Consideremos la secuencia de inserciones: $5, 2, 8, 1, 3$.
 
-```
+```text
 Estado de la pila con tuplas (valor, mínimo_acumulado):
 
 push(5)     push(2)         push(8)           push(1)           push(3)
@@ -39,7 +41,6 @@ push(5)     push(2)         push(8)           push(1)           push(3)
 ## Invariante de la Estructura
 
 Para demostrar la correctitud formal de esta variante definimos su invariante.
-
 
 > *"Para cualquier estado de la pila tras un número arbitrario de operaciones, sea $S$ la secuencia de $k$ tuplas almacenadas $[(x_1, m_1), (x_2, m_2), \dots, (x_k, m_k)]$, donde $(x_k, m_k)$ es la cima, se cumple que para todo índice $i \in \{1, 2, \dots, k\}$, el segundo componente $m_i$ es exactamente el valor mínimo del subconjunto de valores de la pila desde la base hasta la posición $i$, es decir, $m_i = \min(\{x_1, x_2, \dots, x_i\})$."*
 
@@ -63,12 +64,12 @@ Para demostrar la correctitud formal de esta variante definimos su invariante.
 
 ## 3. Costo de cada Operación (Peor Caso)
 
-| Operación | Descripción | Complejidad Temporal (Peor Caso) | Complejidad Espacial | 
-| ----- | ----- | ----- | ----- | 
-| `push(x)` | Crea una tupla $(x, \min)$ y la añade a la pila. | $\mathbf{O(1)}$ | $\mathbf{O(1)}$ | 
-| `pop()` | Extrae la tupla superior de la pila. | $\mathbf{O(1)}$ | $O(1)$ | 
-| `top()` | Consulta el primer componente de la tupla superior. | $\mathbf{O(1)}$ | $O(1)$ | 
-| `min()` | Consulta el segundo componente de la tupla superior. | $\mathbf{O(1)}$ | $\mathbf{O(1)}$ | 
+| Operación | Descripción | Complejidad Temporal (Peor Caso) | Complejidad Espacial |
+| ----- | ----- | ----- | ----- |
+| `push(x)` | Crea una tupla $(x, \min)$ y la añade a la pila. | $\mathbf{O(1)}$ | $\mathbf{O(1)}$ |
+| `pop()` | Extrae la tupla superior de la pila. | $\mathbf{O(1)}$ | $O(1)$ |
+| `top()` | Consulta el primer componente de la tupla superior. | $\mathbf{O(1)}$ | $O(1)$ |
+| `min()` | Consulta el segundo componente de la tupla superior. | $\mathbf{O(1)}$ | $\mathbf{O(1)}$ |
 
 La estructura utiliza una sola estructura de datos lineal y empaqueta el estado del mínimo junto al valor, por lo que la operación `min()` solo consulta el segundo elemento de la tupla que está en `top()` y actualizar o mantener el minimo solo realiza operaciones  atómicas en este caso la comparación de 2 elementos,  manteniendo así una complejidad temporal estricta de $\mathcal{O}(1)$ en el peor caso.
 
@@ -76,7 +77,7 @@ La estructura utiliza una sola estructura de datos lineal y empaqueta el estado 
 
 El siguiente script en Python implementa la pila basada en tuplas, verifica los invariantes y muestra una tabla detallada del estado paso a paso.
 
-```
+```python
 import sys
 
 class TupleMinStack:
@@ -145,9 +146,9 @@ probar_pila_tuplas()
 
 ```
 
-### Salida esperada del script:
+### Salida esperada del script
 
-```
+```text
 OPERACIÓN       | ARG   | ESTADO DE LA PILA (VAL, MIN)      | MÍNIMO RETORNADO  
 ---------------------------------------------------------------------------------
 push            | 5     | [(5, 5)]                          | insertado 5       
