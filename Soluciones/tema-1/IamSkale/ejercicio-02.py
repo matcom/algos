@@ -39,15 +39,20 @@ def oraculo(A, x):
 
 # -------------------- Parte 3 --------------------
 
+incorrectas, peores_distintos = 0, 0
 for n in range(0, 65):
     A = list(range(0, 2 * n, 2))              # 0, 2, 4, ...: los impares caen en huecos
     peor = 0
     for x in range(-1, 2 * n + 1):
         c = Contador()
-        assert busqueda_binaria(A, x, c) == oraculo(A, x), (n, x)
+        incorrectas += busqueda_binaria(A, x, c) != oraculo(A, x)
         peor = max(peor, c.n)
-    assert peor == math.ceil(math.log2(n + 1)), (n, peor)
-print("correcta en todos los casos, y el peor caso es exactamente ceil(log2(n+1)) para n = 0..64")
+    peores_distintos += peor != math.ceil(math.log2(n + 1))
+if incorrectas == peores_distintos == 0:
+    print("correcta en todos los casos, y el peor caso es exactamente ceil(log2(n+1)) para n = 0..64")
+else:
+    print(f"{incorrectas} búsquedas incorrectas y {peores_distintos} valores de n con peor caso "
+          f"distinto de ceil(log2(n+1)), para n = 0..64")
 
 # -------------------- Parte 4 --------------------
 
@@ -68,11 +73,18 @@ def busqueda_vigilada(A, x):
     return ("hueco", lo)
 
 random.seed(2)
+fallos = 0
 for _ in range(3000):
     A = sorted(random.sample(range(1000), random.randint(0, 60)))
     x = random.randrange(-5, 1005)
-    assert busqueda_vigilada(A, x) == oraculo(A, x)
-print("invariante y potencial comprobados en 3000 búsquedas al azar")
+    try:
+        fallos += busqueda_vigilada(A, x) != oraculo(A, x)
+    except AssertionError:                     # se rompió el invariante o el potencial
+        fallos += 1
+if fallos == 0:
+    print("invariante y potencial comprobados en 3000 búsquedas al azar")
+else:
+    print(f"{fallos} de 3000 búsquedas al azar fallan el invariante, el potencial o el oráculo")
 
 # -------------------- Parte 5 --------------------
 

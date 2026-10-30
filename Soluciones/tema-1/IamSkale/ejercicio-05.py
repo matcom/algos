@@ -69,14 +69,18 @@ for nombre, (mu, lam) in casos.items():
 
 # -------------------- Parte 4 --------------------
 
+fallos = 0
 for mu in range(0, 41):
     for lam in range(0, 41):
         cabeza = lista(mu, lam)
         r, v = floyd(cabeza)
-        assert r == oraculo(cabeza) == (lam > 0)
-        assert v == vueltas_esperadas(mu, lam)
-        assert v <= mu + lam
-print("1681 formas de lista: respuesta correcta, vueltas exactas y siempre <= n")
+        fallos += not (r == oraculo(cabeza) == (lam > 0)
+                       and v == vueltas_esperadas(mu, lam)
+                       and v <= mu + lam)
+if fallos == 0:
+    print("1681 formas de lista: respuesta correcta, vueltas exactas y siempre <= n")
+else:
+    print(f"{fallos} de 1681 formas de lista fallan la respuesta, las vueltas o la cota <= n")
 
 # -------------------- Parte 5 --------------------
 
@@ -102,10 +106,17 @@ def floyd_vigilado(mu, lam):
             return True
     return False
 
+fallos = 0
 for mu in range(0, 25):
     for lam in range(1, 25):
-        assert floyd_vigilado(mu, lam)
-print("invariante y potencial de la fase 2 comprobados en 600 listas con ciclo")
+        try:
+            fallos += not floyd_vigilado(mu, lam)
+        except AssertionError:                 # se rompió el invariante o el potencial
+            fallos += 1
+if fallos == 0:
+    print("invariante y potencial de la fase 2 comprobados en 600 listas con ciclo")
+else:
+    print(f"{fallos} de 600 listas con ciclo fallan el invariante o el potencial de la fase 2")
 
 # -------------------- Parte 6 --------------------
 
@@ -123,6 +134,9 @@ def inicio_y_largo(cabeza):
             return mu, lam
     return None
 
-assert all(inicio_y_largo(lista(m, l)) == (m, l) for m in range(30) for l in range(1, 30))
-assert inicio_y_largo(lista(7, 0)) is None
-print("mu y lambda recuperados correctamente en 870 listas")
+fallos = sum(inicio_y_largo(lista(m, l)) != (m, l) for m in range(30) for l in range(1, 30))
+fallos += inicio_y_largo(lista(7, 0)) is not None
+if fallos == 0:
+    print("mu y lambda recuperados correctamente en 870 listas")
+else:
+    print(f"mu y lambda mal recuperados en {fallos} de 871 listas")

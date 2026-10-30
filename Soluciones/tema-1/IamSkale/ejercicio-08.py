@@ -77,12 +77,18 @@ def primera_pasada_vigilada(A):
     return c1, n1, c2, n2
 
 random.seed(3)
-prefijos = 0
+prefijos, fallos = 0, 0
 for _ in range(3000):
     A = [random.choice("ABCD") for _ in range(random.randint(1, 15))]
-    primera_pasada_vigilada(A)
+    try:
+        primera_pasada_vigilada(A)
+    except AssertionError:                     # algún prefijo rompió el invariante
+        fallos += 1
     prefijos += len(A)
-print("invariante comprobado en", prefijos, "prefijos, sin fallos")
+if fallos == 0:
+    print("invariante comprobado en", prefijos, "prefijos, sin fallos")
+else:
+    print(f"el invariante falla en {fallos} de 3000 arreglos ({prefijos} prefijos)")
 
 # -------------------- Parte 6 --------------------
 

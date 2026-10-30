@@ -30,13 +30,17 @@ def fuerza_bruta(pesos, valores, W):
     return mejor
 
 rng = random.Random(11)
+fallos = 0
 for _ in range(500):
     n = rng.randint(0, 10)
     pesos = [rng.randint(1, 30) for _ in range(n)]
     valores = [rng.randint(1, 50) for _ in range(n)]
     W = rng.randint(0, 100)
-    assert mochila(pesos, valores, W) == fuerza_bruta(pesos, valores, W)
-print("500 instancias: la programación dinámica coincide con la fuerza bruta")
+    fallos += mochila(pesos, valores, W) != fuerza_bruta(pesos, valores, W)
+if fallos == 0:
+    print("500 instancias: la programación dinámica coincide con la fuerza bruta")
+else:
+    print(f"500 instancias: la programación dinámica difiere de la fuerza bruta en {fallos}")
 
 # -------------------- Parte 3 --------------------
 

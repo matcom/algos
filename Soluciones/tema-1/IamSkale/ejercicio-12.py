@@ -100,23 +100,27 @@ def rango_para(a, b, pref_a):
     return len(pref_a[a]) if b is None else pref_a[a].index(b)    # estar solo es lo peor
 
 rng = random.Random(12)
-casos = 0
+casos, fallos = 0, 0
 for _ in range(1500):
     na, nb = rng.randint(1, 5), rng.randint(1, 5)
     pref_a, pref_b = instancia(na, nb, rng)
     resultados = [gale_shapley_incompleto(pref_a, pref_b, orden=o, semilla=s)
                   for o, s in [("cola", 0), ("pila", 0), ("azar", 1), ("azar", 2)]]
     M, k = resultados[0]
-    assert all(R == M for R, _ in resultados)                       # no depende del orden
-    assert not pares_bloqueantes(M, pref_a, pref_b)                  # estable
-    assert all(b is None or aceptables(a, b, pref_a, pref_b) for a, b in enumerate(M))
-    assert k <= sum(len(l) for l in pref_a)                          # potencial
     E = estables(pref_a, pref_b)
-    assert M in E
-    for a in range(na):                                              # óptimo para proponentes
-        assert rango_para(a, M[a], pref_a) == min(rango_para(a, X[a], pref_a) for X in E)
     emparejados = {frozenset(a for a, b in enumerate(X) if b is not None) for X in E}
-    assert len(emparejados) == 1
+    bien = (all(R == M for R, _ in resultados)                       # no depende del orden
+            and not pares_bloqueantes(M, pref_a, pref_b)             # estable
+            and all(b is None or aceptables(a, b, pref_a, pref_b) for a, b in enumerate(M))
+            and k <= sum(len(l) for l in pref_a)                     # potencial
+            and M in E
+            and all(rango_para(a, M[a], pref_a) == min(rango_para(a, X[a], pref_a) for X in E)
+                    for a in range(na))                              # óptimo para proponentes
+            and len(emparejados) == 1)
+    fallos += not bien
     casos += 1
-print(f"{casos} instancias: estable, independiente del orden, óptimo para proponentes, "
-      f"<= L propuestas, y mismos emparejados en todos los estables")
+if fallos == 0:
+    print(f"{casos} instancias: estable, independiente del orden, óptimo para proponentes, "
+          f"<= L propuestas, y mismos emparejados en todos los estables")
+else:
+    print(f"{fallos} de {casos} instancias fallan alguna de las propiedades")

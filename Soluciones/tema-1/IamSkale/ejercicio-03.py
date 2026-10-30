@@ -63,24 +63,31 @@ def comprobar_invariante(p):
     minimo = None
     for nodo in nodos:
         minimo = nodo.valor if minimo is None else min(minimo, nodo.valor)
-        assert nodo.minimo == minimo
+        if nodo.minimo != minimo:
+            return False
+    return True
 
 random.seed(3)
-operaciones = 0
+operaciones, fallos = 0, 0
 for _ in range(500):
     p, ref = PilaMin(), []
     for _ in range(60):
+        bien = True
         if ref and random.random() < 0.45:
-            assert p.desapilar() == ref.pop()
+            bien = p.desapilar() == ref.pop()
         else:
             x = random.randrange(5)       # pocos valores: muchos empates
             p.apilar(x)
             ref.append(x)
-        comprobar_invariante(p)
+        bien = comprobar_invariante(p) and bien
         if ref:
-            assert p.minimo() == min(ref) and p.tope() == ref[-1]
+            bien = bien and p.minimo() == min(ref) and p.tope() == ref[-1]
+        fallos += not bien
         operaciones += 1
-print(f"{operaciones} operaciones al azar, invariante y oráculo sin fallos")
+if fallos == 0:
+    print(f"{operaciones} operaciones al azar, invariante y oráculo sin fallos")
+else:
+    print(f"{operaciones} operaciones al azar: {fallos} fallan el invariante o el oráculo")
 
 # -------------------- Parte 4 --------------------
 

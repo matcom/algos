@@ -45,6 +45,7 @@ def esta(M, x):
 # -------------------- Parte 3 --------------------
 
 rng = random.Random(6)
+incorrectas, excedidas, esquinas = 0, 0, 0
 for n in range(1, 21):
     peor = 0
     for _ in range(30):
@@ -52,15 +53,19 @@ for n in range(1, 21):
         for x in range(-1, M[-1][-1] + 2):
             c = Contador()
             r = buscar(M, x, c)
-            assert (r is not None) == esta(M, x)
-            assert r is None or M[r[0]][r[1]] == x
-            assert c.n <= 2 * n - 1
+            incorrectas += not ((r is not None) == esta(M, x)
+                                and (r is None or M[r[0]][r[1]] == x))
+            excedidas += c.n > 2 * n - 1
             peor = max(peor, c.n)
     E = [[i * n + j for j in range(n)] for i in range(n)]   # entradas distintas
     c = Contador()
     buscar(E, E[n - 1][0], c)
-    assert c.n == 2 * n - 1
-print("correcto en todas las pruebas; nunca más de 2n - 1 comparaciones, y la esquina inferior izquierda las usa todas")
+    esquinas += c.n != 2 * n - 1
+if incorrectas == excedidas == esquinas == 0:
+    print("correcto en todas las pruebas; nunca más de 2n - 1 comparaciones, y la esquina inferior izquierda las usa todas")
+else:
+    print(f"{incorrectas} búsquedas incorrectas, {excedidas} con más de 2n - 1 comparaciones, "
+          f"y {esquinas} valores de n donde la esquina inferior izquierda no usa 2n - 1")
 
 # -------------------- Parte 4 --------------------
 
@@ -78,11 +83,15 @@ def ordenada(M):
     return all(M[i][j] <= M[i][j + 1] for i in range(n) for j in range(n - 1)) and \
            all(M[i][j] <= M[i + 1][j] for i in range(n - 1) for j in range(n))
 
+desordenadas = 0
 for n in range(1, 8):
     x = 2 * n - 2
     for elec in product([2 * n - 3, x], repeat=n):         # las 2^n elecciones
-        assert ordenada(matriz_adversario(n, elec))
-print("la matriz del adversario está ordenada con cualquier elección en la antidiagonal (n <= 7)")
+        desordenadas += not ordenada(matriz_adversario(n, elec))
+if desordenadas == 0:
+    print("la matriz del adversario está ordenada con cualquier elección en la antidiagonal (n <= 7)")
+else:
+    print(f"{desordenadas} elecciones en la antidiagonal dejan la matriz del adversario desordenada (n <= 7)")
 
 def celdas_comparadas(algoritmo, M, x):
     vistas = []

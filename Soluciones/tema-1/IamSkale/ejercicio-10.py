@@ -63,14 +63,18 @@ for xs in casos:
 # -------------------- Parte 3 --------------------
 
 rng = random.Random(10)
+fallos = 0
 for prueba in range(3000):
     n = rng.randint(2, 60)
     escala = rng.choice([1, 1000, 1e-3])
     xs = [rng.randint(-50, 50) * escala if rng.random() < 0.3 else rng.uniform(-1e3, 1e3)
           for _ in range(n)]
     d, par, _ = par_mas_cercano_1d_aleatorio(xs, semilla=prueba)
-    assert abs(d - fuerza_bruta(xs)) < 1e-12 and abs(par[0] - par[1]) == d
-print("3000 pruebas contra la fuerza bruta: sin fallos")
+    fallos += not (abs(d - fuerza_bruta(xs)) < 1e-12 and abs(par[0] - par[1]) == d)
+if fallos == 0:
+    print("3000 pruebas contra la fuerza bruta: sin fallos")
+else:
+    print(f"3000 pruebas contra la fuerza bruta: {fallos} fallos")
 
 # -------------------- Parte 4 --------------------
 
@@ -78,9 +82,12 @@ def hay_repetidos(xs):
     d, par, _ = par_mas_cercano_1d_aleatorio(xs)   # la entrada es la misma: x_i -> x_i
     return par[0] - par[1] == 0                     # una prueba de signo más
 
-for xs in [[1, 2, 3], [1, 2, 1], [5.5, -1, 5.5, 3], list(range(1000)), list(range(999)) + [500]]:
-    assert hay_repetidos(xs) == (len(set(xs)) < len(xs))
-print("distinción de elementos resuelta correctamente mediante la reducción")
+entradas = [[1, 2, 3], [1, 2, 1], [5.5, -1, 5.5, 3], list(range(1000)), list(range(999)) + [500]]
+fallos = sum(hay_repetidos(xs) != (len(set(xs)) < len(xs)) for xs in entradas)
+if fallos == 0:
+    print("distinción de elementos resuelta correctamente mediante la reducción")
+else:
+    print(f"la reducción resuelve mal la distinción de elementos en {fallos} de {len(entradas)} entradas")
 
 # -------------------- Parte 5 --------------------
 
