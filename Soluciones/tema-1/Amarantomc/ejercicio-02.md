@@ -136,21 +136,7 @@ Para $n = 7$ elementos ($A = [a_0, a_1, a_2, a_3, a_4, a_5, a_6]$), hay $8$ huec
 
 $$\text{Cota Inferior} = \lceil \log_2(7+1) \rceil = \lceil \log_2(8) \rceil = 3 \text{ comparaciones}$$
 
-```text
-                                [ x < a3 ]
-                               /          \
-                       (Sí)   /            \ (No)
-                             /              \
-                     [ x < a1 ]            [ x < a5 ]
-                     /        \            /        \
-                   (Sí)      (No)        (Sí)      (No)
-                   /            \        /            \
-             [ x < a0 ]    [ x < a2 ]  [ x < a4 ]    [ x < a6 ]
-             /     \       /     \     /     \       /     \
-           (Sí)   (No)   (Sí)   (No) (Sí)   (No)   (Sí)   (No)
-           /         \   /         \ /         \   /         \
-          h0         h1 h2         h3 h4       h5 h6         h7
-```
+![Tree](decision_tree.jpg)
 
 *Observación:* La altura del árbol es exactamente $3$, lo que satisface y alcanza la cota mínima de información.
 
