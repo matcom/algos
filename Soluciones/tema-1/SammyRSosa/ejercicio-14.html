@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejercicio 14 — Laboratorio Interactivo: Búsqueda de un Pico (1D, Árbol de Decisión y 2D)</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --blue: #1d4ed8;
+      --blue-light: #dbeafe;
+      --orange: #ea580c;
+      --orange-light: #ffedd5;
+      --green: #15803d;
+      --green-light: #dcfce7;
+      --red: #b91c1c;
+      --red-light: #fee2e2;
+      --border: #cbd5e1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 1.2rem 2rem;
+      border-bottom: 3px solid var(--blue);
+    }
+    header h1 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.35rem;
+    }
+    header p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 0.92rem;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 1.2rem auto;
+      padding: 0 1.2rem 2.5rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 0.6rem 1.1rem;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      margin-bottom: 1rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    button.btn {
+      padding: 0.45rem 0.9rem;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.86rem;
+    }
+    button.btn.primary {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+    button.btn.danger {
+      background: var(--red-light);
+      color: var(--red);
+      border-color: #fca5a5;
+    }
+    button.btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    select, input[type="text"] {
+      padding: 0.42rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.88rem;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .status-box {
+      padding: 0.75rem 0.9rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-size: 0.88rem;
+    }
+    .status-box.ok {
+      background: var(--green-light);
+      border-color: #86efac;
+    }
+    .status-box.bad {
+      background: var(--red-light);
+      border-color: #fca5a5;
+    }
+    .status-box strong {
+      display: block;
+      margin-bottom: 0.2rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+    .explain-box {
+      background: #eff6ff;
+      border-left: 4px solid var(--blue);
+      padding: 0.85rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: 0.9rem;
+      font-size: 0.92rem;
+    }
+    .hidden { display: none; }
+    .grid-2d {
+      display: grid;
+      gap: 4px;
+      margin: 1rem auto;
+      max-width: 520px;
+    }
+    .cell-2d {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.86rem;
+      background: #ffffff;
+    }
+    .cell-2d small {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ejercicio 14 — Visualizador Didáctico: El Problema del Pico y su Optimalidad Exacta</h1>
+    <p>Material interactivo para explorar el invariante de fronteras en 1D, qué pasa cuando se viola, el árbol de decisión de las entradas unimodales U<sub>k</sub> y la generalización a matrices 2D.</p>
+  </header>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('tab1', this)">1. Simulador 1D e Invariante de Fronteras</button>
+      <button class="tab-btn" onclick="mostrarTab('tab2', this)">2. Árbol de Decisión y Cota Inferior (U_k)</button>
+      <button class="tab-btn" onclick="mostrarTab('tab3', this)">3. Generalización a Matrices 2D</button>
+    </div>
+
+    <!-- TAB 1: SIMULADOR 1D -->
+    <div id="tab1" class="card">
+      <div class="controls">
+        <label><strong>Escenario:</strong></label>
+        <select id="presetSelect" onchange="cargarPreset()">
+          <option value="traza8">Ejemplo de la traza (n = 8): [3, 5, 8, 6, 12, 15, 11, 4]</option>
+          <option value="valle8">Contraejemplo en valle (n = 8): [14, 11, 7, 4, 6, 9, 13, 18]</option>
+          <option value="unimodal8">Adversario Unimodal U_5 (n = 8, único pico en i = 5)</option>
+          <option value="grande16">Instancia de 16 elementos (4 pasos exactos)</option>
+        </select>
+        <button class="btn" onclick="generarAleatorio1D()">Azar (n = 12)</button>
+        <span style="flex:1"></span>
+        <button class="btn" id="btnPrev" onclick="pasoAtras()">◀ Paso atrás</button>
+        <button class="btn primary" id="btnNext" onclick="pasoAdelante(false)">Paso correcto (bisección) ▶</button>
+        <button class="btn danger" id="btnWrong" onclick="pasoAdelante(true)" title="Elige deliberadamente la mitad contraria para ver cómo se rompe el invariante de frontera">⚡ Ir al lado equivocado (romper invariante)</button>
+        <button class="btn" id="btnAuto" onclick="togglePlay()">▶ Auto</button>
+        <button class="btn" onclick="reiniciar1D()">↺ Reiniciar</button>
+      </div>
+
+      <div class="status-grid">
+        <div class="status-box" id="boxIntervalo">
+          <strong>Intervalo Activo y Potencial Φ</strong>
+          <div id="txtIntervalo">[0 .. 7] | Φ = 8 candidatos</div>
+        </div>
+        <div class="status-box ok" id="boxIzq">
+          <strong>Condición Frontera Izquierda (lo)</strong>
+          <div id="txtIzq">lo = 0 (borde izquierdo del arreglo)</div>
+        </div>
+        <div class="status-box ok" id="boxDer">
+          <strong>Condición Frontera Derecha (hi)</strong>
+          <div id="txtDer">hi = n - 1 (borde derecho del arreglo)</div>
+        </div>
+        <div class="status-box" id="boxComp">
+          <strong>Comparación en m = ⌊(lo+hi)/2⌋</strong>
+          <div id="txtComp">Listo para comparar A[m] vs A[m+1]</div>
+        </div>
+      </div>
+
+      <svg id="svg1D" viewBox="0 0 920 340"></svg>
+
+      <div class="explain-box" id="txtExplicacion1D">
+        Haz clic en <strong>"Paso correcto (bisección) ▶"</strong> para avanzar manteniendo el invariante, o prueba el botón rojo <strong>"⚡ Ir al lado equivocado"</strong> sobre el escenario <em>Contraejemplo en valle</em> para comprobar visualmente por qué el invariante necesita recordar las pendientes en las fronteras <code>lo</code> y <code>hi</code>.
+      </div>
+    </div>
+
+    <!-- TAB 2: ARBOL DE DECISION -->
+    <div id="tab2" class="card hidden">
+      <div class="controls">
+        <label><strong>Selecciona la entrada unimodal del adversario U<sub>k</sub> (n = 8):</strong></label>
+        <select id="selectUk" onchange="dibujarArbol()">
+          <option value="0">U_0 = [8, 7, 6, 5, 4, 3, 2, 1] (único pico en i = 0)</option>
+          <option value="1">U_1 = [7, 8, 7, 6, 5, 4, 3, 2] (único pico en i = 1)</option>
+          <option value="2">U_2 = [6, 7, 8, 7, 6, 5, 4, 3] (único pico en i = 2)</option>
+          <option value="3">U_3 = [5, 6, 7, 8, 7, 6, 5, 4] (único pico en i = 3)</option>
+          <option value="4">U_4 = [4, 5, 6, 7, 8, 7, 6, 5] (único pico en i = 4)</option>
+          <option value="5" selected>U_5 = [3, 4, 5, 6, 7, 8, 7, 6] (único pico en i = 5)</option>
+          <option value="6">U_6 = [2, 3, 4, 5, 6, 7, 8, 7] (único pico en i = 6)</option>
+          <option value="7">U_7 = [1, 2, 3, 4, 5, 6, 7, 8] (único pico en i = 7)</option>
+        </select>
+      </div>
+
+      <svg id="svgArbol" viewBox="0 0 920 390"></svg>
+
+      <div class="explain-box" id="txtExplicacionArbol">
+        Cada entrada unimodal <strong>U<sub>k</sub></strong> tiene como <strong>único pico</strong> la posición <code>k</code>. Por tanto, ningún algoritmo correcto puede permitir que dos entradas <code>U_k</code> y <code>U_k'</code> caigan en la misma hoja del árbol de decisión. Con <code>n = 8</code> entradas unimodales, hacen falta al menos 8 hojas distintas, lo que obliga a que la altura del árbol binario sea al menos <code>⌈log₂ 8⌉ = 3</code> comparaciones.
+      </div>
+    </div>
+
+    <!-- TAB 3: GENERALIZACION 2D -->
+    <div id="tab3" class="card hidden">
+      <div class="controls">
+        <button class="btn" onclick="nuevaMatriz2D()">Nueva Matriz 7×7</button>
+        <button class="btn primary" id="btnNext2D" onclick="paso2D()">Siguiente corte de columna ▶</button>
+        <button class="btn" onclick="reiniciar2D()">↺ Reiniciar 2D</button>
+        <span id="txtEstado2D" style="font-weight:600; margin-left:0.5rem;">Intervalo de columnas activas: [0 .. 6]</span>
+      </div>
+
+      <div id="grid2D" class="grid-2d" style="grid-template-columns: repeat(7, 1fr);"></div>
+
+      <div class="explain-box" id="txtExplicacion2D">
+        <strong>Cómo se generaliza la idea de 1D a 2D:</strong> En una matriz de <code>n × n</code> (con <code>N = n²</code> elementos), no basta con mirar el elemento central <code>M[n/2][n/2]</code> porque al descartar media matriz podrías escaparte por otra fila. El truco consiste en buscar primero el <strong>máximo global de la columna central</strong> <code>mid_c</code> (en <code>O(n)</code> comparaciones) y compararlo con sus vecinos izquierdo y derecho de esa misma fila. Como es el máximo de toda su columna, funciona como una "pared" vertical, reduciendo el problema a la mitad de las columnas con la recurrencia <code>T(n, c) = T(n, c/2) + Θ(n) = Θ(n log n)</code>, porque las filas siguen siendo <code>n</code> en cada paso. Para bajar a <code>Θ(n)</code> hay que alternar el corte entre filas y columnas, de modo que las dos dimensiones se reduzcan a la mitad.
+      </div>
+    </div>
+
+    <p style="margin-top: 1.2rem; font-size: 0.84rem; color: var(--muted); text-align: center;">
+      <strong>Nota de declaración (Conferencia 1, secc. 10):</strong> Se utilizó asistencia de IA únicamente para (1) la maquetación e interfaz interactiva HTML/CSS/JS/SVG de este visualizador y (2) el código de generación de gráficas con <code>matplotlib</code> y baterías de pruebas en los scripts <code>.py</code>. El análisis formal, invariantes, potenciales y cotas inferiores fueron elaborados a mano.
+    </p>
+  </div>
+
+  <script>
+    // --- Navegacion entre pestanas ---
+    function mostrarTab(id, btn) {
+      ['tab1', 'tab2', 'tab3'].forEach(t => document.getElementById(t).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (id === 'tab2') dibujarArbol();
+      if (id === 'tab3') renderizar2D();
+    }
+
+    // --- TAB 1: Simulador 1D ---
+    let A = [3, 5, 8, 6, 12, 15, 11, 4];
+    let historial = [];
+    let timerAuto = null;
+
+    function estadoInicial1D() {
+      return {
+        lo: 0,
+        hi: A.length - 1,
+        paso: 0,
+        violado: false,
+        nota: "Inicio: todo el arreglo está activo y las dos fronteras coinciden con los bordes extremos."
+      };
+    }
+
+    function cargarPreset() {
+      detenerAuto();
+      const v = document.getElementById('presetSelect').value;
+      if (v === 'traza8') A = [3, 5, 8, 6, 12, 15, 11, 4];
+      else if (v === 'valle8') A = [14, 11, 7, 4, 6, 9, 13, 18];
+      else if (v === 'unimodal8') A = [3, 4, 5, 6, 7, 8, 7, 6];
+      else if (v === 'grande16') A = [4, 7, 11, 9, 6, 8, 13, 16, 19, 17, 14, 18, 22, 20, 15, 10];
+      reiniciar1D();
+    }
+
+    function generarAleatorio1D() {
+      detenerAuto();
+      A = Array.from({length: 12}, () => Math.floor(Math.random() * 22) + 2);
+      reiniciar1D();
+    }
+
+    function reiniciar1D() {
+      detenerAuto();
+      historial = [estadoInicial1D()];
+      dibujar1D();
+    }
+
+    function pasoAdelante(forzarEquivocado) {
+      const est = historial[historial.length - 1];
+      if (est.lo >= est.hi) return;
+      const m = Math.floor((est.lo + est.hi) / 2);
+      const sube = A[m] < A[m + 1];
+      const irDerecha = forzarEquivocado ? !sube : sube;
+
+      const nuevoLo = irDerecha ? m + 1 : est.lo;
+      const nuevoHi = irDerecha ? est.hi : m;
+      const izqOk = (nuevoLo === 0) || (A[nuevoLo - 1] < A[nuevoLo]);
+      const derOk = (nuevoHi === A.length - 1) || (A[nuevoHi] >= A[nuevoHi + 1]);
+
+      let nota = "";
+      if (!forzarEquivocado) {
+        if (sube) {
+          nota = `Paso ${est.paso + 1}: Como A[${m}]=${A[m]} < A[${m+1}]=${A[m+1]} (sube hacia la derecha), descartamos [${est.lo}..${m}] y conservamos [${m+1}..${est.hi}]. La frontera izquierda queda con pendiente de subida garantizada.`;
+        } else {
+          nota = `Paso ${est.paso + 1}: Como A[${m}]=${A[m]} ≥ A[${m+1}]=${A[m+1]} (baja hacia la derecha), descartamos [${m+1}..${est.hi}] y conservamos [${est.lo}..${m}]. La frontera derecha queda con pendiente de bajada garantizada.`;
+        }
+      } else {
+        nota = `¡Paso forzado al lado equivocado! Comparaste A[${m}]=${A[m]} con A[${m+1}]=${A[m+1]} pero fuiste hacia [${nuevoLo}..${nuevoHi}]. Observa en rojo cómo se acaba de romper la condición de frontera del invariante.`;
+      }
+
+      historial.push({
+        lo: nuevoLo,
+        hi: nuevoHi,
+        paso: est.paso + 1,
+        violado: !(izqOk && derOk),
+        nota: nota
+      });
+      dibujar1D();
+    }
+
+    function pasoAtras() {
+      detenerAuto();
+      if (historial.length > 1) {
+        historial.pop();
+        dibujar1D();
+      }
+    }
+
+    function togglePlay() {
+      if (timerAuto) {
+        detenerAuto();
+      } else {
+        document.getElementById('btnAuto').textContent = "⏸ Pausa";
+        timerAuto = setInterval(() => {
+          const est = historial[historial.length - 1];
+          if (est.lo >= est.hi) {
+            detenerAuto();
+          } else {
+            pasoAdelante(false);
+          }
+        }, 1100);
+      }
+    }
+
+    function detenerAuto() {
+      if (timerAuto) {
+        clearInterval(timerAuto);
+        timerAuto = null;
+      }
+      document.getElementById('btnAuto').textContent = "▶ Auto";
+    }
+
+    function esPicoReal(i) {
+      const izq = (i === 0) || (A[i] >= A[i - 1]);
+      const der = (i === A.length - 1) || (A[i] >= A[i + 1]);
+      return izq && der;
+    }
+
+    function dibujar1D() {
+      const est = historial[historial.length - 1];
+      const n = A.length;
+      const lo = est.lo, hi = est.hi;
+      const terminado = (lo === hi);
+      const m = terminado ? null : Math.floor((lo + hi) / 2);
+
+      document.getElementById('btnPrev').disabled = (historial.length <= 1);
+      document.getElementById('btnNext').disabled = terminado;
+      document.getElementById('btnWrong').disabled = terminado;
+
+      // Actualizar paneles de estado del invariante
+      const izqOk = (lo === 0) || (A[lo - 1] < A[lo]);
+      const derOk = (hi === n - 1) || (A[hi] >= A[hi + 1]);
+
+      document.getElementById('txtIntervalo').textContent =
+        `[${lo} .. ${hi}] | Φ = ${hi - lo + 1} elemento(s) | Paso ${est.paso}`;
+
+      const boxIzq = document.getElementById('boxIzq');
+      boxIzq.className = 'status-box ' + (izqOk ? 'ok' : 'bad');
+      document.getElementById('txtIzq').textContent = (lo === 0)
+        ? `✓ lo = 0 (borde izquierdo)`
+        : (izqOk ? `✓ A[${lo-1}]=${A[lo-1]} < A[${lo}]=${A[lo]} (sube al entrar)`
+                 : `✗ ROTA: A[${lo-1}]=${A[lo-1]} ≥ A[${lo}]=${A[lo]} (baja al entrar)`);
+
+      const boxDer = document.getElementById('boxDer');
+      boxDer.className = 'status-box ' + (derOk ? 'ok' : 'bad');
+      document.getElementById('txtDer').textContent = (hi === n - 1)
+        ? `✓ hi = ${n-1} (borde derecho)`
+        : (derOk ? `✓ A[${hi}]=${A[hi]} ≥ A[${hi+1}]=${A[hi+1]} (baja al salir)`
+                 : `✗ ROTA: A[${hi}]=${A[hi]} < A[${hi+1}]=${A[hi+1]} (sube al salir)`);
+
+      if (terminado) {
+        const okPico = esPicoReal(lo);
+        document.getElementById('txtComp').textContent = okPico
+          ? `¡Terminó! Devuelve i = ${lo} (A[${lo}] = ${A[lo]}), que ES un pico válido.`
+          : `¡Terminó en i = ${lo} (A[${lo}] = ${A[lo]}), que NO ES PICO porque se rompió el invariante!`;
+      } else {
+        const cmp = A[m] < A[m+1] ? `< (sube hacia m+1=${m+1})` : `≥ (baja desde m=${m})`;
+        document.getElementById('txtComp').textContent =
+          `m = ${m}: A[${m}]=${A[m]} ${cmp} A[${m+1}]=${A[m+1]}`;
+      }
+
+      document.getElementById('txtExplicacion1D').innerHTML = est.nota;
+
+      // Dibujar en SVG
+      const svg = document.getElementById('svg1D');
+      const W = 920, H = 340, padX = 55, padY = 45;
+      const maxVal = Math.max(...A, 1);
+      const colW = (W - 2 * padX) / n;
+      let html = '';
+
+      // Sombreado del intervalo [lo, hi]
+      const xLo = padX + lo * colW;
+      const wAct = (hi - lo + 1) * colW;
+      html += `<rect x="${xLo}" y="18" width="${wAct}" height="${H - padY - 12}" fill="#dbeafe" opacity="0.45" rx="6" stroke="#1d4ed8" stroke-dasharray="5,4"/>`;
+
+      // Barras
+      for (let i = 0; i < n; i++) {
+        const hBar = Math.max(18, ((A[i] / maxVal) * (H - padY - 85)));
+        const x = padX + i * colW + colW * 0.14;
+        const y = H - padY - hBar;
+        const bw = colW * 0.72;
+
+        let fill = "#cbd5e1";
+        let stroke = "#64748b";
+        if (terminado && i === lo) {
+          fill = esPicoReal(lo) ? "#15803d" : "#b91c1c";
+          stroke = "#0f172a";
+        } else if (m !== null && (i === m || i === m + 1)) {
+          fill = "#ea580c";
+          stroke = "#9a3412";
+        } else if (i >= lo && i <= hi) {
+          fill = "#2563eb";
+          stroke = "#1e3a8a";
+        }
+
+        html += `<rect x="${x}" y="${y}" width="${bw}" height="${hBar}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" rx="4"/>`;
+        html += `<text x="${x + bw/2}" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">${A[i]}</text>`;
+        html += `<text x="${x + bw/2}" y="${H - 18}" text-anchor="middle" font-size="12" fill="#334155">i=${i}</text>`;
+        if (esPicoReal(i)) {
+          html += `<text x="${x + bw/2}" y="${H - 4}" text-anchor="middle" font-size="10" fill="#15803d" font-weight="bold">★ pico</text>`;
+        }
+      }
+
+      // Flecha entre m y m+1 si no ha terminado
+      if (m !== null) {
+        const xm1 = padX + m * colW + colW * 0.5;
+        const xm2 = padX + (m + 1) * colW + colW * 0.5;
+        const ym = 42;
+        const sube = A[m] < A[m + 1];
+        const flechaTxt = sube ? `A[${m}] < A[${m+1}] (sube ↗)` : `A[${m}] ≥ A[${m+1}] (baja ↘)`;
+        html += `<line x1="${xm1}" y1="${ym}" x2="${xm2}" y2="${ym}" stroke="#ea580c" stroke-width="3"/>`;
+        html += `<text x="${(xm1 + xm2)/2}" y="${ym - 8}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ea580c">${flechaTxt}</text>`;
+      }
+
+      svg.innerHTML = html;
+    }
+
+    // --- TAB 2: Arbol de decision para n = 8 ---
+    function dibujarArbol() {
+      const k = parseInt(document.getElementById('selectUk').value, 10);
+      const n = 8;
+      const U = Array.from({length: n}, (_, i) => n - Math.abs(i - k));
+
+      // Simular el camino de U_k en el arbol de n=8
+      let lo = 0, hi = 7;
+      const visitados = new Set(["0-7"]);
+      const aristasActivas = new Set();
+      while (lo < hi) {
+        const m = Math.floor((lo + hi) / 2);
+        const idActual = `${lo}-${hi}`;
+        if (U[m] < U[m + 1]) {
+          lo = m + 1;
+        } else {
+          hi = m;
+        }
+        const idHijo = `${lo}-${hi}`;
+        visitados.add(idHijo);
+        aristasActivas.add(`${idActual}->${idHijo}`);
+      }
+
+      const svg = document.getElementById('svgArbol');
+      let html = '';
+
+      function construirNodos(l, r, nivel, x, span) {
+        const id = `${l}-${r}`;
+        const y = 48 + nivel * 95;
+        const activo = visitados.has(id);
+
+        if (l < r) {
+          const m = Math.floor((l + r) / 2);
+          const xIzq = x - span;
+          const xDer = x + span;
+          const yHijo = 48 + (nivel + 1) * 95;
+          const idIzq = `${l}-${m}`;
+          const idDer = `${m+1}-${r}`;
+
+          const actIzq = aristasActivas.has(`${id}->${idIzq}`);
+          const actDer = aristasActivas.has(`${id}->${idDer}`);
+
+          html += `<line x1="${x}" y1="${y}" x2="${xIzq}" y2="${yHijo}" stroke="${actIzq ? '#1d4ed8' : '#cbd5e1'}" stroke-width="${actIzq ? 3.5 : 1.5}"/>`;
+          html += `<text x="${(x + xIzq)/2 - 12}" y="${(y + yHijo)/2 - 4}" text-anchor="middle" font-size="11" fill="${actIzq ? '#1d4ed8' : '#64748b'}" font-weight="${actIzq ? 'bold' : 'normal'}">≥</text>`;
+
+          html += `<line x1="${x}" y1="${y}" x2="${xDer}" y2="${yHijo}" stroke="${actDer ? '#1d4ed8' : '#cbd5e1'}" stroke-width="${actDer ? 3.5 : 1.5}"/>`;
+          html += `<text x="${(x + xDer)/2 + 12}" y="${(y + yHijo)/2 - 4}" text-anchor="middle" font-size="11" fill="${actDer ? '#1d4ed8' : '#64748b'}" font-weight="${actDer ? 'bold' : 'normal'}">&lt;</text>`;
+
+          construirNodos(l, m, nivel + 1, xIzq, span / 2);
+          construirNodos(m + 1, r, nivel + 1, xDer, span / 2);
+
+          const fill = activo ? "#dbeafe" : "#f8fafc";
+          const stroke = activo ? "#1d4ed8" : "#94a3b8";
+          html += `<rect x="${x - 54}" y="${y - 18}" width="108" height="36" rx="18" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+          html += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">A[${m}] vs A[${m+1}]</text>`;
+        } else {
+          const fill = activo ? "#dcfce7" : "#f1f5f9";
+          const stroke = activo ? "#15803d" : "#94a3b8";
+          html += `<rect x="${x - 36}" y="${y - 18}" width="72" height="36" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+          html += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="12" font-weight="bold" fill="${activo ? '#15803d' : '#334155'}">Hoja i=${l}</text>`;
+        }
+      }
+
+      construirNodos(0, 7, 0, 460, 210);
+      svg.innerHTML = html;
+    }
+
+    // --- TAB 3: Generalizacion 2D ---
+    let M2D = [];
+    let loC = 0, hiC = 6, terminado2D = false, pico2D = null, ultimaCol = null, maxFilaCol = null;
+
+    function nuevaMatriz2D() {
+      M2D = Array.from({length: 7}, () => Array.from({length: 7}, () => Math.floor(Math.random() * 89) + 10));
+      reiniciar2D();
+    }
+
+    function reiniciar2D() {
+      loC = 0; hiC = 6; terminado2D = false; pico2D = null; ultimaCol = null; maxFilaCol = null;
+      document.getElementById('btnNext2D').disabled = false;
+      document.getElementById('txtEstado2D').textContent = `Columnas activas: [0 .. 6]`;
+      renderizar2D();
+    }
+
+    function paso2D() {
+      if (terminado2D) return;
+      const midC = Math.floor((loC + hiC) / 2);
+      ultimaCol = midC;
+      let mejorF = 0;
+      for (let f = 1; f < 7; f++) {
+        if (M2D[f][midC] > M2D[mejorF][midC]) mejorF = f;
+      }
+      maxFilaCol = mejorF;
+      const val = M2D[mejorF][midC];
+      const izqMayor = (midC > loC) && (M2D[mejorF][midC - 1] > val);
+      const derMayor = (!izqMayor) && (midC < hiC) && (M2D[mejorF][midC + 1] > val);
+
+      if (!izqMayor && !derMayor) {
+        terminado2D = true;
+        pico2D = [mejorF, midC];
+        document.getElementById('btnNext2D').disabled = true;
+        document.getElementById('txtEstado2D').textContent =
+          `¡Pico 2D hallado en (${mejorF}, ${midC}) con valor ${val}!`;
+      } else if (izqMayor) {
+        hiC = midC - 1;
+        document.getElementById('txtEstado2D').textContent =
+          `Máximo de col ${midC} es M[${mejorF}][${midC}]=${val}, pero su vecino izq es ${M2D[mejorF][midC-1]} > ${val} → vamos a columnas [${loC} .. ${hiC}]`;
+      } else {
+        loC = midC + 1;
+        document.getElementById('txtEstado2D').textContent =
+          `Máximo de col ${midC} es M[${mejorF}][${midC}]=${val}, pero su vecino der es ${M2D[mejorF][midC+1]} > ${val} → vamos a columnas [${loC} .. ${hiC}]`;
+      }
+      renderizar2D();
+    }
+
+    function renderizar2D() {
+      if (M2D.length === 0) nuevaMatriz2D();
+      const grid = document.getElementById('grid2D');
+      let html = '';
+      for (let f = 0; f < 7; f++) {
+        for (let c = 0; c < 7; c++) {
+          let bg = "#e2e8f0", color = "#64748b", border = "#cbd5e1";
+          if (pico2D && pico2D[0] === f && pico2D[1] === c) {
+            bg = "#15803d"; color = "#ffffff"; border = "#052e16";
+          } else if (ultimaCol === c && maxFilaCol === f) {
+            bg = "#ea580c"; color = "#ffffff"; border = "#9a3412";
+          } else if (ultimaCol === c) {
+            bg = "#ffedd5"; color = "#9a3412"; border = "#fdba74";
+          } else if (c >= loC && c <= hiC) {
+            bg = "#dbeafe"; color = "#1e3a8a"; border = "#93c5fd";
+          }
+          html += `<div class="cell-2d" style="background:${bg}; color:${color}; border-color:${border};">
+            <span>${M2D[f][c]}</span>
+            <small>(${f},${c})</small>
+          </div>`;
+        }
+      }
+      grid.innerHTML = html;
+    }
+
+    // Inicializar al cargar
+    reiniciar1D();
+  </script>
+</body>
+</html>
+
