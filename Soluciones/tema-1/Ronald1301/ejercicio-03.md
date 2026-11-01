@@ -1,9 +1,15 @@
-﻿# Ejercicio 3 — Una pila con `minimo` en $O(1)$ peor caso
+# Ejercicio 3 — Una pila con `minimo` en $O(1)$ peor caso
+
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
 
 > Diseña una pila con una operación `minimo` que cueste $O(1)$ en el **peor caso**.
 > Enuncia el invariante que la hace correcta y da el costo de cada operación.
 
-*(Borrador preparado con asistencia de IA, siguiendo el formato de Agustin y los materiales del Tema 1.)*
 
 ## 1. El problema
 
@@ -103,9 +109,12 @@ cueste $\Theta(n)$. Memoria total $O(n)$.
 ## 6. Variante (opcional): dos pilas
 
 En lugar de pares, se puede llevar una pila `datos` y una pila `minimos` donde se
-apila $x$ solo si $x \le$ tope de `minimos`. Mismo invariante ("el tope de `minimos` es
-el mínimo global"), mismos costos $O(1)$ peor caso, y ahorra memoria cuando hay muchos
-mínimos repetidos. La versión de pares es más simple y suficiente.
+apila $x$ solo si $x \le$ tope de `minimos`. Al hacer `pop`, también hay que sacar el
+tope de `minimos` si el valor extraído es igual a ese tope; el `<=` al insertar asegura
+que los mínimos repetidos queden representados tantas veces como haga falta. Mismo
+invariante ("el tope de `minimos` es el mínimo global") y mismos costos $O(1)$ peor caso.
+Esta variante ahorra memoria cuando aparecen pocos mínimos nuevos, no por el mero hecho
+de que se repita el mismo mínimo. La versión de pares es más simple y suficiente.
 
 ## 7. Comprobación contra un oráculo
 

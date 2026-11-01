@@ -1,5 +1,12 @@
 # Ejercicio 12 — Gale-Shapley con listas incompletas
 
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
+
 > **Enunciado.** Gale-Shapley con listas incompletas: cada proponente lista solo a
 > algunos receptores, y prefiere quedarse solo antes que con uno que no listó. Adapta el
 > algoritmo, su potencial y la definición de pareja bloqueante. ¿Sigue siendo estable el
@@ -47,13 +54,15 @@ eran gratis:
 
 $M$ es **estable** si es individualmente racional y no tiene parejas bloqueantes.
 
-```
-            prefiere  vs.  su pareja actual M(a)
-  (a,b) bloquea   ⇕  (mutuamente aceptable)       b prefiere a   vs.  M(b)
-   a:  … b … M(a) …          b ∈ L(a), a ∈ L(b)     b:  … a … M(b) …
-       └──┘ mejor                                        └──┘ mejor
-  «estar solo» = el último lugar de la lista: siempre se puede mejorar sobre ∅
-```
+~~~
+a prefiere:  ...  b  ...  M(a)  ...  solo
+                      └─ mejora ─┘
+
+b prefiere:  ...  a  ...  M(b)  ...  solo
+                      └─ mejora ─┘
+
+(a,b) bloquea si ambos lo aceptan y ambos lo prefieren a su situación actual.
+~~~
 
 ---
 

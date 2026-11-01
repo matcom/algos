@@ -1,5 +1,12 @@
 # Ejercicio 10 — Par más cercano en una dimensión
 
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
+
 > **Enunciado.** Par más cercano en una dimensión. Demuestra $\Omega(n\log n)$ en
 > árboles de decisión algebraicos por reducción desde *distinción de elementos*.
 > Después di qué algoritmo de la conferencia 2 rompe la cota, en qué modelo, y adáptalo
@@ -9,10 +16,9 @@
 
 ## 1. El problema y su modelo
 
-**Par más cercano en 1D.** Dados $n$ reales $P=\{x_1,\dots,x_n\}$, devolver
-$\displaystyle \delta^\* = \min_{i\neq j} |x_i - x_j|$ (y, si se quiere, el par que lo
-realiza).
-
+**Par más cercano en 1D.** Dados $n\ge2$ reales $P=\{x_0,\dots,x_{n-1}\}$, devolver
+el par de índices $i\ne j$ que minimiza $|x_i-x_j|$ y su distancia. Si hay varios pares
+mínimos, sirve cualquiera.
 **Modelo de la cota mínima:** el **árbol de decisión algebraico** (C2, §8). Cada nodo
 interno evalúa el signo de un polinomio de grado acotado sobre las coordenadas de la
 entrada y ramifica en $\{<0,\ =0,\ >0\}$; cada hoja da una respuesta. El costo es la
@@ -33,20 +39,21 @@ más cercano. Así que basta ordenar y mirar los $n-1$ gaps:
 
 ```python
 def par_mas_cercano_1d(P):
-    xs = sorted(P)                       # O(n log n)
+    if len(P) < 2:
+        raise ValueError("se necesitan al menos dos puntos")
+    xs = sorted((x, i) for i, x in enumerate(P))   # O(n log n)
     mejor = float("inf")
     par = None
-    for a, b in zip(xs, xs[1:]):         # O(n): solo gaps consecutivos
+    for (a, i), (b, j) in zip(xs, xs[1:]):         # solo gaps consecutivos
         if b - a < mejor:
-            mejor, par = b - a, (a, b)
+            mejor, par = b - a, (i, j)
     return mejor, par
-
 if __name__ == "__main__":
     print(par_mas_cercano_1d([0.5, 2.1, 3.4, 5.0, 5.0, 7.2, 8.6]))
 ```
 
 ```
-(0.0, (5.0, 5.0))
+(0.0, (3, 4))
 ```
 
 Costo $O(n\log n)$, dominado por el orden. La pregunta de la quinta columna del ciclo
@@ -147,44 +154,52 @@ hash.
 import random
 
 def par_mas_cercano_1d_aleatorio(P, semilla=0):
-    pts = list(P)
-    random.Random(semilla).shuffle(pts)        # permutación uniforme
-    d = abs(pts[0] - pts[1])
+    if len(P) < 2:
+        raise ValueError("se necesitan al menos dos puntos")
+    pts = list(enumerate(P))                  # (índice original, coordenada)
+    random.Random(semilla).shuffle(pts)
+    d = abs(pts[0][1] - pts[1][1])
+    par = (pts[0][0], pts[1][0])
     if d == 0:
-        return 0.0
+        return 0.0, par
     lado = d / 2
-    celda = lambda x: int(x // lado)
+    celda = lambda punto: int(punto[1] // lado)
     g = {celda(q): q for q in pts[:2]}
     for i in range(2, len(pts)):
         q = pts[i]
         c = celda(q)
         antes = d
-        for dc in (-2, -1, 0, 1, 2):           # ventana de 5 celdas (1D), no 25
+        for dc in (-2, -1, 0, 1, 2):
             v = g.get(c + dc)
             if v is not None:
-                d = min(d, abs(q - v))
-        if d < antes:                          # bajó delta: reconstruir
+                nueva = abs(q[1] - v[1])
+                if nueva < d:
+                    d, par = nueva, (q[0], v[0])
+        if d == 0:
+            return 0.0, par
+        if d < antes:
             lado = d / 2
-            celda = lambda x, l=lado: int(x // l)
+            celda = lambda punto, l=lado: int(punto[1] // l)
             g = {celda(x): x for x in pts[:i + 1]}
         else:
             g[c] = q
-    return d
-
+    return d, par
 if __name__ == "__main__":
     import random as _r
     _rng = _r.Random(2026)
     pts = [_rng.random() * 1000 for _ in range(100000)]
-    exacto = par_mas_cercano_1d(pts)[0]
+    exacto = par_mas_cercano_1d(pts)
     aprox = par_mas_cercano_1d_aleatorio(pts, semilla=7)
-    print(f"ordenar+gaps: {exacto:.10f}")
-    print(f"aleatorio   : {aprox:.10f}")
-    print(f"coinciden   : {abs(exacto - aprox) < 1e-12}")
+    print(f"ordenar+gaps: {exacto}")
+    print(f"aleatorio   : {aprox}")
+    print(f"coinciden   : {exacto[0] == aprox[0]}")
+    duplicado = par_mas_cercano_1d_aleatorio([3, 1, 1, 5], semilla=2)
+    assert duplicado[0] == 0 and set(duplicado[1]) == {1, 2}
 ```
 
 ```
-ordenar+gaps: 0.0000000436
-aleatorio   : 0.0000000436
+ordenar+gaps: (4.36e-08, (29135, 81704))
+aleatorio   : (4.36e-08, (81704, 29135))
 coinciden   : True
 ```
 

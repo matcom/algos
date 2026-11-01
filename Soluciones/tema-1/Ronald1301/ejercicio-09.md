@@ -1,11 +1,17 @@
 # Ejercicio 9 — Una mezcla "optimizada"
 
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
+
 > Una mezcla "optimizada" de dos listas ordenadas de largo $n$ deja de comparar cuando a
 > la primera lista le queda un solo elemento, y lo pone al final. Cuenta cuántas
 > comparaciones hace en el peor caso. Sin probarla, usa la sección 6 de la conferencia 5
 > para decidir si es correcta, y construye con el adversario la entrada en la que falla.
 
-*(Borrador preparado con asistencia de IA, siguiendo el formato de Agustin y los materiales del Tema 1.)*
 
 ## 1. La mezcla "optimizada"
 
@@ -119,28 +125,34 @@ rok, _ = mezcla_correcta(A, B)
 print("optimizada:", ropt, "  correcta:", rok, "  ¿ordenada la optimizada?",
       ropt == sorted(ropt))
 
-# (2) peor caso de comparaciones sobre la intercalada perfecta
+# (1b) una entrada que alcanza el peor caso 2n-2
+A, B = [0, 3, 4], [1, 2, 5]
+ropt, c_opt = mezcla_optimizada(A, B)
+print("peor caso n=3:", ropt, "comparaciones =", c_opt)
+
+# (2) comparaciones sobre la intercalada perfecta (no es el peor caso)
 import random
 random.seed(0)
 for n in [3, 10, 100, 1000]:
     A = list(range(0, 2 * n, 2))        # 0,2,4,... (a_i)
     B = list(range(1, 2 * n, 2))        # 1,3,5,... (b_i)  -> intercalada
     _, c_opt = mezcla_optimizada(A, B)
-    print(f"n={n:>5}: comparaciones optimizada = {c_opt}  (2n-2 = {2*n-2}, "
-          f"cota correcta 2n-1 = {2*n-1})")
+    print(f"n={n:>5}: intercalada = {c_opt} (2n-3 = {2*n-3}); "
+          f"peor caso = {2*n-2}")
 ```
 
 **Salida:**
 
 ```
-optimizada: [1, 2, 4, 6, 5]   correcta: [1, 2, 3, 4, 5, 6]   ¿ordenada la optimizada? False
-n=    3: comparaciones optimizada = 4  (2n-2 = 4, cota correcta 2n-1 = 5)
-n=   10: comparaciones optimizada = 18  (2n-2 = 18, cota correcta 2n-1 = 19)
-n=  100: comparaciones optimizada = 198  (2n-2 = 198, cota correcta 2n-1 = 198)... 
-n= 1000: comparaciones optimizada = 1998  (2n-2 = 1998, cota correcta 2n-1 = 1999)
+optimizada: [1, 2, 3, 4, 6, 5]   correcta: [1, 2, 3, 4, 5, 6]   ¿ordenada la optimizada? False
+peor caso n=3: [0, 1, 2, 3, 5, 4] comparaciones = 4
+n=    3: intercalada = 3 (2n-3 = 3); peor caso = 4
+n=   10: intercalada = 17 (2n-3 = 17); peor caso = 18
+n=  100: intercalada = 197 (2n-3 = 197); peor caso = 198
+n= 1000: intercalada = 1997 (2n-3 = 1997); peor caso = 1998
 ```
 
-La optimizada hace $2n-2$ comparaciones (una menos que la cota $2n-1$) y produce salida
+En la intercalada, el código hace $2n-3$ comparaciones y produce salida
 **desordenada** en la intercalada: incorrecta, tal como predice C5, §6/§8.
 
 ## 7. Respuesta

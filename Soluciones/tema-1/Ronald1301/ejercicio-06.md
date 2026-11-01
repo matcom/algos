@@ -1,11 +1,17 @@
-﻿# Ejercicio 6 — Buscar en una matriz con filas y columnas ordenadas
+# Ejercicio 6 — Buscar en una matriz con filas y columnas ordenadas
+
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
 
 > Una matriz $n\times n$ tiene filas y columnas ordenadas de forma creciente. Diseña un
 > algoritmo que decida si contiene un valor $x$ en $O(n)$ comparaciones, demuestra su
 > correctitud con un invariante, y demuestra con un adversario que no se puede en
 > $o(n)$.
 
-*(Borrador preparado con asistencia de IA, siguiendo el formato de Agustin y los materiales del Tema 1.)*
 
 ## 1. El problema
 
@@ -49,29 +55,26 @@ desambigua.)
 
 ## 3. Figura — el camino en escalera
 
-Ejemplo rectangular $4\times5$ para visualizar la misma escalera, buscando $v=17$
-(el ejercicio pide el caso cuadrado). `◄` marca la celda comparada.
+Ejemplo rectangular $4\times5$ para visualizar la escalera, buscando $v=17$. La marca
+◄ señala la celda comparada y la última columna indica el paso siguiente.
 
-```
+~~~
         c0   c1   c2   c3   c4
       +----+----+----+----+----+
-  f0  |  1    4    7   11   15◄|  15<17 -> bajar (descarto fila 0)
+ f0   |  1 |  4 |  7 | 11 | 15◄| 15<17: bajar
       +----+----+----+----+----+
-  f1  |  2    5    8   12   19◄|  19>17 -> izquierda (descarto col 4)
-      +----+----+----+---◄+----+
-  f1* |  2    5    8   12 |     |  12<17 -> bajar (descarto fila 1)
-      +----+----+----+---◄+----+
-  f2  |  3    6    9   16   22 |  16<17 -> bajar (descarto fila 2)
-      +----+----+---◄+----+----+
-  f3  | 10   13   14   17   24 |  17=17 -> ENCONTRADO
-      +----+----+----◄----+----+
+ f1   |  2 |  5 |  8 | 12 | 19◄| 19>17: izquierda
+      +----+----+----+----+----+
+ f2   |  3 |  6 |  9 | 16◄| 22 | 16<17: bajar
+      +----+----+----+----+----+
+ f3   | 10 | 13 | 14 | 17◄| 24 | 17=17: encontrado
+      +----+----+----+----+----+
 
-Camino: (0,4)→(1,4)→(1,3)→(2,3)→(3,3). 5 comparaciones ≤ m+n = 9.
-```
+Camino: (0,4) → (1,4) → (1,3) → (2,3) → (3,3): 5 comparaciones.
+~~~
 
 El camino solo **baja** o va a la **izquierda**: nunca retrocede. Por eso da a lo sumo
-$m+n$ pasos.
-
+$m+n$ comparaciones.
 ## 4. Correctitud — el invariante
 
 > **Invariante.** Al inicio de cada vuelta, si $v$ está en la matriz, está en el
@@ -105,7 +108,7 @@ $x-1$ o $x+1$, así que las filas y columnas siguen siendo estrictamente crecien
 Si el algoritmo deja una celda de esa antidiagonal sin comparar con $x$, el adversario
 puede poner allí $x$ o $x+\tfrac14$ y obtener dos matrices compatibles con todas las
 respuestas observadas: una contiene $x$ y la otra no. Por tanto, en el peor caso debe
-comparar las $n$ celdas de la antidiagonal: cualquier algoritmo necesita
+Una comparación fuera de la antidiagonal da la misma respuesta en las dos completaciones del adversario; no informa cuál celda variable contiene $x$. Para distinguirlas hay que comparar cada celda de esa antidiagonal. Por tanto, cualquier algoritmo necesita
 $\Omega(n)$ comparaciones. La escalera hace a lo sumo $2n$ comparaciones, así que es
 asintóticamente óptima: $\Theta(n)$.
 

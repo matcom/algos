@@ -1,10 +1,16 @@
-﻿# Ejercicio 7 — Mediana de dos arreglos ordenados
+# Ejercicio 7 — Mediana de dos arreglos ordenados
+
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
 
 > El $k$-ésimo menor de los $2n$ elementos de dos arreglos ordenados de largo $n$.
 > Diseña un algoritmo $O(\log n)$, demuestra su correctitud y da la cota de
 > información.
 
-*(Borrador preparado con asistencia de IA, siguiendo el formato de Agustin y los materiales del Tema 1.)*
 
 ## 1. El problema
 
@@ -75,34 +81,22 @@ $A[i-1]=9\le B[j]=11$ y $B[j-1]=7\le A[i]=15$. La partición ya es válida; sus 
 elementos izquierdos son $1,3,7,8,9$, así que el quinto menor es $9$, el mayor de la
 izquierda.
 
-## 4. Correctitud — invariante (C3)
+## 4. Correctitud — guía para redactar la prueba (pendiente)
 
-> **Invariante.** El intervalo $[lo,hi]$ de valores de $i$ **contiene** siempre el
-> $i^\*$ que produce la partición válida.
+Redacta la prueba usando como invariante que el intervalo $[lo,hi]$ contiene **algún**
+corte válido; no supongas que ese corte es único.
 
-- **Inicialización.** $i$ debe cumplir $0\le i\le m$ y $0\le k-i\le n$, es decir
-  $\max(0,k-n)\le i\le\min(k,m)$. Ese es exactamente $[lo,hi]$ inicial, que contiene
-  a $i^\*$.
-- **Mantenimiento.** En cada vuelta se mira $i$ y se comparan las cuatro fronteras.
-  - Si `Aizq <= Bder and Bizq <= Ader`: la partición es válida; **todo** izquierdo
-    $\le$ **todo** derecho (porque dentro de cada arreglo ya está ordenado y las
-    fronteras cruzadas lo garantizan), luego el mayor de la izquierda es el $k$-ésimo
-    menor global. Devolvemos y terminamos.
-  - Si `Aizq > Bder` ($A[i-1]>B[j]$): entonces $A[i-1]$ es demasiado grande para estar
-    a la izquierda; cualquier partición válida usa **menos** de $A$, así $i^\*<i$ y
-    poner $hi=i-1$ mantiene a $i^\*$ en el intervalo.
-  - Si `Bizq > Ader` ($B[j-1]>A[i]$): simétrico, $i^\*>i$, $lo=i+1$.
-- **Conclusión.** Siempre existe una partición válida (lema abajo), y como el invariante
-  mantiene $i^\*\in[lo,hi]$ y el intervalo se reduce, la búsqueda da con ella.
+1. ¿Por qué existe al menos un corte válido con exactamente $k$ elementos a la
+   izquierda? Considera el arreglo combinado ya ordenado y cuenta cuántos de esos $k$
+   elementos pertenecen a $A$.
+2. Si $A[i-1]>B[j]$, ¿por qué ningún corte válido puede tener índice $i$ o mayor?
+   ¿Qué argumento simétrico vale si $B[j-1]>A[i]$?
+3. Cuando se cumplen las dos desigualdades de frontera, ¿por qué el mayor elemento de
+   la izquierda es el $k$-ésimo menor?
+4. Da una medida entera del intervalo y explica por qué cada actualización lo reduce.
 
-**Lema de existencia.** La función "número de elementos $\le$ al valor de corte" es
-monótona en $i$, así que la condición de validez tiene solución única $i^\*$; como
-$k\le m+n$, el corte con $k$ a la izquierda existe. (Es el mismo estilo de demostración
-de "si la solución óptima tiene cierta propiedad" de C2, §3.)
-
-**Terminación (potencial).** $\Phi=hi-lo$ baja a la mitad cada vuelta (binaria),
-$\ge0$: $O(\log(hi-lo))=O(\log\min(m,n))$ vueltas, $O(1)$ cada una. **$O(\log n)$.**
-
+Hay arreglos con valores repetidos y varios cortes válidos. La prueba debe funcionar
+aunque haya más de uno.
 ## 5. Costo
 
 | recurso | valor |
@@ -112,24 +106,19 @@ $\ge0$: $O(\log(hi-lo))=O(\log\min(m,n))$ vueltas, $O(1)$ cada una. **$O(\log n)
 
 Mucho mejor que mezclar los dos arreglos hasta la posición $k$, que sería $O(k)=O(n)$.
 
-## 6. Cota de información (C5, §3)
+## 6. Cota de información — guía para redactarla (pendiente)
 
-Modelo de **comparaciones**. ¿Cuántas salidas distintas puede tener el problema? El
-$k$-ésimo menor es uno de los $m+n$ elementos; equivalentemente, el resultado está
-determinado por **cuántos** elementos de $A$ quedan a la izquierda del corte, es decir
-por el índice $i^\*\in[\max(0,k-n),\min(k,m)]$. El número de valores posibles de $i^\*$
-es
-$$L = \min(k,m) - \max(0,k-n) + 1 \le \min(m,n)+1.$$
+La cuenta actual no demuestra que cada corte produzca una hoja distinta. Para rehacerla:
 
-Por el lema 1 de C5 (árbol binario de altura $h$ tiene $\le 2^h$ hojas), un algoritmo
-de comparaciones que distingue $L$ salidas necesita altura
-$$h \ge \lceil \log_2 L \rceil = \Omega(\log \min(m,n)) = \Omega(\log n).$$
+1. Fija $k=n$ y considera cuál de los $2n$ elementos puede ocupar el rango $n$.
+   Construye una familia de entradas ordenadas que permita que cada identidad sea la
+   respuesta.
+2. ¿Cuántas respuestas distintas debe distinguir el algoritmo?
+3. ¿Cuántos hijos tiene cada nodo si una comparación de elementos puede dar $<,=,>$?
+   Usa esas cantidades para obtener una cota de altura y compárala con las
+   $O(\log n)$ comparaciones del algoritmo.
 
-Como el algoritmo de la §2 hace $O(\log n)$ comparaciones y la cota de información es
-$\Omega(\log n)$, el algoritmo es **óptimo** en el modelo de comparaciones. (C5, §3: la
-información da $\log_2$ del número de salidas; aquí las salidas son las $\sim\min(m,n)$
-posiciones posibles del corte.)
-
+Completa la demostración con tu propia redacción antes de entregar.
 ## 7. Comprobación — contra el oráculo de mezcla
 
 ```python

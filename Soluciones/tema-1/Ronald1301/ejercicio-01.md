@@ -1,5 +1,12 @@
 # Ejercicio 1 — Una computadora mil veces más rápida
 
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
+
 > ¿Cuánto crece el tamaño de entrada que se resuelve en una hora con algoritmos
 > $\Theta(n^2)$ y $\Theta(n\log n)$? Estima los dos factores. (C1)
 
@@ -20,8 +27,8 @@ $$cN'^2=1000\,cN^2\quad\Longrightarrow\quad
 Así, el tamaño de entrada crece aproximadamente **31.6 veces**. El coeficiente $c$ se
 cancela, siempre que sea el mismo para ambas máquinas.
 
-Con el presupuesto de §1, C1, §7 obtiene aproximadamente $N=1.9\cdot10^6$ y
-$N'=6.0\cdot10^7$, cuyo cociente es aproximadamente $31.6$.
+Con el presupuesto de §1, C1, §7 obtiene $N=1,897,366$ y
+$N'=60,000,000$, cuyo cociente es $31.6228$.
 
 ## 3. Algoritmo $\Theta(n\log n)$
 
@@ -33,11 +40,10 @@ $$r=1000\,\frac{\log_2N}{\log_2N'}
   =1000\,\frac{\log_2N}{\log_2(rN)}.$$
 Por tanto, el factor depende del tamaño inicial $N$. Para el mismo presupuesto de una
 hora usado en §7 de C1, los valores son aproximadamente
-$$N=9.86\cdot10^{10},\qquad N'=7.8\cdot10^{13},$$
+$$N=98,574,774,544,\qquad N'=78,008,697,597,778,$$
 y el factor es
-$$\frac{N'}{N}\approx\frac{7.8\cdot10^{13}}{9.86\cdot10^{10}}
-\approx791.1,$$
-es decir, **unas 791 veces**. Es mucho más que el factor cuadrático, aunque algo menos
+$$\frac{N'}{N}\approx791.3657,$$
+es decir, **unas 791.4 veces**. Es mucho más que el factor cuadrático, aunque algo menos
 que 1000: el término $\log N$ también aumenta y consume parte del presupuesto extra.
 
 ## 4. Cálculo numérico
@@ -72,18 +78,47 @@ for nombre, costo in costos.items():
     N = mayor_n(costo, hora)
     N_rapida = mayor_n(costo, s * hora)
     print(nombre, N, N_rapida, N_rapida / N)
+
+# Para n log n, comparar el factor de entrada con el factor de velocidad.
+costo = costos["n log2 n"]
+N = mayor_n(costo, hora)
+print()
+print("factor de velocidad -> factor de entrada para n log2 n")
+for s in [1, 10, 100, 1000, 10000]:
+    print(f"{s:>5} -> {mayor_n(costo, s * hora) / N:.4f}")
 ```
 
-La conferencia reporta, redondeando:
+La ejecución da:
 
 | Costo | $N$ (1×) | $N'$ (1000×) | Factor $N'/N$ |
 |---|---:|---:|---:|
 | $n^2$ | $1.9\cdot10^6$ | $6.0\cdot10^7$ | $31.6$ |
-| $n\log_2 n$ | $9.86\cdot10^{10}$ | $7.8\cdot10^{13}$ | $\approx790$ |
+| $n\log_2 n$ | $98,574,774,544$ | $78,008,697,597,778$ | $791.3657$ |
+
+```mermaid
+xychart-beta
+    x-axis "log10(s)" [0, 1, 2, 3, 4]
+    y-axis "N'/N" 0 --> 8000
+    line [1, 9.1942, 85.0678, 791.3657, 7396.8279]
+```
+
+```text
+factor de velocidad -> factor de entrada para n log2 n
+    1 -> 1.0000
+   10 -> 9.1942
+  100 -> 85.0678
+ 1000 -> 791.3657
+10000 -> 7396.8279
+```
+
+Para $n\log n$, el factor de entrada se acerca al factor de velocidad $s$ cuando el
+tamaño inicial crece: en $r=N'/N$, la ecuación es
+$r=s\,\log_2N/\log_2(rN)$, y la razón de logaritmos tiende a 1 si $N$ crece manteniendo
+$s$ fijo.
 
 ## 5. Respuesta
 
 - **$\Theta(n^2)$:** el tamaño resoluble se multiplica por $\sqrt{1000}\approx31.6$.
-- **$\Theta(n\log n)$:** con el presupuesto de una hora de C1, §7, crece unas **791
+- **$\Theta(n\log n)$:** con el presupuesto de una hora de C1, §7, crece unas **791.4
   veces**. El factor no es universal: depende del tamaño inicial porque también crece
   $\log n$.

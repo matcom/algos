@@ -1,11 +1,18 @@
 # Ejercicio 2 — Búsqueda binaria: invariante, potencial y cota de información
 
+**Uso de IA:** Se usó IA para preparar y revisar este borrador, generar código y casos
+de prueba, y apoyar la depuración. Parte de la explicación matemática también recibió
+asistencia de IA; esas partes todavía no son redacción propia. Antes de entregar,
+reescribiré y verificaré por mi cuenta las demostraciones, análisis de costo y cotas,
+según la regla del curso.
+
+
 > Da el invariante y el potencial de la búsqueda binaria, y la cota de información que
 > la hace óptima.
 
 ## 1. El problema y su contrato
 
-**Entrada:** un arreglo ordenado $a_1 \le a_2 \le \dots \le a_n$ y un valor $x$.
+**Entrada:** un arreglo estrictamente creciente $a_1 < a_2 < \dots < a_n$ y un valor $x$.
 **Salida:** una posición $i$ con $a_i = x$, o "no está".
 **Precondición:** el arreglo está ordenado (conferencia 3, §1: sin ella el contrato no
 dice nada).
@@ -73,12 +80,14 @@ Búsqueda de $x=23$ en `[2,5,8,12,17,23,30,41]` ($n=8$). `|` marca `lo`; `)` mar
 índice:     0   1   2   3   4   5   6   7
 valor:      2   5   8  12  17  23  30  41
           --------------------------------------------------
-v0  |2   5   8  12  17  23  30  41)   m=3 (12<23) -> lo=4   Φ=8
-                        ^
-v1               |17  23  30  41)      m=5 (23=23) -> ¡encontrado! Φ=4
-                      ^
+v0  |2   5   8  12  17  23  30  41)   m=4 (17<23) -> lo=5   Φ=8
+                            ^
+v1                      |23  30  41)   m=6 (30>23) -> hi=6   Φ=3
+                               ^
+v2                      |23)            m=5 (23=23) -> ¡encontrado! Φ=1
+                          ^
           --------------------------------------------------
-Φ: 8 -> 4 -> (hallado). Cada vuelta al menos lo divide entre dos.
+Φ: 8 -> 3 -> 1 -> (hallado).
 ```
 
 El ancho cae $8\to4\to\dots$; en el peor caso (elemento ausente) llega a $0$ tras
@@ -153,7 +162,7 @@ for n in [1, 3, 7, 15, 1000]:
         _, c = busqueda_binaria_vigilada(A, x)
         maxc = max(maxc, c)
     peor[n] = (maxc, math.ceil(math.log2(n + 1)))
-    assert maxc <= math.ceil(math.log2(n + 1)) + 1   # ±1 por la comparación de '='
+    assert maxc <= math.ceil(math.log2(n + 1))
 print("n -> (peor caso medido, cota ceil(log2(n+1)))")
 for n, v in peor.items():
     print(f"{n:>5} -> {v}")
