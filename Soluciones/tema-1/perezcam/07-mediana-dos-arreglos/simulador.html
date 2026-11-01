@@ -1,0 +1,511 @@
+<title>Ejercicio 7 — Mediana de dos arreglos</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+    padding: 28px 20px;
+  }
+  .card {
+    width: 100%; max-width: 920px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 22px 26px 26px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 26px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); }
+
+  svg.diagram { width: 100%; height: auto; display: block; }
+  .cell-bg { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+  .cell-bg.low { fill: color-mix(in srgb, var(--accent-speed) 10%, var(--surface)); }
+  .cell-bg.boundary-izq { stroke: var(--accent-cost); stroke-width: 2.5; }
+  .cell-bg.boundary-der { stroke: var(--accent-speed); stroke-width: 2.5; }
+  .cell-txt { font-family: var(--mono); font-size: 12px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+  .lbl-txt { font-family: var(--sans); font-size: 11px; fill: var(--ink-muted); text-anchor: middle; }
+  .arr-name { font-family: var(--serif); font-style: italic; font-size: 13px; fill: var(--ink); }
+
+  .chart-line.aizq { fill: none; stroke: var(--accent-cost); stroke-width: 2; }
+  .chart-line.bder { fill: none; stroke: var(--accent-speed); stroke-width: 2; }
+  .chart-ref { stroke: var(--line); stroke-width: 1; }
+  .chart-marker { stroke: var(--ink-muted); stroke-width: 1.3; stroke-dasharray: 3 3; }
+  .chart-note { font-size: .7rem; color: var(--ink-muted); margin-top: 6px; }
+  .chart-note .sw { display:inline-block; width:12px; height:2px; margin: 0 3px -2px 0; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 14px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  select, input[type=text] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=text] { width: 100%; font-family: var(--mono); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .95rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); }
+  .stat .v.speed { color: var(--accent-speed); }
+
+  .result-banner { font-family: var(--mono); font-size: .9rem; font-weight: 700; }
+  .result-banner.ok { color: var(--accent-speed); }
+  .result-banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 18px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); }
+  button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  #phiTable7 th, #phiTable7 td { border: 1px solid var(--line); padding: 6px 10px; text-align: center; }
+  #phiTable7 th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  #phiTable7 td.phi { color: var(--accent-speed); font-weight: 700; }
+  .strip-cell { stroke: var(--surface); stroke-width: 1; }
+  .strip-cell.ok { fill: var(--accent-speed); }
+  .strip-cell.bad { fill: var(--accent-cost); }
+
+  footer { margin-top: 10px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="card">
+  <h1>Mediana de dos arreglos: de "mezclar es O(n)" a la búsqueda binaria O(log n)</h1>
+  <p class="subtitle">Ejercicio 7 · el recorrido completo del pensamiento, y después el algoritmo corriendo
+  sobre casos de prueba y casos extremos.</p>
+
+  <h2><span class="step">Paso 1</span>Por qué no alcanza con mezclar</h2>
+  <p class="lead">Mezclar A y B enteros y mirar la posición n resuelve el problema sin dudas: Θ(n). El
+  enunciado pide O(log n), que es exponencialmente mejor — así que la pregunta de diseño es: ¿qué
+  información se puede ignorar sin perder la respuesta? Mirar los 2n elementos uno por uno está, por
+  definición, descartado.</p>
+
+  <h2><span class="step">Paso 2</span>La idea: buscar cuántos, no buscar dónde</h2>
+  <p class="lead">En vez de preguntar "¿cuál es el valor de la mediana?" (un valor entre 2n posibles),
+  preguntamos algo mucho más chico: <b>¿cuántos elementos de A terminan en la mitad baja?</b> Esa cantidad,
+  <i>i</i>, solo puede valer 0,1,…,n — n+1 opciones. Fijado <i>i</i>, el resto sale solo: j=n−i elementos de
+  B completan la mitad baja, y la respuesta se lee de cuatro elementos frontera, sin tocar el resto.</p>
+
+  <svg class="diagram" id="partitionDiagram" viewBox="0 0 620 230"></svg>
+
+  <h2><span class="step">Paso 3</span>Por qué se puede buscar binariamente (la monotonía)</h2>
+  <p class="lead">Buscar binariamente sobre <i>i</i> exige que las condiciones de frontera sean monótonas:
+  cierta de un lado, falsa del otro. Al aumentar <i>i</i> en 1, A_izq nunca puede bajar (A es creciente) y
+  B_der nunca puede subir (j baja). El gráfico siguiente lo muestra con los datos de abajo: A_izq(i) sube,
+  B_der(i) baja, y delimitan la zona donde la partición es válida. Si hay empates, puede haber varios índices
+  válidos consecutivos, pero todos producen la misma respuesta.</p>
+  <svg class="diagram" id="monoChart" viewBox="0 0 560 200"></svg>
+  <div class="chart-note">
+    <span class="sw" style="background:var(--accent-cost)"></span>A_izq(i) ·
+    <span class="sw" style="background:var(--accent-speed)"></span>B_der(i) ·
+    línea punteada = el i que encuentra la búsqueda binaria
+  </div>
+
+  <h2><span class="step">Paso 4</span>El algoritmo en acción</h2>
+  <p class="lead">Elige un caso de prueba —incluye los extremos clásicos de este problema— y corre la
+  búsqueda binaria paso a paso.</p>
+  <div class="config">
+    <label>caso:
+      <select id="presetSelect">
+        <option value="random">aleatorio chico</option>
+        <option value="n1">n=1 (caso mínimo)</option>
+        <option value="i0">extremo: todo A mayor que B (i=0)</option>
+        <option value="in">extremo: todo A menor que B (i=n)</option>
+        <option value="ties">empates (valores repetidos entre A y B)</option>
+        <option value="custom">personalizado</option>
+      </select>
+    </label>
+    <button id="btnNewCase">🎲 regenerar</button>
+  </div>
+  <div class="config" id="customWrap" style="display:none">
+    <label style="flex:1">A (separado por comas): <input type="text" id="customA" placeholder="1,3,5,7"></label>
+    <label style="flex:1">B (separado por comas): <input type="text" id="customB" placeholder="2,4,6,8"></label>
+    <button id="btnApplyCustom" class="primary">aplicar</button>
+  </div>
+
+  <svg class="diagram" id="runDiagram" viewBox="0 0 620 230"></svg>
+
+  <div class="stats">
+    <div class="stat"><div class="k">lo, hi</div><div class="v" id="statLoHi">0, 6</div></div>
+    <div class="stat"><div class="k">i, j</div><div class="v speed" id="statIJ">—</div></div>
+    <div class="stat"><div class="k">vueltas</div><div class="v cost" id="statVueltas">0</div></div>
+    <div class="stat"><div class="k">cota ⌈log₂(n+1)⌉</div><div class="v" id="statBound">—</div></div>
+  </div>
+  <div class="panel" id="stepCaption">Presiona "un paso" para empezar.</div>
+  <div class="panel" id="resultPanel" style="display:none"></div>
+
+  <div class="controls">
+    <button id="btnStep">▸ un paso</button>
+    <button id="btnFinish">▸▸ terminar</button>
+    <button id="btnPlay" class="primary">▶ reproducir</button>
+    <button id="btnReset">↺ reiniciar</button>
+    <div class="speed-wrap">velocidad <input type="range" id="speed" min="1" max="100" value="55"></div>
+  </div>
+
+  <h2><span class="step">Paso 5</span>Por qué este algoritmo es correcto (las tres piezas)</h2>
+  <p class="lead">Con el mismo caso que corriste arriba: acá se ve, con los números reales de esa corrida,
+  cada una de las tres piezas separadas de la demostración.</p>
+
+  <div class="panel">
+    <b>1. Correctitud parcial — el lema del cruce.</b>
+    <div id="proofLema" style="margin-top:6px; font-family:var(--mono); font-size:.8rem; line-height:1.7"></div>
+  </div>
+  <div class="panel">
+    <b>2. Existencia — la condición es monótona en i.</b>
+    <p style="margin:4px 0 8px">La franja de abajo muestra, para cada i=0..n, si "A_izq ≤ B_der" es
+    verdadera (teal) o falsa (naranja) con los datos de esta corrida — cierta de un lado, falsa del otro,
+    sin saltos intermedios.</p>
+    <svg class="diagram" id="monotoneStrip" viewBox="0 0 560 50" style="height:50px"></svg>
+  </div>
+  <div class="panel">
+    <b>3. Terminación — el mismo potencial Φ=hi−lo del ejercicio 2.</b>
+    <div style="overflow-x:auto; margin-top:6px">
+      <table id="phiTable7" style="border-collapse:collapse; width:100%; font-family:var(--mono); font-size:.78rem"></table>
+    </div>
+  </div>
+
+  <footer>celeste = mitad baja (los n menores, una vez encontrada la partición) · borde naranja = A_izq /
+  B_izq · borde teal = A_der / B_der · ver <code>ejercicio-07.pdf</code> para las demostraciones completas</footer>
+</div>
+
+<script>
+(function () {
+  var INF = Infinity, NINF = -Infinity;
+
+  // ---------------- Paso 2: diagrama estático genérico ----------------
+  function drawPartitionDiagram() {
+    var svg = document.getElementById('partitionDiagram');
+    var n = 6, cw = 70, x0 = 60, yA = 60, yB = 160, iSplit = 4;
+    var html = '';
+    function row(y, label, split) {
+      for (var c = 0; c < n; c++) {
+        var low = c < split;
+        html += '<rect class="cell-bg' + (low ? ' low' : '') + '" x="' + (x0 + c * cw) + '" y="' + y + '" width="' + cw + '" height="40"></rect>';
+      }
+      html += '<text class="arr-name" x="' + (x0 - 25) + '" y="' + (y + 20) + '" text-anchor="middle">' + label + '</text>';
+    }
+    row(yA, 'A', iSplit);
+    row(yB, 'B', n - iSplit);
+    // boundary highlights
+    html += '<rect class="cell-bg low boundary-izq" x="' + (x0 + (iSplit - 1) * cw) + '" y="' + yA + '" width="' + cw + '" height="40"></rect>';
+    html += '<rect class="cell-bg boundary-der" x="' + (x0 + iSplit * cw) + '" y="' + yA + '" width="' + cw + '" height="40"></rect>';
+    html += '<rect class="cell-bg low boundary-izq" x="' + (x0 + (n - iSplit - 1) * cw) + '" y="' + yB + '" width="' + cw + '" height="40"></rect>';
+    html += '<rect class="cell-bg boundary-der" x="' + (x0 + (n - iSplit) * cw) + '" y="' + yB + '" width="' + cw + '" height="40"></rect>';
+    html += '<text class="lbl-txt" style="fill:var(--accent-cost)" x="' + (x0 + (iSplit - 1) * cw + cw / 2) + '" y="' + (yA - 10) + '">A_izq</text>';
+    html += '<text class="lbl-txt" style="fill:var(--accent-speed)" x="' + (x0 + iSplit * cw + cw / 2) + '" y="' + (yA - 10) + '">A_der</text>';
+    html += '<text class="lbl-txt" style="fill:var(--accent-cost)" x="' + (x0 + (n - iSplit - 1) * cw + cw / 2) + '" y="' + (yB + 55) + '">B_izq</text>';
+    html += '<text class="lbl-txt" style="fill:var(--accent-speed)" x="' + (x0 + (n - iSplit) * cw + cw / 2) + '" y="' + (yB + 55) + '">B_der</text>';
+    html += '<text class="lbl-txt" x="' + (x0 + iSplit * cw / 2) + '" y="30" style="font-weight:600">i elementos</text>';
+    html += '<text class="lbl-txt" x="' + (x0 + iSplit * cw + (n - iSplit) * cw / 2) + '" y="30">n−i</text>';
+    html += '<text class="lbl-txt" x="' + (x0 + (n - iSplit) * cw / 2) + '" y="215" style="font-weight:600">j=n−i elementos</text>';
+    html += '<text class="lbl-txt" x="' + (x0 + (n - iSplit) * cw + iSplit * cw / 2) + '" y="215">n−j=i</text>';
+    svg.innerHTML = html;
+  }
+  drawPartitionDiagram();
+
+  // ---------------- Núcleo del algoritmo ----------------
+  function nEsimoMenor(A, B) {
+    var n = A.length, lo = 0, hi = n, steps = [], guard = 0;
+    while (guard < 200) {
+      guard++;
+      var i = Math.floor((lo + hi) / 2);
+      var j = n - i;
+      var Aizq = i > 0 ? A[i - 1] : NINF;
+      var Ader = i < n ? A[i] : INF;
+      var Bizq = j > 0 ? B[j - 1] : NINF;
+      var Bder = j < n ? B[j] : INF;
+      var valid = Aizq <= Bder && Bizq <= Ader;
+      var outcome = valid ? 'found' : (Aizq > Bder ? 'hi' : 'lo');
+      steps.push({ lo: lo, hi: hi, i: i, j: j, Aizq: Aizq, Ader: Ader, Bizq: Bizq, Bder: Bder, outcome: outcome });
+      if (valid) return { answer: Math.max(Aizq, Bizq), steps: steps };
+      else if (outcome === 'hi') hi = i - 1;
+      else lo = i + 1;
+    }
+    return { answer: null, steps: steps };
+  }
+  function bruteForce(A, B) {
+    var n = A.length;
+    var merged = A.concat(B).sort(function (a, b) { return a - b; });
+    return merged[n - 1];
+  }
+
+  // ---------------- Paso 3: gráfico de monotonía ----------------
+  function fmtInf(v) { return v === INF ? '+∞' : (v === NINF ? '−∞' : v); }
+
+  function drawMonoChart(A, B) {
+    var svg = document.getElementById('monoChart');
+    var n = A.length;
+    var W = 560, H = 200, pad = 36;
+    var finite = A.concat(B);
+    var ymin = Math.min.apply(null, finite), ymax = Math.max.apply(null, finite);
+    var span = Math.max(1, ymax - ymin);
+    var yloA = ymin - span * 0.15, yhiA = ymax + span * 0.15;
+    function X(i) { return pad + i / n * (W - 2 * pad); }
+    function Y(v) {
+      var vv = v === INF ? yhiA : (v === NINF ? yloA : v);
+      vv = Math.min(Math.max(vv, yloA), yhiA);
+      return H - pad - (vv - yloA) / (yhiA - yloA) * (H - 2 * pad);
+    }
+    var aizqPts = [], bderPts = [];
+    for (var i = 0; i <= n; i++) {
+      var j = n - i;
+      var Aizq = i > 0 ? A[i - 1] : NINF;
+      var Bder = j < n ? B[j] : INF;
+      aizqPts.push(X(i) + ',' + Y(Aizq));
+      bderPts.push(X(i) + ',' + Y(Bder));
+    }
+    var res = nEsimoMenor(A, B);
+    var crossI = res.steps[res.steps.length - 1].i;
+    var html = '<line class="chart-ref" x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '"></line>';
+    html += '<line class="chart-marker" x1="' + X(crossI) + '" y1="' + pad + '" x2="' + X(crossI) + '" y2="' + (H - pad) + '"></line>';
+    html += '<text class="lbl-txt" x="' + X(crossI) + '" y="' + (pad - 8) + '">i=' + crossI + '</text>';
+    html += '<polyline class="chart-line aizq" points="' + aizqPts.join(' ') + '"></polyline>';
+    html += '<polyline class="chart-line bder" points="' + bderPts.join(' ') + '"></polyline>';
+    for (var k = 0; k <= n; k += Math.max(1, Math.round(n / 6))) {
+      html += '<text class="lbl-txt" x="' + X(k) + '" y="' + (H - pad + 16) + '">' + k + '</text>';
+    }
+    svg.innerHTML = html;
+  }
+
+  // ---------------- Paso 4: simulador ----------------
+  var curA, curB, curSteps, curIdx, curPhase;
+  var playing = false, playTimer = null;
+
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function randSortedDistinct(n, seed, lo, hi) {
+    var rng = mulberry32(seed);
+    var set = {};
+    while (Object.keys(set).length < n) {
+      set[lo + Math.floor(rng() * (hi - lo))] = true;
+    }
+    return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+  }
+
+  function buildPreset(kind) {
+    var seed = Date.now() % 100000;
+    if (kind === 'n1') {
+      curA = [mulberry32(seed)() > 0.5 ? 3 : 7];
+      curB = [mulberry32(seed + 1)() > 0.5 ? 4 : 2];
+    } else if (kind === 'i0') {
+      curA = randSortedDistinct(6, seed, 100, 200);
+      curB = randSortedDistinct(6, seed + 1, 0, 50);
+    } else if (kind === 'in') {
+      curA = randSortedDistinct(6, seed, 0, 50);
+      curB = randSortedDistinct(6, seed + 1, 100, 200);
+    } else if (kind === 'ties') {
+      curA = [1, 3, 3, 5, 7, 9];
+      curB = [2, 3, 3, 6, 8, 9];
+    } else if (kind === 'custom') {
+      return; // curA/curB ya seteados por el input
+    } else {
+      curA = randSortedDistinct(6, seed, 0, 60);
+      curB = randSortedDistinct(6, seed + 1, 0, 60);
+    }
+  }
+
+  function startRun() {
+    var res = nEsimoMenor(curA, curB);
+    curSteps = res.steps;
+    curIdx = -1;
+    curPhase = 'running';
+    setPlaying(false);
+    document.getElementById('resultPanel').style.display = 'none';
+    document.getElementById('statBound').textContent = Math.ceil(Math.log2(curA.length + 1));
+    document.getElementById('stepCaption').textContent = 'Presiona "un paso" para empezar.';
+    drawMonoChart(curA, curB);
+    renderProofPanels();
+    render();
+  }
+
+  function renderProofPanels() {
+    var n = curA.length;
+    var last = curSteps[curSteps.length - 1];
+    var lemaHtml = '';
+    if (last.outcome === 'found') {
+      var i = last.i, j = last.j;
+      if (i > 0 && j < n) {
+        lemaHtml += 'A[0]=' + curA[0] + ' ≤ A_izq=' + fmtInf(last.Aizq) + ' ≤ B_der=' + fmtInf(last.Bder) +
+          ' ≤ B[n-1]=' + curB[n - 1] + ' &nbsp;→&nbsp; ningún elemento de la mitad baja de A supera a ninguno de la mitad alta de B.<br>';
+      } else {
+        lemaHtml += '(A no aporta nada a la mitad baja, o B no aporta nada a la mitad alta — esta dirección es vacía, cierta trivialmente.)<br>';
+      }
+      if (j > 0 && i < n) {
+        lemaHtml += 'B[0]=' + curB[0] + ' ≤ B_izq=' + fmtInf(last.Bizq) + ' ≤ A_der=' + fmtInf(last.Ader) +
+          ' ≤ A[n-1]=' + curA[n - 1] + ' &nbsp;→&nbsp; y simétricamente para B contra A.<br>';
+      } else {
+        lemaHtml += '(dirección simétrica vacía por la misma razón.)<br>';
+      }
+      lemaHtml += 'Entonces la mitad baja completa es ≤ la mitad alta completa → es el conjunto de los n menores → ' +
+        'respuesta = max(A_izq,B_izq) = <b class="hi">' + Math.max(last.Aizq, last.Bizq) + '</b>.';
+    } else {
+      lemaHtml = 'todavía no se encontró la partición válida — avanza en el Paso 4.';
+    }
+    document.getElementById('proofLema').innerHTML = lemaHtml;
+
+    var stripSvg = document.getElementById('monotoneStrip');
+    var W = 560, pad = 10, cw = (W - 2 * pad) / (n + 1);
+    var sHtml = '';
+    for (var k = 0; k <= n; k++) {
+      var jj = n - k;
+      var aizq = k > 0 ? curA[k - 1] : NINF;
+      var bder = jj < n ? curB[jj] : INF;
+      var ok = aizq <= bder;
+      sHtml += '<rect class="strip-cell ' + (ok ? 'ok' : 'bad') + '" x="' + (pad + k * cw) + '" y="10" width="' + cw + '" height="25"></rect>';
+    }
+    stripSvg.innerHTML = sHtml;
+
+    var rows = '<tr><th>vuelta</th><th>lo</th><th>hi</th><th>Φ=hi−lo</th><th>i probado</th></tr>';
+    curSteps.forEach(function (step, idx) {
+      rows += '<tr><td>' + (idx + 1) + '</td><td>' + step.lo + '</td><td>' + step.hi + '</td><td class="phi">' +
+        (step.hi - step.lo) + '</td><td>' + step.i + '</td></tr>';
+    });
+    document.getElementById('phiTable7').innerHTML = rows;
+  }
+
+  function reset() {
+    var kind = document.getElementById('presetSelect').value;
+    document.getElementById('customWrap').style.display = kind === 'custom' ? '' : 'none';
+    if (kind !== 'custom') buildPreset(kind);
+    else if (!curA) buildPreset('random');
+    startRun();
+  }
+
+  function render() {
+    var n = curA.length;
+    var step = curIdx >= 0 ? curSteps[curIdx] : null;
+    var svg = document.getElementById('runDiagram');
+    var cw = Math.min(70, 480 / n), x0 = 60, yA = 60, yB = 160;
+    var i = step ? step.i : 0, j = step ? step.j : n;
+    var html = '';
+    function row(arr, y, label, split) {
+      for (var c = 0; c < n; c++) {
+        var low = c < split;
+        html += '<rect class="cell-bg' + (low ? ' low' : '') + '" x="' + (x0 + c * cw) + '" y="' + y + '" width="' + cw + '" height="40"></rect>';
+        html += '<text class="cell-txt" x="' + (x0 + c * cw + cw / 2) + '" y="' + (y + 20) + '">' + arr[c] + '</text>';
+      }
+      html += '<text class="arr-name" x="' + (x0 - 25) + '" y="' + (y + 20) + '" text-anchor="middle">' + label + '</text>';
+    }
+    row(curA, yA, 'A', i);
+    row(curB, yB, 'B', j);
+    if (step) {
+      if (i > 0) html += '<rect class="cell-bg low boundary-izq" x="' + (x0 + (i - 1) * cw) + '" y="' + yA + '" width="' + cw + '" height="40"></rect>';
+      if (i < n) html += '<rect class="cell-bg boundary-der" x="' + (x0 + i * cw) + '" y="' + yA + '" width="' + cw + '" height="40"></rect>';
+      if (j > 0) html += '<rect class="cell-bg low boundary-izq" x="' + (x0 + (j - 1) * cw) + '" y="' + yB + '" width="' + cw + '" height="40"></rect>';
+      if (j < n) html += '<rect class="cell-bg boundary-der" x="' + (x0 + j * cw) + '" y="' + yB + '" width="' + cw + '" height="40"></rect>';
+    }
+    svg.innerHTML = html;
+
+    document.getElementById('statLoHi').textContent = step ? (step.lo + ', ' + step.hi) : (0 + ', ' + n);
+    document.getElementById('statIJ').textContent = step ? (step.i + ', ' + step.j) : '—';
+    document.getElementById('statVueltas').textContent = curIdx + 1;
+
+    document.getElementById('btnStep').disabled = curPhase !== 'running';
+    document.getElementById('btnFinish').disabled = curPhase !== 'running';
+    document.getElementById('btnPlay').disabled = curPhase !== 'running';
+
+    if (step) {
+      var cap;
+      if (step.outcome === 'found') {
+        cap = 'A_izq=' + fmtInf(step.Aizq) + ' ≤ B_der=' + fmtInf(step.Bder) + ' y B_izq=' + fmtInf(step.Bizq) +
+          ' ≤ A_der=' + fmtInf(step.Ader) + ' → <b>partición válida.</b> Respuesta = max(A_izq,B_izq) = ' + Math.max(step.Aizq, step.Bizq);
+      } else if (step.outcome === 'hi') {
+        cap = 'A_izq=' + fmtInf(step.Aizq) + ' &gt; B_der=' + fmtInf(step.Bder) + ' → i=' + step.i + ' es demasiado grande, hi ← ' + (step.i - 1);
+      } else {
+        cap = 'B_izq=' + fmtInf(step.Bizq) + ' &gt; A_der=' + fmtInf(step.Ader) + ' → i=' + step.i + ' es demasiado chico, lo ← ' + (step.i + 1);
+      }
+      document.getElementById('stepCaption').innerHTML = cap;
+    }
+  }
+
+  function stepOnce() {
+    if (curPhase !== 'running') return;
+    curIdx++;
+    if (curIdx >= curSteps.length) { curPhase = 'done'; finish(); return; }
+    render();
+    if (curSteps[curIdx].outcome === 'found') { curPhase = 'done'; finish(); }
+  }
+  function finishSilent() {
+    var guard = 0;
+    while (curPhase === 'running' && guard < 200) { stepOnce(); guard++; }
+  }
+  function finish() {
+    render();
+    var bf = bruteForce(curA, curB);
+    var ans = curSteps[curSteps.length - 1].outcome === 'found' ? Math.max(curSteps[curSteps.length - 1].Aizq, curSteps[curSteps.length - 1].Bizq) : null;
+    var ok = ans === bf;
+    var panel = document.getElementById('resultPanel');
+    panel.style.display = '';
+    panel.innerHTML = '<div class="result-banner ' + (ok ? 'ok' : 'bad') + '">respuesta = ' + ans +
+      ' · fuerza bruta (mezclar y ordenar) = ' + bf + (ok ? ' ✓ coinciden' : ' ✗ no coinciden') + '</div>' +
+      '<div style="margin-top:6px">vueltas: <b>' + curSteps.length + '</b> · cota ⌈log₂(n+1)⌉ = <b>' + Math.ceil(Math.log2(curA.length + 1)) + '</b></div>';
+    setPlaying(false);
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    document.getElementById('btnPlay').textContent = playing ? '⏸ pausar' : '▶ reproducir';
+    if (playing) schedule(); else clearTimeout(playTimer);
+  }
+  function schedule() {
+    if (!playing) return;
+    stepOnce();
+    if (curPhase !== 'running') { setPlaying(false); return; }
+    var speed = parseInt(document.getElementById('speed').value, 10);
+    playTimer = setTimeout(schedule, Math.max(100, 900 - speed * 8));
+  }
+
+  document.getElementById('presetSelect').addEventListener('change', reset);
+  document.getElementById('btnNewCase').addEventListener('click', reset);
+  document.getElementById('btnApplyCustom').addEventListener('click', function () {
+    function parseList(s) {
+      return s.split(',').map(function (x) { return parseFloat(x.trim()); }).filter(function (x) { return !isNaN(x); }).sort(function (a, b) { return a - b; });
+    }
+    var A = parseList(document.getElementById('customA').value);
+    var B = parseList(document.getElementById('customB').value);
+    if (A.length === 0 || A.length !== B.length) {
+      document.getElementById('stepCaption').textContent = 'A y B deben tener el mismo largo (n≥1) y no estar vacíos.';
+      return;
+    }
+    curA = A; curB = B;
+    startRun();
+  });
+  document.getElementById('btnStep').addEventListener('click', function () { setPlaying(false); stepOnce(); });
+  document.getElementById('btnFinish').addEventListener('click', function () { setPlaying(false); finishSilent(); });
+  document.getElementById('btnPlay').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('btnReset').addEventListener('click', startRun);
+
+  reset();
+})();
+</script>

@@ -1,0 +1,328 @@
+\documentclass[11pt]{article}
+\input{../_estilo.tex}
+\usepackage{graphicx}
+\renewcommand{\tituloejercicio}{Tema 1 --- Ejercicio 8}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azultitulo} Ejercicio 8 --- El elemento que aparece más de \texorpdfstring{$n/3$}{n/3} veces}
+
+\vspace{2pt}
+\textbf{Dificultad:} $\bigstar\bigstar$ \quad \textbf{Conferencias:} C3 (Correctitud)
+\vspace{8pt}
+\hrule
+\vspace{12pt}
+
+\section*{Enunciado}
+\begin{enunciado}
+El elemento que aparece más de $n/3$ veces. Generaliza Boyer-Moore con dos candidatos, enuncia el
+invariante reforzado y demuéstralo. Después escribe la versión que devuelve los candidatos con contador
+positivo sin verificarlos, y busca un generador de pruebas que no la atrape. Cuidado: el análogo del
+generador binario de la conferencia 3 sí la atrapa.
+\end{enunciado}
+
+Es la generalización de Boyer-Moore (C3 §3--5) conocida como el algoritmo de \textbf{Misra y Gries}
+(1982). Puede haber a lo sumo \textbf{dos} elementos con más de $n/3$ apariciones (si hubiera tres, sus
+apariciones solas sumarían más de $n$), así que hacen falta dos candidatos y dos contadores en vez de uno.
+
+\textbf{Especificación (C3 §1).} Precondición: $A$ es un arreglo de $n\ge 0$ elementos. Postcondición:
+devuelve exactamente los elementos $c$ tales que el número real de apariciones de $c$ en $A$ es mayor que
+$n/3$.
+
+\section{El algoritmo}
+
+La idea es recorrer el arreglo manteniendo dos candidatos posibles. Si aparece un tercer valor distinto
+cuando ambos candidatos tienen contador positivo, se cancela una copia de cada uno de los tres valores.
+Como cada cancelación elimina tres elementos distintos, ningún elemento que aparezca más de $n/3$ veces
+puede desaparecer por completo de los candidatos.
+
+\lstinputlisting[style=python,firstline=12,lastline=35]{verif.py}
+
+La rama \texttt{else} es la generalización de la cancelación de Boyer-Moore: en vez de cancelar una pareja
+de distintos, cancela un \textbf{trío} de distintos ($x$, cand1 y cand2, que son tres valores distintos en
+ese momento).
+
+\section{Correctitud}
+
+La correctitud se demuestra con un invariante reforzado, igual que en Boyer-Moore, pero sustituyendo las
+parejas de elementos distintos por tríos de elementos distintos.
+
+\subsection*{Correctitud parcial}
+
+\subsection*{Invariante reforzado}
+
+\begin{resultado}{Invariante}
+Después de procesar el prefijo $A[1..i]$: el prefijo se puede partir en \textbf{tríos de elementos
+distintos}, más $c_1$ copias de \texttt{cand1}, más $c_2$ copias de \texttt{cand2} (con
+\texttt{cand1}$\ne$\texttt{cand2} siempre que $c_1>0$ y $c_2>0$ a la vez).
+\end{resultado}
+
+Es, letra por letra, la generalización de parejas a tríos del invariante de Boyer-Moore (C3 §4).
+
+\textbf{Inicialización.} Prefijo vacío, $c_1=c_2=0$: cero tríos, cero copias.
+
+\textbf{Mantenimiento.} Supongamos el invariante para $A[1..i]$ y procesemos $x=A[i{+}1]$, con cinco casos
+(uno por rama del \texttt{if}):
+\begin{itemize}
+\item $x=\texttt{cand1}$ con $c_1>0$: $c_1$ sube en 1, y $x$ se suma como una copia más de \texttt{cand1}.
+La partición nueva es la misma, más esa copia.
+\item $x=\texttt{cand2}$ con $c_2>0$: simétrico.
+\item $c_1=0$: el prefijo era solo tríos (y quizás copias de \texttt{cand2}); $x$ pasa a ser
+\texttt{cand1} con $c_1=1$. La partición nueva es la misma más una copia de \texttt{cand1}.
+\item $c_2=0$ (y $c_1>0$, $x\ne\texttt{cand1}$): simétrico con \texttt{cand2}.
+\item Si ninguna de las anteriores aplica ($c_1>0$, $c_2>0$, $x\ne\texttt{cand1}$, $x\ne\texttt{cand2}$):
+tomamos una copia de \texttt{cand1}, una de \texttt{cand2} y el propio $x$ --- tres valores distintos, por
+hipótesis --- y los agrupamos en un trío nuevo. Quedan $c_1{-}1$ copias de \texttt{cand1} y $c_2{-}1$ de
+\texttt{cand2}, que es exactamente lo que el código deja en los contadores.
+\end{itemize}
+
+\textbf{Conclusión.} Al terminar, $A$ entero se parte en $t$ tríos más $c_1$ copias de \texttt{cand1} más
+$c_2$ copias de \texttt{cand2}, con $n=3t+c_1+c_2$.
+
+\begin{resultado}{Teorema}
+Si un elemento $m$ aparece más de $n/3$ veces en $A$, entonces $m\in\{\texttt{cand1},\texttt{cand2}\}$ al
+terminar.
+\end{resultado}
+
+\textit{Demostración.} Supongamos que $m$ no es ninguno de los dos candidatos finales. Entonces todas las
+apariciones de $m$ están dentro de los $t$ tríos (cada trío tiene elementos distintos, así que a lo sumo una
+copia de $m$ por trío): $m$ aparece a lo sumo $t$ veces. Como $n=3t+c_1+c_2\ge 3t$, tenemos $t\le n/3$, así
+que $m$ aparece a lo sumo $n/3$ veces --- contradice que aparece \emph{más} de $n/3$ veces. $\square$
+
+\subsection*{Terminación}
+
+La primera pasada es un ciclo \texttt{for} sobre un arreglo finito de longitud $n$. Si $i$ denota la
+cantidad de elementos ya procesados, el potencial de terminación
+\[
+\Phi=n-i
+\]
+es un entero no negativo. Antes de cada vuelta, si quedan elementos, $\Phi>0$; cada vuelta procesa
+exactamente un elemento y reduce $\Phi$ en 1. Por tanto, después de $n$ vueltas el ciclo termina.
+
+La segunda pasada también termina: recorre como máximo los dos candidatos finales y cada llamada a
+\texttt{A.count} recorre un arreglo finito. Así, terminan tanto la fase de candidatos como la fase de
+verificación.
+
+\subsection*{Correctitud total}
+
+La salida cumple la postcondición en las dos direcciones. Por un lado, todo elemento que el código devuelve
+ha sido contado en la segunda pasada y satisface realmente \texttt{A.count(c) > n/3}; no hay falsos positivos.
+Por otro lado, si un elemento $m$ aparece más de $n/3$ veces, el teorema anterior garantiza que $m$ está
+entre \texttt{cand1} y \texttt{cand2} al terminar. La segunda pasada lo cuenta y lo incluye; no hay falsos
+negativos. Correctitud parcial más terminación dan la \textbf{correctitud total}, exactamente como en C3 §1.
+
+\textbf{Verificado} comparando la versión con segunda pasada contra un oráculo de fuerza bruta (contar con
+\texttt{Counter}), sobre 5000 arreglos aleatorios:
+\begin{lstlisting}[style=salida]
+version con 2 pasadas vs oraculo: 5000 pruebas, fallos (deberia ser 0): 0
+\end{lstlisting}
+
+\section{Costo}
+
+La primera pasada procesa cada elemento una vez y la segunda pasada verifica como máximo dos candidatos,
+por lo que el tiempo total es $O(n)$. Solo se guardan dos candidatos y dos contadores, así que la memoria
+adicional es $O(1)$.
+
+\section{El atajo (sin segunda pasada) y por qué falla}
+
+\lstinputlisting[style=python,firstline=37,lastline=58]{verif.py}
+
+El teorema de la sección 2 dice que un elemento con más de $n/3$ apariciones \textbf{tiene que} terminar de
+candidato --- pero no dice lo contrario: un candidato con contador positivo \textbf{no tiene por qué} haber
+aparecido más de $n/3$ veces. El contraejemplo más simple posible usa solo \textbf{dos símbolos}:
+
+\begin{lstlisting}[style=salida]
+contraejemplo A + 99*B:
+  atajo (sin verificar) dice: ['A', 'B']
+  respuesta correcta (oraculo): ['B']
+  'A' aparece 1 vez; n/3 = 33.3 -> 1 NO es > n/3, A no deberia calificar
+\end{lstlisting}
+
+¿Por qué pasa esto con tan pocos símbolos? Con \texttt{A} y \texttt{B} únicamente: el primer \texttt{A} se
+vuelve \texttt{cand1}; el primer \texttt{B} se vuelve \texttt{cand2} (porque $c_2=0$ en ese momento); y de
+ahí en adelante, \textbf{todos} los \texttt{B} siguientes incrementan \texttt{c2} directamente (coinciden
+con \texttt{cand2}), porque con solo dos símbolos en todo el arreglo, la rama \texttt{else} (que cancela un
+trío) \textbf{nunca se activa}: nunca aparece un tercer valor distinto que dispare la cancelación. El
+resultado es una cuenta directa sin cancelaciones, y \texttt{cand1} queda contaminado con un valor que
+apareció una sola vez y nunca fue desafiado.
+
+\section{Los generadores: uno que no lo atrapa y el binario que sí}
+
+\subsection*{Un generador que no atrapa el atajo}
+
+El enunciado pide observar que una batería de pruebas también puede pasar por alto el error. Para construirla,
+tomamos un entero $r\ge1$ y generamos
+\[
+(B,C,D)^r,\; A^{\,2r+1}.
+\]
+Cada bloque $(B,C,D)$ se cancela completo como un trío de elementos distintos. Después queda solo $A$ como
+candidato, y como
+\[
+n=3r+(2r+1)=5r+1,\qquad 2r+1>\frac{5r+1}{3},
+\]
+la salida del atajo coincide con la respuesta correcta: únicamente $A$. Este generador contiene ruido y una
+mayoría real, pero no produce falsos positivos; por eso no atrapa el error.
+
+\begin{lstlisting}[style=salida]
+generador ruido cancelable + mayoria: 2000 pruebas, fallos (deberia ser 0): 0
+\end{lstlisting}
+
+\subsection*{El generador binario sí lo atrapa}
+
+En C3 §5, con el atajo de Boyer-Moore (un candidato, un contador), un alfabeto \textbf{binario} nunca
+encuentra fallos: ahí se demuestra (ejercicio 3 de esa conferencia) que con dos símbolos el contador final
+es \emph{exactamente} la diferencia entre las dos cuentas, y esa diferencia es positiva si y solo si hay
+mayoría real --- una coincidencia algebraica específica del caso de un solo contador. Aquí, con
+\textbf{dos} contadores, esa coincidencia \textbf{no se repite}: como acabamos de ver, un alfabeto de solo
+2 símbolos ya alcanza para que la rama de cancelación se quede inactiva y el atajo falle.
+
+\textbf{Batería de pruebas, igual que C3 §5}, midiendo el \% de arreglos aleatorios (tamaño variable) en
+los que el atajo discrepa del oráculo, por tamaño de alfabeto:
+
+\begin{lstlisting}[style=salida]
+  alfabeto  % fallos del atajo (vs oraculo)
+         2                           13.38%
+         3                           44.18%
+         4                           71.13%
+         5                           75.32%
+\end{lstlisting}
+
+Contraste directo con la tabla de C3 §5 (Boyer-Moore): ahí, \textbf{binario} y \textbf{mayoría plantada}
+daban 0.0\% de fallos, y recién con 3 símbolos aparecía un 34\%. Aquí, con \textbf{un contador más},
+el generador binario ya es suficiente --- el ``análogo del generador binario'' que advierte el enunciado
+sí atrapa el error, justo al revés que en Boyer-Moore.
+
+\section{Batería ampliada de generadores y análisis}
+
+Para no depender de un único contraejemplo, se implementó una batería con casos dirigidos, familias
+parametrizadas y una búsqueda exhaustiva. Cada entrada se compara con el oráculo que cuenta las apariciones
+reales; por tanto, ``fallo'' significa exactamente que el atajo devuelve una lista distinta de la correcta.
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{>{\raggedright\arraybackslash}p{.22\linewidth}
+                >{\raggedright\arraybackslash}p{.30\linewidth}
+                >{\raggedright\arraybackslash}p{.36\linewidth}}
+\toprule
+\textbf{Generador} & \textbf{Forma de la entrada} & \textbf{Qué pone a prueba} \\
+\midrule
+Mínimo binario & \texttt{ABB} & Contraejemplo mínimo: el atajo conserva la A, aunque solo aparece una vez. \\
+Todos distintos & \texttt{ABCD} & No existe ningún elemento válido; comprueba falsos positivos residuales. \\
+Frontera exacta & \texttt{A\textsuperscript{2}B\textsuperscript{2}C\textsuperscript{2}D\textsuperscript{2}} & Todos quedan en la frontera: $2=n/4<n/3$ y ninguno debe salir. \\
+Frontera con cola & \texttt{ABCABC DDD} & La D aparece exactamente $n/3$ veces, así que la desigualdad estricta importa. \\
+Cancelación completa & $(ABC)^r$ & Fuerza cancelaciones de tríos sin dejar una mayoría real. \\
+Dos frecuentes & \texttt{A\textsuperscript{5}B\textsuperscript{5}CD} & Comprueba que la salida puede contener dos elementos válidos. \\
+Mayoría apenas supera & $\lfloor n/3\rfloor+1$ copias de A y ruido B--F, barajado & Prueba el umbral estricto y la sensibilidad a la posición. \\
+Orden adversario & multiconjunto $A^rB^rC^rD^r$, barajado & Mantiene las frecuencias y cambia solo el orden; mide si el atajo depende de la secuencia. \\
+Distribución sesgada & A, B, C, D, E con pesos $0.62,0.16,0.10,0.07,0.05$ & Simula una señal dominante mezclada con ruido de varias categorías. \\
+Ruido cancelable + mayoría & $(BCD)^rA^{2r+1}$ & Familia que contiene una mayoría real pero, deliberadamente, no atrapa el fallo. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Además, el generador exhaustivo recorre todos los arreglos sobre $\{A,B,C,D\}$ para cada $n\le8$.
+Encuentra el primer contraejemplo en $n=3$: \texttt{AAB}. En ese tamaño hay 36 fallos entre las 64
+entradas posibles. Esta búsqueda es útil porque no depende de una semilla aleatoria ni de una intuición
+particular sobre el orden de los símbolos.
+
+La siguiente salida resume la batería dirigida ejecutada por \texttt{verif.py}. Las familias grandes usan
+semillas fijas, de modo que los porcentajes son reproducibles:
+
+\begin{lstlisting}[style=salida]
+                   generador    casos     fallos
+              minimo binario        1    100.00%
+             todos distintos        1    100.00%
+             frontera exacta        1    100.00%
+           frontera con cola        1    100.00%
+        cancelacion completa      100      0.00%
+              dos frecuentes        1      0.00%
+       mayoria apenas supera       78     58.97%
+            orden adversario     2000     88.60%
+        distribucion sesgada     2000     74.45%
+  ruido cancelable + mayoria     2000      0.00%
+\end{lstlisting}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{analisis-generadores.png}
+\caption{Análisis reproducible de los generadores. Las barras comparan el atajo con el oráculo; las curvas
+estudian el tamaño del alfabeto, el orden de un mismo multiconjunto y el número de fallos exhaustivos.}
+\end{figure}
+
+La lectura importante es doble. Primero, el generador $(BCD)^rA^{2r+1}$ tiene 0\% de fallos porque las
+cancelaciones eliminan únicamente ruido y dejan una mayoría verdadera. Segundo, cambiar el orden o ampliar
+el alfabeto puede elevar mucho la tasa de falsos positivos del atajo, aunque la distribución de frecuencias
+sea parecida. Ninguno de estos experimentos sustituye la prueba de correctitud: sirven para encontrar
+contraejemplos y para comprobar que la segunda pasada no es un detalle opcional.
+
+\section*{Curiosidad: el patrón general \texorpdfstring{$n/k$}{n/k}}
+
+\begin{alerta}{Generalización de Misra-Gries}
+La misma idea se extiende de forma natural: para encontrar todos los elementos que aparecen
+\emph{más de} $n/k$ veces, con $k\ge2$, se mantienen como máximo $k-1$ candidatos y sus contadores.
+\end{alerta}
+
+El número $k-1$ no es arbitrario. No pueden existir $k$ elementos distintos con más de $n/k$ apariciones,
+porque sus apariciones sumarían más de $n$. Por eso basta reservar un lugar para cada posible elemento
+frecuente salvo uno: si aparecen $k-1$ candidatos y llega un valor nuevo distinto de todos, se puede
+cancelar una copia de cada candidato junto con ese nuevo valor.
+
+La versión general conserva la misma estructura:
+\begin{itemize}
+\item si $x$ coincide con un candidato, se incrementa su contador;
+\item si hay un contador vacío, $x$ ocupa ese lugar con contador 1;
+\item si todos los contadores están ocupados y $x$ es distinto de todos, se decrementan los $k-1$
+contadores. Conceptualmente se cancela un grupo de $k$ elementos distintos: $x$ más una copia de cada
+candidato.
+\end{itemize}
+
+El invariante también se generaliza. Después de procesar $i$ elementos, el prefijo se puede partir en
+$t$ grupos de $k$ elementos distintos, más las copias residuales de los candidatos:
+\[
+i=kt+\sum_{j=1}^{k-1}c_j.
+\]
+Si un elemento $m$ no terminara como candidato, aparecería como máximo una vez en cada grupo cancelado,
+de modo que tendría a lo sumo $t\le n/k$ apariciones. Por tanto, cualquier elemento con más de $n/k$
+apariciones tiene que sobrevivir como candidato. Igual que en el ejercicio 8, hace falta una segunda pasada
+para verificar las apariciones reales: ser candidato es necesario, pero no suficiente.
+
+Para $k$ fijo, el tiempo es $O(n)$ y la memoria adicional es $O(1)$ respecto de $n$. Si $k$ forma parte
+de la entrada, la implementación directa cuesta $O(nk)$ tiempo y $O(k)$ memoria. Boyer-Moore es el caso
+$k=2$ (un candidato y cancelación de parejas), mientras que este ejercicio es el caso $k=3$ (dos candidatos
+y cancelación de tríos).
+
+\begin{resultado}{Respuesta a la pregunta del enunciado}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Algoritmo:} Misra-Gries mantiene dos candidatos y dos contadores; cuando aparece un tercer
+valor distinto con ambos contadores positivos, cancela un trío de elementos distintos.
+\item \textbf{Correctitud:} el invariante divide el prefijo procesado en tríos de elementos distintos y
+copias no canceladas de los dos candidatos. Por eso todo elemento con más de $n/3$ apariciones debe terminar
+como candidato.
+\item \textbf{Costo:} la primera pasada encuentra los candidatos y la segunda verifica sus apariciones
+reales. El tiempo total es $O(n)$ y la memoria adicional es $O(1)$.
+\item \textbf{Atajo:} devolver directamente los candidatos con contador positivo es incorrecto. La entrada
+formada por una \texttt{A} y 99 \texttt{B} ya lo demuestra, y el generador binario encuentra este tipo de
+fallos. Además, una batería con ruido agrupado en tríos cancelables puede no encontrar ninguno.
+\end{itemize}
+\end{resultado}
+
+\section*{Errores que hay que vigilar}
+
+\begin{alerta}{}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Generalizar la intuición de Boyer-Moore sin volver a verificarla.} ``Con pocos símbolos el
+atajo es seguro'' es cierto para \emph{un} contador y falso para \emph{dos}. La única forma confiable de
+saberlo es, como aquí, construir el contraejemplo o correr la batería de pruebas --- no asumir que una
+propiedad se extiende de $k=2$ a $k=3$ candidatos sin más.
+\item \textbf{Olvidar que el teorema es de una sola dirección.} ``Más de $n/3$ apariciones $\Rightarrow$
+es candidato'' no es lo mismo que ``es candidato $\Rightarrow$ más de $n/3$ apariciones''. Exactamente la
+misma estructura de error que el atajo de Boyer-Moore (C3 §5): \emph{leer la hipótesis de un teorema es
+leer la lista de casos que hay que probar}, y aquí la hipótesis (``más de $n/3$'') solo cubre una dirección.
+\item \textbf{Pensar que la segunda pasada es opcional ``casi siempre''.} La tabla de la sección 5 muestra
+que, lejos de ser un caso raro, el atajo falla en más de una de cada diez entradas incluso con el alfabeto
+más pequeño posible. No es un error marginal: es un algoritmo genuinamente incorrecto.
+\end{itemize}
+\end{alerta}
+
+\end{document}

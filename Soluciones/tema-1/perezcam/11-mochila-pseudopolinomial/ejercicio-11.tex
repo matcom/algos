@@ -1,0 +1,605 @@
+\documentclass[11pt]{article}
+\input{../_estilo.tex}
+\renewcommand{\tituloejercicio}{Tema 1 --- Ejercicio 11}
+
+% Igual que `alerta` de _estilo.tex, pero puede partirse entre paginas
+\newtcolorbox{alertarota}{colback=griscodigo, colframe=grisborde, boxrule=0.6pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt, breakable, before upper={\parindent0pt}}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azultitulo} Ejercicio 11 --- La mochila entera\\ y la pseudopolinomialidad}
+
+\vspace{2pt}
+\textbf{Dificultad:} $\bigstar\bigstar$ \quad \textbf{Conferencias:} C1 (Eficiencia y modelos de cómputo);
+método de C2 §1 y correctitud de C3
+\vspace{8pt}
+\hrule
+\vspace{12pt}
+
+\section*{Enunciado}
+\begin{enunciado}
+La mochila entera se resuelve con programación dinámica en $O(nW)$, donde $W$ es la capacidad (lo vieron
+en Estructuras de Datos). Mide el tamaño de la entrada en bits, como en la sección 8 de la conferencia 1.
+¿Es polinomial ese algoritmo? ¿En qué se parece a la primalidad por división?
+\end{enunciado}
+
+\section*{El camino}
+
+Seguimos el ciclo de C2 §1 --- problema, algoritmo, correctitud, costo, ¿se puede hacer mejor? --- sobre un
+solo ejemplo. Cada paso termina anunciando el siguiente, que resuelve lo que quedó pendiente, hasta llegar a lo que
+queremos demostrar:
+
+\begin{resultado}{Lo que queremos demostrar}
+La mochila con tabla de $O(nW)$ es \textbf{pseudopolinomial}: lineal en el \emph{valor} de $W$ y exponencial
+en su \emph{tamaño} $b=\log_2W$. Y tiene la misma forma que la primalidad por división.
+\end{resultado}
+
+\begin{center}\small
+\begin{tabular}{@{}rll@{}}
+\toprule
+\textbf{§} & \textbf{Pregunta que se responde} & \textbf{Y lo que queda por resolver}\\
+\midrule
+1 & ¿Cuál es el problema? & los algoritmos mejores que mirar los $2^n$ subconjuntos\\
+2 & ¿Qué algoritmo lo resuelve? & su correctitud\\
+3 & ¿Es correcto? (invariante, C3) & su costo\\
+4 & ¿Cuánto cuesta? Contar celdas & en qué es polinomial ese costo\\
+5 & Medir en bits (C1 §8) & si se puede \emph{demostrar} que no es polinomial\\
+6 & La demostración: una instancia mínima & de dónde viene el nombre\\
+7 & Pseudopolinomial = contar en unario & lo que el modelo RAM no cobra\\
+8 & Memoria y máquinas más rápidas (C1 §6, §7) & si se puede hacer mejor con \emph{cualquier} algoritmo\\
+9 & La quinta pregunta y la primalidad (C2 §8) & ---\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 1: ¿cuál es el problema?}
+
+C2 §2 pide enunciar con precisión la entrada, la salida y los casos raros.
+
+\textbf{Mochila 0/1.} \emph{Entrada:} $n$ objetos con pesos $w_1,\dots,w_n$ y valores $v_1,\dots,v_n$ (enteros
+positivos) y una capacidad entera $W\ge0$. \emph{Salida:} el mayor valor total de un subconjunto de peso total
+$\le W$. (El subconjunto mismo sale rastreando la tabla del §2.) \emph{Casos raros:} un objeto con $w_i>W$
+nunca cabe; si hay empates, cualquier óptimo sirve; con $W=0$ la respuesta es $0$.
+
+Hay un detalle que parece menor y es el centro del ejercicio: $W$ \textbf{no es una cantidad de cosas}. Es
+un \emph{número} que viene escrito en la entrada, junto a los pesos y los valores.
+
+\textbf{El ejemplo que usaremos en todo el ejercicio:} cuatro objetos $(w,v)=(2,3),(3,4),(4,5),(5,6)$ y
+$W=8$. El óptimo es llevar los objetos 2 y 4 (peso 8, valor 10). La fuerza bruta mira los $2^n$
+subconjuntos y es el oráculo de C2 §4: son 16 aquí y $2^{40}\approx10^{12}$ con 40 objetos, así que no sirve.
+\textbf{A continuación:} la sección 2 propone un algoritmo que evita mirar los $2^n$ subconjuntos: una tabla indexada por capacidades.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 2: ¿qué algoritmo lo resuelve?}
+
+\subsection*{El diseño: subproblemas y una recurrencia}
+
+La idea es resolver muchos subproblemas pequeños y reutilizarlos, en vez de mirar subconjuntos enteros. Para
+$0\le i\le n$ y cada capacidad entera $c\ge0$ sea
+\[
+  f(i,c)\;=\;\max\Bigl\{\;\sum_{k\in S}v_k\;:\;S\subseteq\{1,\dots,i\},\ \sum_{k\in S}w_k\le c\;\Bigr\},
+\]
+el mejor valor que se logra usando solo los primeros $i$ objetos con capacidad $c$ (el conjunto vacío es
+siempre factible, así que $f\ge0$). Lo que se pide es $f(n,W)$.
+
+\begin{resultado}{Lema 1 (recurrencia)}
+$f(0,c)=0$. Para $i\ge1$: si $c<w_i$, entonces $f(i,c)=f(i-1,c)$; si $c\ge w_i$, entonces
+$f(i,c)=\max\bigl(f(i-1,c),\ f(i-1,c-w_i)+v_i\bigr)$.
+\end{resultado}
+
+\textit{Demostración.} Sea $S\subseteq\{1,\dots,i\}$ factible para la capacidad $c$. Hay dos casos.
+Si $i\notin S$, entonces $S\subseteq\{1,\dots,i-1\}$ y su valor es $\le f(i-1,c)$; recíprocamente, todo
+subconjunto de $\{1,\dots,i-1\}$ factible para $c$ lo es también como subconjunto de $\{1,\dots,i\}$, de modo
+que $f(i-1,c)$ se alcanza. Si $i\in S$ (lo cual exige $w_i\le c$), entonces $S\setminus\{i\}\subseteq
+\{1,\dots,i-1\}$ tiene peso $\le c-w_i$, luego el valor de $S$ es $v_i+\mathrm{valor}(S\setminus\{i\})\le
+v_i+f(i-1,c-w_i)$; recíprocamente, si $T$ es óptimo para $(i-1,\,c-w_i)$ entonces $T\cup\{i\}$ pesa $\le c$ y
+vale $v_i+f(i-1,c-w_i)$. El máximo sobre los dos casos es $f(i,c)$. Si $c<w_i$ el segundo caso no existe.
+$\square$
+
+\subsection*{El algoritmo, con sus dos ciclos}
+
+La fila $f(i,\cdot)$ solo depende de la fila $f(i-1,\cdot)$, así que basta \textbf{un} arreglo $dp[0..W]$ que se
+actualiza en el lugar. El algoritmo tiene dos ciclos \texttt{for} anidados:
+\begin{itemize}[leftmargin=14pt,itemsep=1pt]
+\item el \textbf{ciclo externo} da una vuelta por objeto, $i=1,2,\dots,n$; llamamos \emph{ronda $i$} a todo lo
+que ocurre durante la vuelta $i$ del ciclo externo;
+\item el \textbf{ciclo interno} recorre, dentro de la ronda $i$, las capacidades $j=W,\,W-1,\,\dots,\,w_i$ \emph{de
+mayor a menor} (si $w_i>W$ no da ninguna vuelta), y en cada vuelta actualiza una sola celda, $dp[j]$.
+\end{itemize}
+Al ciclo interno de este orden lo llamamos \emph{descendente}; el \emph{ascendente} recorre $j=w_i,\dots,W$ y es
+una variante que aparecerá más abajo. Cada vuelta del ciclo interno lee $dp[j]$ y $dp[j-w_i]$ y deja en
+$dp[j]$ el mayor de los dos valores $dp[j]$ y $dp[j-w_i]+v_i$: llevar o no llevar el objeto $i$.
+
+\lstinputlisting[style=python,firstline=16,lastline=25]{verif.py}
+
+\noindent\begin{minipage}{\linewidth}
+Con el ejemplo, la tabla va así (cada fila es $dp$ tras terminar una ronda):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+objetos (peso, valor): (2,3)  (3,4)  (4,5)  (5,6)   capacidad W = 8
+fuerza bruta (2^4 = 16 subconjuntos): mejor valor 10, con los objetos [2, 4]
+dp[j] para j = 0..8, tras cada objeto (ciclo interno descendente):
+  inicio          0  0  0  0  0  0  0  0  0
+  objeto 1 (2,3)  0  0  3  3  3  3  3  3  3
+  objeto 2 (3,4)  0  0  3  4  4  7  7  7  7
+  objeto 3 (4,5)  0  0  3  4  5  7  8  9  9
+  objeto 4 (5,6)  0  0  3  4  5  7  8  9 10
+resultado: dp[8] = 10  (celdas actualizadas: 22)
+\end{lstlisting}
+\end{minipage}
+Por ejemplo, la fila del objeto 2 dice que con capacidad 5 y los dos primeros objetos se logra 7 (llevar
+ambos). El algoritmo actualiza el arreglo \emph{en el lugar}, y un error en el orden de esas actualizaciones no
+se ve a simple vista. \textbf{A continuación:} la sección 3 demuestra que es correcto, con un invariante que además explica por qué importa el sentido del ciclo interno.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 3: ¿es correcto?}
+
+\subsection*{La especificación (C3 §1)}
+
+\emph{Precondición:} $n\ge0$; los $w_i$ y $v_i$ son enteros positivos; $W\ge0$ es entero.
+\emph{Postcondición:} el algoritmo devuelve $dp[W]=f(n,W)$.
+Como en C3, la demostración son dos demostraciones separadas: \textbf{correctitud parcial} (si el algoritmo
+termina, la salida cumple la postcondición) y \textbf{terminación}; la correctitud total es la suma.
+
+\subsection*{Correctitud parcial: un invariante para cada ciclo}
+
+Un invariante tiene que ser \emph{inductivo}, no solo verdadero (C3 §4). Aquí hace falta uno por ciclo, y el
+del ciclo interno es la versión \emph{reforzada} del externo: el externo, por sí solo, no basta para
+demostrar la ronda, porque durante ella el arreglo mezcla celdas ya actualizadas con otras que todavía deben
+guardar el valor viejo.
+
+\begin{resultado}{Invariante externo $I_{ext}(i)$, para $0\le i\le n$}
+Tras $i$ vueltas del ciclo externo, $dp[c]=f(i,c)$ para todo $c\in[0,W]$.
+\end{resultado}
+
+\begin{resultado}{Invariante interno $I_{int}(i,j)$, durante la ronda $i$}
+Cuando el ciclo interno está por procesar la capacidad $j$ (es decir, ya procesó las capacidades $>j$), para
+todo $c\in[0,W]$:
+\[
+\begin{aligned}
+  dp[c]&=f(i,c)   &&\text{si } c>j, \quad\text{(celdas ya actualizadas en esta ronda)}\\
+  dp[c]&=f(i-1,c) &&\text{si } c\le j,\quad\text{(celdas aún sin tocar)}
+\end{aligned}
+\]
+\end{resultado}
+
+\textbf{Ciclo interno.}
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item \emph{Inicialización.} Al empezar la ronda $i$ se tiene $j=W$: no hay celdas $c>W$, y todas las
+$c\le W$ valen $f(i-1,c)$ por $I_{ext}(i-1)$. Luego vale $I_{int}(i,W)$.
+\item \emph{Mantenimiento.} Supongamos $I_{int}(i,j)$ con $j\ge w_i$ y ejecutemos la vuelta $j$. Lee $dp[j]$,
+que vale $f(i-1,j)$ porque $j\le j$ (sin tocar), y lee $dp[j-w_i]$: como $w_i\ge1$, el índice $j-w_i$ es
+$<j$, así que también está sin tocar y vale $f(i-1,j-w_i)$. Deja en $dp[j]$ el valor
+$\max\bigl(f(i-1,j),\,f(i-1,j-w_i)+v_i\bigr)$, que es $f(i,j)$ por el Lema~1 ($j\ge w_i$). Ninguna otra celda
+cambia; luego ahora las celdas $\ge j$ valen $f(i,\cdot)$ y las $<j$ siguen valiendo $f(i-1,\cdot)$: es
+$I_{int}(i,j-1)$.
+\item \emph{Conclusión.} Al terminar el ciclo interno quedó procesado todo $c\ge w_i$ (o ninguno, si
+$w_i>W$), y las celdas restantes $c\le\min(W,w_i-1)$ valen $f(i-1,c)$. Pero para $c<w_i$ el Lema~1 da
+$f(i-1,c)=f(i,c)$. Entonces $dp[c]=f(i,c)$ para todo $c$: vale $I_{ext}(i)$.
+\end{itemize}
+
+\textbf{Ciclo externo.}
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item \emph{Inicialización} ($i=0$). $dp$ es el arreglo nulo y $f(0,c)=0$.
+\item \emph{Mantenimiento.} Si vale $I_{ext}(i-1)$, la ronda $i$ cumple la inicialización, el mantenimiento y la
+conclusión del ciclo interno de arriba, y deja $I_{ext}(i)$.
+\item \emph{Conclusión.} Al terminar el ciclo externo $i=n$, y $I_{ext}(n)$ da $dp[W]=f(n,W)$: la
+postcondición.
+\end{itemize}
+\textbf{El sentido descendente se usa en un solo lugar:} para afirmar que $dp[j-w_i]$ está \emph{sin tocar}.
+En el orden descendente las celdas tocadas en la ronda son las de índice $>j$, y $j-w_i<j$.
+
+\subsection*{Terminación: el potencial (C3 §1)}
+
+Ambos ciclos son \texttt{for} sobre rangos finitos. En una ronda con $w_i\le W$, el potencial interno
+$\Phi_{int}=j-w_i+1$ es no negativo, baja en $1$ en cada vuelta y empieza en $W-w_i+1$; si $w_i>W$,
+el rango está vacío y la ronda hace cero vueltas. En el ciclo externo, $\Phi_{ext}=n-i$ baja en $1$
+por vuelta. Luego el algoritmo termina, y con la correctitud parcial es \textbf{totalmente correcto}.
+
+\subsection*{Un invariante también se puede ejecutar (C3 §4)}
+
+C3 comprueba el invariante en cada paso con una versión \emph{vigilada} del algoritmo. Hacemos lo mismo con
+los dos invariantes, contra una tabla $f$ calculada enumerando subconjuntos, que es un oráculo independiente
+del algoritmo (C2 §4):
+
+\lstinputlisting[style=python,firstline=90,lastline=110]{verif.py}
+
+Probar contra entradas aleatorias verifica que implementamos lo que pensamos, no que pensamos bien (C2 §7);
+lo que sí aporta esto es ejecutar, vuelta a vuelta, \emph{los invariantes de la demostración}. (Los dos bloques de
+salida de esta sección reagrupan por tema líneas literales de la sección «2.\ correctitud» de la salida de
+\texttt{verif.py}, donde van intercaladas.)
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+ciclo descendente contra fuerza bruta: 2000 instancias, fallos (deberia ser 0): 0
+numpy contra ciclo descendente: 2000 instancias, fallos (deberia ser 0): 0
+celdas actualizadas = suma de (W - w_i + 1): coincide en 2000 de 2000 instancias
+invariantes ejecutados (ciclo descendente): 148373 vueltas, 9845 rondas
+   violaciones de algun invariante (deberia ser 0): 0
+\end{lstlisting}
+
+\subsection*{Qué falla con el ciclo interno ascendente: el primer fallo (C3 §1)}
+
+Con $j=w_i,\dots,W$ las celdas tocadas pasan a ser las de índice \emph{menor} que $j$, y la lectura
+$dp[j-w_i]$ deja de estar sin tocar cuando $j-w_i\ge w_i$, es decir, cuando $j\ge2w_i$. Para $j<2w_i$ el
+índice $j-w_i<w_i$ nunca fue modificado (el ciclo ascendente empieza en $w_i$) y el argumento sigue valiendo;
+\textbf{el primer momento en que puede fallar el mantenimiento es $j=2w_i$}. Desde ahí $dp[j-w_i]$ puede valer
+ya $f(i,j-w_i)$, que incluye al objeto $i$, y el algoritmo le suma otra vez $v_i$: usa el objeto dos veces. Lo
+que calcula entonces es la \emph{mochila no acotada} (cada objeto se puede llevar cualquier número de veces).
+En el ejemplo, para el objeto 1 ($w=2$, $v=3$) el ciclo ascendente da $dp[4]=dp[2]+3=6$, dos copias, aunque
+$f(1,4)=3$. Y no es un caso raro:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+ciclo ASCENDENTE: resultado distinto del correcto en 1635 de 2000 instancias
+ejemplo: el ascendente da dp[8] = 12 (4 copias del objeto 1); el correcto, 10
+ciclo ascendente: el invariante interno falla en 1675 de 2000 instancias
+   y el primer fallo ocurre en j >= 2*w_i en 1675 de 1675
+ciclo ascendente = mochila no acotada: coincide en 2000 de 2000 instancias
+ejemplo, ciclo ascendente, tras el objeto 1: dp = 0 0 3 3 6 6 9 9 12
+   primer fallo del invariante: objeto 1, j = 4 (dp[4] = 6, pero f(1,4) = 3)
+\end{lstlisting}
+El invariante es más sensible que el resultado final: falla en 1675 instancias, pero el resultado cambia solo
+en 1635; en las otras 40 el error queda tapado por casualidad en el valor de $dp[W]$ y solo el invariante lo ve.
+\textbf{A continuación:} la sección 4 cuenta cuánto cuesta el algoritmo correcto.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 4: ¿cuánto cuesta?}
+
+Contamos celdas, que es lo que el algoritmo hace de verdad. Cada objeto con $w_i\le W$ actualiza $W-w_i+1$
+celdas, así que
+\[
+  \text{celdas}\;=\;\sum_{i:\,w_i\le W} (W-w_i+1)\;\le\; nW,
+  \qquad
+  \text{memoria}\;=\;W+1\ \text{celdas}.
+\]
+Es decir, \textbf{tiempo $\Theta(nW)$ en el peor caso y memoria $\Theta(W)$} (con todos los pesos iguales a $1$ se
+actualizan exactamente $nW$ celdas). (Cada actualización cuenta como costo 1: C1 §9 lo
+permite mientras los números quepan en una palabra; para un $W$ mayor cada índice ocupa varias palabras, un
+factor $b/w$ que ante $2^b$ es despreciable.) En el ejemplo son 22 celdas.
+
+Medimos las dos variables, una por vez. La columna de celdas sale de la fórmula de arriba, que en la
+sección 3 coincidió con el contador del algoritmo en 2000 de 2000 instancias; la de tiempos, de una versión con
+\texttt{numpy} de la misma tabla (una fila entera por objeto) que coincidió con el listado en esas mismas 2000, y
+cambia de una ejecución a otra, a diferencia de las celdas. Las cifras de tiempo son mediciones de referencia:
+dependen de la máquina y de la carga del sistema. Primero $W=2^{16}$ fijo y $n$ creciendo: el tiempo por
+objeto es casi constante (el primer valor, el de $n=50$, es el doble: incluye el arranque de \texttt{numpy}), o
+sea \textbf{lineal en $n$}.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+     n        celdas  tiempo (s)  tiempo/n (ms)
+    50     2,558,524      0.0055         0.1106
+   100     4,871,536      0.0054         0.0544
+   200    10,044,572      0.0111         0.0557
+   400    19,566,254      0.0159         0.0399
+   800    39,509,165      0.0370         0.0462
+  1600    79,099,974      0.0735         0.0460
+\end{lstlisting}
+Ahora $n=40$ fijo y el \emph{valor} de $W$ creciendo (con pesos $\sim U[1,W/2]$; el §5 explica por qué). El
+cociente celdas$/(nW)$ queda estable cerca de $0.75$: el costo es \textbf{lineal en el valor de $W$}.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+         W        celdas  celdas/(n*W)
+      4096       127,435         0.778
+      8192       244,527         0.746
+     16384       458,662         0.700
+     32768       985,845         0.752
+     65536     1,873,783         0.715
+    131072     3,884,566         0.741
+    262144     7,845,866         0.748
+    524288    15,444,895         0.736
+   1048576    31,954,753         0.762
+   2097152    62,839,150         0.749
+   4194304   124,192,302         0.740
+   8388608   252,523,802         0.753
+  16777216   494,198,441         0.736
+\end{lstlisting}
+Lineal en $n$, lineal en $W$: $O(nW)$ \emph{parece} polinomial. C1 §8 dice que un algoritmo se mide en función del \emph{tamaño} de su entrada, y el tamaño no es $W$.
+\textbf{A continuación:} la sección 5 mide el costo en bits para ver en qué es polinomial, si lo es.
+
+%% ------------------------------------------------------------------------------------------------
+\section{El giro: el tamaño de la entrada se mide en bits (C1 §8)}
+
+Un número $x$ ocupa $\lfloor\log_2x\rfloor+1$ bits. Sean $b$ los bits de $W$ y $d$ los del mayor valor. Los
+objetos con $w_i>W$ nunca caben y se descartan en $O(n)$, así que cada peso tiene a lo sumo $b$ bits y el
+tamaño de la entrada es
+\[
+\begin{gathered}
+  s\;=\;\sum_i\mathrm{bits}(w_i)+\sum_i\mathrm{bits}(v_i)+b\;\le\;n(b+d)+b ,\\[2pt]
+  \text{mientras que la cota del costo es}\quad nW\;\ge\;n\,2^{\,b-1}.
+\end{gathered}
+\]
+Releamos entonces los \emph{mismos} 13 datos del §4, pero contra el tamaño de $W$ y no contra su valor. La
+figura~\ref{fig:valor-bits} lo muestra: lo que era una recta es ahora una exponencial. (Las instancias usan
+$W=2^{b}$, que tiene $b+1$ bits; la columna \texttt{bits} de la tabla y el eje de la figura usan ese exponente $b$, y
+la diferencia de $1$ no importa.)
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \tikzset{eje/.style={draw=grisnum,thin}, tk/.style={font=\tiny,text=grisnum}}
+  %% panel (a): contra el valor de W
+  \begin{scope}
+    \draw[eje] (0,0) -- (5.8,0); \draw[eje] (0,0) -- (0,3.6);
+    \foreach \m in {0,4,8,12,16} \draw[eje] ({\m/16.777216*5.6},0) -- ++(0,-0.07) node[below,tk] {\m};
+    \foreach \y in {0,1,2,3,4} \draw[eje] (0,{\y/5*3.4}) -- ++(-0.07,0) node[left,tk] {\y};
+    \node[tk,anchor=west] at (0.1,3.78) {$\times10^{8}$ celdas};
+    \node[font=\scriptsize,anchor=north] at (2.8,-0.45) {valor de $W$ ($\times10^{6}$)};
+    \draw[azultitulo,thick] (0.001,0.001) -- (0.003,0.002) -- (0.005,0.003) -- (0.011,0.007) -- (0.022,0.013) -- (0.044,0.026) -- (0.087,0.053) -- (0.175,0.105) -- (0.350,0.217) -- (0.700,0.427) -- (1.400,0.845) -- (2.800,1.717) -- (5.600,3.361);;
+    \fill[azultitulo] (0.001,0.001) circle (1.7pt);
+    \fill[azultitulo] (0.003,0.002) circle (1.7pt);
+    \fill[azultitulo] (0.005,0.003) circle (1.7pt);
+    \fill[azultitulo] (0.011,0.007) circle (1.7pt);
+    \fill[azultitulo] (0.022,0.013) circle (1.7pt);
+    \fill[azultitulo] (0.044,0.026) circle (1.7pt);
+    \fill[azultitulo] (0.087,0.053) circle (1.7pt);
+    \fill[azultitulo] (0.175,0.105) circle (1.7pt);
+    \fill[azultitulo] (0.350,0.217) circle (1.7pt);
+    \fill[azultitulo] (0.700,0.427) circle (1.7pt);
+    \fill[azultitulo] (1.400,0.845) circle (1.7pt);
+    \fill[azultitulo] (2.800,1.717) circle (1.7pt);
+    \fill[azultitulo] (5.600,3.361) circle (1.7pt);
+    \node[font=\small\bfseries,text=azultitulo,anchor=west] at (0.0,4.3) {(a) contra el \emph{valor} de $W$: una recta};
+  \end{scope}
+  %% panel (b): contra el tamano de W en bits
+  \begin{scope}[xshift=8.2cm]
+    \draw[eje] (0,0) -- (5.8,0); \draw[eje] (0,0) -- (0,3.6);
+    \foreach \b in {12,14,16,18,20,22,24} \draw[eje] ({(\b-12)/12*5.6},0) -- ++(0,-0.07) node[below,tk] {\b};
+    \foreach \y in {0,1,2,3,4} \draw[eje] (0,{\y/5*3.4}) -- ++(-0.07,0) node[left,tk] {\y};
+    \node[tk,anchor=west] at (0.1,3.78) {$\times10^{8}$ celdas};
+    \node[font=\scriptsize,anchor=north] at (2.8,-0.45) {tamaño de $W$ en bits ($b$)};
+    \draw[naranjastr,thick] (0.000,0.001) -- (0.467,0.002) -- (0.933,0.003) -- (1.400,0.007) -- (1.867,0.013) -- (2.333,0.026) -- (2.800,0.053) -- (3.267,0.105) -- (3.733,0.217) -- (4.200,0.427) -- (4.667,0.845) -- (5.133,1.717) -- (5.600,3.361);;
+    \fill[naranjastr] (0.000,0.001) circle (1.7pt);
+    \fill[naranjastr] (0.467,0.002) circle (1.7pt);
+    \fill[naranjastr] (0.933,0.003) circle (1.7pt);
+    \fill[naranjastr] (1.400,0.007) circle (1.7pt);
+    \fill[naranjastr] (1.867,0.013) circle (1.7pt);
+    \fill[naranjastr] (2.333,0.026) circle (1.7pt);
+    \fill[naranjastr] (2.800,0.053) circle (1.7pt);
+    \fill[naranjastr] (3.267,0.105) circle (1.7pt);
+    \fill[naranjastr] (3.733,0.217) circle (1.7pt);
+    \fill[naranjastr] (4.200,0.427) circle (1.7pt);
+    \fill[naranjastr] (4.667,0.845) circle (1.7pt);
+    \fill[naranjastr] (5.133,1.717) circle (1.7pt);
+    \fill[naranjastr] (5.600,3.361) circle (1.7pt);
+    \node[font=\small\bfseries,text=naranjastr,anchor=west] at (0.0,4.3) {(b) contra su \emph{tamaño} $b$: una exponencial};
+  \end{scope}
+\end{tikzpicture}
+\caption{Los mismos 13 puntos ($n=40$, pesos $\sim U[1,W/2]$, $W=2^{12},\dots,2^{24}$). \textbf{(a)} Contra el
+valor de $W$ el costo es una recta, y por eso $O(nW)$ \emph{parece} polinomial. \textbf{(b)} Contra el
+tamaño de $W$ en bits el mismo costo se dispara: cada bit adicional lo duplica.}
+\label{fig:valor-bits}
+\end{figure}
+
+La tabla da los números (las dos últimas columnas, de tiempo, cambian de una ejecución a otra; las demás no). Aquí el tamaño de la entrada $s$ casi no crece (de 754 a 1269 bits, \emph{menos del
+doble}) y las celdas pasan de $1.3\cdot10^5$ a $4.9\cdot10^8$ (unas 3900 veces). Cada bit multiplica las
+celdas por $\approx2$ (de 1.88 a 2.15) y $\log_2$ de las celdas crece $\approx1$ por bit: $\Theta(2^b)$.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+bits tam. entrada        celdas log2 celdas celdas/ant. tiempo (s) t/ant.
+  12          754       127,435       16.96         nan     0.0002    nan
+  13          812       244,527       17.90        1.92     0.0002   1.52
+  14          893       458,662       18.81        1.88     0.0004   1.81
+  15          901       985,845       19.91        2.15     0.0009   2.03
+  16          944     1,873,783       20.84        1.90     0.0023   2.66
+  17          958     3,884,566       21.89        2.07     0.0070   3.08
+  18         1025     7,845,866       22.90        2.02     0.0121   1.74
+  19         1050    15,444,895       23.88        1.97     0.0286   2.35
+  20         1082    31,954,753       24.93        2.07     0.0636   2.23
+  21         1119    62,839,150       25.91        1.97     0.1796   2.82
+  22         1178   124,192,302       26.89        1.98     0.4498   2.51
+  23         1227   252,523,802       27.91        2.03     1.5962   3.55
+  24         1269   494,198,441       28.88        1.96     4.9640   3.11
+\end{lstlisting}
+\textbf{El tiempo es peor testigo que las celdas:} la razón, que debería rondar $2$, sube a 3.55 en $b=23$
+(el máximo de la columna, y cambia entre corridas), probablemente porque la tabla ya mide decenas de megabytes y
+cada fila crea arreglos temporales (esa causa no se midió). El modelo RAM de C1 cobra 1 por celda; la
+máquina real no. Por eso el dato que usamos como evidencia es el conteo de celdas.
+
+\subsection*{Por qué los pesos crecen con $W$}
+
+\noindent\begin{minipage}{\linewidth}
+El primer experimento que se le ocurre a uno es dejar los pesos acotados y subir $W$. Falla, y la razón es
+instructiva. Con $n=40$ y pesos $\le1000$, la suma de pesos es $22351$; para $W\ge2^{15}$ la respuesta es
+``llevárselo todo'', que se calcula en $O(n)$. El algoritmo igual gasta $nW$.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+n=40, pesos <= 1000: suma de pesos = 22351, suma de valores = 22344
+   W = 2^12: mejor valor =  10243  (instancia no trivial)
+   W = 2^14: mejor valor =  20796  (instancia no trivial)
+   W = 2^15: mejor valor =  22344  (= suma de valores: instancia trivial)
+   W = 2^16: mejor valor =  22344  (= suma de valores: instancia trivial)
+   W = 2^20: mejor valor =  22344  (= suma de valores: instancia trivial)
+recortar W a min(W, suma de pesos): 500 instancias, fallos (deberia ser 0): 0
+\end{lstlisting}
+\end{minipage}
+Dos consecuencias. El costo de ese algoritmo es del algoritmo, no de la dificultad de la instancia. Y una
+mejora gratuita es recortar $W\leftarrow\min(W,\sum_iw_i)$, con lo que el costo es $O(n\min(W,\sum w_i))$: las
+instancias realmente difíciles son las de $W<\sum_iw_i$, es decir, con pesos comparables a $W/n$. Por eso la
+familia de medición escala los pesos con $W$. Las medidas muestran que el costo crece exponencialmente con $b$, pero medir sugiere y no demuestra. \textbf{A continuación:} la
+sección 6 demuestra que no es polinomial, con una instancia mínima.
+
+%% ------------------------------------------------------------------------------------------------
+\section{La demostración: una instancia mínima}
+
+Medir sugiere; demostrar cierra. Para refutar ``polinomial'' basta \textbf{una} familia de instancias en que el
+costo supera a todo polinomio en el tamaño de la entrada.
+
+\begin{resultado}{Teorema}
+El algoritmo \textbf{no es polinomial}: no existe un polinomio $p$ tal que el número de celdas que actualiza
+sea $\le p(s)$ para toda instancia de tamaño $s$.
+\end{resultado}
+
+\textit{Demostración.} Sea la instancia con un solo objeto, $w_1=v_1=1$, y capacidad $W=2^b$. Su tamaño es
+$s=1+1+(b+1)=b+3$ bits, y el algoritmo actualiza $W-1+1=2^b=2^{s-3}$ celdas. Para cualquier polinomio $p$,
+$2^{s-3}>p(s)$ desde cierto $s$ en adelante. $\square$
+
+\textbf{Verificado} (el conteo es exacto, no una medición de tiempo):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+   b          W  tamano de la entrada (bits)  celdas actualizadas
+   4         16                            7                   16
+   8        256                           11                  256
+  12       4096                           15                 4096
+  16      65536                           19                65536
+  20    1048576                           23              1048576
+\end{lstlisting}
+Y ``desde cierto $s$'' es muy pronto: contra $s^{10}$ la instancia ya gana con una entrada de 63 bits.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+el tamano s desde el cual 2^(s-3) supera al polinomio s^k:
+   k =  1: desde s =   6 bits   (2^3 = 8 > 6^1 = 6)
+   k =  2: desde s =  10 bits   (2^7 = 128 > 10^2 = 100)
+   k =  3: desde s =  15 bits   (2^12 = 4.1e+03 > 15^3 = 3.38e+03)
+   k =  5: desde s =  27 bits   (2^24 = 1.68e+07 > 27^5 = 1.43e+07)
+   k = 10: desde s =  63 bits   (2^60 = 1.15e+18 > 63^10 = 9.85e+17)
+\end{lstlisting}
+
+\begin{resultado}{Respuesta}
+El algoritmo de la mochila con tabla $O(nW)$ \textbf{no es polinomial}: es \textbf{pseudopolinomial} ---
+polinomial en el \emph{valor} de $W$, exponencial en su tamaño $b=\log_2W$ (definición de C1 §8). Cuando
+$W\le n^k$ para una constante $k$, el costo es $\le n^{k+1}$ y el algoritmo \textbf{sí} es polinomial en el
+tamaño, porque $s\ge n$.
+\end{resultado}
+
+\textbf{Dos preguntas distintas.} Lo anterior es sobre \emph{este algoritmo}. Que exista \emph{algún}
+algoritmo polinomial para la mochila es otra pregunta (la quinta de C2; es el §9 de este texto), y equivale a
+$\mathrm{P}=\mathrm{NP}$. \textbf{A continuación:} la sección 7 explica de dónde viene el nombre ``pseudopolinomial'': contar en unario.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Por qué se llama pseudopolinomial: contar en unario}
+
+La tabla recorre cada capacidad $0,1,\dots,W$: \emph{cuenta en unario}. Si $W$ se escribiera en unario, el
+tamaño de la entrada sería $W$ y el costo $nW$ sería polinomial. Pseudopolinomial significa polinomial en la
+codificación \emph{unaria} de los números. La figura~\ref{fig:tabla} lo muestra: el número ocupa $b$ casillas
+y la tabla tiene $W+1>2^{b-1}$ celdas.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \tikzset{bit/.style={draw=azultitulo,fill=azulsuave,minimum size=0.38cm,inner sep=0pt,font=\scriptsize\ttfamily}}
+  \node[font=\scriptsize\itshape,text=grisnum,anchor=west] at (1.65,1.0) {$W$ en binario};
+  \node[font=\scriptsize\itshape,text=grisnum,anchor=west] at (4.9,1.0) {tabla $dp[0..W]$};
+  \foreach \b/\W/\y in {4/8/0, 5/16/-1.4, 6/32/-2.8, 7/64/-4.2} {
+    \node[font=\small,anchor=east] at (1.45,\y) {$W=\W$};
+    \foreach \i in {1,...,\b} \node[bit] at ({1.65+0.42*(\i-1)},\y) {\ifnum\i=1 1\else 0\fi};
+    \node[font=\scriptsize,anchor=west,text=azultitulo] at (1.5,{\y+0.42}) {\b\ bits};
+    \foreach \c in {0,...,\W} \draw[draw=black!55,fill=verdecom!28,thin] ({4.9+0.17*\c},{\y-0.17}) rectangle ({4.9+0.17*(\c+1)},{\y+0.17});
+    \node[font=\scriptsize,anchor=west,text=black!70] at (4.9,{\y+0.42}) {\the\numexpr\W+1\relax\ celdas};
+  }
+\end{tikzpicture}
+\caption{El mismo número $W$ escrito en binario (izquierda, $b$ casillas) y la tabla $dp[0..W]$ que recorre
+el algoritmo (derecha, $W+1$ celdas). Cada bit adicional \emph{duplica} la tabla: 4 bits $\to$ 9 celdas, 5
+$\to$ 17, 6 $\to$ 33, 7 $\to$ 65. El tamaño de la entrada crece linealmente en $b$; el costo, exponencialmente.}
+\label{fig:tabla}
+\end{figure}
+
+El modelo RAM cobra 1 por cada celda. \textbf{A continuación:} la sección 8 muestra lo que ese conteo esconde: la memoria, y qué compra una máquina más rápida.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Lo que el modelo no cobra: la memoria, y qué compra una máquina más rápida}
+
+\textbf{La memoria.} El análisis en tiempo oculta que la tabla ocupa $\Theta(W)$ celdas, es decir, memoria
+\emph{también exponencial} en $b$. C1 §6 lo advierte: la memoria está acotada por el tiempo y suele ser la que
+se acaba primero. Con $n=40$, $10^9$ celdas por segundo y 8 bytes por celda (al estilo de la tabla de la
+primalidad de C1 §8):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+   b     celdas    memoria       tiempo
+  20   4.19e+07    8.39 MB     0.0419 s
+  32   1.72e+11    34.4 GB     2.86 min
+  40    4.4e+13     8.8 TB       12.2 h
+  64   7.38e+20     148 EB 2.34e+04 anios
+ 128   1.36e+40 2.72e+21 EB 4.32e+23 anios
+\end{lstlisting}
+Una capacidad de 32 bits, un número perfectamente normal, ya pide 34.4 GB de tabla mientras que el tiempo es
+de menos de 3 minutos; con 4 bytes por celda serían 17 GB, y la conclusión no cambia. En la primalidad la pared
+es el tiempo; aquí es la memoria.
+
+\textbf{Una computadora más rápida.} C1 §7 calcula el mayor tamaño resoluble con un presupuesto de una hora, y
+muestra que para un algoritmo exponencial mil veces más potencia ``suma unas 10 unidades''. Aquí:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+1 hora, 1x mas rapida: 40*2^b <= 3.6e+12 -> b = 36, tabla 550 GB
+1 hora, 1000x mas rapida: 40*2^b <= 3.6e+15 -> b = 46, tabla 563 TB
+\end{lstlisting}
+Mil veces más rápida resuelve apenas 10 bits más de capacidad (de 36 a 46), y su tabla pediría 563 TB. La
+exponencialidad no se compra con hardware.
+
+\textbf{A continuación:} la pregunta 5 (sección 9) pregunta si se puede hacer mejor con \emph{cualquier} algoritmo, y lo compara con la primalidad.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 5: ¿se puede hacer mejor? y el paralelo con la primalidad}
+
+C2 §8: la quinta pregunta cambia el sujeto. Ya no pregunta cuánto cuesta \emph{este} algoritmo sino cuánto
+cuesta \emph{cualquiera}. La primalidad por división (C1 §8) es la comparación natural.
+
+\begin{center}\small
+\begin{tabular}{@{}p{4.1cm}p{5.2cm}p{5.6cm}@{}}
+\toprule
+ & \textbf{Primalidad por división (C1 §8)} & \textbf{Mochila 0/1} \\
+\midrule
+Qué recorre & los divisores $2,\dots,\sqrt n$ & las capacidades $0,\dots,W$ \\
+Parámetro cuyo \emph{valor} se recorre & $n$ & $W$ \\
+Tamaño real de ese parámetro & $b=\lfloor\log_2n\rfloor+1$ bits & $b=\lfloor\log_2W\rfloor+1$ bits \\
+Costo en función de $b$ & $\approx2^{b/2}$ divisiones & $\approx n\,2^{b}$ celdas (y $2^b$ de memoria) \\
+¿Polinomial en el tamaño? & No & No \\
+Nombre (C1 §8) & pseudopolinomial & pseudopolinomial \\
+\midrule
+¿Existe un algoritmo polinomial para el \emph{problema}? & \textbf{Sí}: Agrawal--Kayal--Saxena, 2002 (C1 §8) & \textbf{Se desconoce}: equivale a $\mathrm{P}=\mathrm{NP}$ (Tema 3) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{En qué se parecen.} Los dos algoritmos recorren \emph{todos} los enteros hasta una cota que es un valor
+de la entrada, es decir, cuentan en unario. Como ese valor se escribe con $b=\log_2$(valor) bits, el costo es
+exponencial en $b$ aunque parezca barato en el valor: una raíz cuadrada, una tabla $n\times W$. La diferencia
+entre ellos es solo \emph{cuál} número juega ese papel: $n$ mismo en la primalidad, $W$ en la mochila. Con
+C1 §7 se ve la diferencia de ritmo: una máquina $k$ veces más rápida suma $2\log_2k$ bits en la primalidad
+(costo $2^{b/2}$) y $\log_2k$ en la mochila (costo $n2^b$):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+     k   primalidad (2^(b/2))   mochila (n*2^b)
+    10                    6.6               3.3
+   100                   13.3               6.6
+  1000                   19.9              10.0
+\end{lstlisting}
+En números: a 64 bits la división tarda 4.29 s (C1 §8), y la mochila con $n=40$ pide $2.3\cdot10^4$ años y 148
+EB de tabla.
+
+\textbf{Dónde deja de valer.} La última fila de la tabla. En la primalidad la exponencialidad es un defecto
+\emph{del algoritmo}, y existe otro polinomial (AKS) que lo arregla. En la mochila nadie sabe arreglarlo:
+hacerlo sería demostrar $\mathrm{P}=\mathrm{NP}$ (la versión de decisión es NP-completa; Tema 3). Que la mochila
+tenga un algoritmo \emph{pseudopolinomial} es lo que la clasifica allí como ``débilmente'' NP-difícil, y no la
+hace fácil.
+
+\begin{resultado}{Respuesta a las dos preguntas del enunciado}
+\textbf{¿Es polinomial ese algoritmo?} No: cuesta $\Theta(nW)=\Theta(n\,2^b)$ con $b=\log_2W$ el tamaño de $W$
+en bits (la instancia mínima del §6 lo demuestra); es pseudopolinomial. \textbf{¿En qué se parece a la
+primalidad por división?} Los dos recorren todos los enteros hasta un valor de la entrada --- cuentan en
+unario --- y por eso son polinomiales en ese valor y exponenciales en su tamaño. La diferencia es que para la
+primalidad existe un algoritmo polinomial y para la mochila se desconoce.
+\end{resultado}
+
+%% ------------------------------------------------------------------------------------------------
+\section*{Errores que hay que vigilar}
+
+\begin{alertarota}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Leer $O(nW)$ como polinomial.} $W$ es un valor; el tamaño es $\log_2W$ (la instancia mínima del
+§6 lo prueba). Decir que el \emph{problema} es polinomial por esto equivaldría a afirmar
+$\mathrm{P}=\mathrm{NP}$.
+\item \textbf{Confundir ``pseudopolinomial'' con ``difícil'' o con ``fácil''.} Es una propiedad de un
+\emph{algoritmo}: no explica la dificultad de la mochila (NP-difícil) ni la vuelve fácil.
+\item \textbf{Creer que pseudopolinomial es ``lento en la práctica''.} Si $W\le n^k$ el costo es polinomial
+de verdad ($\le n^{k+1}$); el problema es la garantía cuando $W$ no está acotado así.
+\item \textbf{Medir con instancias que se vuelven triviales.} Con pesos acotados y $W$ creciente la respuesta
+es ``llevárselo todo'' (aquí, desde $W=2^{15}$): hay que escalar los pesos con $W$ y recortar
+$W\leftarrow\min(W,\sum w_i)$.
+\item \textbf{Medir solo segundos, y solo tiempo.} El tiempo se desvía del $2$ (razón 3.55 en $b=23$,
+probablemente por la jerarquía de memoria; cambia entre corridas); el conteo de celdas es exacto. Y olvidar la memoria: con $b=32$ ya son 34.4 GB.
+\item \textbf{Escribir el ciclo interno en el sentido equivocado.} El ciclo ascendente usa un objeto varias veces
+(mochila no acotada): da otro resultado en 1635 de 2000 instancias pequeñas, y viola el invariante interno en
+1675 (primer fallo en $j\ge2w_i$).
+\item \textbf{Contar los bits con \texttt{math.log2} de un entero grande.} Con floats,
+$\lceil\log_2(W+1)\rceil$ da $60$ para $W=2^{60}$ en vez de $61$ (falla desde $2^{49}$). Hay que usar
+\texttt{bit\_length}.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+W = 2^40 : ceil(log2(W + 1)) =  41   W.bit_length() =  41
+W = 2^52 : ceil(log2(W + 1)) =  52   W.bit_length() =  53
+W = 2^60 : ceil(log2(W + 1)) =  60   W.bit_length() =  61
+W = 2^100: ceil(log2(W + 1)) = 100   W.bit_length() = 101
+primer b con W = 2^b en que los floats fallan: b = 49
+\end{lstlisting}
+\end{itemize}
+\end{alertarota}
+
+\end{document}

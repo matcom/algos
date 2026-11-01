@@ -1,0 +1,447 @@
+<title>Ejercicio 4 — Simulador del contador binario</title>
+<style>
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --surface-2: #EEF0F3;
+    --ink: #1A2230;
+    --ink-muted: #5B6675;
+    --line: #D7DCE3;
+    --accent-cost: #C2552A;
+    --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+    padding: 28px 20px;
+  }
+  .card {
+    width: 100%; max-width: 820px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 22px 26px 26px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 18px; line-height: 1.5; }
+  .subtitle b { color: var(--ink); }
+
+  h2 {
+    font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--ink-muted); margin: 22px 0 8px;
+  }
+  h2 .sub { text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+  .tape-wrap { overflow-x: auto; padding-bottom: 6px; }
+  .tape { display: flex; gap: 3px; width: max-content; margin: 0 auto 6px; }
+  .cell {
+    width: 34px; height: 40px; border: 1.5px solid var(--line); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 1.05rem;
+    background: var(--surface-2); color: var(--ink);
+    transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative; flex: none;
+  }
+  .cell.head { border-color: var(--accent-speed); transform: translateY(-3px); box-shadow: 0 3px 0 var(--accent-speed); }
+  .cell.flip-zero { background: var(--accent-cost); color: white; border-color: var(--accent-cost); }
+  .cell.flip-one { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  .cell .credit {
+    position: absolute; top: -5px; right: -5px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--ink); border: 1.5px solid var(--surface);
+  }
+  .cell.flip-zero .credit, .cell.flip-one .credit { background: var(--surface); border-color: currentColor; }
+  .cell.lsb-marker::after {
+    content: "LSB"; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+    font-size: .58rem; color: var(--ink-muted); font-family: var(--sans); letter-spacing: .04em;
+  }
+  .tape-labels { display: flex; gap: 3px; width: max-content; margin: 0 auto 20px; }
+  .tape-labels span {
+    width: 34px; text-align: center; font-family: var(--mono); font-size: .62rem; color: var(--ink-muted); flex: none;
+  }
+  .tape-caption { font-size: .68rem; color: var(--ink-muted); margin: -10px 0 18px; }
+  .tape-caption .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--ink); margin: 0 2px -1px; }
+
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .stats.cols3 { grid-template-columns: repeat(3, 1fr); }
+  .stat {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px;
+    padding: 8px 6px; text-align: center;
+  }
+  .stat .k { font-size: .6rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v.cost { color: var(--accent-cost); }
+  .stat .v.speed { color: var(--accent-speed); }
+
+  .panel {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .eq-row {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+    font-family: var(--mono); font-size: .86rem; margin-bottom: 4px;
+  }
+  .eq-row:last-child { margin-bottom: 0; }
+  .eq-term b { color: var(--ink); }
+  .eq-term.result b { color: var(--accent-speed); font-size: 1.05rem; }
+  .eq-op { color: var(--ink-muted); }
+  .eq-check { color: var(--accent-speed); font-weight: 700; }
+  .eq-check.bad { color: var(--accent-cost); }
+  .panel-note { font-size: .68rem; color: var(--ink-muted); margin-top: 8px; line-height: 1.5; }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 20px; }
+  button {
+    font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px;
+    cursor: pointer; transition: background .15s ease, transform .1s ease;
+  }
+  button:hover { background: var(--line); }
+  button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button.ghost-cost { color: var(--accent-cost); border-color: color-mix(in srgb, var(--accent-cost) 40%, var(--line)); }
+  button:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+  input[type=range] { accent-color: var(--accent-speed); }
+
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chart-box { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); }
+  .chart-box h3 { font-size: .7rem; font-weight: 700; margin: 0 0 6px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  svg.chart { width: 100%; height: 120px; display: block; }
+  .chart-line.cost { fill: none; stroke: var(--accent-cost); stroke-width: 2; }
+  .chart-line.pot { fill: none; stroke: var(--accent-speed); stroke-width: 2; }
+  .chart-line.bound-proven { fill: none; stroke: var(--ink-muted); stroke-width: 1.3; stroke-dasharray: 4 3; }
+  .chart-line.bound-naive { fill: none; stroke: var(--ink-muted); stroke-width: 1.1; stroke-dasharray: 1.5 2.5; opacity: .75; }
+  .chart-ref { stroke: var(--line); stroke-width: 1; }
+  .chart-note { font-size: .64rem; color: var(--ink-muted); margin-top: 6px; line-height: 1.5; }
+  .chart-note .sw { display:inline-block; width:12px; height:2px; margin: 0 3px -2px 0; }
+
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="card">
+  <h1>Simulador: el contador binario en la máquina de Turing</h1>
+  <p class="subtitle">Ejercicio 4 · cada celda de abajo es un bit (LSB a la izquierda). El marcador
+  <b style="color:var(--accent-speed)">▾</b> es el cabezal: <b style="color:var(--accent-cost)">naranja</b>
+  son los t<sub>i</sub> unos que se apagan, <b style="color:var(--accent-speed)">azul</b> el cero que se enciende.
+  Todo lo demás en esta página es el argumento amortizado del documento, calculado en vivo.</p>
+
+  <div class="tape-wrap">
+    <div class="tape" id="tape"></div>
+    <div class="tape-labels" id="tapeLabels"></div>
+  </div>
+  <p class="tape-caption">El punto <span class="dot"></span> sobre un bit en 1 es el crédito que ese bit
+  tiene guardado: paga su propio apagado la próxima vez que un acarreo lo alcance (la "deuda" de la
+  sección 2).</p>
+
+  <div class="stats">
+    <div class="stat"><div class="k">valor</div><div class="v" id="statValue">0</div></div>
+    <div class="stat"><div class="k">incremento i</div><div class="v" id="statI">0</div></div>
+    <div class="stat"><div class="k">t<sub>i</sub> (en curso)</div><div class="v" id="statTi">—</div></div>
+    <div class="stat"><div class="k">potencial Φ</div><div class="v speed" id="statPhi">0</div></div>
+    <div class="stat"><div class="k">pasos físicos Σc_i</div><div class="v cost" id="statTotal">0</div></div>
+  </div>
+
+  <h2>El argumento amortizado, en vivo <span class="sub">(sección 3)</span></h2>
+  <div class="panel">
+    <div class="eq-row">
+      <span class="eq-term">C<sub>i</sub> = t<sub>i</sub>+1 = <b id="eqC">—</b></span>
+      <span class="eq-op">+</span>
+      <span class="eq-term">ΔΦ<sub>i</sub> = 1−t<sub>i</sub> = <b id="eqDelta">—</b></span>
+      <span class="eq-op">=</span>
+      <span class="eq-term result">Ĉ<sub>i</sub> = <b id="eqChat">—</b></span>
+    </div>
+    <div class="panel-note">costo amortizado del último incremento completado. Por la cancelación
+    (t<sub>i</sub>+1)+(1−t<sub>i</sub>), siempre da <b>2</b>, sin importar cuántos acarreos tuvo.</div>
+  </div>
+  <div class="panel">
+    <div class="eq-row">
+      <span class="eq-term">ΣC<sub>i</sub> (bits volteados) = <b id="sumC">0</b></span>
+      <span class="eq-op">=</span>
+      <span class="eq-term">2i−Φ<sub>i</sub> = <b id="telescope">0</b></span>
+      <span class="eq-check" id="telescopeCheck">✓</span>
+    </div>
+    <div class="eq-row">
+      <span class="eq-term">Σc<sub>i</sub> (pasos físicos) = <b id="sumc2">0</b></span>
+      <span class="eq-op">=</span>
+      <span class="eq-term">2×ΣC<sub>i</sub> = <b id="sumCx2">0</b></span>
+    </div>
+    <div class="panel-note">la primera igualdad es la telescopación exacta de la sección 3 (los Φ
+    intermedios se cancelan, solo queda Φ<sub>i</sub>); la segunda es el factor 2 de la vuelta. Si la máquina
+    no tuviera que volver (el error de la sección de errores), el costo físico sería igual a
+    ΣC<sub>i</sub>, la mitad de lo que se ve arriba.</div>
+  </div>
+
+  <h2>La brecha entre el peor caso y el promedio <span class="sub">(sección 1 y errores)</span></h2>
+  <div class="panel">
+    <div class="stats cols3">
+      <div class="stat"><div class="k">peor t<sub>i</sub> visto</div><div class="v cost" id="worstT">—</div></div>
+      <div class="stat"><div class="k">costo de ese incremento</div><div class="v cost" id="worstC">—</div></div>
+      <div class="stat"><div class="k">log₂(i) de referencia</div><div class="v" id="log2i">—</div></div>
+    </div>
+    <div class="panel-note">el peor incremento ocurre siempre justo al pasar de v=2<sup>k</sup>−1
+    (todos unos) a 2<sup>k</sup>: usa "saltar al próximo peor caso" para pararte justo antes de uno. Fíjate en el
+    gráfico de la derecha cuánto se despega la línea punteada clara (estimar con el peor caso × i) de la
+    línea naranja real: ese despegue es el error más tentador del ejercicio.</div>
+  </div>
+
+  <div class="controls">
+    <button id="btnStep">▸ un paso</button>
+    <button id="btnIncrement">▸▸ completar incremento</button>
+    <button id="btnWorst" class="ghost-cost">⤼ saltar al próximo peor caso</button>
+    <button id="btnPlay" class="primary">▶ reproducir</button>
+    <button id="btnReset">↺ reiniciar</button>
+    <div class="speed-wrap">
+      velocidad
+      <input type="range" id="speed" min="1" max="100" value="60">
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-box">
+      <h3>Costo físico acumulado</h3>
+      <svg class="chart" viewBox="0 0 220 110" preserveAspectRatio="none" id="chartCost"></svg>
+      <div class="chart-note">
+        <span class="sw" style="background:var(--accent-cost)"></span>real ·
+        <span class="sw" style="background:var(--ink-muted);border-top:1.5px dashed var(--ink-muted)"></span>cota probada 4i ·
+        <span class="sw" style="background:var(--ink-muted);opacity:.5"></span>estimar con peor×i (sección de errores)
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>Potencial Φ (peso de Hamming)</h3>
+      <svg class="chart" viewBox="0 0 220 110" preserveAspectRatio="none" id="chartPhi"></svg>
+      <div class="chart-note">sube de a 1, cae de golpe en los acarreos grandes · la línea punteada es el
+      ancho actual de la cinta, el techo que Φ no puede cruzar</div>
+    </div>
+  </div>
+
+  <footer>el cabezal visita cada celda una vez de ida y otra de vuelta — <code>2(t_i+1)</code> visitas por
+  incremento · ver <code>ejercicio-04.pdf</code> para la demostración completa</footer>
+</div>
+
+<script>
+(function () {
+  var MAXBITS = 24;
+  var bits, headPos, phase, turnPos, i, stepsThisInc, totalSteps, totalFlips, phiAtIncStart;
+  var lastInc = null; // {t, C, deltaPhi, Chat}
+  var worst = { c: 0, t: 0, atI: 0 };
+  var checkpoint = { i: 0, sumC: 0, phi: 0 };
+  var historyCost = [], historyPhi = [];
+  var playing = false, playTimer = null;
+
+  var tapeEl = document.getElementById('tape');
+  var labelsEl = document.getElementById('tapeLabels');
+  var speedInput = document.getElementById('speed');
+
+  function reset() {
+    bits = [0,0,0,0,0,0,0,0];
+    headPos = 0; phase = 'out'; turnPos = null;
+    i = 0; stepsThisInc = 0; totalSteps = 0; totalFlips = 0; phiAtIncStart = 0;
+    lastInc = null;
+    worst = { c: 0, t: 0, atI: 0 };
+    checkpoint = { i: 0, sumC: 0, phi: 0 };
+    historyCost = [[0,0]]; historyPhi = [[0,0]];
+    render();
+  }
+
+  function popcount() {
+    var c = 0;
+    for (var k = 0; k < bits.length; k++) c += bits[k];
+    return c;
+  }
+
+  function valueOf() {
+    var v = 0;
+    for (var k = bits.length - 1; k >= 0; k--) v = v * 2 + bits[k];
+    return v;
+  }
+
+  function ensureWidth(pos) {
+    while (pos >= bits.length && bits.length < MAXBITS) bits.push(0);
+  }
+
+  // Un "tick" = el cabezal visita la celda actual (ida: inspecciona y voltea; vuelta: solo pasa).
+  // Pura mutacion de estado, sin tocar el DOM -- para poder correr miles de ticks de un tiron.
+  function tickState() {
+    if (phase === 'out') {
+      ensureWidth(headPos);
+      totalSteps++; stepsThisInc++; totalFlips++;
+      if (bits[headPos] === 1) {
+        bits[headPos] = 0;
+        headPos++;
+      } else {
+        bits[headPos] = 1;
+        turnPos = headPos;
+        phase = 'back';
+      }
+    } else {
+      totalSteps++; stepsThisInc++;
+      if (headPos > 0) {
+        headPos--;
+      } else {
+        var t = turnPos, C = t + 1;
+        var phiBefore = phiAtIncStart, phiAfter = popcount();
+        var deltaPhi = phiAfter - phiBefore, Chat = C + deltaPhi;
+        var c_i = 2 * C;
+        i++;
+        lastInc = { t: t, C: C, deltaPhi: deltaPhi, Chat: Chat };
+        if (c_i > worst.c) worst = { c: c_i, t: t, atI: i };
+        historyCost.push([i, totalSteps]);
+        historyPhi.push([i, phiAfter]);
+        checkpoint = { i: i, sumC: totalFlips, phi: phiAfter };
+        phiAtIncStart = phiAfter;
+        stepsThisInc = 0; turnPos = null; phase = 'out';
+      }
+    }
+  }
+
+  function stepOnce() { tickState(); render(); }
+
+  function completeIncrementSilent() {
+    var guard = 0, startI = i;
+    while (i === startI && guard < 100000) { tickState(); guard++; }
+  }
+  function completeIncrement() { completeIncrementSilent(); render(); }
+
+  function isAtWorstBoundary() {
+    var v = valueOf();
+    return v !== 0 && (v & (v + 1)) === 0;
+  }
+
+  function jumpToNextWorstCase() {
+    setPlaying(false);
+    var budget = 3000000, steps = 0;
+    do {
+      tickState();
+      steps++;
+    } while (steps < budget && !(phase === 'out' && stepsThisInc === 0 && isAtWorstBoundary()));
+    render();
+  }
+
+  function render() {
+    tapeEl.innerHTML = '';
+    labelsEl.innerHTML = '';
+    for (var k = 0; k < bits.length; k++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if (k === 0) cell.classList.add('lsb-marker');
+      if (k === headPos) cell.classList.add('head');
+      if (turnPos !== null) {
+        if (k === turnPos) cell.classList.add('flip-one');
+        else if (k < turnPos) cell.classList.add('flip-zero');
+      } else if (phase === 'out' && k < headPos) {
+        cell.classList.add('flip-zero');
+      }
+      cell.textContent = bits[k];
+      if (bits[k] === 1) {
+        var dot = document.createElement('span');
+        dot.className = 'credit';
+        cell.appendChild(dot);
+      }
+      tapeEl.appendChild(cell);
+      var lbl = document.createElement('span');
+      lbl.textContent = k;
+      labelsEl.appendChild(lbl);
+    }
+
+    var phi = popcount();
+    document.getElementById('statValue').textContent = valueOf();
+    document.getElementById('statI').textContent = i;
+    document.getElementById('statTi').textContent = (turnPos !== null) ? turnPos : (stepsThisInc + ' pasos…');
+    document.getElementById('statPhi').textContent = phi;
+    document.getElementById('statTotal').textContent = totalSteps;
+
+    if (lastInc) {
+      document.getElementById('eqC').textContent = lastInc.t + '+1 = ' + lastInc.C;
+      document.getElementById('eqDelta').textContent = '1-' + lastInc.t + ' = ' + lastInc.deltaPhi;
+      document.getElementById('eqChat').textContent = lastInc.Chat;
+    }
+
+    var tele = 2 * checkpoint.i - checkpoint.phi;
+    document.getElementById('sumC').textContent = checkpoint.sumC;
+    document.getElementById('telescope').textContent = '2×' + checkpoint.i + '-' + checkpoint.phi + ' = ' + tele;
+    var ok = tele === checkpoint.sumC;
+    var checkEl = document.getElementById('telescopeCheck');
+    checkEl.textContent = ok ? '✓ coinciden' : '…';
+    checkEl.className = 'eq-check' + (ok ? '' : ' bad');
+    document.getElementById('sumc2').textContent = totalSteps;
+    document.getElementById('sumCx2').textContent = '2×' + checkpoint.sumC + ' = ' + (2 * checkpoint.sumC);
+
+    document.getElementById('worstT').textContent = worst.atI ? worst.t : '—';
+    document.getElementById('worstC').textContent = worst.atI ? (worst.c + ' (en i=' + worst.atI + ')') : '—';
+    document.getElementById('log2i').textContent = i > 0 ? Math.log2(i).toFixed(2) : '—';
+
+    drawChart('chartCost', historyCost, [
+      { getY: function (x) { return 4 * x; }, cls: 'bound-proven', clip: false },
+      { getY: function (x) { return worst.c * x; }, cls: 'bound-naive', clip: true }
+    ]);
+    drawChart('chartPhi', historyPhi, [
+      { getY: function () { return bits.length; }, cls: 'bound-proven', clip: false }
+    ], 'pot');
+  }
+
+  function drawChart(id, data, refs, lineCls) {
+    var svg = document.getElementById(id);
+    var W = 220, H = 110, pad = 8, windowSize = 60;
+    var win = data.slice(Math.max(0, data.length - windowSize));
+    if (win.length < 2) { svg.innerHTML = ''; return; }
+    var xmin = win[0][0], xmax = win[win.length - 1][0];
+    if (xmax === xmin) xmax = xmin + 1;
+    var ys = win.map(function (d) { return d[1]; });
+    var ymax = Math.max.apply(null, ys);
+    refs.forEach(function (r) {
+      if (!r.clip) ymax = Math.max(ymax, r.getY(xmin), r.getY(xmax));
+    });
+    if (ymax <= 0) ymax = 1;
+    function X(x) { return pad + (x - xmin) / (xmax - xmin) * (W - 2 * pad); }
+    function Y(y) { var yy = Math.min(Math.max(y, 0), ymax); return H - pad - yy / ymax * (H - 2 * pad); }
+    var html = '<line class="chart-ref" x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) + '"></line>';
+    refs.forEach(function (r) {
+      var y1 = Y(r.getY(xmin)), y2 = Y(r.getY(xmax));
+      html += '<polyline class="chart-line ' + r.cls + '" points="' + X(xmin).toFixed(1) + ',' + y1.toFixed(1) + ' ' + X(xmax).toFixed(1) + ',' + y2.toFixed(1) + '"></polyline>';
+    });
+    var pts = win.map(function (d) { return X(d[0]).toFixed(1) + ',' + Y(d[1]).toFixed(1); }).join(' ');
+    html += '<polyline class="chart-line ' + (lineCls || 'cost') + '" points="' + pts + '"></polyline>';
+    svg.innerHTML = html;
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    document.getElementById('btnPlay').textContent = playing ? '⏸ pausar' : '▶ reproducir';
+    if (playing) scheduleTick(); else clearTimeout(playTimer);
+  }
+
+  function scheduleTick() {
+    if (!playing) return;
+    var speed = parseInt(speedInput.value, 10);
+    var ticksPerFrame = Math.max(1, Math.round(speed / 8));
+    for (var k = 0; k < ticksPerFrame; k++) tickState();
+    render();
+    var delay = Math.max(8, 110 - speed);
+    playTimer = setTimeout(scheduleTick, delay);
+  }
+
+  document.getElementById('btnStep').addEventListener('click', function () { setPlaying(false); stepOnce(); });
+  document.getElementById('btnIncrement').addEventListener('click', function () { setPlaying(false); completeIncrement(); });
+  document.getElementById('btnWorst').addEventListener('click', jumpToNextWorstCase);
+  document.getElementById('btnPlay').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('btnReset').addEventListener('click', function () { setPlaying(false); reset(); });
+
+  reset();
+})();
+</script>
