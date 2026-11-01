@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 14 — El mínimo local de un arreglo</title>
+<style>
+
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A; --accent-info: #3E6FB0;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341; --accent-info: #6FA0E0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341; --accent-info: #6FA0E0;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 28px 20px; }
+  .card { width: 100%; max-width: 920px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 22px 26px 26px; min-width: 0; }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 32px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .lead .q { color: var(--accent-cost); font-weight: 700; }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); } .panel b.bad { color: var(--accent-cost); }
+  .panel .mono, .mono { font-family: var(--mono); font-size: .78rem; }
+  .panel ul { margin: 4px 0 0; padding-left: 18px; } .panel li { margin: 2px 0; }
+  .thesis { border-left: 3px solid var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 9%, var(--surface)); padding: 10px 14px; border-radius: 6px; font-size: .84rem; line-height: 1.55; margin: 6px 0 12px; }
+  .roadmap { counter-reset: r; list-style: none; padding: 0; margin: 0 0 6px; font-size: .78rem; color: var(--ink-muted); }
+  .roadmap li { counter-increment: r; padding: 3px 0 3px 28px; position: relative; line-height: 1.45; }
+  .roadmap li::before { content: counter(r); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); text-align: center; font-family: var(--mono); font-size: .68rem; line-height: 18px; color: var(--ink); }
+  .roadmap li b { color: var(--ink); }
+
+  svg.diagram { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .scrollx { overflow-x: auto; max-width: 100%; } svg.wide { min-width: 520px; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+  .small-lab { font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .mono-lab { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 12px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  .config select { max-width: 100%; }
+  select, input[type=text], input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=range] { accent-color: var(--accent-speed); }
+  .val { font-family: var(--mono); color: var(--ink); min-width: 3ch; display: inline-block; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .92rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); } .stat .v.speed { color: var(--accent-speed); }
+  .banner { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+  .banner.ok { color: var(--accent-speed); } .banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); } button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .counter { font-family: var(--mono); font-size: .78rem; color: var(--ink-muted); }
+
+  table.t { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .74rem; }
+  table.t th, table.t td { border: 1px solid var(--line); padding: 3px 7px; text-align: left; vertical-align: top; white-space: nowrap; }
+  table.t th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  table.t td.num { text-align: right; }
+  table.t tr.cur td { background: color-mix(in srgb, var(--accent-speed) 14%, transparent); }
+  table.t td.ok { color: var(--accent-speed); font-weight: 700; } table.t td.bad { color: var(--accent-cost); font-weight: 700; }
+  .inv { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px; }
+  .inv span { font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; background: var(--surface); }
+  .inv span.ok { border-color: var(--accent-speed); color: var(--accent-speed); }
+  .inv span.bad { border-color: var(--accent-cost); color: var(--accent-cost); font-weight: 700; }
+  .inv span.na { color: var(--ink-muted); border-style: dashed; }
+
+  pre.pseudo { margin: 8px 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-family: var(--mono); font-size: .74rem; line-height: 1.55; overflow-x: auto; max-width: 100%; }
+  pre.pseudo span.ln { display: block; padding: 0 4px; border-radius: 4px; }
+  pre.pseudo span.ln.on { background: color-mix(in srgb, var(--accent-cost) 20%, transparent); font-weight: 700; }
+  pre.pseudo span.cm { color: var(--ink-muted); }
+
+  .tn { fill: var(--surface-2); stroke: var(--ink-muted); stroke-width: 1.5; }
+  .tn.root { stroke: var(--ink); stroke-width: 2.4; }
+  .tn.x { fill: color-mix(in srgb, var(--accent-cost) 30%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2.4; }
+  .tn.p { stroke: var(--accent-speed); stroke-width: 2.6; fill: color-mix(in srgb, var(--accent-speed) 14%, var(--surface)); }
+  .tn.g { stroke: var(--accent-info); stroke-width: 2.6; fill: color-mix(in srgb, var(--accent-info) 14%, var(--surface)); }
+  .tn.dead { opacity: .55; }
+  .tk { font-size: 10.5px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .ts { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .te { stroke: var(--ink-muted); stroke-width: 1.3; opacity: .7; }
+  .grid-h { stroke: var(--line); stroke-width: 1; } .axis { stroke: var(--ink-muted); stroke-width: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .74rem; color: var(--ink-muted); margin: 6px 0 4px; }
+  .legend .sw { display: inline-block; width: 18px; height: 0; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: .74rem; padding: 6px 9px; border-radius: 7px; line-height: 1.4; opacity: 0; transition: opacity .1s; max-width: 260px; }
+  .tip.show { opacity: 1; } .tip b { font-family: var(--mono); }
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 600px) { .card { padding: 16px 14px 20px; } body { padding: 16px 10px; } }
+  .bar { fill: var(--surface-2); stroke: var(--ink-muted); stroke-width: 1.2; }
+  .bar.out { opacity: .55; }
+  .bar.min { fill: color-mix(in srgb, var(--accent-speed) 32%, var(--surface)); stroke: var(--accent-speed); stroke-width: 1.8; }
+  .bar.m { fill: color-mix(in srgb, var(--accent-cost) 35%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2.2; }
+  .bar.cmp { stroke: var(--accent-info); stroke-width: 2.6; stroke-dasharray: 4 3; }
+  .bar.ans { stroke: var(--accent-speed); stroke-width: 3; }
+  .bar.sent { fill: none; stroke: var(--ink-muted); stroke-dasharray: 4 4; opacity: .7; }
+  .win { fill: color-mix(in srgb, var(--accent-info) 14%, var(--surface)); }
+  .bt { font-family: var(--mono); font-size: 9.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .bi { font-family: var(--mono); font-size: 10px; fill: var(--ink-muted); text-anchor: middle; }
+  .dot { fill: var(--accent-speed); }
+  .cell { stroke: var(--line); stroke-width: 1; }
+  .cell.ok { fill: color-mix(in srgb, var(--accent-speed) 35%, var(--surface)); }
+  .cell.bad { fill: color-mix(in srgb, var(--accent-cost) 40%, var(--surface)); }
+  .tnode { fill: color-mix(in srgb, var(--accent-info) 12%, var(--surface)); stroke: var(--accent-info); stroke-width: 1.2; }
+  .tnode.on { stroke: var(--accent-cost); stroke-width: 2.4; fill: color-mix(in srgb, var(--accent-cost) 18%, var(--surface)); }
+  .tleaf { fill: color-mix(in srgb, var(--accent-speed) 22%, var(--surface)); stroke: var(--accent-speed); stroke-width: 1.4; }
+  .tleaf.on { stroke: var(--accent-cost); stroke-width: 2.6; }
+  .tedge { stroke: var(--ink-muted); stroke-width: 1.2; opacity: .7; } .tedge.on { stroke: var(--accent-cost); stroke-width: 2.6; opacity: 1; }
+  .tl { font-family: var(--mono); font-size: 8.5px; text-anchor: middle; dominant-baseline: central; }
+  .cell.cero { fill: var(--surface-2); }
+  .cell.uno { fill: color-mix(in srgb, var(--accent-speed) 35%, var(--surface)); }
+  .cell.varias { fill: color-mix(in srgb, var(--accent-cost) 45%, var(--surface)); }
+  .br { stroke: var(--accent-info); stroke-width: 2; opacity: .75; } .br.sel { stroke: var(--accent-cost); stroke-width: 3; opacity: 1; }
+  .brt { font-family: var(--mono); font-size: 9px; fill: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Consultas de mínimo local sobre un arreglo: el ciclo completo de C2</h1>
+  <p class="subtitle">Ejercicio 14 · las cinco preguntas de C2 §1 sobre un problema nuevo, con una instancia compartida (un arreglo y sus consultas). Cada paso termina anunciando el siguiente, que resuelve lo que quedó pendiente.</p>
+
+  <div class="thesis"><b>Lo que queremos demostrar.</b> Para una consulta (l, r) de largo L existe un algoritmo de comparaciones que devuelve un mínimo local de A[l..r] con <b>exactamente ⌈log₂ L⌉ comparaciones</b> en el peor caso, y
+  <b>ningún</b> algoritmo de comparaciones puede con menos: algoritmo y cota <b>coinciden exactamente</b>. Con q consultas <b>disjuntas</b> la suma Σ⌈log₂ L<sub>j</sub>⌉ también es exacta; con consultas que se solapan solo se acota. El primer algoritmo que se le ocurre a uno gasta 2⌊log₂ L⌋ + 1, el doble, y el ciclo de C2 lo detecta y lo corrige.</div>
+  <ol class="roadmap">
+    <li><b>El problema</b> — un arreglo y consultas (l, r); mínimo local de la consulta, centinelas +∞ en sus bordes y el modelo de comparaciones.</li>
+    <li><b>Los algoritmos</b> — fuerza bruta (V0) y búsqueda binaria mirando dos vecinos (V1), paso a paso sobre una consulta.</li>
+    <li><b>¿Es correcto?</b> — invariante y potencial, comprobados en cada vuelta.</li>
+    <li><b>¿Cuánto cuesta?</b> — el peor caso exacto de V1 y por qué las entradas al azar lo esconden.</li>
+    <li><b>La cota mínima</b> — las L instancias en V y las L hojas distintas.</li>
+    <li><b>Cerrar el hueco</b> — V2: una comparación por vuelta, y coincide con la cota.</li>
+    <li><b>Varias consultas</b> — qué comparaciones se comparten, qué es exacto (consultas disjuntas) y qué no.</li>
+    <li><b>El detector</b> — la cota delata un algoritmo recortado; y el modelo.</li>
+  </ol>
+
+  <div class="config" id="instBar">
+    <label>arreglo:
+      <select id="iKind">
+        <option value="ejemplo">el arreglo de ejemplo (n = 10)</option>
+        <option value="azar">permutación al azar</option>
+        <option value="valle">en V con el valle en k</option>
+        <option value="peor1">un caso de máximo observado de V1</option>
+        <option value="decreciente">decreciente</option>
+        <option value="creciente">creciente</option>
+        <option value="sierra">sierra</option>
+        <option value="empates">con empates</option>
+        <option value="adv">adversario (solo consultas disjuntas)</option>
+      </select></label>
+    <label>n <input type="range" id="iN" min="2" max="40" value="10"> <span class="val" id="iNv">10</span></label>
+    <label id="lblK">valle k <input type="range" id="iK" min="0" max="9" value="5"> <span class="val" id="iKv">5</span></label>
+    <label>consultas:
+      <select id="iCons">
+        <option value="una">una sola: todo el arreglo</option>
+        <option value="ejemplo">las consultas de ejemplo</option>
+        <option value="disjuntas">disjuntas al azar</option>
+        <option value="solapadas">solapadas al azar</option>
+        <option value="cadena">cadena de largo 2</option>
+        <option value="repetida">la misma, repetida</option>
+      </select></label>
+    <label>q <input type="range" id="iQ" min="2" max="8" value="3"> <span class="val" id="iQv">3</span></label>
+    <label>consulta a recorrer: <select id="selQ"></select></label>
+    <label>algoritmo:
+      <select id="iAlg">
+        <option value="V0">V0 barrido</option>
+        <option value="V1">V1 dos vecinos</option>
+        <option value="V2" selected>V2 un vecino</option>
+      </select></label>
+    <button id="btnInst" class="primary">🎲 nuevo al azar</button>
+  </div>
+  <div class="panel" id="instInfo"></div>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <h2><span class="step">Paso 1</span>El problema: consultas de mínimo local, siempre hay respuesta</h2>
+  <p class="lead"><b>Entrada:</b> un arreglo A[0..n−1] y consultas (l<sub>1</sub>, r<sub>1</sub>), …, (l<sub>q</sub>, r<sub>q</sub>). <b>Salida:</b> para cada una, un <b>mínimo local de la consulta</b>: un índice i ∈ [l, r] con (i = l o A[i−1] ≥ A[i]) y (i = r o A[i+1] ≥ A[i]); fuera del rango hay +∞ (las barras de trazos de los bordes de la consulta).
+  Se pide <b>uno</b> por consulta, no todos ni el global; el mínimo de A[l..r] siempre lo es, y por eso <b>siempre hay respuesta</b>. <b>Lema 0:</b> la consulta (l, r) es el problema de un solo arreglo sobre B = A[l..r]; por eso los pasos 2 a 6 estudian una consulta, la elegida arriba, de largo L.
+  El <b>modelo</b> es el de C5 §1: el algoritmo solo conoce el arreglo preguntando «¿A[i] > A[j]?», y el costo es el número de comparaciones en total; comparar con un centinela no cuenta. Bajo el eje, las consultas; en verde, los mínimos locales de la consulta elegida.</p>
+  <div class="scrollx"><svg class="diagram wide" id="svg1" role="img" aria-label="Arreglo como barras, con las consultas bajo el eje y los mínimos locales de la consulta elegida en verde"></svg></div>
+  <div class="panel" id="panel1"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 2 propone algoritmos, desde la fuerza bruta hasta una búsqueda binaria.</p>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <h2><span class="step">Paso 2</span>Los algoritmos, vuelta por vuelta</h2>
+  <p class="lead"><b>V0</b> recorre los pares hasta encontrar A[i] ≤ A[i+1]. <b>V1</b> mira la mitad m y sus dos vecinos: si uno es menor sigue por ahí, y si ninguno lo es, m es la respuesta. <b>V2</b> (paso 6) mira solo A[m] contra A[m+1].
+  Elige el algoritmo y la consulta arriba y avanza. La ventana [lo, hi] empieza en [l, r]; sombreada, la ventana; en naranja, m; con trazos azules, los elementos que se comparan en esa vuelta.</p>
+  <div class="controls">
+    <button id="b2first" title="al principio">⏮</button>
+    <button id="b2prev" title="vuelta anterior">◀</button>
+    <button id="b2next" class="primary" title="siguiente vuelta">▶ vuelta</button>
+    <button id="b2last" title="hasta el final">⏭</button>
+    <span class="counter" id="c2"></span>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="svg2" role="img" aria-label="Arreglo durante la búsqueda"></svg></div>
+  <pre class="pseudo" id="pseudo"></pre>
+  <div class="panel" id="panel2"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 3 demuestra que la ventana nunca se vacía y que el algoritmo termina, con un invariante y un potencial.</p>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <h2><span class="step">Paso 3</span>¿Es correcto? Invariante y potencial, ejecutados</h2>
+  <p class="lead"><b>Invariante de V1 (I₁):</b> lo ≤ hi y el valor de afuera de la ventana no es menor que el del borde: (lo = l o A[lo−1] ≥ A[lo]) y (hi = r o A[hi+1] ≥ A[hi]). No dice nada del orden dentro.
+  <b>Invariante de V2 (I₂):</b> P(lo−1) es cierto y P(hi) es falso, con P(i) = «A[i] > A[i+1]» y los centinelas. <b>Potencial:</b> hi − lo, un natural que baja en cada vuelta. La tabla comprueba las dos cosas en cada vuelta de la consulta elegida.</p>
+  <div class="scrollx" id="tbl3"></div>
+  <div class="controls"><button id="btnBatch3" class="primary">▶ probar 3000 consultas al azar y todas las permutaciones de n ≤ 6 con todos los rangos</button></div>
+  <div class="panel" id="batch3" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 4 mide cuánto cuesta V1 en el peor caso.</p>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <h2><span class="step">Paso 4</span>¿Cuánto cuesta? El peor caso, y lo que esconden las entradas al azar</h2>
+  <p class="lead">Desde aquí n es el largo L de la consulta elegida (Lema 0). Cada vuelta de V1 hace a lo sumo 2 comparaciones y la ventana al menos se divide a la mitad: <b>a lo sumo 2⌊log₂ n⌋ + 2</b>. Las barras muestran el costo de V1 sobre la familia V<sub>k</sub> (decreciente hasta k y creciente después), con el valle en k = 0 … n−1. En esa familia se alcanza el máximo observado, <b>2⌊log₂ n⌋ + 1</b> para n ≥ 3; esto es una comprobación experimental, no una parte de la cota demostrada. Con arreglos al azar la búsqueda se detiene pronto (aproximadamente un tercio de las posiciones son mínimos locales).</p>
+  <svg class="diagram" id="svg4" viewBox="0 0 640 230" role="img" aria-label="Costo de V1 sobre cada arreglo en V"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-cost)"></span>2⌊log₂ n⌋ + 2 (demostrado)</span>
+    <span><span class="sw" style="border-color:var(--accent-speed);border-top-style:dashed"></span>⌈log₂ n⌉ (la cota, paso 5)</span></div>
+  <div class="panel" id="panel4"></div>
+  <div class="controls"><button id="btnWorst1">⚡ usar un caso de máximo observado de V1</button></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 5 acota por abajo el costo de cualquier algoritmo del modelo.</p>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <h2><span class="step">Paso 5</span>La cota mínima: n instancias, n hojas</h2>
+  <p class="lead">En V<sub>k</sub>, <b>k es el único mínimo local</b>. Un algoritmo de comparaciones es un árbol de decisión: dos entradas con las mismas respuestas llegan a la misma hoja y reciben la misma salida. Si V<sub>k</sub> y V<sub>k'</sub> compartieran hoja, una respuesta estaría mal; luego
+  las n instancias necesitan <b>n hojas distintas</b>, y un árbol binario de altura h tiene a lo sumo 2<sup>h</sup> hojas: <b>h ≥ ⌈log₂ n⌉</b>. Abajo, el árbol de V1 o V2 sobre las V<sub>k</sub> (hasta n = 16); si se selecciona V0, se muestra V1 porque la cota se compara con la primera búsqueda binaria. En naranja, el camino de la V<sub>k</sub> con k del control «valle k».</p>
+  <div class="scrollx"><svg class="diagram wide" id="svg5" role="img" aria-label="Árbol de decisión sobre las instancias en V"></svg></div>
+  <div class="panel" id="panel5"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 6 cierra el hueco entre lo que cuesta V1 y lo que dice la cota.</p>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <h2><span class="step">Paso 6</span>Cerrar el hueco: una comparación por vuelta</h2>
+  <p class="lead">V1 gasta el doble de la cota (2,06 veces con n = 65536). Pero cada vuelta solo necesita <b>un bit</b>: P(i) = [A[i] > A[i+1]] empieza en cierto (P(−1) por el centinela) y termina en falso (P(n−1)), y una transición cierto→falso en (i−1, i) es un mínimo local en i.
+  <b>V2</b> hace búsqueda binaria sobre P, con una comparación por vuelta, y cada vuelta deja una ventana de tamaño ⌈s/2⌉ o ⌊s/2⌋: <b>exactamente ⌈log₂ n⌉</b> comparaciones en el peor caso, igual que la cota.</p>
+  <svg class="diagram" id="svg6" viewBox="0 0 640 270" role="img" aria-label="Comparaciones en el peor caso contra n, V1 y V2"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-cost)"></span>V1</span>
+    <span><span class="sw" style="border-color:var(--accent-speed)"></span>V2 = ⌈log₂ n⌉ (coincide con la cota en todos los n)</span></div>
+  <div class="scrollx" id="tbl6"></div>
+  <div class="panel" id="panel6"></div>
+  <p class="lead"><span class="q">A continuación:</span> la extensión interactiva vuelve a las q consultas: qué es exacto, qué solo se acota y qué no se sabe.</p>
+
+  <!-- ===================== PASO 7 ===================== -->
+  <h2><span class="step">Paso 7</span>Extensión: varias consultas</h2>
+  <p class="lead">Este paso amplía la sección de consultas del PDF. Se responde cada consulta con V2 sobre su rango y se <b>recuerdan</b> las respuestas: el costo es el número de pares (m, m+1) <b>distintos</b> comparados, a lo sumo n − 1. Cada celda de abajo es un par (i, i+1): gris, nadie lo comparó; verde, lo usó una consulta; naranja, lo compartieron varias.
+  <b>Resultado:</b> el costo es ≤ mín(n − 1, Σ⌈log₂ L<sub>j</sub>⌉). Si los rangos son disjuntos, todo algoritmo hace al menos Σ⌈log₂ L<sub>j</sub>⌉ en el peor caso: V2 es exacto. Como ampliación, la cadena de consultas de largo 2 necesita n − 1.
+  Con rangos que se solapan, solo se sabe que el óptimo queda entre la cota inferior (la mejor suma sobre una subfamilia disjunta) y mín(n − 1, Σ).</p>
+  <div class="scrollx"><svg class="diagram wide" id="svg7" role="img" aria-label="Pares consecutivos comparados por las consultas"></svg></div>
+  <div class="legend"><span><span class="sw" style="border-color:var(--ink-muted)"></span>par sin comparar</span><span><span class="sw" style="border-color:var(--accent-speed)"></span>comparado por una consulta</span><span><span class="sw" style="border-color:var(--accent-cost)"></span>compartido por varias</span></div>
+  <div class="stats" id="stats7"></div>
+  <div class="scrollx" id="tbl7"></div>
+  <div class="panel" id="panel7"></div>
+  <div class="controls">
+    <button id="btnAdv7" class="primary">⚡ arreglo adversario (solo consultas disjuntas)</button>
+    <button id="btnOpt7">▶ óptimo por fuerza bruta: (0,2) y (1,3) con n = 4</button>
+    <button id="btnOpt7b">▶ óptimo por fuerza bruta de las consultas actuales (n ≤ 5)</button>
+  </div>
+  <div class="panel" id="panel7b" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el material complementario usa la cota para delatar un algoritmo incorrecto, y revisa en qué modelo vale.</p>
+
+  <!-- ===================== PASO 8 ===================== -->
+  <h2><span class="step">Paso 8</span>Material complementario: la cota como detector de errores</h2>
+  <p class="lead">Esta sección es una ampliación interactiva del PDF. Un algoritmo que dice usar menos de ⌈log₂ n⌉ comparaciones está mal, aunque pase las pruebas. Recorta V2 a <b>h comparaciones</b> (n es el largo de la consulta elegida): con h comparaciones el árbol tiene a lo sumo 2<sup>h</sup> hojas, así que a lo sumo 2<sup>h</sup> de las n instancias V<sub>k</sub> reciben su única respuesta correcta
+  y <b>falla en al menos n − 2<sup>h</sup></b>. Cada celda es una V<sub>k</sub>: verde si el recortado acierta, rojo si falla.</p>
+  <div class="config"><label>h (comparaciones permitidas) <input type="range" id="iH" min="0" max="6" value="3"> <span class="val" id="iHv">3</span></label></div>
+  <svg class="diagram" id="svg8" viewBox="0 0 640 90" role="img" aria-label="Instancias en V que el algoritmo recortado resuelve o no"></svg>
+  <div class="panel" id="panel8"></div>
+  <div class="controls">
+    <button id="btnRand8" class="primary">▶ probar 20000 arreglos al azar con este n y este h</button>
+    <button id="btnPerm8">▶ n = 8 y h = 2: todas las permutaciones</button>
+  </div>
+  <div class="panel" id="batch8" style="display:none"></div>
+  <div class="panel"><b>El modelo.</b> La cota habla de algoritmos que aprenden sobre A solo por comparaciones entre elementos. Fuera de ese modelo (índices calculados a partir de los valores, aritmética sobre ellos) no se afirma nada: toda cota mínima viene con su modelo pegado (C2 §10, C5 §9).</div>
+
+  <footer>Los cálculos deterministas de este recurso siguen <code>verif.py</code> y complementan el PDF <code>ejercicio-14.pdf</code> (por ejemplo, V1 alcanza 21 y V2 alcanza 10 con n = 1024); los experimentos al azar usan otra semilla y dan cifras parecidas, no idénticas.</footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rng = mulberry32((Date.now() ^ 0x9E3779B9) >>> 0);
+  function mm(s) { return s.replace('-', '−'); }
+  function f1(x) { return mm(x.toFixed(1)); } function f2(x) { return mm(x.toFixed(2)); }
+  function setMsg(node, html) { node.innerHTML = html; }
+  var tip = $('tip');
+  function showTip(evt, text) { tip.textContent = text; tip.classList.add('show'); tip.style.left = Math.min(evt.clientX + 14, window.innerWidth - 270) + 'px'; tip.style.top = (evt.clientY + 14) + 'px'; }
+  function hideTip() { tip.classList.remove('show'); }
+
+  // ================================================================== núcleo (sin DOM)
+  // Modelo de comparaciones: los algoritmos solo tocan el arreglo con mayor(), que anota
+  // cada pregunta y su respuesta; el costo es la longitud del registro. Una consulta (l, r)
+  // es el problema de un solo arreglo sobre A[l..r]: los índices son siempre los de A.
+  function mayor(A, i, j, log) { var r = A[i] > A[j]; log.push([i, j, r]); return r; }
+  function esMinLocal(A, i, l, r) {
+    if (l === undefined) { l = 0; r = A.length - 1; }
+    return i >= l && i <= r && (i === l || A[i - 1] >= A[i]) && (i === r || A[i + 1] >= A[i]);
+  }
+  function minimosLocales(A, l, r) {
+    if (l === undefined) { l = 0; r = A.length - 1; }
+    var res = []; for (var i = l; i <= r; i++) if (esMinLocal(A, i, l, r)) res.push(i); return res;
+  }
+  function techoLog2(n) { var c = 0, x = 1; while (x < n) { x *= 2; c++; } return c; }
+  function pisoLog2(n) { var c = 0; while (n > 1) { n = n >> 1; c++; } return c; }
+
+  // cada algoritmo devuelve { out, log, steps }, con steps = [{ lo, hi, m, comps, dec }]
+  function correrV0(A, l, r) {
+    if (l === undefined) { l = 0; r = A.length - 1; }
+    var log = [], steps = [];
+    for (var i = l; i < r; i++) {
+      var res = mayor(A, i, i + 1, log);
+      steps.push({ lo: i, hi: r, m: i, comps: [[i, i + 1, res]], dec: res ? 'der' : 'dev' });
+      if (!res) return { out: i, log: log, steps: steps };
+    }
+    steps.push({ lo: r, hi: r, m: r, comps: [], dec: 'dev' });
+    return { out: r, log: log, steps: steps };
+  }
+  function correrV1(A, l, r) {
+    if (l === undefined) { l = 0; r = A.length - 1; }
+    var log = [], lo = l, hi = r, steps = [];
+    for (;;) {
+      var m = (lo + hi) >> 1, comps = [];
+      if (m > l) { var a = mayor(A, m, m - 1, log); comps.push(log[log.length - 1]); if (a) { steps.push({ lo: lo, hi: hi, m: m, comps: comps, dec: 'izq' }); hi = m - 1; continue; } }
+      if (m < r) { var b = mayor(A, m, m + 1, log); comps.push(log[log.length - 1]); if (b) { steps.push({ lo: lo, hi: hi, m: m, comps: comps, dec: 'der' }); lo = m + 1; continue; } }
+      steps.push({ lo: lo, hi: hi, m: m, comps: comps, dec: 'dev' });
+      return { out: m, log: log, steps: steps };
+    }
+  }
+  function correrV2(A, l, r) {
+    if (l === undefined) { l = 0; r = A.length - 1; }
+    var log = [], lo = l, hi = r, steps = [];
+    while (lo < hi) {
+      var m = (lo + hi) >> 1, res = mayor(A, m, m + 1, log);
+      steps.push({ lo: lo, hi: hi, m: m, comps: [log[log.length - 1]], dec: res ? 'der' : 'izq' });
+      if (res) lo = m + 1; else hi = m;
+    }
+    steps.push({ lo: lo, hi: hi, m: null, comps: [], dec: 'dev' });
+    return { out: lo, log: log, steps: steps };
+  }
+  var ALGS = { V0: correrV0, V1: correrV1, V2: correrV2 };
+  // V2 recortado a h comparaciones (el detector de errores de la pregunta 8)
+  function correrV2Recortado(A, h) {
+    var lo = 0, hi = A.length - 1, usadas = 0, log = [];
+    while (lo < hi && usadas < h) { var m = (lo + hi) >> 1; usadas++; if (mayor(A, m, m + 1, log)) lo = m + 1; else hi = m; }
+    return { out: lo, log: log };
+  }
+
+  // invariantes por vuelta (las ventanas de la traza), para la consulta (l, r)
+  function invI1(A, lo, hi, l, r) { if (l === undefined) { l = 0; r = A.length - 1; } return lo >= l && lo <= hi && hi <= r && (lo === l || A[lo - 1] >= A[lo]) && (hi === r || A[hi + 1] >= A[hi]); }
+  function invI2(A, lo, hi, l, r) { if (l === undefined) { l = 0; r = A.length - 1; } return lo >= l && lo <= hi && hi <= r && (lo === l || A[lo - 1] > A[lo]) && (hi === r || A[hi] <= A[hi + 1]); }
+
+  // familias de entradas
+  function valle(n, k) { var A = []; for (var i = 0; i < n; i++) A.push(i < k ? 2 * (k - i) : (i === k ? 0 : 2 * (i - k) - 1)); return A; }
+  function permAzar(n, r) { var a = []; for (var i = 1; i <= n; i++) a.push(i); for (i = n - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var memoCosto = {};
+  function costoV(alg, n) { var key = alg + n; if (memoCosto[key] !== undefined) return memoCosto[key]; var w = 0; for (var k = 0; k < n; k++) { var c = ALGS[alg](valle(n, k)).log.length; if (c > w) w = c; } return (memoCosto[key] = w); }
+  function peorValle(alg, n) { var w = -1, kk = 0; for (var k = 0; k < n; k++) { var c = ALGS[alg](valle(n, k)).log.length; if (c > w) { w = c; kk = k; } } return kk; }
+  // el árbol de decisión que ven las V_k: nodos = prefijos de transcripciones
+  function arbolDe(alg, n) {
+    var raiz = { hijos: {}, q: null, hojas: [] }, hojas = [];
+    for (var k = 0; k < n; k++) {
+      var r = ALGS[alg](valle(n, k)), nodo = raiz, camino = [raiz];
+      r.log.forEach(function (p) { nodo.q = [p[0], p[1]]; var key = p[2] ? 'si' : 'no'; if (!nodo.hijos[key]) nodo.hijos[key] = { hijos: {}, q: null, hojas: [] }; nodo = nodo.hijos[key]; camino.push(nodo); });
+      nodo.hojas.push({ k: k, out: r.out }); hojas.push({ k: k, out: r.out, camino: camino });
+    }
+    return { raiz: raiz, hojas: hojas };
+  }
+
+  // varias consultas: responder cada una con alg; con memoria, una comparación ya hecha no vuelve a costar
+  function claveParCmp(c) { return Math.min(c[0], c[1]) + ',' + Math.max(c[0], c[1]); }
+  function responder(alg, A, Q, memoria) {
+    var vistos = {}, total = 0, filas = [], pares = {};
+    Q.forEach(function (q, j) {
+      var res = ALGS[alg](A, q[0], q[1]), nuevas = 0;
+      res.log.forEach(function (c) {
+        var key = claveParCmp(c); (pares[key] = pares[key] || []).push(j);
+        if (!(memoria && vistos[key])) { vistos[key] = true; nuevas++; total++; }
+      });
+      filas.push({ l: q[0], r: q[1], out: res.out, propias: res.log.length, nuevas: nuevas });
+    });
+    return { filas: filas, total: total, pares: pares };
+  }
+  function sonDisjuntas(Q) { for (var a = 0; a < Q.length; a++) for (var b = a + 1; b < Q.length; b++) if (!(Q[a][1] < Q[b][0] || Q[b][1] < Q[a][0])) return false; return true; }
+  function sumaTecho(Q) { return Q.reduce(function (s, q) { return s + techoLog2(q[1] - q[0] + 1); }, 0); }
+  // cota inferior: el mayor de las sumas sobre subfamilias de consultas disjuntas dos a dos (Q pequeño)
+  function cotaDisjuntas(Q) {          // programación dinámica sobre los rangos ordenados por su final
+    var R = Q.slice().sort(function (a, b) { return a[1] - b[1]; }), dp = [0], i, j;
+    for (i = 1; i <= R.length; i++) {
+      var w = techoLog2(R[i - 1][1] - R[i - 1][0] + 1), p = 0;
+      for (j = i - 1; j >= 1; j--) if (R[j - 1][1] < R[i - 1][0]) { p = j; break; }
+      dp.push(Math.max(dp[i - 1], w + dp[p]));
+    }
+    return dp[R.length];
+  }
+  // el arreglo adversario del teorema de las consultas disjuntas: un bloque V_k de peor caso por rango
+  function adversario(n, Q) {
+    var A = []; for (var i = 0; i < n; i++) A.push(5000000 + i);
+    Q.forEach(function (q, j) {
+      var L = q[1] - q[0] + 1, V = valle(L, peorValle('V2', L));
+      for (var t = 0; t < L; t++) A[q[0] + t] = j * 10000 + V[t];
+    });
+    return A;
+  }
+  // óptimo por fuerza bruta (n pequeño): profundidad mínima de un árbol de comparaciones que resuelve Q
+  function permsDe(n) { var a = []; (function rec(pre, rest) { if (!rest.length) { a.push(pre); return; } rest.forEach(function (x, i) { rec(pre.concat([x]), rest.slice(0, i).concat(rest.slice(i + 1))); }); })([], Array.from({ length: n }, function (_, i) { return i; })); return a; }
+  function optimo(n, Q) {
+    var P = permsDe(n), memo = {};
+    function comun(S) { return Q.every(function (q) { for (var i = q[0]; i <= q[1]; i++) if (S.every(function (ix) { return esMinLocal(P[ix], i, q[0], q[1]); })) return true; return false; }); }
+    function res(S, h) {
+      var key = S.join(',') + '|' + h; if (memo[key] !== undefined) return memo[key];
+      var ok = false;
+      if (comun(S)) ok = true;
+      else if (h > 0) {
+        for (var i = 0; i < n && !ok; i++) for (var j = i + 1; j < n && !ok; j++) {
+          var a = S.filter(function (ix) { return P[ix][i] > P[ix][j]; }), b = S.filter(function (ix) { return !(P[ix][i] > P[ix][j]); });
+          if (a.length && b.length && res(a, h - 1) && res(b, h - 1)) ok = true;
+        }
+      }
+      return (memo[key] = ok);
+    }
+    var todos = P.map(function (_, i) { return i; });
+    for (var h = 0; h < n; h++) if (res(todos, h)) return h;
+    return n;
+  }
+  function peorV2Memoria(n, Q) { var w = 0; permsDe(n).forEach(function (p) { w = Math.max(w, responder('V2', p, Q, true).total); }); return w; }
+  // ================================================================== fin núcleo
+
+  // ================================================================== interfaz
+  var EJEMPLO = [7, 4, 9, 6, 8, 3, 5, 2, 10, 1];
+  var S = { kind: 'ejemplo', n: 10, k: 5, alg: 'V2', A: EJEMPLO.slice(), cons: 'una', nq: 3, qi: 0, Q: [[0, 9]] };
+  var P2 = { run: null, cur: 0 };
+
+  function makeArray() {
+    var n = S.n, k = Math.min(S.k, n - 1), i, A;
+    switch (S.kind) {
+      case 'ejemplo': return EJEMPLO.slice();
+      case 'azar': return permAzar(n, rng);
+      case 'valle': return valle(n, k);
+      case 'peor1': return valle(n, peorValle('V1', n));
+      case 'adv': return sonDisjuntas(S.Q) ? adversario(n, S.Q) : permAzar(n, rng);
+      case 'decreciente': A = []; for (i = 0; i < n; i++) A.push(n - i); return A;
+      case 'creciente': A = []; for (i = 0; i < n; i++) A.push(i + 1); return A;
+      case 'sierra': A = []; for (i = 0; i < n; i++) A.push(i % 2 ? 100 + i : i); return A;
+      default: A = []; var rango = Math.max(2, Math.ceil(n / 4)); for (i = 0; i < n; i++) A.push(Math.floor(rng() * rango)); return A;
+    }
+  }
+  function makeQueries() {
+    var n = S.n, Q = [], i, q = Math.min(S.nq, n);
+    if (S.cons === 'una') Q = [[0, n - 1]];
+    else if (S.cons === 'ejemplo') Q = n === 10 ? [[0, 9], [2, 6], [5, 9]] : [[0, n - 1], [Math.floor(n / 5), Math.floor(3 * n / 5)], [Math.floor(n / 2), n - 1]];
+    else if (S.cons === 'cadena') for (i = 0; i < n - 1; i++) Q.push([i, i + 1]);
+    else if (S.cons === 'repetida') for (i = 0; i < S.nq; i++) Q.push([0, n - 1]);
+    else if (S.cons === 'disjuntas') {
+      var cortes = permAzar(n - 1, rng).slice(0, q - 1).map(function (x) { return x - 1; }).sort(function (a, b) { return a - b; }), ini = 0;
+      cortes.concat([n - 1]).forEach(function (c) { Q.push([ini, c]); ini = c + 1; });
+      if (n > 3 && Q.length > 1 && Q[0][1] > Q[0][0] && rng() < 0.5) Q[0][1]--;     // a veces un hueco entre rangos
+    } else for (i = 0; i < S.nq; i++) { var l = Math.floor(rng() * n), r = l + Math.floor(rng() * (n - l)); Q.push([l, r]); }
+    return Q;
+  }
+  function vent() { var q = S.Q[S.qi] || S.Q[0]; return { l: q[0], r: q[1], L: Math.max(1, q[1] - q[0] + 1) }; }
+  var ALGNAME = { V0: 'V0 (barrido)', V1: 'V1 (dos vecinos)', V2: 'V2 (un vecino)' };
+
+  // ---- dibujo del arreglo
+  function drawArray(svg, A, o) {
+    o = o || {}; clear(svg);
+    var n = A.length, dx = Math.max(22, Math.min(46, 640 / (n + 2))), base = 192, top = 30, i;
+    var filas = [], pos = [];   // las consultas se apilan bajo el eje, en la primera fila donde no se pisan
+    if (o.queries) o.queries.forEach(function (q, j) { var f = 0; while (filas[f] !== undefined && filas[f] >= q[0]) f++; filas[f] = q[1]; pos[j] = f; });
+    var etiquetas = o.queries && o.queries.length <= 8, H = 230 + (o.queries ? 14 * Math.min(filas.length, 10) + 8 : 0), W = 40 + dx * (n + 2) + (etiquetas ? 46 : 0);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.style.minWidth = Math.min(Math.max(520, W * 0.9), 900) + 'px';
+    var mn = Math.min.apply(null, A), mx = Math.max.apply(null, A), bw = Math.min(26, dx * 0.7);
+    function cx(i) { return 20 + dx * (i + 1.5); }
+    function hgt(v) { return 16 + (v - mn) / ((mx - mn) || 1) * (base - top - 16); }
+    if (o.lo !== undefined) el('rect', { x: cx(o.lo) - dx / 2, y: top - 14, width: dx * (o.hi - o.lo + 1), height: base - top + 14 + 6, class: 'win', rx: 4 }, svg);
+    var mins = o.minima ? minimosLocales(A, o.minima[0], o.minima[1]) : [];
+    [-1, n].forEach(function (i) {
+      el('rect', { x: cx(i) - bw / 2, y: top, width: bw, height: base - top, class: 'bar sent' }, svg);
+      el('text', { x: cx(i), y: top - 4, class: 'bt' }, svg, '+∞');
+      el('text', { x: cx(i), y: base + 14, class: 'bi' }, svg, i);
+    });
+    for (i = 0; i < n; i++) {
+      var cls = 'bar';
+      if (o.lo !== undefined && (i < o.lo || i > o.hi)) cls += ' out';
+      if (mins.indexOf(i) >= 0) cls += ' min';
+      if (o.m === i) cls = 'bar m';
+      if (o.cmp && o.cmp.indexOf(i) >= 0) cls += ' cmp';
+      if (o.ans === i) cls += ' ans';
+      var r = el('rect', { x: cx(i) - bw / 2, y: base - hgt(A[i]), width: bw, height: hgt(A[i]), class: cls, rx: 2 }, svg);
+      (function (ii) { r.addEventListener('mousemove', function (e) { showTip(e, 'A[' + ii + '] = ' + A[ii]); }); r.addEventListener('mouseleave', hideTip); })(i);
+      if (n <= 20) el('text', { x: cx(i), y: base - hgt(A[i]) - 3, class: 'bt' }, svg, A[i]);
+      el('text', { x: cx(i), y: base + 14, class: 'bi' }, svg, i);
+    }
+    el('line', { x1: 20, x2: cx(n) + dx / 2, y1: base, y2: base, class: 'axis' }, svg);
+    if (o.q && (o.q[0] > 0 || o.q[1] < n - 1)) [cx(o.q[0]) - dx / 2, cx(o.q[1]) + dx / 2].forEach(function (x) { el('line', { x1: x, x2: x, y1: top - 14, y2: base + 6, class: 'br sel', 'stroke-dasharray': '4 3' }, svg); });
+    if (o.dots) o.dots.forEach(function (i) { el('circle', { cx: cx(i), cy: base + 26, r: 3.4, class: 'dot' }, svg); });
+    if (o.queries) o.queries.forEach(function (q, j) {
+      if (pos[j] >= 10) return;
+      var y = base + 44 + 14 * pos[j], ln = el('line', { x1: cx(q[0]) - dx * 0.4, x2: cx(q[1]) + dx * 0.4, y1: y, y2: y, class: 'br' + (j === o.sel ? ' sel' : '') }, svg);
+      ln.addEventListener('mousemove', function (e) { showTip(e, 'consulta ' + (j + 1) + ': (' + q[0] + ', ' + q[1] + '), L = ' + (q[1] - q[0] + 1)); }); ln.addEventListener('mouseleave', hideTip);
+      if (etiquetas) el('text', { x: cx(q[1]) + dx * 0.4 + 5, y: y + 3, class: 'brt' }, svg, '(' + q[0] + ',' + q[1] + ')');
+    });
+  }
+
+  function minimosTxt(A, l, r) { var m = minimosLocales(A, l, r); return m.length + ' (' + (m.length <= 12 ? m.join(', ') : m.slice(0, 12).join(', ') + ', …') + ')'; }
+  function renderP1() {
+    var A = S.A, n = A.length, w = vent(), g = w.l, i;
+    drawArray($('svg1'), A, { lo: w.l, hi: w.r, minima: [w.l, w.r], queries: S.Q, sel: S.qi });
+    for (i = w.l; i <= w.r; i++) if (A[i] < A[g]) g = i;
+    setMsg($('panel1'), '<b>n = ' + n + '</b>, <b>q = ' + S.Q.length + '</b> consulta' + (S.Q.length > 1 ? 's' : '') + '. Consulta elegida: <b>(' + w.l + ', ' + w.r + ')</b>, L = ' + w.L + '. Mínimos locales de la consulta (índices): <b>' + minimosTxt(A, w.l, w.r) + '</b>; el mínimo de su rango está en el índice ' + g + '. Encontrar ese mínimo cuesta L − 1 comparaciones (C5 §5); encontrar <i>un</i> mínimo local es lo que se resuelve en log L.');
+    $('instInfo').innerHTML = 'Instancia: <b>' + $('iKind').options[$('iKind').selectedIndex].text + '</b>, n = <b>' + n + '</b>, ' + S.Q.length + ' consulta' + (S.Q.length > 1 ? 's' : '') + ' (' + $('iCons').options[$('iCons').selectedIndex].text + '), algoritmo: <b>' + ALGNAME[S.alg] + '</b>. Todos los pasos de abajo usan esta misma instancia.';
+  }
+
+  // ---- paso 2
+  var PSEUDO = {
+    V0: [['para i desde l hasta r-1:', 'w'], ['    si no mayor(A[i], A[i+1]):      // A sube o empata', 'dev'], ['        devolver i', 'dev'], ['    // si baja, sigue con el siguiente', 'der'], ['devolver r', 'fin']],
+    V1: [['lo ← l;  hi ← r', 'w'], ['mientras verdadero:', 'w'], ['    m ← (lo + hi) div 2', 'w'], ['    si m > l y mayor(A[m], A[m-1]):     // el izquierdo es menor', 'izq'], ['        hi ← m - 1', 'izq'], ['    sino si m < r y mayor(A[m], A[m+1]):   // el derecho es menor', 'der'], ['        lo ← m + 1', 'der'], ['    sino:  devolver m', 'dev']],
+    V2: [['lo ← l;  hi ← r', 'w'], ['mientras lo < hi:', 'w'], ['    m ← (lo + hi) div 2', 'w'], ['    si mayor(A[m], A[m+1]):            // A baja entre m y m+1', 'der'], ['        lo ← m + 1', 'der'], ['    sino:                               // A sube o empata', 'izq'], ['        hi ← m', 'izq'], ['devolver lo', 'dev']]
+  };
+  function recomputeP2() { var w = vent(); P2.run = ALGS[S.alg](S.A, w.l, w.r); P2.cur = Math.min(P2.cur, P2.run.steps.length - 1); }
+  function comparacionesTxt(comps) { return comps.map(function (p) { return 'A[' + p[0] + '] > A[' + p[1] + '] → ' + (p[2] ? 'sí' : 'no'); }).join('; '); }
+  function renderP2() {
+    var run = P2.run, st = run.steps[P2.cur], A = S.A, last = P2.cur === run.steps.length - 1, cmp = [], w = vent();
+    st.comps.forEach(function (p) { cmp.push(p[0], p[1]); });
+    drawArray($('svg2'), A, { lo: st.lo, hi: st.hi, m: st.m === null ? undefined : st.m, cmp: cmp, ans: last ? run.out : undefined, dots: minimosLocales(A, w.l, w.r), q: [w.l, w.r] });
+    $('c2').textContent = 'vuelta ' + (P2.cur + 1) + ' de ' + run.steps.length;
+    $('b2first').disabled = $('b2prev').disabled = P2.cur === 0; $('b2next').disabled = $('b2last').disabled = last;
+    var pre = $('pseudo'); clear(pre);
+    PSEUDO[S.alg].forEach(function (ln) {
+      var on = ln[1] === 'w' || ln[1] === st.dec || (S.alg === 'V0' && ln[1] === 'fin' && last && st.comps.length === 0);
+      var sp = document.createElement('span'); sp.className = 'ln' + (on ? ' on' : '');
+      var txt = ln[0], ci = txt.indexOf('//');
+      if (ci >= 0) { sp.appendChild(document.createTextNode(txt.slice(0, ci))); var cm = document.createElement('span'); cm.className = 'cm'; cm.textContent = txt.slice(ci); sp.appendChild(cm); } else sp.appendChild(document.createTextNode(txt));
+      pre.appendChild(sp);
+    });
+    var hechas = 0, i; for (i = 0; i <= P2.cur; i++) hechas += run.steps[i].comps.length;
+    var dec = { izq: 'sigue a la izquierda (hi ← ' + (st.m === null ? '' : (S.alg === 'V1' ? st.m - 1 : st.m)) + ')', der: S.alg === 'V0' ? 'baja: sigue con el siguiente' : 'sigue a la derecha (lo ← ' + (st.m === null ? '' : st.m + 1) + ')', dev: 'devuelve ' + run.out };
+    var inv = '';
+    if (S.alg !== 'V0') {
+      var okI = S.alg === 'V1' ? invI1(A, st.lo, st.hi, w.l, w.r) : invI2(A, st.lo, st.hi, w.l, w.r);
+      inv = '<div class="inv"><span class="' + (okI ? 'ok' : 'bad') + '">' + (S.alg === 'V1' ? 'I₁' : 'I₂') + ' ' + (okI ? '✓' : '✗') + '</span><span class="ok">potencial hi − lo = ' + (st.hi - st.lo) + '</span></div>';
+    }
+    var txt2 = 'Consulta (' + w.l + ', ' + w.r + '). <b>Vuelta ' + (P2.cur + 1) + '</b>: ventana [' + st.lo + ', ' + st.hi + ']' + (st.m === null ? '' : ', m = ' + st.m) + '. ' + (st.comps.length ? 'Comparaci' + (st.comps.length > 1 ? 'ones' : 'ón') + ': ' + comparacionesTxt(st.comps) + '. ' : 'Sin comparaciones (la ventana tiene un solo elemento). ') + '→ <b>' + dec[st.dec] + '</b>. Comparaciones hasta ahora: <b>' + hechas + '</b>.';
+    if (last) txt2 += '<br>Resultado: el índice <b>' + run.out + '</b> (valor ' + A[run.out] + '), que ' + (esMinLocal(A, run.out, w.l, w.r) ? '<b class="hi">es</b>' : '<b class="bad">NO es</b>') + ' un mínimo local de la consulta. Total: <b>' + run.log.length + '</b> comparaciones; ⌈log₂ L⌉ = ' + techoLog2(w.L) + '.';
+    setMsg($('panel2'), txt2 + inv);
+  }
+
+  // ---- paso 3
+  function renderP3() {
+    var A = S.A, w = vent(), alg = S.alg === 'V0' ? 'V1' : S.alg, run = ALGS[alg](A, w.l, w.r), rows = '', prevD = null;
+    run.steps.forEach(function (s, i) {
+      var ok = alg === 'V1' ? invI1(A, s.lo, s.hi, w.l, w.r) : invI2(A, s.lo, s.hi, w.l, w.r), D = s.hi - s.lo, baja = prevD === null || D < prevD;
+      rows += '<tr><td class="num">' + (i + 1) + '</td><td class="num">' + s.lo + '</td><td class="num">' + s.hi + '</td><td class="num">' + (s.m === null ? '—' : s.m) + '</td><td class="' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓' : '✗') + '</td><td class="num">' + D + '</td><td class="' + (baja ? 'ok' : 'bad') + '">' + (prevD === null ? '—' : (baja ? '↓' : '✗')) + '</td><td>' + comparacionesTxt(s.comps) + '</td></tr>';
+      prevD = D;
+    });
+    $('tbl3').innerHTML = (S.alg === 'V0' ? '<div class="panel">V0 no usa ventana; se muestra V1.</div>' : '') + '<table class="t"><thead><tr><th>vuelta</th><th>lo</th><th>hi</th><th>m</th><th>' + (alg === 'V1' ? 'I₁' : 'I₂') + '</th><th>hi − lo</th><th>baja</th><th>comparaciones</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  function perms(a) { if (a.length <= 1) return [a]; var o = []; a.forEach(function (x, i) { perms(a.slice(0, i).concat(a.slice(i + 1))).forEach(function (p) { o.push([x].concat(p)); }); }); return o; }
+  function runBatch3() {
+    var rg = mulberry32(15), N = 3000, bad = 0, steps = 0, i, A;
+    function chequear(A, l, r) {
+      ['V0', 'V1', 'V2'].forEach(function (a) {
+        var res = ALGS[a](A, l, r); if (!esMinLocal(A, res.out, l, r)) bad++;
+        var prev = null;
+        res.steps.forEach(function (s) {
+          if (a === 'V1' && !invI1(A, s.lo, s.hi, l, r)) bad++; if (a === 'V2' && !invI2(A, s.lo, s.hi, l, r)) bad++;
+          if (a !== 'V0') { var D = s.hi - s.lo; if (prev !== null && !(D < prev)) bad++; prev = D; steps++; }
+        });
+      });
+    }
+    for (i = 0; i < N; i++) {
+      var n = 1 + Math.floor(rg() * 40), t = Math.floor(rg() * 3), l = Math.floor(rg() * n), r = l + Math.floor(rg() * (n - l));
+      A = t === 0 ? permAzar(n, rg) : (t === 1 ? (function () { var rr = [], q = Math.max(2, Math.ceil(n / 4)); for (var j = 0; j < n; j++) rr.push(Math.floor(rg() * q)); return rr; })() : valle(n, Math.floor(rg() * n)));
+      chequear(A, l, r);
+    }
+    var tot = 0, n2; for (n2 = 1; n2 <= 6; n2++) perms(Array.from({ length: n2 }, function (_, j) { return j; })).forEach(function (p) { for (var l2 = 0; l2 < n2; l2++) for (var r2 = l2; r2 < n2; r2++) { tot++; chequear(p, l2, r2); } });
+    var pn = $('batch3'); pn.style.display = 'block';
+    setMsg(pn, N + ' consultas (l, r) al azar sobre arreglos distintos, con empates y en V, y las ' + tot + ' consultas posibles de las permutaciones de n ≤ 6, con los tres algoritmos: se devuelve siempre un mínimo local de la consulta, el invariante vale en cada vuelta y hi − lo baja en cada vuelta (' + steps + ' vueltas de V1 y V2 comprobadas). <b class="' + (bad ? 'bad' : 'hi') + '">' + bad + ' violaciones</b>.');
+  }
+
+  // ---- paso 4
+  function renderP4() {
+    var n = vent().L, svg = $('svg4'), W = 640, H = 230, L = 40, Rm = 12, T = 14, B = 30, i; clear(svg);
+    var costs = []; for (var k = 0; k < n; k++) costs.push(ALGS.V1(valle(n, k)).log.length);
+    var cota = 2 * pisoLog2(n) + 2, ymax = Math.max(cota, Math.max.apply(null, costs)) + 1, bw = (W - L - Rm) / n;
+    function fy(y) { return H - B - y / ymax * (H - T - B); }
+    for (var y = 0; y <= ymax; y += (ymax > 14 ? 5 : 2)) { el('line', { x1: L, x2: W - Rm, y1: fy(y), y2: fy(y), class: 'grid-h' }, svg); el('text', { x: L - 5, y: fy(y) + 3, class: 'mono-lab', 'text-anchor': 'end' }, svg, y); }
+    var worst = Math.max.apply(null, costs);
+    costs.forEach(function (c, i) {
+      var r = el('rect', { x: L + i * bw + bw * 0.1, y: fy(c), width: Math.max(bw * 0.8, 1), height: H - B - fy(c), fill: c === worst ? 'var(--accent-cost)' : 'var(--accent-speed)', opacity: c === worst ? 1 : 0.55 }, svg);
+      r.addEventListener('mousemove', function (e) { showTip(e, 'V' + i + ': V1 hace ' + c + ' comparaciones'); }); r.addEventListener('mouseleave', hideTip);
+      if (n <= 30 || i % Math.ceil(n / 10) === 0) el('text', { x: L + i * bw + bw / 2, y: H - B + 13, class: 'mono-lab' }, svg, i);
+    });
+    el('line', { x1: L, x2: W - Rm, y1: fy(cota), y2: fy(cota), stroke: 'var(--accent-cost)', 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, svg);
+    el('line', { x1: L, x2: W - Rm, y1: fy(techoLog2(n)), y2: fy(techoLog2(n)), stroke: 'var(--accent-speed)', 'stroke-width': 1.6, 'stroke-dasharray': '2 4' }, svg);
+    el('text', { x: (L + W - Rm) / 2, y: H - 3, class: 'small-lab' }, svg, 'posición del valle k');
+    var rg = mulberry32(7), c1 = 0, c2 = 0, m1 = 0, R = 300;
+    for (i = 0; i < R; i++) { var A = permAzar(n, rg), a = ALGS.V1(A).log.length; c1 += a; if (a > m1) m1 = a; c2 += ALGS.V2(A).log.length; }
+    setMsg($('panel4'), 'Con n = <b>' + n + '</b>: máximo observado de V1 sobre la familia V<sub>k</sub> = <b>' + worst + '</b> (' + (n >= 3 ? '2⌊log₂ n⌋ + 1 = ' + (2 * pisoLog2(n) + 1) : 'n pequeño') + '), mientras que la cota superior demostrada es ' + cota + '. Sobre ' + R + ' permutaciones al azar, V1 usa en promedio <b>' + f1(c1 / R) + '</b> comparaciones (y a lo sumo ' + m1 + ') y V2 <b>' + f1(c2 / R) + '</b>: <b>el caso típico no es la garantía</b>.');
+  }
+
+  // ---- paso 5
+  function renderP5() {
+    var svg = $('svg5'), n = Math.min(vent().L, 16), alg = S.alg === 'V0' ? 'V1' : S.alg, t = arbolDe(alg, n), k = Math.min(S.k, n - 1), dx = 46, dy = 56, pad = 30, i;
+    clear(svg);
+    var xs = 0;
+    function layout(nodo, prof) {
+      var hijos = []; if (nodo.hijos.no) hijos.push(['no', nodo.hijos.no]); if (nodo.hijos.si) hijos.push(['si', nodo.hijos.si]);
+      nodo.prof = prof;
+      if (!hijos.length) { nodo.x = xs++ * dx; return; }
+      hijos.forEach(function (h) { layout(h[1], prof + 1); });
+      nodo.x = hijos.reduce(function (s, h) { return s + h[1].x; }, 0) / hijos.length;
+    }
+    layout(t.raiz, 0);
+    var path = t.hojas[k].camino, hmax = 0;
+    t.hojas.forEach(function (h) { if (h.camino.length - 1 > hmax) hmax = h.camino.length - 1; });
+    var W = pad * 2 + Math.max(xs - 1, 1) * dx + 40, H = pad * 2 + hmax * dy + 30;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.style.minWidth = Math.min(Math.max(520, W * 0.9), 900) + 'px';
+    function cx(nd) { return pad + 20 + nd.x; } function cy(nd) { return pad + nd.prof * dy; }
+    function visitar(nodo, fn) { fn(nodo); ['no', 'si'].forEach(function (c) { if (nodo.hijos[c]) visitar(nodo.hijos[c], fn); }); }
+    visitar(t.raiz, function (nd) {
+      ['no', 'si'].forEach(function (c) {
+        var h = nd.hijos[c]; if (!h) return;
+        var on = path.indexOf(nd) >= 0 && path.indexOf(h) >= 0;
+        el('line', { x1: cx(nd), y1: cy(nd), x2: cx(h), y2: cy(h), class: 'tedge' + (on ? ' on' : '') }, svg);
+        el('text', { x: (cx(nd) + cx(h)) / 2 + (c === 'no' ? -8 : 8), y: (cy(nd) + cy(h)) / 2, class: 'ts', 'text-anchor': 'middle' }, svg, c === 'no' ? 'no' : 'sí');
+      });
+    });
+    visitar(t.raiz, function (nd) {
+      var on = path.indexOf(nd) >= 0;
+      if (nd.hojas.length) {
+        el('circle', { cx: cx(nd), cy: cy(nd), r: 13, class: 'tleaf' + (on ? ' on' : '') }, svg);
+        el('text', { x: cx(nd), y: cy(nd), class: 'tl' }, svg, nd.hojas[0].out);
+        el('text', { x: cx(nd), y: cy(nd) + 24, class: 'ts' }, svg, 'V' + nd.hojas[0].k);
+      } else {
+        el('rect', { x: cx(nd) - 24, y: cy(nd) - 10, width: 48, height: 20, rx: 6, class: 'tnode' + (on ? ' on' : '') }, svg);
+        el('text', { x: cx(nd), y: cy(nd), class: 'tl' }, svg, nd.q[0] + '>' + nd.q[1] + '?');
+      }
+    });
+    var leaves = t.hojas.length, distintas = {}; t.hojas.forEach(function (h) { distintas[h.camino[h.camino.length - 1] === undefined ? 0 : 1] = 1; });
+    setMsg($('panel5'), 'Algoritmo <b>' + ALGNAME[alg] + '</b>, n = <b>' + n + '</b> (' + (vent().L > 16 ? 'se dibuja con 16 para que quepa; ' : '') + 'cada nodo es la comparación «A[i] > A[j]?»): las <b>' + n + '</b> instancias V<sub>k</sub> caen en <b>' + leaves + '</b> hojas distintas, y la altura del árbol (mayor número de comparaciones) es <b>' + hmax + '</b>; la cota ⌈log₂ ' + n + '⌉ = <b>' + techoLog2(n) + '</b>. ' +
+      (hmax === techoLog2(n) ? '<b class="hi">Altura = cota: este árbol es óptimo.</b>' : '<b class="bad">Altura &gt; cota: sobran ' + (hmax - techoLog2(n)) + ' comparaciones en el peor caso.</b>') + ' El camino naranja es V<sub>' + k + '</sub>: ' + (path.length - 1) + ' comparaciones.');
+  }
+
+  // ---- paso 6
+  function renderP6() {
+    var svg = $('svg6'), W = 640, H = 270, L = 44, Rm = 14, T = 12, B = 32, nmax = 70, i; clear(svg);
+    var ymax = 14;
+    function fx(n) { return L + (n - 1) / (nmax - 1) * (W - L - Rm); } function fy(y) { return H - B - y / ymax * (H - T - B); }
+    for (var y = 0; y <= ymax; y += 2) { el('line', { x1: L, x2: W - Rm, y1: fy(y), y2: fy(y), class: 'grid-h' }, svg); el('text', { x: L - 5, y: fy(y) + 3, class: 'mono-lab', 'text-anchor': 'end' }, svg, y); }
+    [1, 10, 20, 30, 40, 50, 60, 70].forEach(function (n) { el('text', { x: fx(n), y: H - B + 14, class: 'mono-lab' }, svg, n); });
+    el('line', { x1: L, x2: W - Rm, y1: H - B, y2: H - B, class: 'axis' }, svg);
+    function stair(alg, color) {
+      var d = '', prev = null;
+      for (var n = 1; n <= nmax; n++) { var c = costoV(alg, n); d += (prev === null ? 'M' : 'L' + f1(fx(n)) + ' ' + f1(fy(prev)) + ' L') + f1(fx(n)) + ' ' + f1(fy(c)) + ' '; prev = c; }
+      el('path', { d: d, fill: 'none', stroke: color, 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, svg);
+    }
+    stair('V1', 'var(--accent-cost)'); stair('V2', 'var(--accent-speed)');
+    el('text', { x: (L + W - Rm) / 2, y: H - 4, class: 'small-lab' }, svg, 'n'); el('text', { x: 12, y: (T + H - B) / 2, class: 'small-lab', transform: 'rotate(-90 12 ' + ((T + H - B) / 2) + ')' }, svg, 'comparaciones en el peor caso');
+    var rows = '', ns = [4, 16, 64, 256, 1024];
+    ns.forEach(function (n) { var w1 = costoV('V1', n), w2 = costoV('V2', n), c = techoLog2(n); rows += '<tr><td class="num">' + n + '</td><td class="num">' + w1 + '</td><td class="num">' + w2 + '</td><td class="num">' + c + '</td><td class="num">' + f2(w1 / c) + '</td><td class="num ok">' + f2(w2 / c) + '</td></tr>'; });
+    $('tbl6').innerHTML = '<table class="t"><thead><tr><th>n</th><th>V1</th><th>V2</th><th>cota ⌈log₂ n⌉</th><th>V1 / cota</th><th>V2 / cota</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var A = S.A, w = vent(), r1 = ALGS.V1(A, w.l, w.r), r2 = ALGS.V2(A, w.l, w.r);
+    setMsg($('panel6'), 'En la consulta elegida (' + w.l + ', ' + w.r + '), L = ' + w.L + ': V1 hace <b>' + r1.log.length + '</b> comparaciones y devuelve el índice ' + r1.out + '; V2 hace <b>' + r2.log.length + '</b> y devuelve el ' + r2.out + '. El peor caso de V2 es <b>exactamente ⌈log₂ n⌉</b> para todo n (probado: la ventana pasa a ⌈s/2⌉ o ⌊s/2⌋); en el arreglo al azar V2 no gana a V1, porque V1 se detiene en cuanto ve un mínimo local: la garantía y el promedio son cosas distintas.');
+  }
+
+  // ---- paso 7: varias consultas
+  function renderP7() {
+    var A = S.A, Q = S.Q, n = A.length, svg = $('svg7'), con = responder('V2', A, Q, true), sin = responder('V2', A, Q, false), i;
+    clear(svg);
+    var cw = Math.max(14, Math.min(40, 600 / n)), Wd = 40 + cw * n;
+    svg.setAttribute('viewBox', '0 0 ' + Math.max(Wd, 640) + ' 96'); svg.style.minWidth = Math.min(Math.max(520, Wd * 0.9), 900) + 'px';
+    for (i = 0; i < n - 1; i++) {
+      var us = con.pares[i + ',' + (i + 1)] || [], c = el('rect', { x: 20 + i * cw, y: 22, width: cw - 1, height: 30, class: 'cell ' + (us.length === 0 ? 'cero' : (us.length === 1 ? 'uno' : 'varias')) }, svg);
+      (function (ii, uu) { c.addEventListener('mousemove', function (e) { showTip(e, 'par (' + ii + ', ' + (ii + 1) + '): ' + (uu.length ? 'consultas ' + uu.map(function (j) { return j + 1; }).join(', ') : 'nadie lo comparó')); }); c.addEventListener('mouseleave', hideTip); })(i, us);
+      if (us.length && cw >= 18) el('text', { x: 20 + i * cw + cw / 2 - 0.5, y: 41, class: 'mono-lab' }, svg, us.length);
+      if (n <= 30) el('text', { x: 20 + i * cw + cw / 2 - 0.5, y: 68, class: 'mono-lab' }, svg, i + '|' + (i + 1));
+    }
+    var suma = sumaTecho(Q), disj = sonDisjuntas(Q), inf = cotaDisjuntas(Q), sup = Math.min(n - 1, suma);
+    $('stats7').innerHTML = [['sin memoria', sin.total, 'cost'], ['con memoria', con.total, 'speed'], ['Σ⌈log₂ L⌉', suma, ''], ['n − 1', n - 1, ''], ['cota inf. (disjuntas)', inf, ''], ['mín(n−1, Σ)', sup, '']]
+      .map(function (s) { return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v ' + s[2] + '">' + s[1] + '</div></div>'; }).join('');
+    var rows = '';
+    con.filas.forEach(function (f, j) { rows += '<tr' + (j === S.qi ? ' class="cur"' : '') + '><td class="num">' + (j + 1) + '</td><td>(' + f.l + ', ' + f.r + ')</td><td class="num">' + (f.r - f.l + 1) + '</td><td class="num">' + f.out + '</td><td class="num">' + f.propias + '</td><td class="num">' + f.nuevas + '</td><td class="num">' + techoLog2(f.r - f.l + 1) + '</td></tr>'; });
+    $('tbl7').innerHTML = '<table class="t"><thead><tr><th>#</th><th>(l, r)</th><th>L</th><th>V2 devuelve</th><th>comparaciones propias</th><th>nuevas (con memoria)</th><th>⌈log₂ L⌉</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var verdict;
+    if (S.cons === 'cadena') verdict = 'Cadena de consultas de largo 2: cada par (i, i+1) se compara una vez, <b>n − 1 = ' + (n - 1) + '</b>, y esa es también la cota inferior: no se puede bajar.';
+    else if (Q.length === 1) verdict = 'Una sola consulta de largo L = ' + (Q[0][1] - Q[0][0] + 1) + ': el peor caso es exactamente ⌈log₂ L⌉ = <b>' + suma + '</b> (pasos 5 y 6). Elige otra opción en «consultas» para ver qué pasa con varias.';
+    else if (disj) verdict = 'Rangos <b>disjuntos</b>: por el Teorema 7.2 el peor caso es exactamente Σ⌈log₂ L⌉ = <b>' + suma + '</b>, y V2 lo alcanza. En este arreglo se gastaron ' + sin.total + ' (≤ ' + suma + '); «arreglo adversario» construye el arreglo donde se gastan ' + suma + '.';
+    else if (S.cons === 'repetida') verdict = 'La misma consulta repetida: con memoria cuesta una sola vez (<b>' + con.total + '</b>), sin memoria ' + sin.total + '. La suma Σ⌈log₂ L⌉ = ' + suma + ' ya no es una cota inferior para rangos que se solapan.';
+    else verdict = 'Rangos que <b>se solapan</b>: el costo con memoria (' + con.total + ') queda por debajo de la suma (' + suma + ') y de n − 1 (' + (n - 1) + '). El óptimo exacto queda entre la cota inferior ' + inf + ' y mín(n−1, Σ) = ' + sup + ' y no se conoce en general; V2 no siempre es óptimo (botón de fuerza bruta).';
+    setMsg($('panel7'), verdict);
+  }
+  function runOpt7(n, Q, etiqueta) {
+    var pn = $('panel7b'); pn.style.display = 'block';
+    if (n > 5) { setMsg(pn, 'La búsqueda por fuerza bruta recorre las n! permutaciones: con n ≤ 5 es instantánea. Baja n a 5 o menos.'); return; }
+    var o = optimo(n, Q), v = peorV2Memoria(n, Q), sup = Math.min(n - 1, sumaTecho(Q));
+    setMsg(pn, etiqueta + ': n = <b>' + n + '</b>, consultas ' + Q.map(function (q) { return '(' + q[0] + ',' + q[1] + ')'; }).join(' ') + '. Óptimo por fuerza bruta = <b>' + o + '</b>; V2 con memoria, peor caso sobre las ' + permsDe(n).length + ' permutaciones = <b>' + v + '</b>; cota inferior ' + cotaDisjuntas(Q) + ' ≤ óptimo ≤ V2 ≤ mín(n−1, Σ) = ' + sup + '. ' +
+      (o < v ? '<b class="bad">V2 con memoria no es óptimo aquí.</b>' + (n === 4 && Q.length === 2 && Q[0][0] === 0 && Q[0][1] === 2 ? ' Un algoritmo con 2: comparar primero A[1] con A[2], que sirve a las dos consultas; si A[1] > A[2], la consulta (0,2) devuelve 2 y la (1,3) compara A[2] con A[3]; si no, la (1,3) devuelve 1 y la (0,2) compara A[0] con A[1].' : '') : '<b class="hi">Aquí V2 con memoria sí es óptimo.</b>'));
+  }
+
+  // ---- paso 8: el detector de errores
+  function renderP8() {
+    var n = vent().L, h = +$('iH').value, svg = $('svg8'), cw = Math.min(22, 600 / n), Wd = 40 + cw * n, fails = 0, k; clear(svg); svg.setAttribute('viewBox', '0 0 ' + Math.max(Wd, 640) + ' 90');
+    for (k = 0; k < n; k++) {
+      var A = valle(n, k), ok = esMinLocal(A, correrV2Recortado(A, h).out); if (!ok) fails++;
+      var c = el('rect', { x: 20 + k * cw, y: 20, width: cw - 1, height: 34, class: 'cell ' + (ok ? 'ok' : 'bad') }, svg);
+      (function (kk, oo) { c.addEventListener('mousemove', function (e) { showTip(e, 'V' + kk + ': ' + (oo ? 'acierta' : 'falla')); }); c.addEventListener('mouseleave', hideTip); })(k, ok);
+      if (n <= 30) el('text', { x: 20 + k * cw + cw / 2, y: 70, class: 'mono-lab' }, svg, k);
+    }
+    $('iHv').textContent = h;
+    $('iH').max = techoLog2(n);
+    var piso = Math.max(0, n - Math.pow(2, h));
+    setMsg($('panel8'), 'n = <b>' + n + '</b>, h = <b>' + h + '</b> comparaciones permitidas (⌈log₂ n⌉ = ' + techoLog2(n) + '). Con h comparaciones hay a lo sumo 2<sup>h</sup> = ' + Math.pow(2, h) + ' hojas: el recortado <b>falla en ' + fails + '</b> de las ' + n + ' instancias V<sub>k</sub>, y la cota dice al menos n − 2<sup>h</sup> = <b>' + piso + '</b>. ' +
+      (h >= techoLog2(n) ? '<b class="hi">Con h = ⌈log₂ n⌉ el algoritmo es V2 completo y acierta siempre.</b>' : (fails === piso ? '<b>La falla es exactamente la que predice la cota.</b>' : '')));
+  }
+  function runRand8() {
+    var n = vent().L, h = +$('iH').value, rg = mulberry32(21), N = 20000, f = 0, i;
+    for (i = 0; i < N; i++) { var A = permAzar(n, rg); if (!esMinLocal(A, correrV2Recortado(A, h).out)) f++; }
+    var pn = $('batch8'); pn.style.display = 'block';
+    setMsg(pn, N + ' permutaciones al azar con n = ' + n + ' y h = ' + h + ': lo delatan <b>' + f + '</b> (' + (100 * f / N).toFixed(2) + '%). Con n potencia de 2 la mitad lo ven; con n = 2<sup>j</sup> + 1 casi ninguna. La cota, en cambio, garantiza al menos una instancia fallida sin depender de la experimentación.');
+  }
+  function runPerm8() {
+    var f = 0, t = 0; perms([0, 1, 2, 3, 4, 5, 6, 7]).forEach(function (p) { t++; if (!esMinLocal(p, correrV2Recortado(p, 2).out)) f++; });
+    var pn = $('batch8'); pn.style.display = 'block';
+    setMsg(pn, 'n = 8, h = 2, <b>todas</b> las permutaciones: falla en <b>' + f + ' de ' + t + '</b> (' + (100 * f / t).toFixed(2) + '%), y en las V<sub>k</sub> falla exactamente n − 2<sup>h</sup> = 4 de 8. (verif.py: 20160 de 40320.)');
+  }
+
+  // ---- control global
+  function sync() {
+    $('iNv').textContent = S.n; $('iN').value = S.n; $('iKind').value = S.kind; $('iAlg').value = S.alg; $('iCons').value = S.cons;
+    $('iK').max = S.n - 1; if (S.k > S.n - 1) S.k = S.n - 1; $('iK').value = S.k; $('iKv').textContent = S.k;
+    $('iQ').value = S.nq; $('iQv').textContent = S.nq; $('iQ').disabled = !(S.cons === 'disjuntas' || S.cons === 'solapadas' || S.cons === 'repetida');
+    $('iN').disabled = S.kind === 'ejemplo';
+    var sel = $('selQ'); clear(sel); sel.innerHTML = '';
+    S.Q.slice(0, 60).forEach(function (q, j) { var o = document.createElement('option'); o.value = j; o.textContent = (j + 1) + ': (' + q[0] + ', ' + q[1] + ')'; sel.appendChild(o); });
+    sel.value = S.qi;
+  }
+  function newInstance(mantenerArreglo) {
+    if (S.kind === 'ejemplo') S.n = 10;
+    S.Q = makeQueries(); S.qi = Math.min(S.qi, S.Q.length - 1);
+    if (!mantenerArreglo) S.A = makeArray();
+    S.n = S.A.length; P2.cur = 0; $('batch8').style.display = 'none'; $('panel7b').style.display = 'none';
+    refresh();
+  }
+  function refresh() { sync(); renderP1(); recomputeP2(); renderP2(); renderP3(); renderP4(); renderP5(); renderP6(); renderP7(); renderP8(); }
+  function init() {
+    $('iKind').addEventListener('change', function () { S.kind = this.value; newInstance(); });
+    $('iN').addEventListener('input', function () { S.n = +this.value; if (S.kind === 'ejemplo') S.kind = 'azar'; newInstance(); });
+    $('iK').addEventListener('input', function () { S.k = +this.value; if (S.kind !== 'valle') { S.kind = 'valle'; } newInstance(); });
+    $('iAlg').addEventListener('change', function () { S.alg = this.value; P2.cur = 0; refresh(); });
+    $('iCons').addEventListener('change', function () { S.cons = this.value; S.qi = 0; newInstance(true); });
+    $('iQ').addEventListener('input', function () { S.nq = +this.value; S.qi = 0; newInstance(true); });
+    $('selQ').addEventListener('change', function () { S.qi = +this.value; P2.cur = 0; refresh(); });
+    $('btnInst').addEventListener('click', function () { S.kind = 'azar'; if (S.n < 3) S.n = 10; newInstance(); });
+    $('b2first').addEventListener('click', function () { P2.cur = 0; renderP2(); });
+    $('b2prev').addEventListener('click', function () { if (P2.cur > 0) P2.cur--; renderP2(); });
+    $('b2next').addEventListener('click', function () { if (P2.cur < P2.run.steps.length - 1) P2.cur++; renderP2(); });
+    $('b2last').addEventListener('click', function () { P2.cur = P2.run.steps.length - 1; renderP2(); });
+    $('btnBatch3').addEventListener('click', runBatch3);
+    $('btnWorst1').addEventListener('click', function () { S.kind = 'peor1'; newInstance(); $('svg4').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    $('iH').addEventListener('input', renderP8);
+    $('btnRand8').addEventListener('click', runRand8);
+    $('btnPerm8').addEventListener('click', runPerm8);
+    $('btnAdv7').addEventListener('click', function () {
+      if (!sonDisjuntas(S.Q)) { var pn = $('panel7b'); pn.style.display = 'block'; setMsg(pn, 'El arreglo adversario del Teorema 7.2 solo está definido para consultas disjuntas: elige «disjuntas al azar» arriba.'); return; }
+      S.kind = 'adv'; S.A = adversario(S.n, S.Q); refresh();
+      var pn2 = $('panel7b'); pn2.style.display = 'block'; setMsg(pn2, 'Arreglo adversario: cada rango contiene un V<sub>k</sub> de peor caso, y todo el rango j está por encima del j−1. V2 gasta ahora exactamente <b>' + responder('V2', S.A, S.Q, false).total + '</b> = Σ⌈log₂ L⌉ = ' + sumaTecho(S.Q) + '.');
+    });
+    $('btnOpt7').addEventListener('click', function () { runOpt7(4, [[0, 2], [1, 3]], 'El primer caso donde V2 con memoria no es óptimo'); });
+    $('btnOpt7b').addEventListener('click', function () { runOpt7(S.n, S.Q, 'Consultas actuales'); });
+    newInstance();
+    $('iH').value = Math.max(0, techoLog2(vent().L) - 1); renderP8();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

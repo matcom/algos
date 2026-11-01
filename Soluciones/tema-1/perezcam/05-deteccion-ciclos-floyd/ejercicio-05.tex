@@ -1,0 +1,302 @@
+\documentclass[11pt]{article}
+\input{../_estilo.tex}
+\renewcommand{\tituloejercicio}{Tema 1 --- Ejercicio 5}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azultitulo} Ejercicio 5 --- Detección de ciclos de Floyd}
+
+\vspace{2pt}
+\textbf{Dificultad:} $\bigstar\bigstar$ \quad \textbf{Conferencias:} C3 (Correctitud)
+\vspace{8pt}
+\hrule
+\vspace{12pt}
+
+\section*{Enunciado}
+\begin{enunciado}
+Detección de ciclos en una lista enlazada con dos punteros que avanzan a velocidades 1 y 2 (algoritmo de
+Floyd). Demuestra que se encuentran si y solo si hay un ciclo, con un invariante, y que termina, con un
+potencial. Da el costo.
+\end{enunciado}
+
+\section{El problema y el algoritmo}
+
+Una lista enlazada puede ser una cola de $\mu\ge 0$ nodos seguida de un ciclo de $\lambda\ge 0$ nodos
+($\lambda=0$ significa que no hay ciclo). Dos punteros, \texttt{lento} y \texttt{rápido}, arrancan en la
+cabeza; en cada vuelta \texttt{lento} avanza un nodo y \texttt{rápido} avanza dos.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85, every node/.style={font=\small}]
+  \filldraw[fill=azulsuave, draw=grisborde] (0,1.5) circle (0.22);
+  \node[above] at (0,1.8) {cabeza};
+  \filldraw[fill=azulsuave, draw=grisborde] (1,1.5) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (2,1.5) circle (0.22);
+  \draw[->] (0.22,1.5) -- (0.78,1.5);
+  \draw[->] (1.22,1.5) -- (1.78,1.5);
+  \node[below] at (1,1.1) {cola: $\mu$ nodos};
+  \draw[->] (2.22,1.5) -- (3.3,1.75);
+  \coordinate (A) at (3.46,1.9);
+  \coordinate (B) at (4.5,2.3);
+  \coordinate (C) at (5.54,1.9);
+  \coordinate (D) at (5.54,0.7);
+  \coordinate (E) at (4.5,0.3);
+  \coordinate (F) at (3.46,0.7);
+  \draw[draw=grisborde, thick, ->] (A) -- (B);
+  \draw[draw=grisborde, thick] (B) -- (C);
+  \draw[draw=grisborde, thick, ->] (C) -- (D);
+  \draw[draw=grisborde, thick] (D) -- (E);
+  \draw[draw=grisborde, thick, ->] (E) -- (F);
+  \draw[draw=grisborde, thick] (F) -- (A);
+  \filldraw[fill=naranjastr!30, draw=grisborde] (A) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (B) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (C) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (D) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (E) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (F) circle (0.22);
+  \node[above left] at (A) {inicio del ciclo};
+  \node[right] at (6.0,1.3) {ciclo: $\lambda$ nodos};
+  \node[above] at (B) {\textcolor{azultitulo}{\textbf{lento}}};
+  \node[below] at (E) {\textcolor{naranjastr}{\textbf{rápido}}};
+\end{tikzpicture}
+\\[4pt]
+{\footnotesize Forma general de la lista: una cola de $\mu$ nodos seguida de un ciclo de $\lambda$ nodos.
+Una vez que ambos punteros entran al ciclo (flechas = sentido de avance), siguen dando vueltas en él para
+siempre; el potencial de la sección 2 mide cuánto le falta a \texttt{rápido}, módulo $\lambda$, para
+alcanzar a \texttt{lento}.}
+\end{center}
+
+\textbf{Especificación (C3 §1).} Precondición: la entrada es una lista de este tipo --- una cola finita de
+$\mu$ nodos seguida, opcionalmente, de un ciclo finito de $\lambda$ nodos; no se asume de antemano si
+$\lambda=0$ o no, eso es justamente lo que el algoritmo tiene que decidir. Postcondición: el algoritmo
+devuelve verdadero si y solo si $\lambda>0$ (existe un ciclo).
+
+El código real y ejecutable vive en \texttt{verif.py}, en esta carpeta; aquí va el pseudocódigo:
+
+\begin{lstlisting}[style=pseudo]
+funcion floyd(cabeza):
+    lento (*$\leftarrow$*) rapido (*$\leftarrow$*) cabeza
+    mientras rapido (*$\neq$*) nulo y rapido.sig (*$\neq$*) nulo:
+        lento (*$\leftarrow$*) lento.sig
+        rapido (*$\leftarrow$*) rapido.sig.sig
+        si lento es rapido:
+            devolver verdadero       // hay ciclo
+    devolver falso                    // rapido llego al final: no hay ciclo
+\end{lstlisting}
+
+\section{Correctitud: por qué se encuentran si y solo si hay un ciclo}
+
+La demostración tiene dos direcciones, cada una con su propia herramienta.
+
+\subsection*{Sin ciclo $\Rightarrow$ nunca se encuentran (invariante)}
+
+El objetivo es mostrar que, si la lista no tiene ciclo, \texttt{lento} y \texttt{rápido} jamás apuntan al
+mismo nodo mientras el algoritmo corre. Como ambos arrancan juntos en la cabeza y avanzan a velocidades
+distintas, la cantidad natural para comparar en cada instante es la posición de cada uno respecto a la
+cabeza: si se logra mostrar que \texttt{rápido} está siempre estrictamente más adelante que \texttt{lento},
+y que en una lista sin ciclo posiciones distintas corresponden siempre a nodos distintos, la conclusión es
+inmediata --- no pueden coincidir. Esta es una afirmación sobre \emph{todas} las vueltas del ciclo
+\texttt{while}, así que se demuestra, como cualquier invariante, por inducción en el número de vueltas
+(C3 §1).
+
+\begin{resultado}{Invariante}
+Mientras ambos punteros sigan siendo válidos (ninguno es \texttt{None}), después de $t\ge 1$ vueltas,
+$\mathrm{pos}(\text{rápido}) = 2t = 2\cdot\mathrm{pos}(\mathrm{lento}) > \mathrm{pos}(\mathrm{lento})$,
+donde $\mathrm{pos}(x)$ es el número de pasos que el puntero $x$ lleva dados desde la cabeza (en una lista
+sin ciclo, la distancia de su nodo a la cabeza).
+\end{resultado}
+
+Es inmediato por inducción en $t$ (cada vuelta suma 1 a la posición de \texttt{lento} y 2 a la de
+\texttt{rápido}). Si la lista \textbf{no tiene ciclo}, cada posición corresponde a un nodo distinto (es una
+secuencia simple, sin repeticiones), así que $\mathrm{pos}(\text{rápido})>\mathrm{pos}(\mathrm{lento})$
+implica \texttt{rápido} $\ne$ \texttt{lento} en todo momento en que ambos existan. Por lo tanto, si no hay
+ciclo, los punteros jamás coinciden antes de que \texttt{rápido} llegue al final (\texttt{None}), y el
+algoritmo termina correctamente reportando ``no hay ciclo''.
+
+\subsection*{Con ciclo $\Rightarrow$ sí se encuentran (potencial)}
+
+El objetivo ahora es el recíproco: si hay un ciclo, garantizar no solo que los punteros se encuentran, sino
+que lo hacen en una cantidad acotada de vueltas (si no, ``se encuentran'' sería una afirmación vacía, cierta
+recién en el infinito). Una vez que ambos punteros están dentro del ciclo, lo que pasó antes de entrar ya no
+importa --- lo único relevante es la diferencia entre sus posiciones dentro del ciclo, módulo $\lambda$.
+Como en cada vuelta \texttt{rápido} gana exactamente una posición más que \texttt{lento}, esa diferencia se actualiza
+como $\Phi'\equiv\Phi-1\pmod\lambda$. Mientras no haya encuentro, el valor de $\Phi$ es positivo y
+disminuye estrictamente hasta llegar a 0, que es exactamente la condición de ``están en el mismo nodo''.
+
+Una vez que \texttt{lento} entra al ciclo (tras $\mu$ pasos), su posición \emph{dentro del ciclo} es
+$(\mathrm{pos}(\mathrm{lento})-\mu)\bmod\lambda$; lo mismo para \texttt{rápido} en cuanto entra (lo hace
+igual o antes, por ser más veloz). Se define el potencial
+
+\begin{resultado}{Potencial}
+$\Phi = \big(\mathrm{pos}(\mathrm{lento})-\mathrm{pos}(\text{rápido})\big) \bmod \lambda$, una vez que
+ambos punteros están dentro del ciclo.
+\end{resultado}
+
+En cada vuelta conjunta, $\mathrm{pos}(\mathrm{lento})$ sube 1 y $\mathrm{pos}(\text{rápido})$ sube 2, así
+que $\Phi'\equiv\Phi-1\pmod\lambda$. Mientras no haya encuentro, $\Phi>0$; por tanto, si $\Phi>1$,
+el nuevo valor es $\Phi-1$, y si $\Phi=1$, el siguiente valor es 0 y los punteros se encuentran.
+Así, $\Phi$ decrece estrictamente como entero hasta la condición terminal $\Phi=0$, sin confundir esa
+disminución con una vuelta modular. Si $\mu=0$, ambos punteros empiezan en el mismo nodo, pero el código
+comprueba la igualdad después del primer avance; ese caso también queda cubierto por la cota de a lo sumo
+$\lambda$ vueltas y por la fórmula exacta de la sección 3.
+
+\textbf{Verificado exactamente}, calculando $\Phi$ con los nodos reales antes y después de cada paso
+conjunto (una vez que ambos punteros están en el ciclo), sobre 500 listas aleatorias:
+\begin{lstlisting}[style=salida]
+verificando que Phi baja 1 (mod lam) en cada paso conjunto, ambos en el ciclo:
+fallos del potencial (deberia ser 0): 0
+\end{lstlisting}
+
+\section{Costo}
+
+\textbf{Terminación.} El ciclo \texttt{while} tiene dos maneras de cortar, y cada una necesita su propio
+argumento de terminación (C3 §1) --- ninguna es automática solo porque la condición de corte existe.
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Sin ciclo:} la lista es una secuencia finita de $\mu$ nodos terminada en \texttt{None}.
+\texttt{rápido} avanza 2 nodos por vuelta, así que la cantidad de nodos que le quedan por recorrer hasta
+\texttt{None} es un entero no negativo que baja exactamente en 2 en cada vuelta (el ciclo \texttt{while} solo
+corre mientras le queden al menos dos nodos por delante) --- un potencial trivial que acota la terminación en
+a lo sumo $\lfloor\mu/2\rfloor$ vueltas.
+\item \textbf{Con ciclo:} \texttt{lento} entra al ciclo en $\mu$ pasos, y una vez ahí, el potencial de la
+sección 2 garantiza el encuentro en a lo sumo $\lambda$ vueltas más. Además, en una lista con ciclo ningún
+nodo tiene sucesor nulo, así que la condición del \texttt{while} nunca falla: la única salida es el encuentro,
+y el algoritmo devuelve verdadero.
+\end{itemize}
+En ambos casos el algoritmo termina, en a lo sumo $\mu+\lambda$ vueltas, es decir $O(n)$ con
+$n=\mu+\lambda$ el tamaño de la lista. \textbf{Tiempo:} $O(n)$. \textbf{Memoria:} $O(1)$ --- dos punteros,
+sin estructuras auxiliares. Esta es, de hecho, la razón de ser del algoritmo: detectar un ciclo guardando
+los nodos visitados en un conjunto también cuesta $O(n)$ tiempo, pero $O(n)$ \textbf{memoria}; Floyd logra
+lo mismo en memoria constante.
+
+\textbf{Verificación.} Sobre 3000 listas aleatorias (con y sin ciclo, $\mu,\lambda$ variados):
+\begin{lstlisting}[style=salida]
+casos probados: 3000
+fallos de deteccion (hay_ciclo correcto, deberia ser 0): 0
+fallos de la cota pasos <= mu+lam (deberia ser 0): 0
+\end{lstlisting}
+
+\textbf{Curiosidad: la cota exacta, no solo una cota superior.} El mismo argumento de la sección 2
+determina el número \emph{exacto} de vueltas hasta el encuentro, no solo que son a lo sumo $\mu+\lambda$.
+
+\textit{Demostración.} Para $t<\mu$ no hay encuentro posible: si además $2t<\mu$, ambas posiciones son
+índices de la cola, y $\mathrm{pos}(\mathrm{lento})=t\ne 2t=\mathrm{pos}(\text{rápido})$ porque $t\ge1$; si en
+cambio $2t\ge\mu$, \texttt{lento} está en la cola (índice $<\mu$) y \texttt{rápido} ya en el ciclo (índice
+$\ge\mu$), rangos disjuntos. En ningún caso coinciden. Para $t\ge\mu$ (de donde $2t\ge\mu$ también), ambos
+punteros están dentro del ciclo, y por la sección 2, $\mathrm{pos}(\mathrm{lento})\equiv
+\mathrm{pos}(\text{rápido})\pmod\lambda$ exactamente cuando $t\equiv0\pmod\lambda$. Juntando las dos partes,
+el conjunto de vueltas en las que el encuentro es posible es $\{t\ge\mu:t\equiv0\pmod\lambda\}$, y su primer
+elemento (ajustando a $t\ge1$ para cubrir el caso $\mu=0$) es el primer múltiplo de $\lambda$ que es
+$\ge\max(\mu,1)$:
+\[ t^\ast \;=\; \lambda\left\lceil\frac{\max(\mu,1)}{\lambda}\right\rceil \qquad(\lambda>0). \qquad\square \]
+No cambia la complejidad: sigue siendo $\Theta(n)$ con la cota floja o con esta fórmula exacta. Verificado
+contra la simulación real, sobre 5000 listas aleatorias:
+\begin{lstlisting}[style=salida]
+verificando t* = lam * ceil(max(mu,1)/lam) contra la simulacion real:
+casos: 5000, fallos (deberia ser 0): 0
+\end{lstlisting}
+
+\section*{Bono: encontrar \emph{dónde} empieza el ciclo}
+
+El algoritmo tal como se pide solo responde sí/no. En la práctica (por ejemplo, para depurar una estructura de
+datos corrupta) suele hacer falta además el nodo \emph{donde empieza} el ciclo. La segunda fase clásica de Floyd lo hace con álgebra modular.
+
+\begin{resultado}{Segunda fase}
+Al encontrarse, se deja un puntero $P_1$ en la cabeza y otro $P_2$ en el nodo de encuentro, y se avanzan
+\textbf{ambos de a un paso}. Donde se vuelven a encontrar es exactamente el inicio del ciclo.
+\end{resultado}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85, every node/.style={font=\small}]
+  \filldraw[fill=azulsuave, draw=grisborde] (0,1.5) circle (0.22);
+  \node[above] at (0,1.8) {cabeza};
+  \filldraw[fill=azulsuave, draw=grisborde] (1,1.5) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (2,1.5) circle (0.22);
+  \draw[->, thick, azultitulo] (0.22,1.5) -- (0.78,1.5);
+  \draw[->, thick, azultitulo] (1.22,1.5) -- (1.78,1.5);
+  \node[below, azultitulo] at (1,1.1) {\textbf{$P_1$: $\mu$ pasos}};
+  \draw[->, thick, azultitulo] (2.22,1.5) -- (3.3,1.75);
+
+  \coordinate (A) at (3.46,1.9);
+  \coordinate (B) at (4.5,2.3);
+  \coordinate (C) at (5.54,1.9);
+  \coordinate (D) at (5.54,0.7);
+  \coordinate (E) at (4.5,0.3);
+  \coordinate (F) at (3.46,0.7);
+
+  \draw[draw=grisborde, thick] (A) -- (B) -- (C) -- (D) -- (E) -- (F) -- (A);
+
+  \draw[->, thick, naranjastr] (D) -- (E);
+  \draw[->, thick, naranjastr] (E) -- (F);
+  \draw[->, thick, naranjastr] (F) -- (A);
+  \node[below, naranjastr] at (4.5,0.0) {\textbf{$P_2$: $\mu$ pasos (mód $\lambda$)}};
+
+  \filldraw[fill=azulsuave, draw=grisborde] (B) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (C) circle (0.22);
+  \filldraw[fill=naranjastr!35, draw=naranjastr, thick] (D) circle (0.24);
+  \filldraw[fill=azulsuave, draw=grisborde] (E) circle (0.22);
+  \filldraw[fill=azulsuave, draw=grisborde] (F) circle (0.22);
+  \filldraw[fill=azultitulo!25, draw=azultitulo, thick] (A) circle (0.24);
+
+  \node[above left] at (A) {inicio del ciclo};
+  \node[right] at (D) {encuentro};
+\end{tikzpicture}
+\\[4pt]
+{\footnotesize $P_1$ arranca en la cabeza y camina $\mu$ pasos, llegando exactamente al inicio del ciclo.
+$P_2$ arranca en el nodo de encuentro --- en el dibujo, con $\mu=3$ y $\lambda=6$, a
+$(-\mu)\bmod\lambda=3$ nodos del inicio del ciclo --- y camina también $\mu$ pasos, medidos módulo
+$\lambda$ dentro del ciclo (dando la vuelta tantas veces como haga falta). La demostración de álgebra modular
+que sigue garantiza que, tras esos $\mu$ pasos, los dos están en el mismo nodo: el inicio del ciclo.}
+\end{center}
+
+\textit{Demostración.} Sea $s$ el número de pasos que dio \texttt{lento} hasta el encuentro; \texttt{rápido}
+dio $2s$. Como el encuentro ocurre dentro del ciclo, la identidad del nodo solo depende de la posición
+módulo $\lambda$: $(s-\mu)\equiv(2s-\mu)\pmod\lambda$, es decir $s\equiv 0\pmod\lambda$. Así que $s=k\lambda$
+para algún entero $k\ge 1$, y el nodo de encuentro tiene, dentro del ciclo, el desplazamiento
+$(s-\mu)\bmod\lambda=(-\mu)\bmod\lambda$ respecto al inicio del ciclo.
+
+Ahora se avanza $P_1$ (desde la cabeza) $\mu$ pasos: llega exactamente al inicio del ciclo (desplazamiento 0,
+por definición de $\mu$). Se avanza $P_2$ (desde el encuentro, desplazamiento $(-\mu)\bmod\lambda$) también
+$\mu$ pasos: su nuevo desplazamiento es $\big((-\mu)\bmod\lambda + \mu\big)\bmod\lambda = 0$. Los dos
+terminan con el mismo desplazamiento, 0, es decir, \textbf{en el mismo nodo}: el inicio del ciclo.
+Antes de esos $\mu$ pasos no pueden coincidir: $P_1$ sigue en la cola mientras $P_2$ está siempre dentro del
+ciclo, y la cola y el ciclo no comparten nodos. Así que el \emph{primer} encuentro de $P_1$ y $P_2$ ocurre
+exactamente en el inicio del ciclo. $\square$
+
+\begin{lstlisting}[style=salida]
+fallos al encontrar el inicio exacto del ciclo (deberia ser 0): 0
+\end{lstlisting}
+
+\begin{resultado}{Respuesta a la pregunta del enunciado}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Invariante (sin ciclo $\Rightarrow$ nunca se encuentran):} mientras ambos punteros sean
+válidos, $\mathrm{pos}(\text{rápido})=2\cdot\mathrm{pos}(\mathrm{lento})>\mathrm{pos}(\mathrm{lento})$; en
+una lista sin ciclo, posiciones distintas son nodos distintos, así que jamás coinciden (sección 2).
+\item \textbf{Potencial (con ciclo $\Rightarrow$ sí se encuentran):} mientras no haya encuentro,
+$\Phi=(\mathrm{pos}(\mathrm{lento})-\mathrm{pos}(\text{rápido}))\bmod\lambda$ disminuye estrictamente
+en cada vuelta; al llegar a 0, los punteros coinciden, a lo sumo dentro de $\lambda$ vueltas (sección 2).
+\item \textbf{Costo:} $O(n)$ tiempo con $n=\mu+\lambda$, terminación acotada explícitamente en los dos casos
+(con y sin ciclo); $O(1)$ memoria extra, a diferencia de guardar nodos visitados en un conjunto (sección 3).
+\end{itemize}
+\end{resultado}
+
+\section*{Errores que hay que vigilar}
+
+\begin{alerta}{}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Comparar \emph{valores} en vez de \emph{identidad de nodos}.} Si la lista tiene valores
+repetidos (dos nodos distintos con el mismo dato), comparar \texttt{lento.valor == rapido.valor} da falsos
+positivos sin que haya ciclo real. El algoritmo necesita comparar \textbf{identidad} (\texttt{is}, o
+comparar direcciones/referencias), no contenido.
+\item \textbf{Avanzar \texttt{rápido} antes de comprobar que \texttt{rápido.sig} no es \texttt{None}.} La
+condición del ciclo tiene que chequear \emph{ambos} pasos de \texttt{rápido} antes de darlos
+(\texttt{rapido is not None and rapido.sig is not None}); revisar solo \texttt{rapido is not None} y luego
+acceder a \texttt{rapido.sig.sig} puede lanzar una excepción de atributo nulo en una lista acíclica de
+longitud impar.
+\item \textbf{Pensar que el potencial garantiza encontrarse \emph{apenas} entra el más lento al ciclo.} El
+potencial solo garantiza encontrarse dentro de $\lambda$ vueltas \emph{después} de que ambos ya están en el
+ciclo --- no inmediatamente. El encuentro real ocurre en
+la vuelta $t^\ast=\lambda\lceil\max(\mu,1)/\lambda\rceil$ de la sección 3: nunca antes de la vuelta $\mu$,
+y puede tardar hasta $\mu+\lambda$ (por ejemplo, con $\mu=0$ tarda exactamente $\lambda$).
+\end{itemize}
+\end{alerta}
+
+\end{document}

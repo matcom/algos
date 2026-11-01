@@ -1,0 +1,540 @@
+\documentclass[11pt]{article}
+\input{../_estilo.tex}
+\renewcommand{\tituloejercicio}{Tema 1 --- Ejercicio 10}
+
+% Estilos de la figura 1 (arbol de decision)
+\definecolor{ruta}{HTML}{C0392B}
+\tikzset{
+  nodoarb/.style={draw=azultitulo, fill=azulsuave, rounded corners=3pt, minimum height=0.72cm,
+                  minimum width=1.9cm, inner sep=2pt, font=\small},
+  hojaok/.style={draw=verdecom, fill=verdecom!14, rounded corners=3pt, minimum height=0.74cm,
+                 text width=5.0cm, align=left, inner sep=3pt, font=\scriptsize, anchor=west},
+  hojano/.style={draw=naranjastr, fill=naranjastr!12, rounded corners=3pt, minimum height=0.74cm,
+                 text width=5.0cm, align=left, inner sep=3pt, font=\scriptsize, anchor=west},
+  lado/.style={fill=white, inner sep=1.2pt, font=\scriptsize},
+  rama/.style={draw=grisnum, line width=0.5pt},
+  camino/.style={draw=ruta, line width=1.7pt},
+  ladoruta/.style={fill=white, inner sep=1.2pt, font=\scriptsize\bfseries, text=ruta},
+}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azultitulo} Ejercicio 10 --- Par más cercano en una dimensión}
+
+\vspace{2pt}
+\textbf{Dificultad:} $\bigstar\bigstar$ \quad \textbf{Conferencias:} C2 (El oficio algorítmico),
+C5 (Cotas mínimas)
+\vspace{8pt}
+\hrule
+\vspace{12pt}
+
+\section*{Enunciado}
+\begin{enunciado}
+Par más cercano en una dimensión. Demuestra $\Omega(n\log n)$ en árboles de decisión algebraicos por
+reducción desde distinción de elementos. Después di qué algoritmo de la conferencia 2 rompe la cota, en
+qué modelo, y adáptalo a una dimensión.
+\end{enunciado}
+
+C2 §3 ya resolvió el \emph{algoritmo} del par más cercano en 1D (ordenar y mirar consecutivos,
+$O(n\log n)$). C2 §8 demostró la cota en el plano con el mapa $x_i\mapsto(x_i,0)$, y C2 §9 dio el algoritmo
+aleatorio que la rompe. Este ejercicio hace tres cosas: (1) rehace la cota en 1D, donde la reducción
+desaparece y se puede dar además una demostración que no cita a Ben-Or; (2) identifica el modelo que
+escapa a la cota; (3) adapta la rejilla de C2 §9 a una dimensión, \textbf{rehaciendo} la cuenta geométrica
+en vez de copiar las constantes del plano. Lo ``verificado'' está en \texttt{verif.py}.
+
+%% ------------------------------------------------------------------------------------------------
+\section{La cota: \texorpdfstring{$\Omega(n\log n)$}{Omega(n log n)}}
+
+\subsection*{El modelo}
+Un árbol de decisión algebraico (C2 §8) prueba en cada nodo el signo de un polinomio de la entrada y
+ramifica en tres ($<$, $=$, $>$); las hojas son respuestas, y el costo es la profundidad. Hay un detalle
+que importa: \textbf{las hojas contienen respuestas discretas}. Un árbol para el par más cercano no
+devuelve el número $\delta$, devuelve en cada hoja \emph{qué par} $(i,j)$ es el más cercano.
+La figura~\ref{fig:arbol} muestra uno completo, con $n=3$.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % fila r -> y = -0.95 r
+  \node[font=\scriptsize\itshape,text=grisnum] at (2.2,0.95) {cada nodo prueba el signo de $x_i-x_j$};
+  \node[font=\scriptsize\itshape,text=grisnum] at (11.1,0.95) {hojas: la respuesta y una entrada que llega ahí};
+
+  % nodos internos
+  \node[nodoarb] (r)  at (0,   {-0.95*5}) {$x_1-x_2$};
+  \node[nodoarb] (na) at (3.1, {-0.95*1}) {$x_2-x_3$};
+  \node[nodoarb] (nc) at (3.1, {-0.95*9}) {$x_2-x_3$};
+  \node[nodoarb] (a3) at (6.0, {-0.95*3}) {$x_1-x_3$};
+  \node[nodoarb] (c3) at (6.0, {-0.95*7}) {$x_1-x_3$};
+
+  % hojas
+  \node[hojaok] (h0)  at (8.7,{-0.95*0})  {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_1<x_2<x_3$ \hfill ej.: $(2,5,9)$};
+  \node[hojano] (h1)  at (8.7,{-0.95*1})  {\textbf{\color{naranjastr}hay repetidos}\\ $x_2=x_3$ \hfill ej.: $(2,7,7)$};
+  \node[hojaok] (h2)  at (8.7,{-0.95*2})  {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_1<x_3<x_2$ \hfill ej.: $(2,9,5)$};
+  \node[hojano] (h3)  at (8.7,{-0.95*3})  {\textbf{\color{naranjastr}hay repetidos}\\ $x_1=x_3$ \hfill ej.: $(4,9,4)$};
+  \node[hojaok,draw=ruta,line width=1.5pt] (h4) at (8.7,{-0.95*4}) {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_3<x_1<x_2$ \hfill ej.: $(5,9,2)$};
+  \node[hojano] (h5)  at (8.7,{-0.95*5})  {\textbf{\color{naranjastr}hay repetidos}\\ $x_1=x_2$ \hfill ej.: $(6,6,1)$};
+  \node[hojaok] (h6)  at (8.7,{-0.95*6})  {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_2<x_1<x_3$ \hfill ej.: $(5,2,9)$};
+  \node[hojano] (h7)  at (8.7,{-0.95*7})  {\textbf{\color{naranjastr}hay repetidos}\\ $x_1=x_3$ \hfill ej.: $(7,1,7)$};
+  \node[hojaok] (h8)  at (8.7,{-0.95*8})  {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_2<x_3<x_1$ \hfill ej.: $(9,2,5)$};
+  \node[hojano] (h9)  at (8.7,{-0.95*9})  {\textbf{\color{naranjastr}hay repetidos}\\ $x_2=x_3$ \hfill ej.: $(9,3,3)$};
+  \node[hojaok] (h10) at (8.7,{-0.95*10}) {\textbf{\color{verdecom!60!black}todos distintos}\\ $x_3<x_2<x_1$ \hfill ej.: $(9,5,2)$};
+
+  % ramas (de arriba abajo en cada nodo: <0, =0, >0)
+  \draw[rama] (r) -- node[lado,pos=.5]{$<0$} (na);
+  \draw[rama] (r) -- node[lado,pos=.5]{$=0$} (h5.west);
+  \draw[rama] (r) -- node[lado,pos=.5]{$>0$} (nc);
+
+  \draw[rama] (na) -- node[lado,pos=.62]{$<0$} (h0.west);
+  \draw[rama] (na) -- node[lado,pos=.3]{$=0$}  (h1.west);
+  \draw[rama] (na) -- node[lado,pos=.5]{$>0$}  (a3);
+
+  \draw[rama] (a3) -- node[lado,pos=.5]{$<0$} (h2.west);
+  \draw[rama] (a3) -- node[lado,pos=.5]{$=0$} (h3.west);
+  \draw[rama] (a3) -- node[lado,pos=.5]{$>0$} (h4.west);
+
+  \draw[rama] (nc) -- node[lado,pos=.5]{$<0$} (c3);
+  \draw[rama] (nc) -- node[lado,pos=.3]{$=0$} (h9.west);
+  \draw[rama] (nc) -- node[lado,pos=.62]{$>0$} (h10.west);
+
+  \draw[rama] (c3) -- node[lado,pos=.5]{$<0$} (h6.west);
+  \draw[rama] (c3) -- node[lado,pos=.5]{$=0$} (h7.west);
+  \draw[rama] (c3) -- node[lado,pos=.5]{$>0$} (h8.west);
+
+  % camino de la entrada (5,9,2), encima de lo anterior
+  \draw[camino] (r)  -- node[ladoruta,pos=.5]{$5-9=-4<0$} (na);
+  \draw[camino] (na) -- node[ladoruta,pos=.5]{$9-2=7>0$}  (a3);
+  \draw[camino] (a3) -- node[ladoruta,pos=.38]{$5-2=3>0$}  (h4.west);
+\end{tikzpicture}
+\caption{Un árbol de decisión completo para distinción de elementos con $n=3$ (pruebas lineales, o sea
+algebraico de grado 1). Cada nodo prueba el signo de $x_i-x_j$ y ramifica en tres. Las hojas verdes
+responden \emph{todos distintos} y las naranjas \emph{hay repetidos}; cada una muestra un orden o igualdad
+y una entrada concreta que llega ahí. En rojo, el camino de la entrada $(5,9,2)$: $5-9=-4<0$, luego
+$9-2=7>0$, luego $5-2=3>0$, y termina en la hoja $x_3<x_1<x_2$. Profundidad 3, 11 hojas, y exactamente
+$6=3!$ son verdes: una por cada orden posible. El árbol del par más cercano es el mismo tipo de
+objeto, con un par $(i,j)$ en cada hoja.}
+\label{fig:arbol}
+\end{figure}
+
+\begin{resultado}{Teorema (Ben-Or, 1983, citado en C2 §8)}
+Distinción de elementos --- dados $n$ reales, decidir si hay dos iguales --- requiere $\Omega(n\log n)$ en
+árboles de decisión algebraicos.
+\end{resultado}
+
+\begin{resultado}{Teorema}
+Par más cercano en 1D requiere $\Omega(n\log n)$ en árboles de decisión algebraicos.
+\end{resultado}
+
+\textit{Demostración.} En el plano C2 §8 necesita el mapa $x_i\mapsto(x_i,0)$ porque la entrada del
+problema son puntos de $\mathbb{R}^2$. En 1D los $n$ reales \textbf{ya son} una instancia de par más
+cercano: la reducción es la identidad y cuesta \textbf{cero} pruebas de signo.
+
+Sea $A$ un árbol de profundidad $T(n)$ para el par más cercano. En cada hoja de $A$ queda un par $(i,j)$,
+$i\ne j$, que es el más cercano para toda entrada que llega ahí. Si algún valor está repetido, la distancia
+mínima es $0$, así que el par $(i,j)$ de la hoja cumple $x_i=x_j$; si todos son distintos, $x_i\neq x_j$.
+Basta entonces colgar de cada hoja \textbf{un nodo más}, que pruebe el signo del polinomio $x_i-x_j$ (grado 1):
+``$=0$'' responde \emph{hay repetidos}, ``$\ne0$'' responde \emph{todos distintos}. El árbol resultante
+resuelve distinción de elementos con profundidad $T(n)+1$. Si fuera $T(n)=o(n\log n)$, contradiría a
+Ben-Or. $\square$
+
+\textbf{Verificado} (5000 instancias con repetidos forzados): distancia $0$ si y solo si hay un repetido.
+\begin{lstlisting}[style=salida]
+reduccion (distancia 0 syss hay repetido): 5000 pruebas, fallos (deberia ser 0): 0
+\end{lstlisting}
+
+\subsection{Una demostración sin citar a Ben-Or (modelo de comparaciones)}
+
+En un modelo más restringido la cota admite una demostración elemental, que no cita a Ben-Or. Si todas las
+pruebas son \textbf{lineales} --- en particular, comparar $x_i$ con $x_j$, que es el modelo de C5 --- la región
+de entradas que llega a una hoja es convexa, y basta contar hojas con la técnica de C5 §3 (es el ejercicio 5
+de esa conferencia). Con pruebas polinomiales de grado arbitrario esa región puede tener muchas componentes
+conexas, y por eso Ben-Or necesita el teorema de Milnor y Thom para acotarlas (se vuelve sobre esto al final
+de la subsección).
+
+\begin{resultado}{Lema}
+En un árbol de decisión lineal correcto para distinción de elementos, dos entradas $x,y$ de números
+\textbf{distintos} con \textbf{órdenes distintos} llegan a hojas distintas.
+\end{resultado}
+
+\textit{Demostración.} La región de entradas que llegan a una hoja es una intersección de semiespacios
+abiertos ($\ell(x)<0$, $\ell(x)>0$) e hiperplanos ($\ell(x)=0$): es \textbf{convexa}. Supongamos que $x$ e
+$y$ llegan a la misma hoja. Como sus órdenes difieren, hay índices $i,j$ con $x_i<x_j$ e $y_i>y_j$. La
+función $t\mapsto\big((1-t)x_i+ty_i\big)-\big((1-t)x_j+ty_j\big)$ es continua, vale $<0$ en $t=0$ y $>0$ en
+$t=1$, así que se anula en algún $t^\ast\in(0,1)$. El punto $z=(1-t^\ast)x+t^\ast y$ está en la región
+(convexidad) y tiene $z_i=z_j$: es una entrada \emph{con repetidos} que llega a una hoja a la que también
+llega $x$, cuya respuesta es ``todos distintos''. El árbol se equivoca con $z$. $\square$
+
+Hay $n!$ órdenes, luego al menos $n!$ hojas con respuesta ``todos distintos'' (en la figura~\ref{fig:arbol}
+son las 6 hojas verdes). Un árbol ternario de
+profundidad $h$ tiene a lo sumo $3^h$ hojas (C5 §3, lema 1, con tres ramas), así que
+\[
+  h\;\ge\;\log_3 n!\;\ge\;n\log_3\frac{n}{e}\;=\;\Omega(n\log n),
+\]
+usando $n!\ge(n/e)^n$, que es la cota fina del lema 3 de C5 §3 (la elemental, $\log n!\ge\frac n2\log\frac n2$,
+ya alcanza para $\Omega(n\log n)$). La diferencia con Ben-Or es solo qué hay que cuidar: con grado $d$
+la región de una hoja deja de ser convexa y puede tener muchas componentes conexas, y por eso hace falta
+Milnor--Thom para acotarlas. Lo que se cuenta es lo mismo en ambos casos: el conjunto ``todos distintos''
+tiene $n!$ componentes conexas, una por orden.
+
+\textbf{Verificado} sobre un algoritmo de comparaciones concreto (insercion binaria): las $n!$ entradas
+distintas terminan en $n!$ hojas distintas, y la profundidad queda por encima de la cota.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+  n     n!  hojas distintas  prof. maxima  ceil(log2 n!)  ceil(log3 n!)
+  3      6                6             3              3              2
+  4     24               24             5              5              3
+  5    120              120             8              7              5
+  6    720              720            11             10              6
+  7   5040             5040            14             13              8
+  8  40320            40320            17             16             10
+\end{lstlisting}
+(La tabla ilustra el fenómeno en un algoritmo; la demostración para \emph{todos} es el lema.)
+
+\textbf{Conclusión.} Ordenar y mirar consecutivos (C2 §3) cuesta $O(n\log n)$, así que es \textbf{óptimo}
+en el modelo de árboles de decisión algebraicos.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Qué algoritmo rompe la cota, y en qué modelo}
+
+\begin{resultado}{El algoritmo que rompe la cota}
+El algoritmo \textbf{aleatorio incremental} de C2 §9 (Rabin 1976 / Kleinberg--Tardos §13.7): costo
+\textbf{esperado} $O(n)$, en una RAM con \textbf{parte entera} ($\lfloor\cdot\rfloor$) y
+\textbf{direccionamiento indirecto} (una tabla hash de costo $O(1)$ esperado) --- dos operaciones que un
+árbol de decisión algebraico no tiene (C2 §10).
+\end{resultado}
+
+No hay contradicción con la sección 1: Ben-Or vale \emph{solo} para árboles algebraicos. Tres precisiones:
+
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Qué operación hace qué.} $\lfloor x/\delta\rfloor$ no es un polinomio ni es continua, y el
+resultado se usa como \emph{dirección} de la tabla. El teorema de Ben-Or no puede ver ninguna de las dos.
+\item \textbf{La reducción sigue valiendo en el modelo nuevo.} Lo que cambia es lo que transfiere: en la
+RAM con hash, distinción de elementos cuesta $O(n)$ esperado (una tabla hash sobre los valores, sin rejilla
+ninguna), así que la reducción solo da $\Omega(n)$, que es leer la entrada. En ese modelo los dos problemas
+son $\Theta(n)$. La parte entera es lo que permite pasar de ``¿hay iguales?'' a ``¿cuál es el hueco
+mínimo?'': la rejilla agrupa por cercanía, no por igualdad.
+\item \textbf{Hay dos fuentes de azar.} El barajado de los puntos (que analiza la sección 3.5) y la
+función hash (cuyo $O(1)$ esperado se asume, por ejemplo con hashing universal). Y la parte entera
+$\lfloor x/\delta\rfloor$ tiene que caber en una palabra (C1 §9): si $\delta$ es minúsculo respecto del
+rango de los puntos, el índice de celda tiene muchos bits y el $O(1)$ por operación deja de ser razonable.
+\end{itemize}
+
+%% ------------------------------------------------------------------------------------------------
+\section{Adaptación a una dimensión}
+
+\subsection{Qué es \texorpdfstring{$\delta$}{delta} aquí, y qué era en la franja}
+
+En C2 §5--6 (divide y vencerás) $\delta=\min(\delta_{izq},\delta_{der})$ es el mejor par \emph{del mismo
+lado} de la recta de corte: una cota superior de la distancia mínima real, que los pares cruzados pueden
+mejorar. En C2 §9 y en este ejercicio $\delta$ es la distancia mínima \emph{exacta} entre todos los puntos
+ya insertados. La figura~\ref{fig:delta} lo muestra con los \emph{mismos} puntos. Las dos veces la conclusión
+es ``una celda tiene a lo sumo un punto'', pero por razones distintas:
+\begin{center}\small
+\begin{tabular}{@{}p{3.2cm}p{5.6cm}p{5.8cm}@{}}
+\toprule
+ & \textbf{$\delta$ es\ldots} & \textbf{una celda tiene $\le1$ punto porque\ldots}\\
+\midrule
+Franja (C2 §6) & mínimo de los pares del mismo lado (cota superior de la distancia real) &
+cada celda cae en un solo lado de $L$ y ahí todo par está a $\ge\delta$\\
+Rejilla (C2 §9, aquí) & mínimo exacto de los puntos ya insertados & $\delta$ ya es la distancia mínima
+de \emph{todos} los pares insertados\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1.36cm,y=1cm]
+  \tikzset{punto/.style={fill=black!80,circle,inner sep=1.9pt}, et/.style={font=\scriptsize}}
+
+  %% ---------------------------------------------------------------- (A) franja
+  \node[anchor=west,font=\small\bfseries,text=azultitulo] at (-0.3,3.1)
+    {A\quad Franja: $\delta=\min(\delta_{izq},\delta_{der})$, el mejor par \emph{de un mismo lado} de $L$};
+  \fill[grisnum!9]  (0,-1.2) rectangle (5,2.55);
+  \fill[grisnum!20] (5,-1.2) rectangle (10,2.55);
+  \fill[naranjastr!13] (3.2,-1.2) rectangle (6.8,2.55);
+  \node[et,text=grisnum,anchor=north west] at (0.05,2.5) {mitad izquierda};
+  \node[et,text=grisnum,anchor=north east] at (9.95,2.5) {mitad derecha};
+  \draw[very thick,black!80] (5,-1.2) -- (5,2.55);
+  \node[et,anchor=south,font=\small\bfseries] at (5,2.55) {$L$};
+  \draw[grisnum] (-0.1,0) -- (10.1,0);
+  \foreach \x in {0.4,2.2,4.6,5.4,7.6,9.8} \node[punto] at (\x,0) {};
+  % mejor par de cada lado
+  \draw[azultitulo,thick,|-|] (0.4,0.5) -- (2.2,0.5) node[et,midway,above,text=black] {$\delta_{izq}=1.8$};
+  \draw[azultitulo,thick,|-|] (5.4,0.5) -- (7.6,0.5) node[et,midway,above,text=black] {$\delta_{der}=2.2$};
+  % intervalos de longitud delta a cada lado de L
+  \draw[verdecom,thick,|-|] (3.2,1.45) -- (5,1.45) node[et,midway,above,text=black] {$\le1$ punto};
+  \draw[verdecom,thick,|-|] (5,1.45) -- (6.8,1.45) node[et,midway,above,text=black] {$\le1$ punto};
+  \node[et,text=grisnum,anchor=east] at (3.15,1.45) {$\delta$};
+  \node[et,text=grisnum,anchor=west] at (6.85,1.45) {$\delta$};
+  % el par cruzado, que NO entra en la definicion de delta
+  \draw[naranjastr,very thick,|-|] (4.6,-0.5) -- (5.4,-0.5);
+  \node[et,text=naranjastr,anchor=north west] at (5.08,-0.62) {\textbf{par cruzado} $=0.8<\delta$};
+  \node[et,text=naranjastr,anchor=north west] at (3.25,2.45) {franja};
+  \node[font=\small,anchor=north] at (5,-1.35) {$\delta=\min(1.8,\,2.2)=\mathbf{1.8}$\qquad\textcolor{naranjastr}{pero la distancia mínima real es $0.8<\delta$}};
+
+  %% ---------------------------------------------------------------- (B) rejilla
+  \begin{scope}[yshift=-6.4cm]
+  \node[anchor=west,font=\small\bfseries,text=azultitulo] at (-0.3,2.35)
+    {B\quad Rejilla: $\delta$ = distancia mínima \emph{exacta} entre todos los puntos insertados};
+  % celdas de lado delta = 0.8; sombreadas las ocupadas (una por punto)
+  \foreach \k in {0,2,5,6,9,12} \fill[verdecom!17] ({0.8*\k},-0.4) rectangle ({0.8*(\k+1)},0.6);
+  \foreach \k in {0,...,13} {
+    \draw[grisnum!55,thin] ({0.8*\k},-0.4) -- ({0.8*\k},0.6);
+    \node[et,text=grisnum] at ({0.8*\k+0.4},-0.62) {\k};
+  }
+  \draw[grisnum] (-0.1,0) -- (10.5,0);
+  \foreach \x in {0.4,2.2,4.6,5.4,7.6,9.8} \node[punto] at (\x,0) {};
+  \node[et,text=grisnum,anchor=east] at (-0.15,-0.62) {celda};
+  % el par que define delta: el MISMO par cruzado de (A)
+  \draw[naranjastr,very thick,|-|] (4.6,1.0) -- (5.4,1.0) node[et,midway,above,text=black] {$\delta=0.8$ (el par más cercano de todos)};
+  % lado de celda
+  \draw[azultitulo,thick,|-|] (0,-1.15) -- (0.8,-1.15);
+  \node[et,anchor=west] at (0.9,-1.15) {lado de celda $=\delta$};
+  \node[et,anchor=east,align=right] at (10.45,-1.15) {dos puntos en una misma celda estarían a menos de $\delta$:\\imposible $\Rightarrow$ a lo sumo uno por celda};
+  \end{scope}
+\end{tikzpicture}
+\sloppy
+\caption{Los mismos seis puntos, dos significados de $\delta$. \textbf{(A)} En la franja, $\delta$ es el mejor
+par \emph{de un mismo lado} de $L$ ($\delta_{izq}=1.8$, $\delta_{der}=2.2$, luego $\delta=1.8$). No es la
+distancia mínima real: el par cruzado (naranja) está a $0.8<\delta$, y encontrarlo es justo para lo que sirve
+la franja. Los dos intervalos de longitud $\delta$ junto a $L$ tienen a lo sumo un punto porque los pares del
+mismo lado están a $\ge\delta$. \textbf{(B)} En la rejilla, $\delta$ es la distancia mínima \emph{exacta} de
+todo lo insertado, o sea $0.8$: el par naranja, que en (A) quedaba fuera de la definición de $\delta$, ahora la
+define. Cada celda de lado $\delta$ (sombreada si está ocupada) tiene a lo sumo un punto.}
+\label{fig:delta}
+\end{figure}
+
+\subsection{El lado y la ventana, rehechos para 1D}
+
+C2 §9 usa celdas de lado $\delta/2$ y una ventana de $5\times5$: eso es una elección del plano, no una ley.
+En 1D la cuenta es esta. Las celdas son los intervalos semiabiertos $[k\ell,(k+1)\ell)$ con
+$\ell=\delta>0$, y la celda de $x$ es $\lfloor x/\ell\rfloor$.
+
+\begin{resultado}{Lema A (una celda, un punto)}
+Si $\delta>0$ es la distancia mínima entre los puntos de un conjunto $S$, ninguna celda de lado $\delta$
+contiene dos puntos de $S$.
+\end{resultado}
+\textit{Demostración.} Dos puntos de $[k\delta,(k+1)\delta)$ difieren en \emph{menos} de $\delta$, y ningún
+par de $S$ está a menos de $\delta$. $\square$
+
+\begin{resultado}{Lema B (ventana de 3 celdas)}
+Si $|p-q|<\delta$, las celdas de $p$ y $q$ (de lado $\delta$) difieren en a lo sumo $1$.
+\end{resultado}
+\textit{Demostración.} Sean $a=p/\delta$, $b=q/\delta$, con $|a-b|<1$. Entonces
+$\lfloor a\rfloor-\lfloor b\rfloor<a-(b-1)=a-b+1<2$, y como es entero, $\le1$. Simétricamente $\ge-1$. $\square$
+
+La misma cuenta en dimensión $d$ con celdas de lado $\delta/\sqrt d$ (la diagonal es $\delta$) da:
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$d$ & lado & radio de la ventana & celdas a revisar\\
+\midrule
+1 & $\delta$ & 1 & 3\\
+2 & $\delta/\sqrt2$ (C2 usa $\delta/2$) & 2 & $5\times5=25$\\
+3 & $\delta/\sqrt3$ & 2 & $5^3=125$\\
+\bottomrule
+\end{tabular}
+\end{center}
+(El radio es $\lceil\sqrt d\rceil$: el mismo argumento del lema B con $|a-b|<\sqrt d$.) Así que las 25
+celdas del plano no se ``adaptan'' a 1D copiando el 5: se rehace la cuenta y salen 3. Lo que \textbf{no}
+funciona es mezclar las dos elecciones. Con lado $\delta/2$ hacen falta 5 celdas, no 3; con lado $\delta$
+una sola celda no alcanza.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+delta=1, lado=0.5: p=0.49, q=1.48, |p-q|=0.99 < delta, celdas 0 y 2, difieren en 2
+delta=1, lado=1.0: p=0.9, q=1.1, |p-q|=0.20 < delta, celdas 0 y 1, difieren en 1
+
+vecino a distancia < delta que queda fuera de la ventana (20000 ensayos):
+   lado = 0.5 * delta, ventana de 5 celdas:     0
+   lado = 0.5 * delta, ventana de 3 celdas:  5020
+   lado = 1.0 * delta, ventana de 3 celdas:     0
+   lado = 1.0 * delta, ventana de 1 celdas:  9924
+
+algoritmo completo con cada variante (2000 instancias de n=10..60, resultado distinto del correcto):
+   lado = 1.0 * delta, ventana de 3 celdas:    0 errores
+   lado = 0.5 * delta, ventana de 5 celdas:    0 errores
+   lado = 0.5 * delta, ventana de 3 celdas:  241 errores
+   lado = 1.0 * delta, ventana de 1 celdas:  608 errores
+
+maximo de puntos en una celda (5000 conjuntos): lado=delta -> 1, lado=delta/2 -> 1
+\end{lstlisting}
+La variante ``lado $\delta/2$ con 3 celdas'' no es un detalle de borde: una cuarta parte de los vecinos
+reales (5020 de 20000) quedan fuera de la ventana, y el algoritmo completo contesta mal en el 12\% de las
+instancias (241 de 2000).
+
+\subsection{El algoritmo}
+
+El listado es, literalmente, el código que ejecuta \texttt{verif.py}:
+
+\lstinputlisting[style=python,firstline=25,lastline=54]{verif.py}
+
+Dos observaciones sobre el código. Primero, el caso $\delta=0$ (un valor repetido) \textbf{corta} la
+ejecución: la respuesta ya es $0$, y seguir calcularía una celda $\lfloor x/0\rfloor$. Este caso no es
+una rareza: es exactamente la instancia que usa la reducción de la sección 1, y en la práctica es la tabla
+la que resuelve distinción de elementos. Segundo, \texttt{rejilla[c] = p} no sobrescribe nada, y hay que
+demostrarlo (siguiente apartado).
+
+\subsection{Correctitud}
+
+\begin{resultado}{Invariante $I(i)$, para $2\le i\le n$}
+Tras procesar los primeros $i$ puntos de la permutación, $S_i=\{p_1,\dots,p_i\}$: (a) $\delta$ es la
+distancia mínima de $S_i$, y es $>0$; (b) \texttt{rejilla} contiene exactamente los puntos de $S_i$, cada uno
+en la entrada $\lfloor x/\delta\rfloor$.
+\end{resultado}
+
+\textbf{Inicialización} ($i=2$). Si $p_1=p_2$ se devuelve $0$, que es correcto. Si no, $\delta=|p_1-p_2|>0$
+es la distancia mínima de $S_2$, y por el lema A los dos puntos están en celdas distintas: (b) vale.
+
+\textbf{Mantenimiento} ($I(i)\Rightarrow I(i{+}1)$). Sea $p=p_{i+1}$ y $\delta$ el valor antes del paso. Los
+pares de $S_{i+1}$ que no contienen a $p$ están a $\ge\delta$. Un punto $q\in S_i$ con $|p-q|<\delta$ está,
+por el lema B, en una de las 3 celdas de la ventana, y por (b) la tabla lo contiene. Luego tras el
+escaneo $\delta'=\min(\delta,\min_{q\in S_i}|p-q|)$ es la distancia mínima de $S_{i+1}$. Tres casos:
+\begin{itemize}[leftmargin=14pt]
+\item $\delta'=0$: $p$ repite un valor. Se devuelve $0$, correcto.
+\item $\delta'<\delta$: se reconstruye la tabla con el nuevo $\delta'>0$ y el conjunto $S_{i+1}$. Por el lema
+A no hay dos puntos en una celda, así que ninguno se pierde, y (a), (b) valen.
+\item $\delta'=\delta$: ningún punto de la ventana está a menos de $\delta$ de $p$. Pero si la celda de $p$
+tuviera un punto $q$, ese $q$ estaría en la ventana y a menos de $\delta$ de $p$. Luego \textbf{la celda de
+$p$ está vacía}, insertar no sobrescribe nada, y (a), (b) valen.
+\end{itemize}
+\textbf{Conclusión.} Con $i=n$, $\delta$ es la distancia mínima de todos los puntos. \textbf{Terminación}:
+el \texttt{for} recorre $n-2$ índices y cada reconstrucción es finita. \hfill$\square$
+
+\textbf{Verificado}, contra los oráculos de C2 (ordenar, y fuerza bruta). El segundo bloque usa enteros,
+donde la aritmética es exacta, y hay repetidos en el 37\% de las instancias, justo el caso que una prueba
+con reales uniformes nunca ejercita:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+reales uniformes   : 3000 instancias, fallos (deberia ser 0): 0
+enteros con repetidos: 3000 instancias (1113 con respuesta 0), fallos (deberia ser 0): 0
+\end{lstlisting}
+
+\subsection{Costo esperado}
+
+Cada paso hace a lo sumo 3 consultas y una inserción: $O(1)$ esperado. Una reconstrucción en un conjunto de
+$s$ puntos cuesta $\Theta(s)$. Todo depende de cuántas haya y de cuándo.
+
+\textbf{Análisis hacia atrás} (C2 §9), incluyendo empates. Fijemos el conjunto $S_s$ y olvidemos el orden
+en que llegó; el último punto insertado es uniforme entre sus $s$ elementos, porque el orden es una
+permutación uniforme. Si el paso $s$ reconstruye, $\delta$ bajó. Entonces \emph{todo} par más cercano de
+$S_s$ contiene a $p_s$: si alguno no lo contuviera, ya estaría en $S_{s-1}$ y $\delta$ no habría bajado.
+Fijado un par más cercano $(a,b)$, $p_s\in\{a,b\}$, y eso son a lo sumo dos de los $s$ candidatos:
+\[
+  \Pr[\text{el paso } s \text{ reconstruye}]\;\le\;\frac{2}{s}.
+\]
+(C2 §9 supone el par único; aquí no hace falta.) Por linealidad de la esperanza,
+\[
+  \mathbb{E}[\text{trabajo de reconstrucción}]\;\le\;\sum_{s=3}^{n}\frac{2}{s}\cdot c\,s\;=\;2c(n-2)\;=\;O(n),
+\]
+y con los $n$ pasos de $O(1)$ esperado cada uno, $\mathbb{E}[\text{costo}]=O(n)$. En el caso genérico (par
+más cercano único) las cuentas son exactas: el número esperado de reconstrucciones es
+$\sum_{s=3}^{n}2/s=2H_n-3\approx2\ln n-1.85$, y el trabajo esperado es $2(n-2)$.
+
+\textbf{Verificado}: media sobre barajados distintos de un \emph{mismo} conjunto. La columna $2\ln n$ de
+C2 sobrestima por la constante $3-2\gamma\approx1.85$, y $2H_n-3$ acierta; una sola corrida no sirve para
+distinguirlas, porque la desviación típica es de 3 a 5.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+       n  semillas   media   desv   2 ln n   2H_n-3  trabajo/n
+    1000       200   11.96   3.42    13.82    11.97       1.94
+   10000       200   16.37   3.81    18.42    16.58       1.98
+  100000       200   21.31   4.52    23.03    21.18       2.04
+ 1000000        20   26.65   5.27    27.63    25.79       1.94
+\end{lstlisting}
+
+\subsection{El peor caso, y qué hace improbable el barajado}
+
+Sea $x_k=2^{-k}$, insertados en el orden $k=1,2,\dots,n$. Los huecos entre consecutivos son
+$2^{-(k+1)}$, decrecientes, así que cada punto nuevo forma un par a distancia menor que todos los
+anteriores: \textbf{todos} los pasos reconstruyen, el trabajo es $\sum_s s=\Theta(n^2)$.
+
+\textbf{La garantía es para toda entrada.} Esa misma entrada, barajada por el algoritmo, cuesta $O(n)$ en
+esperanza. Lo improbable no es una entrada: es un \emph{orden de inserción}. La posición relativa de
+$p_s$ entre los $s$ primeros es uniforme e independiente de las demás, y en esta entrada el paso $s$
+reconstruye si y solo si $p_s$ es uno de los dos menores de $S_s$. Luego
+\[
+  \Pr[\text{reconstruyen todos los pasos}]\;=\;\prod_{s=3}^{n}\frac{2}{s}\;=\;\frac{2^{\,n-1}}{n!},
+\]
+que decrece más rápido que cualquier exponencial. Se verificó enumerando las $n!$ permutaciones (no
+muestreando):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+sin barajar (orden k=1..n): 798 reconstrucciones en 798 pasos, trabajo = 320,397 (n^2/2 = 320,000)
+barajando (200 semillas)  : reconstrucciones media 11.3, trabajo medio 1,627, maximo 4,935
+orden de insercion en el que TODOS los pasos reconstruyen (enumerando las n! permutaciones):
+   n=5: 16 de 120 permutaciones; 2^(n-1) = 16; probabilidad 2^(n-1)/n! = 0.1333
+   n=6: 32 de 720 permutaciones; 2^(n-1) = 32; probabilidad 2^(n-1)/n! = 0.0444
+   n=7: 64 de 5040 permutaciones; 2^(n-1) = 64; probabilidad 2^(n-1)/n! = 0.0127
+   n=8: 128 de 40320 permutaciones; 2^(n-1) = 128; probabilidad 2^(n-1)/n! = 0.0032
+\end{lstlisting}
+El peor caso \emph{sobre las monedas del algoritmo} sigue siendo $\Theta(n^2)$, pero con probabilidad
+$2^{n-1}/n!$. Comparar con C4: un costo \emph{amortizado} es una garantía de peor caso sobre secuencias,
+sin probabilidad; un costo \emph{esperado} es un promedio sobre el azar del algoritmo, válido para cada
+entrada. Ninguno es un ``caso promedio'' sobre una distribución de entradas.
+
+\subsection{Mediciones honestas}
+
+Contar operaciones de tabla sí es independiente de la máquina: 3 consultas y 1 inserción por punto, más
+$\approx2$ reinserciones por las reconstrucciones (columna \texttt{trabajo/n} de arriba): unas 6 operaciones
+por punto, con $n$ cualquiera. Ordenar hace del orden de $\log_2 n$ comparaciones por punto. Pero el
+\emph{tiempo} cuenta otra historia. La tabla es una medición de referencia; sus tiempos concretos dependen de la
+máquina y de la carga:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+       n   ordenar   rejilla  ord us/pto  rej us/pto  log2 n  rej/ord
+   10000    0.002s    0.008s       0.171       0.760    13.3      4.4
+  100000    0.022s    0.124s       0.218       1.241    16.6      5.7
+ 1000000    0.386s    1.837s       0.386       1.837    19.9      4.8
+\end{lstlisting}
+En Python la rejilla es de 4 a 6 veces \textbf{más lenta} que ordenar y mirar consecutivos (varía entre
+corridas; en otras salió hasta 8). Hay dos razones y ninguna contradice el análisis: \texttt{sorted} está
+escrito en C, mientras que el bucle de la rejilla es intérprete puro, y a $n=10^6$ un factor $\log_2 n$
+es solo $\approx20$. Con estos tamaños el tiempo \emph{por punto} crece en ambos (sube a $\approx2.4\times$
+en la rejilla y a $\approx2.3\times$ al ordenar), así que \textbf{no se alcanza a ver} la diferencia entre
+$O(n)$ y $O(n\log n)$; lo más probable es que domine la jerarquía de memoria (cada consulta a una tabla de
+$10^6$ entradas es un acceso aleatorio), que el modelo RAM de C1, donde todo acceso cuesta 1, no capta.
+Conclusión que sí es defendible: la rejilla rompe la cota \emph{en el modelo}, no gana por ser lineal en
+las máquinas y tamaños de aquí.
+
+\subsection{Qué le pasa al 7 de C2 §6 en una dimensión}
+
+Es la pieza que une este ejercicio con la franja. En 1D, con $\delta=\min(\delta_{izq},\delta_{der})$ (mejor
+par del mismo lado, como en la tabla de arriba), los puntos de la franja $(L-\delta,L+\delta)$ son los de la
+izquierda en $(L-\delta,L]$ y los de la derecha en $[L,L+\delta)$. Cada intervalo tiene longitud $\delta$,
+así que dos puntos del mismo lado dentro de él estarían a menos de $\delta$ entre sí, contra la
+definición de $\delta_{izq}$ y $\delta_{der}$. Luego \textbf{cada lado aporta a lo sumo un punto} y la franja
+tiene a lo sumo dos: hay que comparar \emph{un} par. El 7 del plano (ocho cuadrados de lado $\delta/2$)
+se vuelve un $1$, y el divide y vencerás colapsa en ordenar y mirar consecutivos (C2 §3).
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black}]
+3000 instancias: fallos 0, maximo de puntos de la franja a la izquierda de L: 1, a la derecha: 1
+\end{lstlisting}
+
+%% ------------------------------------------------------------------------------------------------
+\section*{Errores que hay que vigilar}
+
+\begin{alerta}{}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Copiar las constantes del plano.} Ni el lado $\delta/2$ ni la ventana de 25 celdas se llevan
+a 1D tal cual. Con lado $\delta/2$ hacen falta 5 celdas ($p=0.49$, $q=1.48$, $\delta=1$ caen a dos celdas de
+distancia), y con 3 celdas el algoritmo falla en 241 de 2000 instancias; con lado $\delta$ bastan 3. Hay
+que rehacer la cuenta de cobertura, no ``recortar'' una ventana mirando los bordes.
+\item \textbf{Pensar que $\Omega(n\log n)$ contradice el $O(n)$ esperado.} No hay una cota mínima para
+``par más cercano en 1D'': hay una por modelo. La de la sección 1 es de árboles algebraicos; el algoritmo
+de la sección 3 usa parte entera y direccionamiento indirecto.
+\item \textbf{Describir mal la garantía esperada.} No es un promedio sobre las entradas posibles: vale
+\emph{para toda entrada}, con la esperanza tomada sobre el barajado que hace el propio algoritmo. El peor
+caso sobre esas monedas sigue siendo $\Theta(n^2)$, con probabilidad $2^{n-1}/n!$ en la entrada de la
+sección 3.6.
+\item \textbf{Olvidar $\delta=0$.} Un valor repetido da lado $0$ y una división por cero --- y los
+repetidos son justo la instancia de la reducción. Hay que cortar con la respuesta $0$ en cuanto aparece, y
+probar con entradas que los tengan (los reales uniformes casi nunca los generan).
+\item \textbf{En la reducción:} (i) la hoja de un árbol devuelve \emph{índices}, no el número $\delta$;
+hace falta el nodo extra que prueba $x_i-x_j$; (ii) en 1D la reducción cuesta $0$, no $O(n)$.
+\item \textbf{Concluir ``$O(n)$ es más rápido''.} Medido arriba: 4 a 6 veces más lento que ordenar, en
+Python y hasta $10^6$. La notación asintótica habla de cómo crece, no de quién gana a un tamaño dado.
+\item \textbf{Una sola corrida como evidencia.} El número de reconstrucciones tiene desviación típica de 3
+a 5, así que una sola corrida (por ejemplo 24 reconstrucciones con $n=10^5$, donde $2\ln n=23.0$ y
+$2H_n-3=21.2$) no distingue entre las dos fórmulas. Se promedia sobre barajados y se compara con $2H_n-3$.
+\item \textbf{Aritmética inexacta.} La demostración supone aritmética exacta. Con reales de coma flotante,
+$\delta=|p-q|$ y $\lfloor x/\delta\rfloor$ se redondean, y dos puntos casi a distancia $\delta$ podrían caer
+en la misma celda (no se observó en las pruebas, pero la demostración no lo cubre). Con enteros y
+división entera exacta, el argumento se cumple al pie de la letra: por eso la prueba de la sección 3.4
+incluye enteros.
+\end{itemize}
+\end{alerta}
+
+\end{document}

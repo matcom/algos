@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 13 — Splay tree: acceso en orden 1..n</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A; --accent-info: #3E6FB0;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341; --accent-info: #6FA0E0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341; --accent-info: #6FA0E0;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 28px 20px; }
+  .card { width: 100%; max-width: 920px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 22px 26px 26px; min-width: 0; }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 32px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .lead .q { color: var(--accent-cost); font-weight: 700; }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); } .panel b.bad { color: var(--accent-cost); }
+  .panel .mono, .mono { font-family: var(--mono); font-size: .78rem; }
+  .panel ul { margin: 4px 0 0; padding-left: 18px; } .panel li { margin: 2px 0; }
+  .thesis { border-left: 3px solid var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 9%, var(--surface)); padding: 10px 14px; border-radius: 6px; font-size: .84rem; line-height: 1.55; margin: 6px 0 12px; }
+  .roadmap { counter-reset: r; list-style: none; padding: 0; margin: 0 0 6px; font-size: .78rem; color: var(--ink-muted); }
+  .roadmap li { counter-increment: r; padding: 3px 0 3px 28px; position: relative; line-height: 1.45; }
+  .roadmap li::before { content: counter(r); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); text-align: center; font-family: var(--mono); font-size: .68rem; line-height: 18px; color: var(--ink); }
+  .roadmap li b { color: var(--ink); }
+
+  svg.diagram { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .scrollx { overflow-x: auto; max-width: 100%; } svg.wide { min-width: 520px; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+  .small-lab { font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .mono-lab { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 12px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  .config select { max-width: 100%; }
+  select, input[type=text], input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=range] { accent-color: var(--accent-speed); }
+  .val { font-family: var(--mono); color: var(--ink); min-width: 3ch; display: inline-block; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .92rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); } .stat .v.speed { color: var(--accent-speed); }
+  .banner { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+  .banner.ok { color: var(--accent-speed); } .banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); } button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .counter { font-family: var(--mono); font-size: .78rem; color: var(--ink-muted); }
+
+  table.t { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .74rem; }
+  table.t th, table.t td { border: 1px solid var(--line); padding: 3px 7px; text-align: left; vertical-align: top; white-space: nowrap; }
+  table.t th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  table.t td.num { text-align: right; }
+  table.t tr.cur td { background: color-mix(in srgb, var(--accent-speed) 14%, transparent); }
+  table.t td.ok { color: var(--accent-speed); font-weight: 700; } table.t td.bad { color: var(--accent-cost); font-weight: 700; }
+  .inv { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px; }
+  .inv span { font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; background: var(--surface); }
+  .inv span.ok { border-color: var(--accent-speed); color: var(--accent-speed); }
+  .inv span.bad { border-color: var(--accent-cost); color: var(--accent-cost); font-weight: 700; }
+  .inv span.na { color: var(--ink-muted); border-style: dashed; }
+
+  pre.pseudo { margin: 8px 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-family: var(--mono); font-size: .74rem; line-height: 1.55; overflow-x: auto; max-width: 100%; }
+  pre.pseudo span.ln { display: block; padding: 0 4px; border-radius: 4px; }
+  pre.pseudo span.ln.on { background: color-mix(in srgb, var(--accent-cost) 20%, transparent); font-weight: 700; }
+  pre.pseudo span.cm { color: var(--ink-muted); }
+
+  .tn { fill: var(--surface-2); stroke: var(--ink-muted); stroke-width: 1.5; }
+  .tn.root { stroke: var(--ink); stroke-width: 2.4; }
+  .tn.x { fill: color-mix(in srgb, var(--accent-cost) 30%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2.4; }
+  .tn.p { stroke: var(--accent-speed); stroke-width: 2.6; fill: color-mix(in srgb, var(--accent-speed) 14%, var(--surface)); }
+  .tn.g { stroke: var(--accent-info); stroke-width: 2.6; fill: color-mix(in srgb, var(--accent-info) 14%, var(--surface)); }
+  .tn.dead { opacity: .55; }
+  .tk { font-size: 10.5px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .ts { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .te { stroke: var(--ink-muted); stroke-width: 1.3; opacity: .7; }
+  .grid-h { stroke: var(--line); stroke-width: 1; } .axis { stroke: var(--ink-muted); stroke-width: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .74rem; color: var(--ink-muted); margin: 6px 0 4px; }
+  .legend .sw { display: inline-block; width: 18px; height: 0; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: .74rem; padding: 6px 9px; border-radius: 7px; line-height: 1.4; opacity: 0; transition: opacity .1s; max-width: 260px; }
+  .tip.show { opacity: 1; } .tip b { font-family: var(--mono); }
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 600px) { .card { padding: 16px 14px 20px; } body { padding: 16px 10px; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Splay tree: acceder a 1, 2, …, n en orden</h1>
+  <p class="subtitle">Ejercicio 13 · el ciclo de C2 §1 con el potencial de C4 §5 sobre una instancia compartida. Cada paso termina anunciando el siguiente, que resuelve lo que quedó pendiente.</p>
+
+  <div class="thesis"><b>Lo que queremos demostrar.</b> El lema de acceso acota el costo total de la pasada <i>1…n</i> por <b>n(3·log₂n + 1)</b> (y por esa cifra más Φ₀ si no se mira el potencial final).
+  Lo medido es <b>≈ 4,4·n</b>: la cota <b>no es ajustada</b>, pierde un factor Θ(log n). Veremos por qué: el árbol vuelve a ser el camino del que partió (Φ no cambia) y los costos obedecen una recurrencia exacta.</div>
+  <ol class="roadmap">
+    <li><b>El problema</b> — el árbol, el costo, el potencial Φ y el camino inicial.</li>
+    <li><b>El algoritmo</b> — un splay paso a paso: zig, zig-zig, zig-zag.</li>
+    <li><b>¿Es correcto?</b> — el orden se conserva y la profundidad baja: invariante y potencial de terminación.</li>
+    <li><b>El lema de acceso</b> — cada paso cuesta amortizado ≤ 3Δr (+1), ejecutado paso a paso; el primer fallo de «subir a la raíz».</li>
+    <li><b>La pasada completa</b> — el invariante I(k), el árbol que regresa, la recurrencia ℓ<sub>k+1</sub> = ⌊ℓ<sub>k</sub>/2⌋ + λ<sub>k</sub>.</li>
+    <li><b>¿Es ajustada?</b> — T(n)/n contra la cota; todas las formas iniciales; accesos al azar.</li>
+    <li><b>El contraste</b> — subir a la raíz cuesta (n−1)(n+2)/2.</li>
+  </ol>
+
+  <div class="config" id="instBar">
+    <label>árbol inicial:
+      <select id="iKind">
+        <option value="camino">camino (n arriba, 1 en el fondo) — el del ejercicio</option>
+        <option value="caminoder">camino derecho (1 arriba)</option>
+        <option value="balanceado">balanceado</option>
+        <option value="zigzag">zigzag</option>
+        <option value="azar">aleatorio</option>
+      </select></label>
+    <label>n <input type="range" id="iN" min="4" max="31" value="15"> <span class="val" id="iNv">15</span></label>
+    <label>reorganización:
+      <select id="iModo">
+        <option value="splay">splay (zig-zig: primero el padre)</option>
+        <option value="raiz">subir a la raíz</option>
+      </select></label>
+    <button id="btnInst" class="primary">🎲 nuevo aleatorio</button>
+  </div>
+  <div class="panel" id="instInfo"></div>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <h2><span class="step">Paso 1</span>El problema: el costo es la profundidad, el potencial es Σ log₂ s(v)</h2>
+  <p class="lead">Un acceso busca la clave k y hace <b>splay</b> de su nodo: lo sube a la raíz con rotaciones. Cuesta <b>c = max(rotaciones, 1)</b>; las rotaciones son exactamente la profundidad del nodo.
+  Con <b>s(v)</b> = nodos del subárbol de v, <b>r(v) = log₂ s(v)</b> y <b>Φ(t) = Σ<sub>v</sub> r(v)</b> (C4 §5), el costo amortizado del acceso es <b>a = c + Φ' − Φ</b>.
+  El camino de n nodos tiene Φ₀ = log₂ n!, el potencial más alto que puede tener un árbol de n nodos, pero eso no lo hace el peor para <i>esta</i> secuencia (paso 6).</p>
+  <div class="config"><label><input type="checkbox" id="chkSize" checked> mostrar s(v) junto a cada nodo</label></div>
+  <div class="scrollx"><svg class="diagram wide" id="svg1" role="img" aria-label="Árbol inicial con las claves en el eje horizontal y la profundidad en el vertical"></svg></div>
+  <div class="panel" id="panel1"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 2 explica cómo se sube un nodo a la raíz sin romper el orden.</p>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <h2><span class="step">Paso 2</span>El algoritmo: un splay, paso a paso</h2>
+  <p class="lead">Se sube <b>x</b> de dos niveles en dos, según la forma del camino. <b>Zig</b>: el padre p es la raíz, una rotación. <b>Zig-zig</b>: x y p son hijos del mismo lado; se rota <b>primero p</b> y luego x.
+  <b>Zig-zag</b>: de lados distintos; se rota x dos veces. Con «subir a la raíz» (selector de arriba) el zig-zig rota x dos veces: es la única diferencia. En el dibujo, <b>x</b> en naranja, <b>p</b> en verde, <b>g</b> en azul.</p>
+  <div class="controls">
+    <label class="counter">clave a acceder
+      <select id="selKey"></select></label>
+    <button id="b2first" title="al principio">⏮</button>
+    <button id="b2prev" title="paso anterior">◀</button>
+    <button id="b2next" class="primary" title="siguiente paso">▶ paso</button>
+    <button id="b2last" title="hasta el final">⏭</button>
+    <span class="counter" id="c2"></span>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="svg2" role="img" aria-label="Árbol durante el splay"></svg></div>
+  <pre class="pseudo" id="pseudo"></pre>
+  <div class="panel" id="panel2"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 3 comprueba que la operación es correcta, es decir, que conserva el orden y deja a x en la raíz.</p>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <h2><span class="step">Paso 3</span>¿Es correcto el splay? Invariante y potencial de terminación</h2>
+  <p class="lead"><b>Invariante (orden):</b> el recorrido inorden es 1, …, n antes y después de cada rotación: la rotación solo reordena enlaces entre los bloques <i>A, x, B, p, C</i>, sin cambiar su orden. <b>Potencial (terminación):</b> la <b>profundidad de x</b> es un natural que baja exactamente
+  1 en un zig y 2 en un zig-zig o zig-zag; por eso el ciclo termina con x en la raíz y las rotaciones valen la profundidad inicial. Las insignias del paso 2 los comprueban en cada paso; aquí, sobre muchos árboles:</p>
+  <div class="controls"><button id="btnBatch3" class="primary">▶ probar 2000 splays en árboles aleatorios (1 a 40 nodos)</button></div>
+  <div class="panel" id="batch3" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 4 demuestra qué garantiza el costo del splay sobre una secuencia de accesos.</p>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <h2><span class="step">Paso 4</span>El lema de acceso, ejecutado paso a paso</h2>
+  <p class="lead"><b>Lema de paso.</b> Con a = costo + ΔΦ: un zig cuesta amortizado ≤ 3(r'(x) − r(x)) + 1; un zig-zig o zig-zag, ≤ 3(r'(x) − r(x)). Sumando, los r se telescopian y un acceso cuesta
+  ≤ 3(log₂ n − r(x)) + 1. El zig-zig se apoya en la concavidad: <b>s(x) + s'(g) ≤ s'(x) − 1</b>, que exige que el subárbol viejo de x y el nuevo de g sean <b>disjuntos</b>, y eso solo pasa si se rota primero p.
+  La tabla es el acceso del paso 2 (se resalta el paso actual); el selector «reorganización» permite ver cómo falla con subir a la raíz.</p>
+  <div class="scrollx" id="tbl4"></div>
+  <div class="panel" id="panel4"></div>
+  <div class="controls">
+    <button id="btnFirstFail" class="primary">⚡ el primer fallo: camino de 14, subir a la raíz, acceder a 1</button>
+    <button id="btnBatch4">▶ vigilar toda la pasada 1…n de esta instancia</button>
+  </div>
+  <div class="panel" id="batch4" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 5 aplica el lema a <i>esta</i> secuencia, el camino y los accesos 1…n.</p>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <h2><span class="step">Paso 5</span>La pasada completa: el árbol que regresa</h2>
+  <p class="lead">Aquí se ejecutan los accesos 1, 2, …, n uno tras otro. Para el camino vale el invariante <b>I(k)</b>: tras k accesos la raíz es k, su subárbol izquierdo es el camino k−1,…,1 y a la derecha quedan las claves k+1…n.
+  Por eso <b>al final el árbol es otra vez el camino</b>: Φ<sub>n</sub> = Φ₀ y el término Φ₀ − Φ<sub>n</sub> de la cota se anula. Además, con ℓ<sub>k</sub> = nodos de la espina izquierda del subárbol que se recorre y
+  λ<sub>k</sub> = espina izquierda del hijo derecho de k, vale <b>ℓ<sub>k+1</sub> = ⌊ℓ<sub>k</sub>/2⌋ + λ<sub>k</sub></b>: el splay del mínimo parte la espina por la mitad.</p>
+  <div class="controls">
+    <button id="b5reset">⏮ reiniciar</button>
+    <button id="b5next" class="primary">▶ siguiente acceso</button>
+    <button id="b5five">▶▶ +5</button>
+    <button id="b5end">⏭ terminar la pasada</button>
+    <span class="counter" id="c5"></span>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="svg5" role="img" aria-label="Árbol durante la pasada"></svg></div>
+  <div class="inv" id="inv5"></div>
+  <div class="stats" id="stats5"></div>
+  <svg class="diagram" id="bars5" viewBox="0 0 640 250" role="img" aria-label="Costo por acceso"></svg>
+  <div class="legend"><span><span class="dot" style="background:var(--accent-speed)"></span>costo real c<sub>k</sub></span>
+    <span><span class="dot" style="background:var(--accent-info)"></span>amortizado a<sub>k</sub></span>
+    <span><span class="sw" style="border-color:var(--accent-cost);border-top-style:dashed"></span>cota del lema 3(log₂ n − r(x<sub>k</sub>)) + 1</span></div>
+  <div class="scrollx" id="tbl5"></div>
+  <div class="panel" id="panel5"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 6 decide si la cota es ajustada y por qué la pasada cuesta lo que cuesta.</p>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <h2><span class="step">Paso 6</span>¿Es ajustada? Lo que mide T(n)</h2>
+  <p class="lead">Se mide T(n), el costo de la pasada desde el camino, para n = 16 … 65536, contra las dos cotas del lema: la genérica <b>n(3log₂n+1) + log₂ n!</b> y la que queda al anular Φ₀ − Φ<sub>n</sub>, <b>n(3log₂n+1)</b>.
+  T/n se estanca cerca de 4,4 mientras la cota crece como 3·log₂ n.</p>
+  <svg class="diagram" id="chart6" viewBox="0 0 640 290" role="img" aria-label="T(n)/n contra las cotas del lema"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-speed)"></span>T(n)/n medido</span>
+    <span><span class="sw" style="border-color:var(--accent-cost)"></span>cota genérica / n</span>
+    <span><span class="sw" style="border-color:var(--accent-info)"></span>cota sin Φ₀ / n</span></div>
+  <div class="panel" id="panel6"></div>
+  <div class="controls">
+    <button id="btnShapes" class="primary">▶ todas las formas iniciales (n ≤ 9)</button>
+    <label class="counter">n <select id="selShapes"></select></label>
+    <button id="btnRandom">▶ accesos al azar (n = 64 … 4096)</button>
+  </div>
+  <div class="panel" id="panel6b" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 7 mide cuánto pierde «subir a la raíz» frente al splay.</p>
+
+  <!-- ===================== PASO 7 ===================== -->
+  <h2><span class="step">Paso 7</span>El contraste: subir a la raíz</h2>
+  <p class="lead">Desde el camino, con subir a la raíz los accesos 1…n cuestan <b>n−1, n−1, n−2, …, 1</b>: en total <b>(n−1)(n+2)/2 = Θ(n²)</b>, unos n/2 por acceso (la tabla de C4 §6). Se rota solo uno a uno y
+  el árbol que queda sigue siendo casi un camino. El splay, en cambio, cuesta una constante por acceso. Ejes logarítmicos, como la figura 3 de C4.</p>
+  <svg class="diagram" id="chart7" viewBox="0 0 640 290" role="img" aria-label="Costo por acceso contra n, splay y subir a la raíz"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-speed)"></span>splay</span>
+    <span><span class="sw" style="border-color:var(--accent-cost)"></span>subir a la raíz</span>
+    <span><span class="sw" style="border-color:var(--ink-muted);border-top-style:dashed"></span>log₂ n</span></div>
+  <div class="panel" id="panel7"></div>
+
+  <footer>Los cálculos deterministas de este recurso reproducen <code>verif.py</code> y el PDF <code>ejercicio-13.pdf</code> (por ejemplo T(15) = 48 y T(1024) = 4478); los experimentos al azar usan otra semilla y dan cifras parecidas, no idénticas.</footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rng = mulberry32((Date.now() ^ 0x9E3779B9) >>> 0);
+  function shuffled(arr, r) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function mm(s) { return s.replace('-', '−'); }
+  function f1(x) { return mm(x.toFixed(1)); } function f2(x) { return mm(x.toFixed(2)); } function f3(x) { return mm(x.toFixed(3)); }
+  function sgn(x) { return (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(2); }
+  function setMsg(node, html) { node.innerHTML = html; }
+
+  // ================================================================== núcleo (sin DOM)
+  // Árbol sobre las claves 1..n; 0 = vacío. l, r, p: hijo izquierdo, derecho, padre.
+  function Tree(n) { this.n = n; this.l = new Int32Array(n + 1); this.r = new Int32Array(n + 1); this.p = new Int32Array(n + 1); this.root = 0; }
+  Tree.prototype.clone = function () { var t = new Tree(this.n); t.l.set(this.l); t.r.set(this.r); t.p.set(this.p); t.root = this.root; return t; };
+  function caminoIzq(n) { var t = new Tree(n); t.root = n; for (var k = 1; k < n; k++) { t.l[k + 1] = k; t.p[k] = k + 1; } return t; }
+  function caminoDer(n) { var t = new Tree(n); t.root = 1; for (var k = 1; k < n; k++) { t.r[k] = k + 1; t.p[k + 1] = k; } return t; }
+  function balanceado(n) {
+    var t = new Tree(n);
+    function build(lo, hi, par) { if (lo > hi) return 0; var m = (lo + hi) >> 1; t.p[m] = par; t.l[m] = build(lo, m - 1, m); t.r[m] = build(m + 1, hi, m); return m; }
+    t.root = build(1, n, 0); return t;
+  }
+  function porInsercion(n, orden) {
+    var t = new Tree(n);
+    orden.forEach(function (c, i) {
+      if (i === 0) { t.root = c; return; }
+      var y = t.root;
+      for (;;) { if (c < y) { if (!t.l[y]) { t.l[y] = c; t.p[c] = y; break; } y = t.l[y]; } else { if (!t.r[y]) { t.r[y] = c; t.p[c] = y; break; } y = t.r[y]; } }
+    });
+    return t;
+  }
+  function zigzagOrden(n) { var i = 1, j = n, o = []; while (i <= j) { o.push(i++); if (i <= j) o.push(j--); } return o; }
+  function aleatorio(n, r) { var o = []; for (var k = 1; k <= n; k++) o.push(k); return porInsercion(n, shuffled(o, r)); }
+  function zigzagArbol(n) { return porInsercion(n, zigzagOrden(n)); }
+  function inicial(kind, n, r) {
+    if (kind === 'camino') return caminoIzq(n);
+    if (kind === 'caminoder') return caminoDer(n);
+    if (kind === 'balanceado') return balanceado(n);
+    if (kind === 'zigzag') return zigzagArbol(n);
+    return aleatorio(n, r);
+  }
+
+  function rotar(t, x) {
+    var p = t.p[x], g = t.p[p], b;
+    if (t.l[p] === x) { b = t.r[x]; t.l[p] = b; if (b) t.p[b] = p; t.r[x] = p; }
+    else { b = t.l[x]; t.r[p] = b; if (b) t.p[b] = p; t.l[x] = p; }
+    t.p[p] = x; t.p[x] = g;
+    if (g) { if (t.l[g] === p) t.l[g] = x; else t.r[g] = x; } else t.root = x;
+  }
+  // un paso del splay; modo 'splay' (zig-zig: primero el padre) o 'raiz' (subir a la raíz)
+  function pasoSplay(t, x, modo) {
+    var p = t.p[x]; if (!p) return null;
+    var g = t.p[p], tipo, costo;
+    if (!g) { tipo = 'zig'; costo = 1; rotar(t, x); }
+    else if ((t.l[g] === p) === (t.l[p] === x)) { tipo = 'zig-zig'; costo = 2; rotar(t, modo === 'splay' ? p : x); rotar(t, x); }
+    else { tipo = 'zig-zag'; costo = 2; rotar(t, x); rotar(t, x); }
+    return { tipo: tipo, costo: costo, p: p, g: g };
+  }
+  function acceso(t, x, modo) { var rot = 0, s; while ((s = pasoSplay(t, x, modo))) rot += s.costo; return rot; }
+
+  function tamanos(t) {
+    var sz = new Int32Array(t.n + 1), orden = [], pila = [t.root], v, i;
+    while (pila.length) { v = pila.pop(); orden.push(v); if (t.l[v]) pila.push(t.l[v]); if (t.r[v]) pila.push(t.r[v]); }
+    for (i = orden.length - 1; i >= 0; i--) { v = orden[i]; sz[v] = 1 + sz[t.l[v]] + sz[t.r[v]]; }
+    return sz;
+  }
+  function potencial(t, sz) { sz = sz || tamanos(t); var s = 0; for (var v = 1; v <= t.n; v++) s += Math.log2(sz[v]); return s; }
+  function profundidad(t, x) { var d = 0; while (t.p[x]) { x = t.p[x]; d++; } return d; }
+  function espinaIzq(t, v) { var c = 0; while (v) { c++; v = t.l[v]; } return c; }
+  function inordenOk(t) {   // el recorrido inorden es 1..n
+    var pila = [], v = t.root, k = 1;
+    while (pila.length || v) { while (v) { pila.push(v); v = t.l[v]; } v = pila.pop(); if (v !== k++) return false; v = t.r[v]; }
+    return k === t.n + 1;
+  }
+  function forma(t, v) { v = v === undefined ? t.root : v; if (!v) return '.'; return v + '(' + forma(t, t.l[v]) + ',' + forma(t, t.r[v]) + ')'; }
+  function esCamino(t, v, m) {   // v es la raíz de un camino izquierdo con claves m, m-1, ..., 1
+    for (var k = m; k >= 1; k--) { if (v !== k || t.r[v]) return false; v = t.l[v]; }
+    return v === 0;
+  }
+
+  // un acceso vigilado: cada paso comprueba el lema de C4 §5. Devuelve el resumen y los pasos.
+  function accesoVigilado(t, x, modo, alPaso) {
+    var sz = tamanos(t), phi = potencial(t, sz), n = t.n, r0 = Math.log2(sz[x]), pasos = [], rot = 0, s;
+    var phiIni = phi, rIni = r0;
+    for (;;) {
+      var p = t.p[x], g = p ? t.p[p] : 0, sx0 = sz[x];
+      if (!p) break;
+      s = pasoSplay(t, x, modo);
+      var sz2 = tamanos(t), phi2 = potencial(t, sz2);
+      var rx0 = Math.log2(sx0), rx1 = Math.log2(sz2[x]);
+      var a = s.costo + phi2 - phi, cota = 3 * (rx1 - rx0) + (s.tipo === 'zig' ? 1 : 0);
+      var paso = { tipo: s.tipo, costo: s.costo, dphi: phi2 - phi, a: a, cota: cota, ok: a <= cota + 1e-9, x: x, p: s.p, g: s.g };
+      if (s.tipo === 'zig-zig') { paso.sx = sx0; paso.sg = sz2[g]; paso.sxn = sz2[x]; paso.disj = sx0 + sz2[g] <= sz2[x] - 1; }
+      pasos.push(paso); rot += s.costo; sz = sz2; phi = phi2; if (alPaso) alPaso(t, paso);
+    }
+    var c = Math.max(rot, 1), aTot = c + phi - phiIni, cotaAcc = 3 * (Math.log2(n) - rIni) + 1;
+    return { pasos: pasos, rot: rot, costo: c, a: aTot, cota: cotaAcc, phi0: phiIni, phi1: phi, rx: rIni, ok: aTot <= cotaAcc + 1e-9 };
+  }
+
+  // la pasada 1..n completa sobre una copia; devuelve un registro por acceso
+  function pasada(t0, modo) {
+    var t = t0.clone(), n = t.n, sz, phi = potencial(t), filas = [], k;
+    var l = 0;
+    for (k = 1; k <= n; k++) {
+      var d = profundidad(t, k), lk = d + (k === 1 ? 1 : 0), lam = espinaIzq(t, t.r[k]);
+      sz = tamanos(t); var rx = Math.log2(sz[k]);
+      var c = Math.max(acceso(t, k, modo), 1), phi2 = potencial(t);
+      filas.push({ k: k, c: c, a: c + phi2 - phi, rx: rx, cota: 3 * (Math.log2(n) - rx) + 1, l: lk, lam: lam, phi: phi2 });
+      phi = phi2;
+    }
+    return { filas: filas, t: t };
+  }
+  function totalPasada(t0, modo) {   // sin potencial: rápido para n grande
+    var t = t0.clone(), tot = 0;
+    for (var k = 1; k <= t.n; k++) tot += Math.max(acceso(t, k, modo), 1);
+    return tot;
+  }
+  function accesoAzar(t, k, modo) { return Math.max(acceso(t, k, modo), 1); }
+
+  // todas las formas de BST con claves lo..hi, como tuplas [clave, izq, der] (null = vacío)
+  var memoF = {};
+  function formas(lo, hi) {
+    if (lo > hi) return [null];
+    var key = lo + ',' + hi; if (memoF[key]) return memoF[key];
+    var out = [];
+    for (var k = lo; k <= hi; k++) { var A = formas(lo, k - 1), B = formas(k + 1, hi); for (var i = 0; i < A.length; i++) for (var j = 0; j < B.length; j++) out.push([k, A[i], B[j]]); }
+    return (memoF[key] = out);
+  }
+  function construir(f, n) {
+    var t = new Tree(n);
+    (function rec(x, par) { if (!x) return 0; t.p[x[0]] = par; t.l[x[0]] = rec(x[1], x[0]); t.r[x[0]] = rec(x[2], x[0]); return x[0]; })(f, 0);
+    t.root = f[0]; return t;
+  }
+  // ================================================================== fin núcleo
+
+  // ================================================================== interfaz
+  var S = { kind: 'camino', n: 15, modo: 'splay', t0: null };
+  var tip = $('tip');
+  function showTip(evt, text) { tip.textContent = text; tip.classList.add('show'); tip.style.left = Math.min(evt.clientX + 14, window.innerWidth - 270) + 'px'; tip.style.top = (evt.clientY + 14) + 'px'; }
+  function hideTip() { tip.classList.remove('show'); }
+  function log2fact(n) { var s = 0; for (var k = 2; k <= n; k++) s += Math.log2(k); return s; }
+
+  // ---- dibujo de un árbol: x = clave, y = profundidad
+  function drawTree(svg, t, o) {
+    o = o || {}; clear(svg);
+    var n = t.n, depth = new Int32Array(n + 1), maxD = 0, pila = [t.root], v;
+    while (pila.length) { v = pila.pop(); if (t.l[v]) { depth[t.l[v]] = depth[v] + 1; pila.push(t.l[v]); } if (t.r[v]) { depth[t.r[v]] = depth[v] + 1; pila.push(t.r[v]); } if (depth[v] > maxD) maxD = depth[v]; }
+    var dx = Math.max(19, Math.min(36, 640 / n)), dy = Math.max(15, Math.min(40, 330 / Math.max(maxD, 1))), pad = 20;
+    var W = pad * 2 + (n - 1) * dx, H = pad * 2 + maxD * dy + (o.size ? 8 : 0);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.style.minWidth = Math.min(Math.max(520, W * 0.9), 900) + 'px';
+    var sz = o.size ? tamanos(t) : null, k, R = Math.min(10.5, dx * 0.46);
+    function cx(k) { return pad + (k - 1) * dx; } function cy(k) { return pad + depth[k] * dy; }
+    for (k = 1; k <= n; k++) { if (t.p[k]) el('line', { x1: cx(t.p[k]), y1: cy(t.p[k]), x2: cx(k), y2: cy(k), class: 'te' }, svg); }
+    for (k = 1; k <= n; k++) {
+      var cls = 'tn' + (k === t.root ? ' root' : '') + (o.x === k ? ' x' : (o.p === k ? ' p' : (o.g === k ? ' g' : '')));
+      var c = el('circle', { cx: cx(k), cy: cy(k), r: R, class: cls }, svg);
+      el('text', { x: cx(k), y: cy(k), class: 'tk', 'font-size': R < 9 ? 8.5 : 10.5 }, svg, k);
+      if (sz) el('text', { x: cx(k) + R + 1, y: cy(k) - R + 1, class: 'ts', 'text-anchor': 'start' }, svg, sz[k]);
+      (function (kk) {
+        c.addEventListener('mousemove', function (e) { showTip(e, 'clave ' + kk + ' · profundidad ' + depth[kk] + (sz ? ' · s = ' + sz[kk] + ' · r = ' + f2(Math.log2(sz[kk])) : '')); });
+        c.addEventListener('mouseleave', hideTip);
+      })(k);
+    }
+  }
+
+  // ---- gráficos genéricos
+  function lineChart(svg, o) {
+    clear(svg); var W = 640, H = o.h || 290, L = 56, Rm = 16, T = 12, B = 40;
+    var xs = o.series.reduce(function (a, s) { return a.concat(s.pts.map(function (p) { return p[0]; })); }, []);
+    var ys = o.series.reduce(function (a, s) { return a.concat(s.pts.map(function (p) { return p[1]; })); }, []);
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y1 = o.ymax || Math.max.apply(null, ys) * 1.08, y0 = o.ylog ? Math.max(o.ymin || 0.5, 1e-9) : 0;
+    function fx(x) { return L + (o.xlog ? (Math.log2(x) - Math.log2(x0)) / (Math.log2(x1) - Math.log2(x0)) : (x - x0) / (x1 - x0)) * (W - L - Rm); }
+    function fy(y) { return H - B - (o.ylog ? (Math.log10(Math.max(y, y0)) - Math.log10(y0)) / (Math.log10(y1) - Math.log10(y0)) : (y - y0) / (y1 - y0)) * (H - T - B); }
+    var i;
+    var yt = o.yticks || []; if (!yt.length) { var step = Math.pow(10, Math.floor(Math.log10(y1 / 5))); step = [1, 2, 5, 10].map(function (m) { return m * step; }).filter(function (s) { return y1 / s <= 7; })[0] || step; for (var y = 0; y <= y1; y += step) yt.push(y); }
+    yt.forEach(function (y) { el('line', { x1: L, x2: W - Rm, y1: fy(y), y2: fy(y), class: 'grid-h' }, svg); el('text', { x: L - 6, y: fy(y) + 3, class: 'mono-lab', 'text-anchor': 'end' }, svg, o.yfmt ? o.yfmt(y) : y); });
+    (o.xticks || []).forEach(function (x) { el('line', { x1: fx(x), x2: fx(x), y1: H - B, y2: H - B + 4, class: 'axis' }, svg); el('text', { x: fx(x), y: H - B + 16, class: 'mono-lab' }, svg, o.xfmt ? o.xfmt(x) : x); });
+    el('line', { x1: L, x2: W - Rm, y1: H - B, y2: H - B, class: 'axis' }, svg); el('line', { x1: L, x2: L, y1: T, y2: H - B, class: 'axis' }, svg);
+    el('text', { x: (L + W - Rm) / 2, y: H - 6, class: 'small-lab' }, svg, o.xlabel || '');
+    var yl = el('text', { x: 12, y: (T + H - B) / 2, class: 'small-lab', transform: 'rotate(-90 12 ' + ((T + H - B) / 2) + ')' }, svg, o.ylabel || '');
+    o.series.forEach(function (s) {
+      var d = s.pts.map(function (p, j) { return (j ? 'L' : 'M') + f1(fx(p[0])) + ' ' + f1(fy(p[1])); }).join(' ');
+      el('path', { d: d, fill: 'none', stroke: s.color, 'stroke-width': s.w || 2.2, 'stroke-dasharray': s.dash || 'none', 'stroke-linejoin': 'round' }, svg);
+      if (!s.nodots) s.pts.forEach(function (p) { var c = el('circle', { cx: fx(p[0]), cy: fy(p[1]), r: 3, fill: s.color }, svg); c.addEventListener('mousemove', function (e) { showTip(e, s.name + ': n = ' + p[0] + ' → ' + (s.fmt ? s.fmt(p[1]) : f2(p[1]))); }); c.addEventListener('mouseleave', hideTip); });
+    });
+  }
+
+  // ---- estado del paso 2 (un splay) y del paso 5 (la pasada)
+  var P2 = { key: 1, snaps: [], info: [], res: null, cur: 0 };
+  var P5 = { t: null, k: 0, rows: [], pas: null, total: 0, aSum: 0, phi0: 0, phi: 0, lamSum: 0, hist: [] };
+
+  function recomputeP2() {
+    var t = S.t0.clone(), snaps = [t.clone()], info = [{ txt: 'estado inicial' }];
+    var x = P2.key, depth0 = profundidad(t, x);
+    var res = accesoVigilado(t, x, S.modo, function (tt, paso) { snaps.push(tt.clone()); info.push(paso); });
+    P2.snaps = snaps; P2.info = info; P2.res = res; P2.depth0 = depth0; P2.cur = Math.min(P2.cur, snaps.length - 1);
+  }
+  function pseudoLines(modo) {
+    return [
+      ['mientras x tiene padre:', 'w'],
+      ['    p ← padre[x];  g ← padre[p]', 'w'],
+      ['    si g no existe:                      // zig', 'zig'],
+      ['        Rotar(x)', 'zig'],
+      ['    sino si x y p son hijos del mismo lado:   // zig-zig', 'zig-zig'],
+      [modo === 'splay' ? '        Rotar(p);  Rotar(x)             // primero el padre' : '        Rotar(x);  Rotar(x)             // «subir a la raíz»: x dos veces', 'zig-zig'],
+      ['    sino:                                // zig-zag', 'zig-zag'],
+      ['        Rotar(x);  Rotar(x)', 'zig-zag']
+    ];
+  }
+  function renderP2() {
+    var snap = P2.snaps[P2.cur], inf = P2.info[P2.cur], m = P2.snaps.length - 1;
+    // el nodo x, y p y g del paso que se acaba de dar (o del que viene)
+    var next = P2.info[P2.cur + 1];
+    drawTree($('svg2'), snap, { x: P2.key, p: next ? next.p : 0, g: next ? next.g : 0, size: $('chkSize').checked });
+    $('c2').textContent = 'paso ' + P2.cur + ' de ' + m;
+    $('b2first').disabled = $('b2prev').disabled = P2.cur === 0; $('b2next').disabled = $('b2last').disabled = P2.cur === m;
+    var pl = pseudoLines(S.modo), pre = $('pseudo'); clear(pre);
+    pl.forEach(function (ln) {
+      var sp = document.createElement('span'); sp.className = 'ln' + ((next && (ln[1] === next.tipo || ln[1] === 'w')) ? ' on' : '');
+      var txt = ln[0], ci = txt.indexOf('//');
+      if (ci >= 0) { sp.appendChild(document.createTextNode(txt.slice(0, ci))); var cm = document.createElement('span'); cm.className = 'cm'; cm.textContent = txt.slice(ci); sp.appendChild(cm); } else sp.appendChild(document.createTextNode(txt));
+      pre.appendChild(sp);
+    });
+    // invariantes
+    var dNow = profundidad(snap, P2.key), dPrev = P2.cur ? profundidad(P2.snaps[P2.cur - 1], P2.key) : dNow, rotHasta = 0, i;
+    for (i = 1; i <= P2.cur; i++) rotHasta += P2.info[i].costo;
+    var okOrd = inordenOk(snap), okProf = P2.cur === 0 || dNow === dPrev - inf.costo, fin = P2.cur === m;
+    var html = '<div class="inv"><span class="' + (okOrd ? 'ok' : 'bad') + '">orden: inorden = 1…n ' + (okOrd ? '✓' : '✗') + '</span>' +
+      '<span class="' + (okProf ? 'ok' : 'bad') + '">profundidad de x: ' + dNow + (P2.cur ? ' (baja ' + inf.costo + ')' : '') + ' ' + (okProf ? '✓' : '✗') + '</span>' +
+      '<span class="' + (fin ? (dNow === 0 ? 'ok' : 'bad') : 'na') + '">' + (fin ? 'x en la raíz: ' + (dNow === 0 ? '✓' : '✗') : 'x en la raíz: al final') + '</span></div>';
+    var desc;
+    if (P2.cur === 0) desc = 'La clave <b>' + P2.key + '</b> está a profundidad <b>' + P2.depth0 + '</b>: el splay hará <b>' + P2.depth0 + '</b> rotaciones (costo ' + Math.max(P2.depth0, 1) + ').';
+    else desc = 'Paso ' + P2.cur + ': <b>' + inf.tipo + '</b> con x = ' + inf.x + ', p = ' + inf.p + (inf.g ? ', g = ' + inf.g : '') + '. Costo del paso ' + inf.costo + '. Rotaciones hasta ahora: <b>' + rotHasta + '</b>.';
+    if (next) desc += '<br>Siguiente: <b>' + next.tipo + '</b> (x = ' + next.x + ', p = ' + next.p + (next.g ? ', g = ' + next.g : '') + ').';
+    setMsg($('panel2'), desc + html);
+    renderTable4();
+  }
+
+  function renderTable4() {
+    var res = P2.res, rows = '';
+    res.pasos.forEach(function (s, i) {
+      var extra = s.tipo === 'zig-zig' ? s.sx + '+' + s.sg + (s.disj ? ' ≤ ' : ' > ') + (s.sxn - 1) : '—';
+      var bad = !s.ok;
+      rows += '<tr class="' + (P2.cur === i + 1 ? 'cur' : '') + '"><td class="num">' + (i + 1) + '</td><td>' + s.tipo + '</td><td class="num">' + s.costo + '</td><td class="num">' + sgn(s.dphi) + '</td><td class="num">' + f2(s.a) + '</td><td class="num">' + f2(s.cota) + '</td><td class="num">' + sgn(s.cota - s.a) + '</td><td class="' + (bad ? 'bad' : 'ok') + '">' + (bad ? '✗ viola' : '✓') + '</td><td class="' + (s.tipo === 'zig-zig' ? (s.disj ? 'ok' : 'bad') : '') + '">' + extra + '</td></tr>';
+    });
+    if (!res.pasos.length) rows = '<tr><td colspan="9">la clave ya está en la raíz: costo 1, amortizado 1, cota 1 (igualdad)</td></tr>';
+    $('tbl4').innerHTML = '<table class="t"><thead><tr><th>#</th><th>paso</th><th>costo</th><th>ΔΦ</th><th>a = costo + ΔΦ</th><th>cota 3Δr (+1)</th><th>holgura</th><th>lema</th><th>s(x) + s\'(g) vs s\'(x) − 1</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var r = res, okA = r.ok;
+    setMsg($('panel4'), 'Acceso a la clave <b>' + P2.key + '</b> con <b>' + (S.modo === 'splay' ? 'splay' : 'subir a la raíz') + '</b>: costo real <b>' + r.costo + '</b>, ΔΦ = ' + sgn(r.phi1 - r.phi0) + ', amortizado <b>a = ' + f2(r.a) + '</b>; ' +
+      'la cota del lema es 3(log₂ ' + S.n + ' − r(x)) + 1 = 3(' + f2(Math.log2(S.n)) + ' − ' + f2(r.rx) + ') + 1 = <b>' + f2(r.cota) + '</b>. ' +
+      '<span class="banner ' + (okA ? 'ok' : 'bad') + '">' + (okA ? '✓ el lema se cumple' : '✗ el lema se viola en este acceso') + '</span>' +
+      (r.pasos.some(function (s) { return !s.ok; }) ? '<br><b class="bad">Algún paso viola la cota por paso.</b> En un zig-zig con subir a la raíz, el subárbol viejo de x y el nuevo de g se solapan (s(x) + s\'(g) > s\'(x) − 1) y la concavidad ya no da lo que falta.' : ''));
+  }
+
+  function renderP1() {
+    var t = S.t0, phi0 = potencial(t), n = S.n;
+    drawTree($('svg1'), t, { size: $('chkSize').checked });
+    var d1 = profundidad(t, 1), isPath = S.kind === 'camino';
+    setMsg($('panel1'), '<b>n = ' + n + '</b>, árbol inicial «' + kindName(S.kind) + '». Φ₀ = ' + f2(phi0) + (isPath ? ' = log₂ ' + n + '! = ' + f2(log2fact(n)) : '') + '. La clave 1 está a profundidad <b>' + d1 + '</b>, así que el primer acceso cuesta ' + Math.max(d1, 1) + '. ' +
+      'Cota genérica del lema para n accesos: n(3log₂n + 1) + Φ₀ = <b>' + f1(n * (3 * Math.log2(n) + 1) + phi0) + '</b>; sin el término Φ₀: ' + f1(n * (3 * Math.log2(n) + 1)) + '.');
+    $('instInfo').innerHTML = 'Instancia: <b>' + kindName(S.kind) + '</b>, n = <b>' + n + '</b>, reorganización: <b>' + (S.modo === 'splay' ? 'splay' : 'subir a la raíz') + '</b>. Todos los pasos de abajo usan esta misma instancia.';
+  }
+  function kindName(k) { return { camino: 'camino (n arriba)', caminoder: 'camino derecho', balanceado: 'balanceado', zigzag: 'zigzag', azar: 'aleatorio' }[k]; }
+
+  // ---- paso 5: la pasada
+  function resetP5() {
+    P5.t = S.t0.clone(); P5.k = 0; P5.rows = []; P5.total = 0; P5.aSum = 0; P5.phi0 = potencial(P5.t); P5.phi = P5.phi0; P5.lamSum = 0;
+    P5.pre = pasada(S.t0, S.modo);   // la pasada completa, para el gráfico
+  }
+  function avanzarP5() {
+    if (P5.k >= S.n) return false;
+    var k = ++P5.k, t = P5.t, d = profundidad(t, k), lk = d + (k === 1 ? 1 : 0), lam = espinaIzq(t, t.r[k]);
+    var r = accesoVigilado(t, k, S.modo);
+    P5.total += r.costo; P5.aSum += r.a; P5.phi = r.phi1; P5.lamSum += lam;
+    P5.rows.push({ k: k, c: r.costo, a: r.a, cota: r.cota, l: lk, lam: lam, ok: r.ok, pasosOk: r.pasos.every(function (s) { return s.ok; }) });
+    return true;
+  }
+  function renderP5() {
+    var n = S.n, k = P5.k, t = P5.t;
+    drawTree($('svg5'), t, { x: k || 0, size: $('chkSize').checked });
+    $('c5').textContent = 'acceso ' + k + ' de ' + n;
+    $('b5next').disabled = $('b5five').disabled = $('b5end').disabled = k >= n; $('b5reset').disabled = k === 0;
+    // invariante I(k) y árbol que regresa (solo para el camino)
+    var inv = '';
+    if (S.kind === 'camino' && S.modo === 'splay') {
+      if (k === 0) inv = '<span class="na">I(k): aún no hay accesos</span>';
+      else {
+        var okI = t.root === k && esCamino(t, t.l[t.root], k - 1);
+        inv = '<span class="' + (okI ? 'ok' : 'bad') + '">I(' + k + '): raíz = ' + k + ', izquierdo = camino ' + (k - 1) + (k > 1 ? '…1' : ' (vacío)') + ' ' + (okI ? '✓' : '✗') + '</span>';
+      }
+      if (k === n) { var igual = forma(t) === forma(caminoIzq(n)); inv += '<span class="' + (igual ? 'ok' : 'bad') + '">árbol final = árbol inicial ' + (igual ? '✓' : '✗') + '</span><span class="' + (Math.abs(P5.phi - P5.phi0) < 1e-6 ? 'ok' : 'bad') + '">Φₙ = Φ₀ ✓</span>'; }
+    } else inv = '<span class="na">I(k) y «el árbol regresa» valen para el camino con splay; con esta instancia solo se muestran costos y recurrencia</span>';
+    var okRec = P5.rows.every(function (r, i) { return i === 0 || r.l === (P5.rows[i - 1].l >> 1) + P5.rows[i - 1].lam; });
+    inv += '<span class="' + (S.modo === 'splay' ? (okRec ? 'ok' : 'bad') : 'na') + '">ℓ<sub>k+1</sub> = ⌊ℓ<sub>k</sub>/2⌋ + λ<sub>k</sub> ' + (S.modo === 'splay' ? (okRec ? '✓' : '✗') : '(solo splay)') + '</span>';
+    var okLema = P5.rows.every(function (r) { return r.ok && r.pasosOk; });
+    inv += '<span class="' + (okLema ? 'ok' : 'bad') + '">lema en cada paso ' + (okLema ? '✓' : '✗') + '</span>';
+    $('inv5').innerHTML = inv;
+    var generica = n * (3 * Math.log2(n) + 1) + P5.phi0;
+    $('stats5').innerHTML = [['costo acumulado T', P5.total, 'cost'], ['Σ amortizado', f1(P5.aSum), ''], ['Φ actual', f1(P5.phi), ''], ['Φ₀', f1(P5.phi0), ''], ['cota genérica', f1(generica), ''], ['cota sin Φ₀', f1(n * (3 * Math.log2(n) + 1)), '']]
+      .map(function (s) { return '<div class="stat"><div class="k">' + s[0] + '</div><div class="v ' + s[2] + '">' + s[1] + '</div></div>'; }).join('');
+    // tabla
+    var rows = '';
+    P5.rows.forEach(function (r, i) {
+      var prev = i ? P5.rows[i - 1] : null, rec = prev ? (r.l === (prev.l >> 1) + prev.lam) : null;
+      rows += '<tr class="' + (i === P5.rows.length - 1 ? 'cur' : '') + '"><td class="num">' + r.k + '</td><td class="num">' + r.c + '</td><td class="num">' + f2(r.a) + '</td><td class="num">' + f2(r.cota) + '</td><td class="num">' + r.l + '</td><td class="num">' + r.lam + '</td><td class="' + (rec === null ? '' : (rec ? 'ok' : 'bad')) + '">' + (rec === null ? '—' : (S.modo === 'splay' ? (rec ? '✓' : '✗') : '·')) + '</td></tr>';
+    });
+    $('tbl5').innerHTML = '<table class="t"><thead><tr><th>k</th><th>c<sub>k</sub></th><th>a<sub>k</sub></th><th>cota</th><th>ℓ<sub>k</sub></th><th>λ<sub>k</sub></th><th>ℓ<sub>k</sub> = ⌊ℓ<sub>k−1</sub>/2⌋ + λ<sub>k−1</sub></th></tr></thead><tbody>' + rows + '</tbody></table>';
+    drawBars5();
+    var f = P5.pre.filas, T = f.reduce(function (s, r) { return s + r.c; }, 0), A = f.reduce(function (s, r) { return s + r.a; }, 0), amax = Math.max.apply(null, f.map(function (r) { return r.a; }));
+    var Lsum = f.reduce(function (s, r) { return s + r.l; }, 0), Lam = f.reduce(function (s, r) { return s + r.lam; }, 0);
+    setMsg($('panel5'), 'La pasada completa de esta instancia (' + (S.modo === 'splay' ? 'splay' : 'subir a la raíz') + '): <b>T = ' + T + '</b> = ' + f2(T / n) + ' por acceso, Σ a<sub>k</sub> = ' + f2(A) + ', Φ final ' + f2(f[f.length - 1].phi) + ' contra Φ₀ ' + f2(P5.phi0) + ', mayor a<sub>k</sub> = ' + f2(amax) + '. ' +
+      (S.modo === 'splay' ? 'Con ℓ y λ: T = Σℓ<sub>k</sub> − 1 = ' + (Lsum - (f[0].l >= 2 ? 1 : 0)) + ' (con ℓ₁ ≥ 2) y Λ = Σλ<sub>k</sub> = ' + Lam + ', de modo que T ≤ 2(n + Λ) = ' + 2 * (n + Lam) + '.' : 'Con subir a la raíz la recurrencia de ℓ y λ no vale: ahí el árbol casi no se rebalancea.'));
+  }
+  function drawBars5() {
+    var svg = $('bars5'), f = P5.pre.filas, n = S.n, W = 640, H = 250, L = 44, Rm = 12, T = 12, B = 30; clear(svg);
+    var ymax = Math.max.apply(null, f.map(function (r) { return Math.max(r.c, r.a, r.cota); })) * 1.08, bw = (W - L - Rm) / n;
+    var ymin = Math.min(0, Math.floor(Math.min.apply(null, f.map(function (r) { return r.a; })) / 5) * 5), span = ymax - ymin;
+    function fy(y) { return H - B - (y - ymin) / span * (H - T - B); }
+    var step = Math.pow(10, Math.floor(Math.log10(span / 4))); step = [1, 2, 5, 10].map(function (m) { return m * step; }).filter(function (s) { return span / s <= 6; })[0];
+    for (var y = Math.ceil(ymin / step) * step; y <= ymax; y += step) { el('line', { x1: L, x2: W - Rm, y1: fy(y), y2: fy(y), class: y === 0 ? 'axis' : 'grid-h' }, svg); el('text', { x: L - 5, y: fy(y) + 3, class: 'mono-lab', 'text-anchor': 'end' }, svg, f1(y).replace('.0', '')); }
+    f.forEach(function (r, i) {
+      var x = L + i * bw, hit = i < P5.k;
+      var rect = el('rect', { x: x + bw * 0.12, y: fy(r.c), width: Math.max(bw * 0.76, 1), height: Math.max(fy(0) - fy(r.c), 0), fill: 'var(--accent-speed)', opacity: hit ? 1 : 0.28 }, svg);
+      rect.addEventListener('mousemove', function (e) { showTip(e, 'k = ' + r.k + ': c = ' + r.c + ', a = ' + f2(r.a) + ', cota = ' + f2(r.cota)); }); rect.addEventListener('mouseleave', hideTip);
+      el('circle', { cx: x + bw / 2, cy: fy(r.a), r: Math.min(3.2, Math.max(bw / 3, 1.6)), fill: 'var(--accent-info)' }, svg);
+      if (n <= 31 || (i + 1) % Math.ceil(n / 10) === 0) el('text', { x: x + bw / 2, y: H - B + 13, class: 'mono-lab' }, svg, r.k);
+    });
+    var d = f.map(function (r, i) { return (i ? 'L' : 'M') + f1(L + i * bw + bw / 2) + ' ' + f1(fy(r.cota)); }).join(' ');
+    el('path', { d: d, fill: 'none', stroke: 'var(--accent-cost)', 'stroke-width': 1.6, 'stroke-dasharray': '5 4' }, svg);
+    el('text', { x: (L + W - Rm) / 2, y: H - 3, class: 'small-lab' }, svg, 'acceso k');
+  }
+
+  // ---- paso 6: T(n)/n y compañía
+  var T6 = null;
+  function computeT6() {
+    var pts = [], gen = [], sin = [], i;
+    for (var k = 4; k <= 16; k++) { var n = 1 << k, T = totalPasada(caminoIzq(n), 'splay'); pts.push([n, T / n]); sin.push([n, 3 * Math.log2(n) + 1]); gen.push([n, 3 * Math.log2(n) + 1 + log2fact(n) / n]); }
+    T6 = { pts: pts, gen: gen, sin: sin };
+  }
+  function renderP6() {
+    if (!T6) computeT6();
+    lineChart($('chart6'), { series: [{ name: 'cota genérica / n', color: 'var(--accent-cost)', pts: T6.gen }, { name: 'cota sin Φ₀ / n', color: 'var(--accent-info)', pts: T6.sin }, { name: 'T(n)/n', color: 'var(--accent-speed)', pts: T6.pts }],
+      xlog: true, xticks: [16, 64, 256, 1024, 4096, 16384, 65536], xlabel: 'n (escala logarítmica)', ylabel: 'costo por acceso', ymax: 66 });
+    var last = T6.pts[T6.pts.length - 1], g = T6.gen[T6.gen.length - 1];
+    setMsg($('panel6'), 'Con n = 65536: <b>T/n = ' + f3(last[1]) + '</b>, la cota sin Φ₀ da ' + f1(T6.sin[T6.sin.length - 1][1]) + ' y la genérica ' + f1(g[1]) + ': la cota pierde un factor <b>' + f1(g[1] / last[1]) + '×</b> y sigue creciendo con log n, mientras T/n sube cada vez más despacio (4,405; 4,409; 4,412; 4,413; 4,414 para n = 4096, 8192, 16384, 32768, 65536). ' +
+      'El costo total es <b>Θ(n)</b>: T ≥ n trivialmente y Tarjan (1985) demostró O(n) para cualquier árbol inicial.');
+  }
+  function runShapes() {
+    var n = +$('selShapes').value, fs = formas(1, n), mn = 1e9, mx = 0, arg = 0, i;
+    for (i = 0; i < fs.length; i++) { var T = totalPasada(construir(fs[i], n), 'splay'); if (T < mn) mn = T; if (T > mx) { mx = T; arg = 1; } else if (T === mx) arg++; }
+    var Tp = totalPasada(caminoIzq(n), 'splay');
+    var pn = $('panel6b'); pn.style.display = 'block';
+    setMsg(pn, 'n = <b>' + n + '</b>: ' + fs.length + ' formas de árbol de búsqueda. Mínimo T = ' + mn + ', <b>máximo T = ' + mx + '</b> (' + f2(mx / n) + ' por acceso, ' + arg + ' forma' + (arg > 1 ? 's' : '') + '), el camino cuesta ' + Tp + '. ' +
+      (Tp === mx ? 'Aquí el camino sí es el peor.' : '<b class="bad">El camino no es el peor árbol inicial para esta secuencia</b>: tiene el potencial más alto, que no es lo mismo.') +
+      ' (verif.py: n=7 → 18 contra 16; n=12 → 40.)');
+  }
+  function runRandom() {
+    var pn = $('panel6b'); pn.style.display = 'block'; var rows = '', rg = mulberry32(3);
+    [64, 256, 1024, 4096].forEach(function (n) {
+      var t = caminoIzq(n), i, m = 20 * n, tot = 0;
+      for (i = 0; i < 4 * n; i++) accesoAzar(t, 1 + Math.floor(rg() * n), 'splay');
+      for (i = 0; i < m; i++) tot += accesoAzar(t, 1 + Math.floor(rg() * n), 'splay');
+      rows += '<tr><td class="num">' + n + '</td><td class="num">' + f2(tot / m) + '</td><td class="num">' + f1(Math.log2(n)) + '</td><td class="num">' + f2(tot / m / Math.log2(n)) + '</td><td class="num">' + f1(3 * Math.log2(n) + 1) + '</td><td class="num">' + f2(Math.log2(n + 1) - 2) + '</td></tr>';
+    });
+    $('panel6b').innerHTML = 'Accesos con claves uniformes al azar (20n accesos tras un calentamiento): el costo <b>crece con log n</b>, así que ahí la cota del lema sí es del orden correcto.' +
+      '<div class="scrollx"><table class="t"><thead><tr><th>n</th><th>costo/acceso</th><th>log₂ n</th><th>÷ log₂ n</th><th>3log₂n + 1</th><th>cota inferior log₂(n+1) − 2</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      'Cualquier árbol de búsqueda con n nodos tiene profundidad media ≥ log₂(n+1) − 2, así que sobre claves al azar ninguna estructura baja de esa cota: el factor log n del lema es real <i>en general</i>, solo que no en esta secuencia.';
+  }
+
+  // ---- paso 7
+  function renderP7() {
+    var pts1 = [], pts2 = [], pts3 = [], k;
+    for (k = 4; k <= 11; k++) { var n = 1 << k, ts = totalPasada(caminoIzq(n), 'splay'), tr = (n - 1) * (n + 2) / 2; pts1.push([n, ts / n]); pts2.push([n, tr / n]); pts3.push([n, Math.log2(n)]); }
+    lineChart($('chart7'), { series: [{ name: 'splay', color: 'var(--accent-speed)', pts: pts1 }, { name: 'subir a la raíz', color: 'var(--accent-cost)', pts: pts2 }, { name: 'log₂ n', color: 'var(--ink-muted)', pts: pts3, dash: '5 4', nodots: true, w: 1.4 }],
+      xlog: true, ylog: true, ymin: 1, ymax: 2000, xticks: [16, 64, 256, 1024, 2048], yticks: [1, 10, 100, 1000], xlabel: 'n', ylabel: 'costo por acceso (log)' });
+    var n = S.n, r = pasada(caminoIzq(n), 'raiz'), cs = r.filas.map(function (f) { return f.c; }), exp = [n - 1]; for (k = n - 1; k >= 1; k--) exp.push(k);
+    var same = cs.length === exp.length && cs.every(function (c, i) { return c === exp[i]; }), T = cs.reduce(function (a, b) { return a + b; }, 0);
+    setMsg($('panel7'), 'Para el camino de n = ' + n + ' con subir a la raíz: costos <span class="mono">' + cs.slice(0, 12).join(' ') + (cs.length > 12 ? ' …' : '') + '</span>, total <b>' + T + '</b> = (n−1)(n+2)/2 = ' + ((n - 1) * (n + 2) / 2) + ' ' + (same && T === (n - 1) * (n + 2) / 2 ? '✓' : '✗') +
+      '; el árbol final ' + (forma(r.t) === forma(caminoIzq(n)) ? 'es otra vez el camino ✓' : 'no es el camino ✗') + '. Con splay, el mismo árbol cuesta ' + totalPasada(caminoIzq(n), 'splay') + '. (Este panel usa siempre el camino de n nodos, sea cual sea la instancia de arriba.)');
+  }
+
+  // ---- lotes
+  function runBatch3() {
+    var rg = mulberry32(13), N = 2000, ord = 0, raiz = 0, prof = 0, rot = 0, i;
+    for (i = 0; i < N; i++) {
+      var n = 1 + Math.floor(rg() * 40), kinds = ['azar', 'azar', 'camino', 'caminoder', 'zigzag'], t = inicial(kinds[Math.floor(rg() * 5)], n, rg), x = 1 + Math.floor(rg() * n), d0 = profundidad(t, x), ok = true, r = 0, s;
+      while (t.p[x]) { var dAnt = profundidad(t, x); s = pasoSplay(t, x, 'splay'); r += s.costo; ok = ok && profundidad(t, x) === dAnt - s.costo; }
+      ord += inordenOk(t) ? 1 : 0; raiz += t.root === x ? 1 : 0; prof += ok ? 1 : 0; rot += r === d0 ? 1 : 0;
+    }
+    var pn = $('batch3'); pn.style.display = 'block';
+    setMsg(pn, N + ' splays: el recorrido inorden no cambia <b>' + ord + ' de ' + N + '</b>; x termina en la raíz <b>' + raiz + ' de ' + N + '</b>; la profundidad de x baja 1 o 2 por paso <b>' + prof + ' de ' + N + '</b>; rotaciones = profundidad inicial <b>' + rot + ' de ' + N + '</b>.');
+  }
+  function runBatch4() {
+    var t = S.t0.clone(), n = S.n, cnt = {}, viol = 0, violAcc = 0, k;
+    for (k = 1; k <= n; k++) {
+      var r = accesoVigilado(t, k, S.modo);
+      r.pasos.forEach(function (s) { var c = cnt[s.tipo] || (cnt[s.tipo] = [0, 0, -1e9]); c[0]++; if (!s.ok) c[1]++; c[2] = Math.max(c[2], s.a - s.cota); });
+      if (!r.ok) violAcc++;
+    }
+    var rows = ['zig', 'zig-zig', 'zig-zag'].map(function (tp) { var c = cnt[tp] || [0, 0, 0]; return '<tr><td>' + tp + '</td><td class="num">' + c[0] + '</td><td class="num ' + (c[1] ? 'bad' : 'ok') + '">' + c[1] + '</td><td class="num">' + (c[0] ? f3(c[2]) : '—') + '</td></tr>'; }).join('');
+    var pn = $('batch4'); pn.style.display = 'block';
+    pn.innerHTML = 'Pasada 1…' + n + ' de la instancia con <b>' + (S.modo === 'splay' ? 'splay' : 'subir a la raíz') + '</b>: <div class="scrollx"><table class="t"><thead><tr><th>paso</th><th>cantidad</th><th>violan</th><th>máx (a − cota)</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      'Accesos que violan la cota por acceso: <b class="' + (violAcc ? 'bad' : 'hi') + '">' + violAcc + ' de ' + n + '</b>.';
+  }
+
+  // ---- control global
+  function newInstance(keepRandom) {
+    if (!(keepRandom && S.kind === 'azar' && S.t0 && S.t0.n === S.n)) S.t0 = inicial(S.kind, S.n, rng);
+    var sel = $('selKey'); clear(sel); sel.innerHTML = '';
+    for (var k = 1; k <= S.n; k++) { var o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o); }
+    P2.key = Math.min(P2.key, S.n); sel.value = P2.key; P2.cur = 0;
+    $('batch4').style.display = 'none';
+    refreshAll();
+  }
+  function refreshAll() {
+    $('iNv').textContent = S.n; $('iN').value = S.n; $('iKind').value = S.kind; $('iModo').value = S.modo;
+    renderP1(); recomputeP2(); renderP2(); resetP5(); renderP5(); renderP7();
+  }
+  function init() {
+    var sh = $('selShapes'); for (var n = 3; n <= 9; n++) { var o = document.createElement('option'); o.value = n; o.textContent = n; sh.appendChild(o); } sh.value = 7;
+    $('iKind').addEventListener('change', function () { S.kind = this.value; newInstance(false); });
+    $('iN').addEventListener('input', function () { S.n = +this.value; newInstance(false); });
+    $('iModo').addEventListener('change', function () { S.modo = this.value; P2.cur = 0; refreshAll(); });
+    $('btnInst').addEventListener('click', function () { S.kind = 'azar'; newInstance(false); });
+    $('chkSize').addEventListener('change', function () { renderP1(); renderP2(); renderP5(); });
+    $('selKey').addEventListener('change', function () { P2.key = +this.value; P2.cur = 0; recomputeP2(); renderP2(); });
+    $('b2first').addEventListener('click', function () { P2.cur = 0; renderP2(); });
+    $('b2prev').addEventListener('click', function () { if (P2.cur > 0) P2.cur--; renderP2(); });
+    $('b2next').addEventListener('click', function () { if (P2.cur < P2.snaps.length - 1) P2.cur++; renderP2(); });
+    $('b2last').addEventListener('click', function () { P2.cur = P2.snaps.length - 1; renderP2(); });
+    $('btnBatch3').addEventListener('click', runBatch3);
+    $('btnBatch4').addEventListener('click', runBatch4);
+    $('btnFirstFail').addEventListener('click', function () {
+      S.kind = 'camino'; S.n = 14; S.modo = 'raiz'; P2.key = 1; newInstance(false); $('selKey').value = 1; P2.cur = P2.snaps.length - 1; renderP2();
+      $('tbl4').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    $('b5reset').addEventListener('click', function () { resetP5(); renderP5(); });
+    $('b5next').addEventListener('click', function () { avanzarP5(); renderP5(); });
+    $('b5five').addEventListener('click', function () { for (var i = 0; i < 5 && avanzarP5(); i++); renderP5(); });
+    $('b5end').addEventListener('click', function () { while (avanzarP5()); renderP5(); });
+    $('btnShapes').addEventListener('click', runShapes);
+    $('btnRandom').addEventListener('click', runRandom);
+    renderP6(); renderP7();
+    newInstance(false);
+  }
+  init();
+})();
+</script>
+</body>
+</html>

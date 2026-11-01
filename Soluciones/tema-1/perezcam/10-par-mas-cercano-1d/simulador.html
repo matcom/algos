@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 10 — Par más cercano en 1D</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+    padding: 28px 20px;
+  }
+  .card {
+    width: 100%; max-width: 920px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 22px 26px 26px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 30px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); }
+  .panel b.bad { color: var(--accent-cost); }
+  .panel .mono { font-family: var(--mono); font-size: .78rem; }
+  .panel ul { margin: 4px 0 0; padding-left: 18px; }
+  .panel li { margin: 2px 0; }
+
+  svg.diagram { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .scrollx { overflow-x: auto; }
+  svg.wide { min-width: 640px; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+
+  /* --- árbol de decisión --- */
+  .t-edge { stroke: var(--ink-muted); stroke-width: 1.2; opacity: .55; fill: none; transition: opacity .2s; }
+  g.on > .t-edge { stroke: var(--ink); stroke-width: 3.2; opacity: 1; }
+  g.fresh > .t-edge { stroke: var(--accent-speed); stroke-width: 2.4; opacity: 1; }
+  .t-node rect { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.2; }
+  .t-node text { font-family: var(--serif); font-style: italic; font-size: 13px; text-anchor: middle; dominant-baseline: central; }
+  .t-node.on rect { stroke: var(--ink); stroke-width: 2.6; fill: var(--surface); }
+  .t-node.fresh rect { stroke: var(--accent-speed); stroke-width: 2.4; }
+  .t-lab rect { fill: var(--surface); }
+  .t-lab text { font-family: var(--mono); font-size: 10px; text-anchor: middle; dominant-baseline: central; fill: var(--ink-muted); }
+  .t-lab.on text { fill: var(--ink); font-weight: 700; }
+  .leaf rect.bg { stroke-width: 1.2; }
+  .leaf.ok rect.bg { fill: color-mix(in srgb, var(--accent-speed) 12%, var(--surface)); stroke: var(--accent-speed); }
+  .leaf.no rect.bg { fill: color-mix(in srgb, var(--accent-cost) 12%, var(--surface)); stroke: var(--accent-cost); }
+  .leaf.ok rect.bar { fill: var(--accent-speed); }
+  .leaf.no rect.bar { fill: var(--accent-cost); }
+  .leaf.on rect.bg { stroke-width: 3; }
+  .leaf.ok.on rect.bg { fill: color-mix(in srgb, var(--accent-speed) 30%, var(--surface)); }
+  .leaf.no.on rect.bg { fill: color-mix(in srgb, var(--accent-cost) 30%, var(--surface)); }
+  .leaf.fresh rect.bg { stroke-width: 2.6; }
+  .leaf text.l1 { font-size: 11.5px; font-weight: 700; }
+  .leaf text.l2 { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); }
+  .ghost { opacity: .1; }
+  .tree-head { font-size: 10.5px; font-style: italic; fill: var(--ink-muted); }
+  svg text.tree-head { fill: var(--ink-muted); }
+
+  .code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; font-family: var(--mono); font-size: .76rem; line-height: 1.55; }
+  .code .ln { padding: 0 12px; border-left: 3px solid transparent; white-space: pre; color: var(--ink-muted); }
+  .code .ln.on { border-left-color: var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 14%, transparent); color: var(--ink); font-weight: 700; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 14px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  select, input[type=text], input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=number] { width: 78px; font-family: var(--mono); }
+  input[type=text] { font-family: var(--mono); }
+  input[type=range] { accent-color: var(--accent-speed); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .95rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); }
+  .stat .v.speed { color: var(--accent-speed); }
+
+  .banner { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+  .banner.ok { color: var(--accent-speed); }
+  .banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); }
+  button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible, g[tabindex]:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  table.t { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .76rem; }
+  table.t th, table.t td { border: 1px solid var(--line); padding: 5px 9px; text-align: right; }
+  table.t th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  table.t td.hi { color: var(--accent-speed); font-weight: 700; }
+  table.t td.cost { color: var(--accent-cost); font-weight: 700; }
+
+  /* --- plano --- */
+  .region { fill: color-mix(in srgb, var(--accent-speed) 11%, var(--surface)); stroke: none; }
+  .region.sel { fill: color-mix(in srgb, var(--accent-speed) 30%, var(--surface)); }
+  .wall { stroke: var(--accent-cost); stroke-width: 2.6; stroke-linecap: round; }
+  .reg-lab { font-family: var(--mono); font-size: 10px; text-anchor: middle; fill: var(--ink-muted); pointer-events: none; }
+  .wall-lab { font-family: var(--mono); font-size: 10px; fill: var(--accent-cost); font-weight: 700; }
+  svg text.wall-lab { fill: var(--accent-cost); }
+  .axis-line { stroke: var(--line); stroke-width: 1; }
+  .tick-lab { font-size: 9.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .pt circle.dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+  .pt.y circle.dot { fill: var(--surface); stroke: var(--ink); stroke-width: 2.6; }
+  .pt text { font-family: var(--serif); font-style: italic; font-size: 14px; font-weight: 700; pointer-events: none; }
+  .pt { cursor: grab; touch-action: none; }
+  .pt:active { cursor: grabbing; }
+  .seg { stroke: var(--ink); stroke-width: 1.6; stroke-dasharray: 5 4; fill: none; }
+  .zmark { fill: none; stroke: var(--accent-cost); stroke-width: 2.6; }
+  .zmark-fill { fill: var(--surface); }
+
+  /* --- rejilla --- */
+  .cell-line { stroke: var(--line); stroke-width: 1; }
+  .win { fill: color-mix(in srgb, var(--accent-speed) 15%, transparent); }
+  .strip-band { fill: color-mix(in srgb, var(--accent-cost) 11%, transparent); }
+  .half-l { fill: color-mix(in srgb, var(--ink-muted) 8%, transparent); }
+  .half-r { fill: color-mix(in srgb, var(--ink-muted) 15%, transparent); }
+  .small-lab { font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .mono-lab { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .bracket { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+  .bracket.cost { stroke: var(--accent-cost); stroke-width: 2.2; }
+  .bracket.speed { stroke: var(--accent-speed); stroke-width: 2.2; }
+
+  /* --- histograma --- */
+  .bar { fill: var(--accent-speed); cursor: pointer; transition: opacity .12s; }
+  .bar:hover, .bar:focus { opacity: .72; }
+  .grid-h { stroke: var(--line); stroke-width: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .74rem; color: var(--ink-muted); margin: 6px 0 4px; }
+  .legend .sw { display: inline-block; width: 18px; height: 0; border-top: 2px solid; margin-right: 6px; vertical-align: middle; }
+  .legend .sw.bar-sw { height: 10px; border: 0; background: var(--accent-speed); border-radius: 2px; width: 12px; }
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: .74rem; padding: 6px 9px; border-radius: 7px; line-height: 1.4; opacity: 0; transition: opacity .1s; max-width: 240px; }
+  .tip.show { opacity: 1; }
+  .tip b { font-family: var(--mono); }
+  details { margin: 6px 0 10px; font-size: .78rem; color: var(--ink-muted); }
+  details summary { cursor: pointer; }
+  .hbar-row { display: grid; grid-template-columns: 170px 1fr 120px; gap: 10px; align-items: center; font-size: .78rem; margin: 6px 0; }
+  .hbar-track { height: 12px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 4px; }
+  .hbar-val { font-family: var(--mono); font-weight: 700; text-align: right; }
+
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 560px) { .card { padding: 16px 14px 20px; } .hbar-row { grid-template-columns: 1fr; } .hbar-val { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Par más cercano en 1D: árboles de decisión, la cota Ω(n log n) y la rejilla que la rompe</h1>
+  <p class="subtitle">Ejercicio 10 · cómo se arma y se usa un árbol de decisión, por qué hacen falta n! hojas,
+  cómo es la reducción, y el algoritmo aleatorio de la rejilla funcionando (con sus errores típicos).</p>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <h2><span class="step">Paso 1</span>Qué es un árbol de decisión y cómo se arma</h2>
+  <p class="lead">En este modelo un algoritmo solo puede hacer una cosa con los datos: <b>probar el signo de un
+  polinomio</b> (aquí siempre <i>x<sub>i</sub> − x<sub>j</sub></i>). Todo lo demás (variables auxiliares, bucles)
+  es gratis. El <b>árbol es el algoritmo desenrollado</b>: la raíz es su primera prueba, cada resultado
+  (<code>&lt;0</code>, <code>=0</code>, <code>&gt;0</code>) lleva a la siguiente prueba que haría sabiendo lo ya averiguado, y las
+  hojas son las respuestas. <b>Hay un árbol distinto para cada tamaño n</b>; este es el de n = 3 (distinción de
+  elementos: ¿hay dos iguales?). El costo de una entrada es cuántas pruebas se hacen hasta una hoja, y el peor
+  caso es la profundidad.</p>
+  <div class="scrollx"><svg class="diagram wide" id="treeBuild" role="img" aria-label="Árbol de decisión para n=3, construcción paso a paso"></svg></div>
+  <div class="panel" id="bCaption"></div>
+  <div class="controls">
+    <button id="btnBPrev">◂ atrás</button>
+    <button id="btnBNext" class="primary">▸ siguiente</button>
+    <button id="btnBAll">▸▸ árbol completo</button>
+    <button id="btnBReset">↺ empezar</button>
+  </div>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <h2><span class="step">Paso 2</span>Cómo se usa: valores concretos recorriendo el árbol</h2>
+  <p class="lead">Se parte de la raíz y en cada nodo se calcula el signo de <i>x<sub>i</sub> − x<sub>j</sub></i> con
+  los números reales; esa rama es la que se sigue. Cambia los valores (o elige un ejemplo por hoja) y mira el
+  camino. A la derecha, el mismo árbol escrito como código: las líneas resaltadas son las pruebas que se hicieron.</p>
+  <div class="config">
+    <label>x₁ <input type="number" id="inX1" step="any" value="5"></label>
+    <label>x₂ <input type="number" id="inX2" step="any" value="9"></label>
+    <label>x₃ <input type="number" id="inX3" step="any" value="2"></label>
+    <label>ejemplo por hoja: <select id="selEx"></select></label>
+    <button id="btnRand">🎲 aleatorio</button>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="treeUse" role="img" aria-label="Árbol de decisión con el camino de la entrada resaltado"></svg></div>
+  <div class="stats">
+    <div class="stat"><div class="k">pruebas hechas</div><div class="v cost" id="useDepth">—</div></div>
+    <div class="stat"><div class="k">profundidad del árbol</div><div class="v">3</div></div>
+    <div class="stat"><div class="k">hojas (verdes + naranjas)</div><div class="v">6 + 5 = 11</div></div>
+  </div>
+  <div class="panel" id="useSteps"></div>
+  <div class="code" id="codePanel" aria-label="El árbol como código"></div>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <h2><span class="step">Paso 3</span>Por qué hacen falta n! hojas (y no menos)</h2>
+  <p class="lead">Las entradas con <b>órdenes distintos</b> (x₁&lt;x₂&lt;x₃, x₁&lt;x₃&lt;x₂, …) tienen la misma respuesta
+  —«todos distintos»— pero <b>no pueden compartir hoja</b>. Razón: cada prueba corta el espacio con un plano, así
+  que las entradas que llegan a una hoja forman una región <b>convexa</b> (intersección de semiespacios y planos).
+  Entre dos entradas de órdenes distintos hay siempre un punto con valores repetidos (una «pared»), y si la hoja
+  los contuviera a ambos contendría ese punto y respondería mal. Aquí se ve con x₃ fijo: el plano (x₁, x₂) queda
+  dividido por tres paredes en <b>6 = 3! regiones</b>. <b>Arrastra x e y</b> (o usa las flechas del teclado).</p>
+  <div class="config">
+    <label>x₃ fijo = <input type="range" id="slX3" min="-4" max="4" step="0.5" value="0"> <span id="x3val" style="font-family:var(--mono)">0</span></label>
+    <button id="btnPlaneEx1">ejemplo: órdenes opuestos</button>
+    <button id="btnPlaneEx2">ejemplo: mismo orden</button>
+  </div>
+  <svg class="diagram" id="planeSvg" viewBox="0 0 500 500" role="img" aria-label="Plano x1-x2 dividido en seis regiones por tres paredes" style="max-width:520px;margin:0 auto"></svg>
+  <div class="panel" id="planeReadout" style="margin-top:10px"></div>
+  <p class="lead" style="margin-top:12px">De ahí sale la cota: n! órdenes ⇒ al menos n! hojas «todos distintos»; un árbol ternario de
+  profundidad h tiene a lo sumo 3<sup>h</sup> hojas ⇒ <b>h ≥ log₃ n! = Ω(n log n)</b>.</p>
+  <div style="overflow-x:auto"><table class="t" id="nTable"></table></div>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <h2><span class="step">Paso 4</span>La reducción: par más cercano ⇒ distinción de elementos</h2>
+  <p class="lead">En 1D los n reales <b>ya son</b> una instancia de par más cercano: la reducción es la identidad (cuesta 0
+  pruebas). Un árbol para el par más cercano termina en una hoja que dice <b>qué par (i, j)</b> es el más cercano
+  (no el número δ). Colgando de cada hoja <b>un nodo más</b> —el signo de x<sub>i</sub> − x<sub>j</sub>— se resuelve
+  distinción de elementos con profundidad T(n)+1. Si T(n) fuera o(n log n), contradiría a Ben-Or.</p>
+  <div class="config">
+    <label style="flex:1;min-width:220px">números (separados por comas): <input type="text" id="redInput" value="6, 2, 9, 4" style="flex:1"></label>
+    <button id="btnRedA">sin repetidos</button>
+    <button id="btnRedB">con repetido</button>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="redSvg" viewBox="0 0 760 170" role="img" aria-label="Números sobre una recta con el par más cercano marcado"></svg></div>
+  <div class="panel" id="redPanel"></div>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <h2><span class="step">Paso 5</span>Lo que rompe la cota: la rejilla aleatoria incremental en 1D</h2>
+  <p class="lead">Se insertan los puntos <b>en orden aleatorio</b> manteniendo δ (la distancia mínima exacta entre los ya
+  insertados) y una <b>rejilla de celdas de lado δ</b> en una tabla hash. Para el punto nuevo p solo se miran las
+  <b>3 celdas</b> vecinas: cualquier punto a distancia &lt; δ de p cae ahí. Si δ baja, se reconstruye la rejilla. Usa
+  <code>⌊x/δ⌋</code> y acceso indirecto: dos cosas que un árbol algebraico no tiene. Prueba las variantes: copiar mal las
+  constantes del plano (lado δ/2 con 3 celdas) <b>no es un detalle de borde</b>, el algoritmo se equivoca.</p>
+  <div class="config">
+    <label>conjunto:
+      <select id="gConj">
+        <option value="rand">12 puntos al azar</option>
+        <option value="geo">huecos decrecientes (peor caso)</option>
+      </select>
+    </label>
+    <label>orden de llegada:
+      <select id="gOrden">
+        <option value="azar">al azar (lo que hace el algoritmo)</option>
+        <option value="dado">tal como está (de menor a mayor)</option>
+      </select>
+    </label>
+    <label>rejilla:
+      <select id="gVar">
+        <option value="1,1">lado δ · ventana de 3 celdas (correcta)</option>
+        <option value="0.5,2">lado δ/2 · ventana de 5 celdas (la de C2)</option>
+        <option value="0.5,1">lado δ/2 · ventana de 3 celdas (falla)</option>
+        <option value="1,0">lado δ · ventana de 1 celda (falla)</option>
+      </select>
+    </label>
+    <button id="btnGNew">🎲 otro conjunto</button>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="gridSvg" viewBox="0 0 760 230" role="img" aria-label="Puntos sobre una recta con la rejilla y la ventana de búsqueda"></svg></div>
+  <div class="stats">
+    <div class="stat"><div class="k">insertados</div><div class="v" id="gStIns">2</div></div>
+    <div class="stat"><div class="k">δ actual</div><div class="v speed" id="gStDelta">—</div></div>
+    <div class="stat"><div class="k">reconstrucciones</div><div class="v cost" id="gStRec">0</div></div>
+    <div class="stat"><div class="k">trabajo de reconstrucción</div><div class="v cost" id="gStWork">0</div></div>
+    <div class="stat"><div class="k">consultas a la tabla</div><div class="v" id="gStQ">0</div></div>
+  </div>
+  <div class="panel" id="gCaption">Presiona «un paso» para insertar el siguiente punto.</div>
+  <div class="panel" id="gResult" style="display:none"></div>
+  <div class="controls">
+    <button id="btnGStep">▸ un paso</button>
+    <button id="btnGFinish">▸▸ terminar</button>
+    <button id="btnGPlay" class="primary">▶ reproducir</button>
+    <button id="btnGReset">↺ reiniciar</button>
+    <div class="speed-wrap">velocidad <input type="range" id="gSpeed" min="1" max="100" value="55"></div>
+  </div>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <h2><span class="step">Paso 6</span>Costo esperado, peor caso, y qué hace el barajado</h2>
+  <p class="lead"><b>Reconstrucciones.</b> El paso s reconstruye solo si el punto recién llegado es uno de los (a lo sumo dos)
+  del par más cercano de los s primeros: probabilidad ≤ 2/s. Cada reconstrucción cuesta s, así que el trabajo
+  esperado es Σ(2/s)·s = O(n), y el número esperado de reconstrucciones es 2H<sub>n</sub> − 3 ≈ 2 ln n − 1.85. Abajo se
+  simula: el <b>mismo</b> conjunto, muchos barajados distintos.</p>
+  <div class="config">
+    <label>n = <input type="range" id="hN" min="100" max="5000" step="100" value="1000"> <span id="hNval" style="font-family:var(--mono)">1000</span></label>
+    <label>barajados = <input type="range" id="hR" min="50" max="400" step="50" value="200"> <span id="hRval" style="font-family:var(--mono)">200</span></label>
+    <button id="btnHist" class="primary">▶ simular</button>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="histSvg" viewBox="0 0 640 250" role="img" aria-label="Histograma de reconstrucciones"></svg></div>
+  <div class="legend" id="histLegend"></div>
+  <div class="stats" id="histStats"></div>
+  <details><summary>ver tabla de la distribución</summary><div style="overflow-x:auto"><table class="t" id="histTable"></table></div></details>
+
+  <p class="lead" style="margin-top:18px"><b>Peor caso.</b> Con x<sub>k</sub> = 2<sup>−k</sup> insertados en el orden k = 1, 2, …, cada punto nuevo forma un par más
+  cercano que todos los anteriores: <b>todos</b> los pasos reconstruyen, y el trabajo es Σ s = Θ(n²). Pero la <b>garantía
+  esperada vale para toda entrada</b>: esa misma entrada, barajada por el algoritmo, cuesta O(n). Lo improbable no es una
+  entrada, es un <i>orden de inserción</i>: la probabilidad de reconstruir en todos los pasos es 2<sup>n−1</sup>/n!.</p>
+  <div class="config">
+    <label>n = <input type="range" id="wN" min="20" max="800" step="20" value="800"> <span id="wNval" style="font-family:var(--mono)">800</span></label>
+    <button id="btnWc" class="primary">▶ medir</button>
+  </div>
+  <div id="wcOut"></div>
+  <div class="config">
+    <label>enumerar todas las permutaciones, n =
+      <select id="enN"><option>5</option><option>6</option><option>7</option><option selected>8</option></select>
+    </label>
+    <button id="btnEnum">▶ contar</button>
+    <span id="enOut" style="font-size:.78rem;color:var(--ink-muted)"></span>
+  </div>
+
+  <!-- ===================== PASO 7 ===================== -->
+  <h2><span class="step">Paso 7</span>Qué es exactamente δ: la franja de C2 y el «8»</h2>
+  <p class="lead">En el divide y vencerás del plano, <b>δ = mín(δ<sub>izq</sub>, δ<sub>der</sub>)</b> es el mejor par <b>del mismo lado</b> de la
+  recta L: una cota superior de la distancia real, que un par <i>cruzado</i> puede mejorar. Por eso cada cuadrado de lado
+  δ/2 (diagonal δ/√2 &lt; δ) cae entero en un lado y tiene <b>a lo sumo un punto</b>; el rectángulo de 2δ × δ cabe en 8
+  cuadrados ⇒ a lo sumo 8 puntos ⇒ q está a ≤ 7 posiciones de p en el orden por y. Compara con la rejilla de arriba,
+  donde δ es el mínimo <i>exacto</i> de todo lo insertado.</p>
+  <div class="scrollx"><svg class="diagram wide" id="sq2dSvg" viewBox="0 0 640 430" role="img" aria-label="El rectángulo 2δ por δ partido en ocho cuadrados de lado δ/2 sobre dos"></svg></div>
+  <div class="panel">
+    <table class="t" style="font-family:var(--sans)">
+      <tr><th style="text-align:left"></th><th style="text-align:left">δ es…</th><th style="text-align:left">una celda tiene ≤ 1 punto porque…</th></tr>
+      <tr><td style="text-align:left"><b>Franja</b> (C2 §6)</td><td style="text-align:left">mínimo de los pares del <i>mismo lado</i> (cota superior de la distancia real)</td><td style="text-align:left">cada celda cae en un solo lado de L, y ahí todo par está a ≥ δ</td></tr>
+      <tr><td style="text-align:left"><b>Rejilla</b> (C2 §9, aquí)</td><td style="text-align:left">mínimo <i>exacto</i> de los puntos ya insertados</td><td style="text-align:left">δ ya es la distancia mínima de <i>todos</i> los pares insertados</td></tr>
+    </table>
+  </div>
+  <p class="lead" style="margin-top:14px"><b>En 1D el 7 se vuelve 1.</b> Los puntos de la franja (L−δ, L+δ) son los de la izquierda en (L−δ, L] y los de la derecha
+  en [L, L+δ). Cada intervalo mide δ, así que dos puntos del mismo lado dentro de él estarían a menos de δ, contra la
+  definición de δ<sub>izq</sub> y δ<sub>der</sub>. <b>Cada lado aporta a lo sumo un punto</b>: hay que comparar un solo par, y el
+  divide y vencerás colapsa en «ordenar y mirar consecutivos».</p>
+  <div class="controls">
+    <button id="btnStripNew" class="primary">🎲 otro conjunto</button>
+    <button id="btnStripCount">contar en 2000 conjuntos</button>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="stripSvg" viewBox="0 0 760 240" role="img" aria-label="Franja en una dimensión"></svg></div>
+  <div class="panel" id="stripPanel"></div>
+
+  <!-- ===================== PASO 8 ===================== -->
+  <h2><span class="step">Paso 8</span>Una advertencia honesta: lineal en el modelo, no necesariamente más rápido</h2>
+  <p class="lead">Medición de referencia con <code>verif.py</code> (Python, rejilla = media de 5 barajados, ordenar = mejor de 3; los tiempos dependen de la máquina y la carga). La rejilla rompe la cota
+  <i>en el modelo</i>, pero en esta máquina y hasta n = 10⁶ es <b>4 a 6 veces más lenta</b> que ordenar: <code>sorted</code> está
+  escrito en C, y a n = 10⁶ un factor log₂ n es solo ≈ 20. Con estos tamaños no alcanza a verse la diferencia entre
+  O(n) y O(n log n); lo más probable es que domine la jerarquía de memoria, que el modelo RAM (todo acceso cuesta 1) no capta.</p>
+  <div style="overflow-x:auto"><table class="t">
+    <tr><th>n</th><th>ordenar</th><th>rejilla</th><th>rejilla / ordenar</th></tr>
+    <tr><td>10 000</td><td>0.002 s</td><td>0.008 s</td><td class="cost">4.4×</td></tr>
+    <tr><td>100 000</td><td>0.022 s</td><td>0.124 s</td><td class="cost">5.7×</td></tr>
+    <tr><td>1 000 000</td><td>0.386 s</td><td>1.837 s</td><td class="cost">4.8×</td></tr>
+  </table></div>
+
+  <footer>teal = «todos distintos» / lo que sale bien · naranja = «hay repetidos» / lo que cuesta o falla · ver
+  <code>ejercicio-10.pdf</code> para las demostraciones completas y <code>verif.py</code> para las pruebas</footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  'use strict';
+  // ============================================================ utilidades
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function fmt(v, d) {
+    d = d === undefined ? 2 : d;
+    if (v === Infinity) return '+∞';
+    if (v === -Infinity) return '−∞';
+    var s = (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toString();
+    if (/e/.test(s)) s = v.toExponential(2);
+    return s.replace('-', '−');
+  }
+  var SUB = ['', '₁', '₂', '₃'];
+  function xv(i) { return 'x' + SUB[i]; }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rng = mulberry32((Date.now() ^ 0x9E3779B9) >>> 0);
+  function shuffled(arr, r) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function randomDistinct(n, lo, hi, r) {
+    var s = {}, out = [];
+    while (out.length < n) { var v = lo + Math.floor(r() * (hi - lo + 1)); if (!s[v]) { s[v] = 1; out.push(v); } }
+    return out;
+  }
+  // n enteros distintos en [0, hi] con separación mínima g (se toman n puntos en [0, hi-g(n-1)] y se les suma i·g)
+  function spacedSet(n, g, hi, r) {
+    var span = hi - g * (n - 1), ys = [];
+    for (var i = 0; i < n; i++) ys.push(Math.floor(r() * (span + 1)));
+    ys.sort(function (a, b) { return a - b; });
+    return ys.map(function (y, i) { return y + i * g; });
+  }
+  // fila (0 o 1) de cada etiqueta para que dos etiquetas cercanas no se pisen
+  function labelRows(xs, minDist) {
+    var order = xs.map(function (_, i) { return i; }).sort(function (a, b) { return xs[a] - xs[b]; });
+    var rows = new Array(xs.length), lastX = -1e9, lastRow = 1;
+    order.forEach(function (i) { var r = (xs[i] - lastX < minDist) ? 1 - lastRow : 0; rows[i] = r; lastX = xs[i]; lastRow = r; });
+    return rows;
+  }
+  function H(n) { var s = 0; for (var k = 1; k <= n; k++) s += 1 / k; return s; }
+  function minGap(arr) {
+    var q = arr.slice().sort(function (a, b) { return a - b; }), m = Infinity;
+    for (var i = 0; i + 1 < q.length; i++) m = Math.min(m, q[i + 1] - q[i]);
+    return m;
+  }
+  // tooltip compartido (los textos son números y etiquetas propias; se inserta con textContent)
+  var tip = $('tip');
+  function showTip(evt, lines) {
+    clear(tip);
+    lines.forEach(function (ln, i) {
+      var d = document.createElement('div');
+      if (i === 0) { var b = document.createElement('b'); b.textContent = ln; d.appendChild(b); } else d.textContent = ln;
+      tip.appendChild(d);
+    });
+    tip.classList.add('show');
+    var x = Math.min(evt.clientX + 14, window.innerWidth - 250), y = evt.clientY + 14;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+
+  // ============================================================ núcleo: el árbol de n = 3
+  var NODES = {
+    r:  { i: 1, j: 2, cx: 62,  row: 5 },
+    na: { i: 2, j: 3, cx: 192, row: 1 },
+    nc: { i: 2, j: 3, cx: 192, row: 9 },
+    a3: { i: 1, j: 3, cx: 322, row: 3 },
+    c3: { i: 1, j: 3, cx: 322, row: 7 }
+  };
+  var LEAVES = {
+    h0:  { row: 0,  ok: true,  rel: 'x₁ < x₂ < x₃', ex: [2, 5, 9] },
+    h1:  { row: 1,  ok: false, rel: 'x₂ = x₃',      ex: [2, 7, 7] },
+    h2:  { row: 2,  ok: true,  rel: 'x₁ < x₃ < x₂', ex: [2, 9, 5] },
+    h3:  { row: 3,  ok: false, rel: 'x₁ = x₃',      ex: [4, 9, 4] },
+    h4:  { row: 4,  ok: true,  rel: 'x₃ < x₁ < x₂', ex: [5, 9, 2] },
+    h5:  { row: 5,  ok: false, rel: 'x₁ = x₂',      ex: [6, 6, 1] },
+    h6:  { row: 6,  ok: true,  rel: 'x₂ < x₁ < x₃', ex: [5, 2, 9] },
+    h7:  { row: 7,  ok: false, rel: 'x₁ = x₃',      ex: [7, 1, 7] },
+    h8:  { row: 8,  ok: true,  rel: 'x₂ < x₃ < x₁', ex: [9, 2, 5] },
+    h9:  { row: 9,  ok: false, rel: 'x₂ = x₃',      ex: [9, 3, 3] },
+    h10: { row: 10, ok: true,  rel: 'x₃ < x₂ < x₁', ex: [9, 5, 2] }
+  };
+  var EDGES = [
+    ['r', '<', 'na'], ['r', '=', 'h5'], ['r', '>', 'nc'],
+    ['na', '<', 'h0'], ['na', '=', 'h1'], ['na', '>', 'a3'],
+    ['a3', '<', 'h2'], ['a3', '=', 'h3'], ['a3', '>', 'h4'],
+    ['nc', '<', 'c3'], ['nc', '=', 'h9'], ['nc', '>', 'h10'],
+    ['c3', '<', 'h6'], ['c3', '=', 'h7'], ['c3', '>', 'h8']
+  ];
+  var EDGE_MAP = {}, PARENT = {};
+  EDGES.forEach(function (e) { EDGE_MAP[e[0] + ':' + e[1]] = e[2]; PARENT[e[2]] = e[0]; });
+  var EXPAND = { r: 1, na: 2, a3: 3, nc: 4, c3: 5 };   // paso en que cada nodo despliega sus ramas
+  function stepOf(id) { return id === 'r' ? 0 : EXPAND[PARENT[id]]; }
+  var SIGNTXT = { '<': '<0', '=': '=0', '>': '>0' };
+  var LABEL_T = { 'r:<': .5, 'r:=': .5, 'r:>': .5, 'na:<': .62, 'na:=': .3, 'na:>': .5, 'a3:<': .5, 'a3:=': .5, 'a3:>': .5,
+                  'nc:<': .5, 'nc:=': .3, 'nc:>': .62, 'c3:<': .5, 'c3:=': .5, 'c3:>': .5 };
+  var ROW = 46, TOP = 44, LX = 440, LW = 316, LH = 36, NW = 86, NH = 30;
+  function nodePos(id) { var n = NODES[id]; return { x: n.cx, y: TOP + n.row * ROW }; }
+  function leafPos(id) { return { x: LX, y: TOP + LEAVES[id].row * ROW }; }
+
+  function evalTree(x) {
+    var id = 'r', steps = [];
+    while (NODES[id]) {
+      var n = NODES[id], a = x[n.i - 1], b = x[n.j - 1], d = a - b;
+      var s = d < 0 ? '<' : (d > 0 ? '>' : '=');
+      steps.push({ id: id, i: n.i, j: n.j, a: a, b: b, d: d, s: s, key: id + ':' + s });
+      id = EDGE_MAP[id + ':' + s];
+    }
+    return { steps: steps, leaf: id };
+  }
+
+  function buildTree(svg, headers) {
+    clear(svg);
+    svg.setAttribute('viewBox', '0 0 780 540');
+    var refs = { nodes: {}, leaves: {}, edges: {}, items: [] };
+    var gE = el('g', {}, svg), gN = el('g', {}, svg), gL = el('g', {}, svg), gT = el('g', {}, svg);
+    if (headers) {
+      el('text', { x: 62, y: 16, class: 'tree-head', 'text-anchor': 'middle' }, svg, 'cada nodo: signo de xᵢ − xⱼ');
+      el('text', { x: LX + LW / 2, y: 16, class: 'tree-head', 'text-anchor': 'middle' }, svg, 'hojas: la respuesta y una entrada que llega ahí');
+    }
+    EDGES.forEach(function (e) {
+      var f = e[0], s = e[1], t = e[2], isNode = !!NODES[t];
+      var a = nodePos(f), b = isNode ? nodePos(t) : leafPos(t);
+      var x1 = a.x + NW / 2, y1 = a.y, x2 = isNode ? b.x - NW / 2 : b.x, y2 = b.y;
+      var g = el('g', {}, gE);
+      var line = el('line', { x1: x1, y1: y1, x2: x2, y2: y2, class: 't-edge' }, g);
+      var key = f + ':' + s, lt = LABEL_T[key];
+      var lx = x1 + (x2 - x1) * lt, ly = y1 + (y2 - y1) * lt;
+      var lg = el('g', { class: 't-lab' }, gT);
+      var bg = el('rect', { x: lx - 17, y: ly - 8, width: 34, height: 16, rx: 4 }, lg);
+      var tx = el('text', { x: lx, y: ly }, lg, SIGNTXT[s]);
+      refs.edges[key] = { g: g, lg: lg, bg: bg, tx: tx, lx: lx, ly: ly, s: s };
+      var st = EXPAND[f];
+      refs.items.push({ el: g, step: st }, { el: lg, step: st });
+    });
+    Object.keys(NODES).forEach(function (id) {
+      var p = nodePos(id), n = NODES[id];
+      var g = el('g', { class: 't-node' }, gN);
+      el('rect', { x: p.x - NW / 2, y: p.y - NH / 2, width: NW, height: NH, rx: 7 }, g);
+      el('text', { x: p.x, y: p.y }, g, xv(n.i) + ' − ' + xv(n.j));
+      refs.nodes[id] = g; refs.items.push({ el: g, step: stepOf(id) });
+    });
+    Object.keys(LEAVES).forEach(function (id) {
+      var p = leafPos(id), lf = LEAVES[id];
+      var g = el('g', { class: 'leaf ' + (lf.ok ? 'ok' : 'no') }, gL);
+      el('rect', { x: p.x, y: p.y - LH / 2, width: LW, height: LH, rx: 6, class: 'bg' }, g);
+      el('rect', { x: p.x, y: p.y - LH / 2, width: 5, height: LH, rx: 2, class: 'bar' }, g);
+      el('text', { x: p.x + 14, y: p.y - 6, class: 'l1' }, g, lf.ok ? 'todos distintos' : 'hay repetidos');
+      el('text', { x: p.x + 14, y: p.y + 9, class: 'l2' }, g, lf.rel);
+      el('text', { x: p.x + LW - 10, y: p.y + 9, class: 'l2', 'text-anchor': 'end' }, g, 'ej.: (' + lf.ex.join(', ') + ')');
+      refs.leaves[id] = g; refs.items.push({ el: g, step: stepOf(id) });
+    });
+    return refs;
+  }
+  function resetPath(refs) {
+    Object.keys(refs.edges).forEach(function (k) {
+      var e = refs.edges[k];
+      e.g.classList.remove('on'); e.lg.classList.remove('on');
+      e.tx.textContent = SIGNTXT[e.s];
+      e.bg.setAttribute('x', e.lx - 17); e.bg.setAttribute('width', 34);
+    });
+    Object.keys(refs.nodes).forEach(function (k) { refs.nodes[k].classList.remove('on'); });
+    Object.keys(refs.leaves).forEach(function (k) { refs.leaves[k].classList.remove('on'); });
+  }
+  function showPath(refs, res) {
+    resetPath(refs);
+    if (!res) return;
+    res.steps.forEach(function (st) {
+      var e = refs.edges[st.key];
+      e.g.classList.add('on'); e.lg.classList.add('on');
+      var txt = fmt(st.d) + ' ' + SIGNTXT[st.s];
+      e.tx.textContent = txt;
+      var w = txt.length * 6.3 + 12;
+      e.bg.setAttribute('x', e.lx - w / 2); e.bg.setAttribute('width', w);
+      refs.nodes[st.id].classList.add('on');
+    });
+    refs.leaves[res.leaf].classList.add('on');
+  }
+  function setBuildStep(refs, k) {
+    refs.items.forEach(function (it) {
+      it.el.classList.toggle('ghost', it.step > k);
+      it.el.classList.toggle('fresh', it.step === k && k > 0);
+    });
+  }
+
+  // ============================================================ Paso 1: armar el árbol
+  (function () {
+    var svg = $('treeBuild'), refs = buildTree(svg, false), k = 0;
+    var CAPS = [
+      'El algoritmo empieza comparando x₁ con x₂: esa es la <b>raíz</b>. Todavía no sabemos nada de x₃.',
+      'Una prueba tiene <b>tres resultados</b> posibles, así que salen tres ramas. Si x₁ = x₂ ya hay un repetido: <b>hoja</b>, y ni hace falta mirar x₃. Las otras dos ramas siguen: falta ubicar x₃.',
+      'Rama x₁ &lt; x₂: se compara x₂ con x₃. Si x₂ &lt; x₃ entonces x₁ &lt; x₂ &lt; x₃: ya están ordenados y son distintos. <b>Por transitividad no hace falta probar x₁ contra x₃</b>. Si x₂ = x₃, repetido. Si x₂ &gt; x₃, todavía falta decidir dónde cae x₁.',
+      'Con x₁ &lt; x₂ y x₂ &gt; x₃ hay que probar x₁ contra x₃: tres resultados, tres hojas. Los dos órdenes posibles (x₁ &lt; x₃ &lt; x₂ y x₃ &lt; x₁ &lt; x₂) terminan <b>cada uno en su propia hoja</b>.',
+      'La rama x₁ &gt; x₂ es la imagen en el espejo: se compara x₂ con x₃. Si x₂ &gt; x₃, entonces x₃ &lt; x₂ &lt; x₁ (hoja). Si x₂ = x₃, repetido. Si x₂ &lt; x₃, falta ubicar x₁.',
+      'Otra vez x₁ contra x₃, ahora con x₁ &gt; x₂ y x₂ &lt; x₃: tres hojas más. <b>Listo</b>: profundidad 3, 11 hojas, y exactamente <b>6 = 3! verdes</b> (una por orden). Sin aprovechar la transitividad habría 3³ = 27 caminos.'
+    ];
+    function render() {
+      setBuildStep(refs, k);
+      $('bCaption').innerHTML = '<b class="hi">Paso ' + k + ' de 5.</b> ' + CAPS[k];
+      $('btnBPrev').disabled = k === 0; $('btnBNext').disabled = k === 5;
+    }
+    $('btnBPrev').onclick = function () { if (k > 0) { k--; render(); } };
+    $('btnBNext').onclick = function () { if (k < 5) { k++; render(); } };
+    $('btnBAll').onclick = function () { k = 5; render(); };
+    $('btnBReset').onclick = function () { k = 0; render(); };
+    render();
+  })();
+
+  // ============================================================ Paso 2: usar el árbol
+  (function () {
+    var svg = $('treeUse'), refs = buildTree(svg, true);
+    setBuildStep(refs, 99);
+    var CODE = [
+      ['r:<', 0, 'si x₁ − x₂ < 0:'],
+      ['na:<', 1, 'si x₂ − x₃ < 0:  «todos distintos»'],
+      ['na:=', 1, 'si x₂ − x₃ = 0:  «hay repetidos»'],
+      ['na:>', 1, 'si x₂ − x₃ > 0:'],
+      ['a3:<', 2, 'si x₁ − x₃ < 0:  «todos distintos»'],
+      ['a3:=', 2, 'si x₁ − x₃ = 0:  «hay repetidos»'],
+      ['a3:>', 2, 'si x₁ − x₃ > 0:  «todos distintos»'],
+      ['r:=', 0, 'si x₁ − x₂ = 0:  «hay repetidos»'],
+      ['r:>', 0, 'si x₁ − x₂ > 0:'],
+      ['nc:<', 1, 'si x₂ − x₃ < 0:'],
+      ['c3:<', 2, 'si x₁ − x₃ < 0:  «todos distintos»'],
+      ['c3:=', 2, 'si x₁ − x₃ = 0:  «hay repetidos»'],
+      ['c3:>', 2, 'si x₁ − x₃ > 0:  «todos distintos»'],
+      ['nc:=', 1, 'si x₂ − x₃ = 0:  «hay repetidos»'],
+      ['nc:>', 1, 'si x₂ − x₃ > 0:  «todos distintos»']
+    ];
+    var codeEl = $('codePanel'), codeLines = {};
+    CODE.forEach(function (c) {
+      var d = document.createElement('div'); d.className = 'ln';
+      d.textContent = new Array(c[1] * 4 + 1).join(' ') + c[2];
+      codeEl.appendChild(d); codeLines[c[0]] = d;
+    });
+    var sel = $('selEx');
+    Object.keys(LEAVES).forEach(function (id) {
+      var lf = LEAVES[id], o = document.createElement('option');
+      o.value = id; o.textContent = (lf.ok ? 'todos distintos' : 'hay repetidos') + ': ' + lf.rel + '  (' + lf.ex.join(', ') + ')';
+      sel.appendChild(o);
+    });
+    var blank = document.createElement('option'); blank.value = ''; blank.textContent = '— elegir —'; sel.insertBefore(blank, sel.firstChild); sel.value = '';
+    function read() {
+      var v = [$('inX1').value, $('inX2').value, $('inX3').value].map(parseFloat);
+      return v.every(function (t) { return isFinite(t); }) ? v : null;
+    }
+    function update() {
+      var x = read();
+      Object.keys(codeLines).forEach(function (k) { codeLines[k].classList.remove('on'); });
+      if (!x) { showPath(refs, null); $('useDepth').textContent = '—'; $('useSteps').textContent = 'Ingresa tres números.'; return; }
+      var res = evalTree(x); showPath(refs, res);
+      res.steps.forEach(function (st) { codeLines[st.key].classList.add('on'); });
+      $('useDepth').textContent = res.steps.length;
+      var lf = LEAVES[res.leaf], h = '<b>Entrada (' + x.map(function (t) { return fmt(t); }).join(', ') + ').</b><ul>';
+      res.steps.forEach(function (st, n) {
+        h += '<li>prueba ' + (n + 1) + ': <span class="mono">' + xv(st.i) + ' − ' + xv(st.j) + ' = ' + fmt(st.a) + ' − ' + fmt(st.b) +
+             ' = ' + fmt(st.d) + '</span> → rama <b>' + SIGNTXT[st.s] + '</b></li>';
+      });
+      h += '</ul>Llega a la hoja <span class="mono">' + lf.rel + '</span> ⇒ <b class="' + (lf.ok ? 'hi' : 'bad') + '">' +
+           (lf.ok ? 'todos distintos' : 'hay repetidos') + '</b> en ' + res.steps.length + ' prueba' + (res.steps.length > 1 ? 's' : '') + '.';
+      $('useSteps').innerHTML = h;
+    }
+    ['inX1', 'inX2', 'inX3'].forEach(function (id) { $(id).addEventListener('input', function () { sel.value = ''; update(); }); });
+    sel.onchange = function () {
+      if (!sel.value) return;
+      var ex = LEAVES[sel.value].ex;
+      $('inX1').value = ex[0]; $('inX2').value = ex[1]; $('inX3').value = ex[2]; update();
+    };
+    $('btnRand').onclick = function () {
+      var v = [1, 2, 3].map(function () { return 1 + Math.floor(rng() * 9); });
+      if (rng() < 0.3) v[Math.floor(rng() * 3)] = v[Math.floor(rng() * 3)];
+      $('inX1').value = v[0]; $('inX2').value = v[1]; $('inX3').value = v[2]; sel.value = ''; update();
+    };
+    update();
+  })();
+
+  // ============================================================ Paso 3: el plano
+  (function () {
+    var svg = $('planeSvg');
+    var D0 = -6, D1 = 6, M = 40, S = 35;        // dominio [-6,6], 35 px por unidad
+    function PX(x) { return M + (x - D0) * S; }
+    function PY(y) { return 500 - M - (y - D0) * S; }
+    function DX(px) { return (px - M) / S + D0; }
+    function DY(py) { return (500 - M - py) / S + D0; }
+    var c = 0, P = [-3, 2], Q = [4, -1], drag = null;
+    var PERMS = [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]];
+    function relOf(seq) { return seq.map(xv).join(' < '); }
+    function val(k, pt) { return k === 1 ? pt[0] : (k === 2 ? pt[1] : c); }
+    function clip(poly, f) {
+      var out = [];
+      for (var k = 0; k < poly.length; k++) {
+        var A = poly[k], B = poly[(k + 1) % poly.length], fa = f(A), fb = f(B);
+        if (fa <= 0) out.push(A);
+        if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)) { var t = fa / (fa - fb); out.push([A[0] + t * (B[0] - A[0]), A[1] + t * (B[1] - A[1])]); }
+      }
+      return out;
+    }
+    function orderOf(x1, x2, x3) {          // devuelve {seq} si son distintos, {eq:[...]} si hay repetidos
+      var v = [x1, x2, x3], eq = [];
+      for (var i = 0; i < 3; i++) for (var j = i + 1; j < 3; j++) if (v[i] === v[j]) eq.push(xv(i + 1) + ' = ' + xv(j + 1));
+      if (eq.length) return { eq: eq };
+      return { seq: [1, 2, 3].sort(function (a, b) { return v[a - 1] - v[b - 1]; }) };
+    }
+    var gReg, gWall, gAxes, gSeg, gZ, gPts, ptP, ptQ;
+    function build() {
+      clear(svg);
+      gAxes = el('g', {}, svg); gReg = el('g', {}, svg); gWall = el('g', {}, svg); gSeg = el('g', {}, svg); gZ = el('g', {}, svg); gPts = el('g', {}, svg);
+      el('rect', { x: M, y: 500 - M - 12 * S, width: 12 * S, height: 12 * S, fill: 'none', stroke: 'var(--line)' }, gAxes);
+      for (var t = -6; t <= 6; t += 2) {
+        el('text', { x: PX(t), y: 500 - M + 16, class: 'tick-lab' }, gAxes, String(t));
+        el('text', { x: M - 10, y: PY(t) + 3, class: 'tick-lab' }, gAxes, String(t));
+      }
+      el('text', { x: 500 - M + 18, y: 500 - M + 4, class: 'tick-lab', 'text-anchor': 'start' }, gAxes, 'x₁');
+      el('text', { x: M - 10, y: M - 10, class: 'tick-lab' }, gAxes, 'x₂');
+      ptP = makePoint('x', '', P); ptQ = makePoint('y', ' y', Q);
+    }
+    function makePoint(name, cls, pt) {
+      var g = el('g', { class: 'pt' + cls, tabindex: '0', role: 'slider', 'aria-label': 'punto ' + name + ' (arrastrar o usar flechas)' }, gPts);
+      el('circle', { r: 18, fill: 'transparent' }, g);
+      el('circle', { r: 7, class: 'dot' }, g);
+      el('text', { x: 11, y: -9 }, g, name);
+      g.addEventListener('pointerdown', function (e) { drag = pt === P ? 'P' : 'Q'; g.setPointerCapture(e.pointerId); e.preventDefault(); });
+      g.addEventListener('pointermove', function (e) { if (drag === (pt === P ? 'P' : 'Q')) moveTo(pt, e); });
+      g.addEventListener('pointerup', function () { drag = null; });
+      g.addEventListener('keydown', function (e) {
+        var st = e.shiftKey ? 0.5 : 0.1, dx = 0, dy = 0;
+        if (e.key === 'ArrowLeft') dx = -st; else if (e.key === 'ArrowRight') dx = st; else if (e.key === 'ArrowUp') dy = st; else if (e.key === 'ArrowDown') dy = -st; else return;
+        e.preventDefault(); setPt(pt, pt[0] + dx, pt[1] + dy);
+      });
+      return g;
+    }
+    function setPt(pt, x, y) {
+      pt[0] = Math.max(-5.9, Math.min(5.9, Math.round(x * 10) / 10));
+      pt[1] = Math.max(-5.9, Math.min(5.9, Math.round(y * 10) / 10));
+      render();
+    }
+    function moveTo(pt, e) {
+      var m = svg.getScreenCTM().inverse(), p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; p = p.matrixTransform(m);
+      setPt(pt, DX(p.x), DY(p.y));
+    }
+    function render() {
+      clear(gReg); clear(gWall); clear(gSeg); clear(gZ);
+      var sq = [[D0, D0], [D1, D0], [D1, D1], [D0, D1]];
+      var oP = orderOf(P[0], P[1], c), oQ = orderOf(Q[0], Q[1], c);
+      var keyP = oP.seq ? oP.seq.join('') : '', keyQ = oQ.seq ? oQ.seq.join('') : '';
+      PERMS.forEach(function (sq3) {
+        var poly = sq;
+        for (var a = 0; a < 2; a++) {
+          (function (u, v) { poly = clip(poly, function (pt) { return val(u, pt) - val(v, pt); }); })(sq3[a], sq3[a + 1]);
+        }
+        if (poly.length < 3) return;
+        var pts = poly.map(function (p) { return PX(p[0]) + ',' + PY(p[1]); }).join(' ');
+        var sel = sq3.join('') === keyP || sq3.join('') === keyQ;
+        el('polygon', { points: pts, class: 'region' + (sel ? ' sel' : '') }, gReg);
+        var cx = 0, cy = 0; poly.forEach(function (p) { cx += p[0]; cy += p[1]; });
+        cx /= poly.length; cy /= poly.length;
+        el('text', { x: PX(cx), y: PY(cy) + 3, class: 'reg-lab' }, gReg, relOf(sq3));
+      });
+      // paredes
+      el('line', { x1: PX(D0), y1: PY(D0), x2: PX(D1), y2: PY(D1), class: 'wall' }, gWall);
+      el('line', { x1: PX(c), y1: PY(D0), x2: PX(c), y2: PY(D1), class: 'wall' }, gWall);
+      el('line', { x1: PX(D0), y1: PY(c), x2: PX(D1), y2: PY(c), class: 'wall' }, gWall);
+      el('text', { x: PX(D1) - 4, y: PY(D1) + 14, class: 'wall-lab', 'text-anchor': 'end' }, gWall, 'x₁ = x₂');
+      el('text', { x: PX(c) + 5, y: PY(D1) + 12, class: 'wall-lab' }, gWall, 'x₁ = x₃');
+      el('text', { x: PX(D1) - 4, y: PY(c) - 5, class: 'wall-lab', 'text-anchor': 'end' }, gWall, 'x₂ = x₃');
+      // segmento y cruces con las paredes
+      el('line', { x1: PX(P[0]), y1: PY(P[1]), x2: PX(Q[0]), y2: PY(Q[1]), class: 'seg' }, gSeg);
+      var walls = [[1, 2], [1, 3], [2, 3]], crosses = [];
+      walls.forEach(function (w) {
+        var fp = val(w[0], P) - val(w[1], P), fq = val(w[0], Q) - val(w[1], Q);
+        if (fp * fq < 0) {
+          var t = fp / (fp - fq), z = [P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])];
+          crosses.push({ w: w, z: z });
+          el('circle', { cx: PX(z[0]), cy: PY(z[1]), r: 6.5, class: 'zmark zmark-fill' }, gZ);
+          el('circle', { cx: PX(z[0]), cy: PY(z[1]), r: 6.5, class: 'zmark' }, gZ);
+        }
+      });
+      ptP.setAttribute('transform', 'translate(' + PX(P[0]) + ',' + PY(P[1]) + ')');
+      ptQ.setAttribute('transform', 'translate(' + PX(Q[0]) + ',' + PY(Q[1]) + ')');
+      gPts.appendChild(ptP); gPts.appendChild(ptQ);
+      readout(oP, oQ, keyP, keyQ, crosses);
+    }
+    function describe(o) { return o.seq ? '<span class="mono">' + relOf(o.seq) + '</span> (todos distintos)' : '<b class="bad">hay repetidos</b> (' + o.eq.join(', ') + ')'; }
+    function readout(oP, oQ, keyP, keyQ, crosses) {
+      var h = '<b>x</b> = (' + fmt(P[0], 1) + ', ' + fmt(P[1], 1) + ', ' + fmt(c, 1) + ') → ' + describe(oP) + '<br><b>y</b> = (' + fmt(Q[0], 1) + ', ' + fmt(Q[1], 1) + ', ' + fmt(c, 1) + ') → ' + describe(oQ) + '<br>';
+      if (!oP.seq || !oQ.seq) {
+        h += '<br>Alguno de los dos puntos está <b class="bad">sobre una pared</b> (tiene valores repetidos): su hoja responde «hay repetidos». Muévelo a una región verde para comparar órdenes.';
+      } else if (keyP === keyQ) {
+        h += '<br><b class="hi">Mismo orden</b> ⇒ el segmento xy queda dentro de una sola región verde (no cruza paredes). <b>Pueden compartir hoja</b>, y en el árbol la comparten: es una sola hoja verde.';
+      } else {
+        h += '<br><b class="bad">Órdenes distintos</b> ⇒ el segmento xy cruza <b>' + crosses.length + '</b> pared' + (crosses.length === 1 ? '' : 'es') + ' (círculos naranjas):<ul>';
+        crosses.forEach(function (cr) {
+          h += '<li>en z = (' + fmt(cr.z[0], 2) + ', ' + fmt(cr.z[1], 2) + ', ' + fmt(c, 1) + ') se cumple <span class="mono">' + xv(cr.w[0]) + ' = ' + xv(cr.w[1]) + '</span>: <b class="bad">hay repetidos</b></li>';
+        });
+        h += '</ul>Si una hoja contuviera x e y, por <b>convexidad</b> contendría todo el segmento, incluido z, y respondería «todos distintos» con una entrada que tiene repetidos: error. Por eso x e y terminan en <b>hojas distintas</b>.';
+      }
+      $('planeReadout').innerHTML = h;
+    }
+    $('slX3').addEventListener('input', function () { c = parseFloat(this.value); $('x3val').textContent = fmt(c, 1); render(); });
+    $('btnPlaneEx1').onclick = function () { P = [-3, 2]; Q = [4, -1]; c = 0; $('slX3').value = 0; $('x3val').textContent = '0'; build(); render(); };
+    $('btnPlaneEx2').onclick = function () { P = [-4, 1]; Q = [-1, 4]; c = 0; $('slX3').value = 0; $('x3val').textContent = '0'; build(); render(); };
+    build(); render();
+
+    // tabla de n! y la cota
+    (function () {
+      var t = $('nTable');
+      var head = '<tr><th>n</th><th>n! (hojas «todos distintos» mínimas)</th><th>⌈log₃ n!⌉ (pruebas mínimas)</th><th>⌈log₂ n!⌉ (si fueran binarias)</th><th>n·log₂ n</th></tr>';
+      var rows = [3, 4, 5, 8, 10, 16, 20].map(function (n) {
+        var f = 1n, ln = 0; for (var k = 2; k <= n; k++) { f *= BigInt(k); ln += Math.log(k); }
+        return '<tr><td>' + n + '</td><td class="hi">' + f.toString() + '</td><td>' + Math.ceil(ln / Math.log(3) - 1e-9) + '</td><td>' +
+               Math.ceil(ln / Math.log(2) - 1e-9) + '</td><td>' + (n * Math.log2(n)).toFixed(1) + '</td></tr>';
+      });
+      t.innerHTML = head + rows.join('');
+    })();
+  })();
+
+  // ============================================================ Paso 4: la reducción
+  (function () {
+    var svg = $('redSvg');
+    function parse() {
+      var v = $('redInput').value.split(/[\s,;]+/).filter(function (s) { return s.length; }).map(parseFloat);
+      if (v.length < 2 || v.length > 14 || !v.every(isFinite)) return null;
+      return v;
+    }
+    function update() {
+      clear(svg);
+      var x = parse(), panel = $('redPanel');
+      if (!x) { panel.textContent = 'Ingresa entre 2 y 14 números separados por comas.'; return; }
+      var n = x.length, lo = Math.min.apply(null, x), hi = Math.max.apply(null, x), span = Math.max(hi - lo, 1e-9);
+      function X(v) { return 50 + (v - lo) / span * 660; }
+      // par más cercano (índices originales)
+      var best = null;
+      for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) { var d = Math.abs(x[a] - x[b]); if (!best || d < best.d) best = { a: a, b: b, d: d }; }
+      el('line', { x1: 40, y1: 90, x2: 720, y2: 90, stroke: 'var(--line)', 'stroke-width': 2 }, svg);
+      // posiciones apiladas si hay empates visuales
+      var placed = {};
+      x.forEach(function (v, i) {
+        var px = X(v), slot = 0, key = Math.round(px / 14);
+        while (placed[key + ':' + slot]) slot++;
+        placed[key + ':' + slot] = 1;
+        var isBest = i === best.a || i === best.b, cy = 90 - slot * 17;
+        el('circle', { cx: px, cy: cy, r: 6, fill: isBest ? 'var(--accent-speed)' : 'var(--ink)', stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
+        el('text', { x: px, y: cy - 12, class: 'small-lab', style: 'font-weight:' + (isBest ? 700 : 400) }, svg, 'x' + (i + 1) + '=' + fmt(v));
+      });
+      var pa = X(x[best.a]), pb = X(x[best.b]);
+      el('path', { d: 'M' + pa + ',112 L' + pa + ',122 L' + pb + ',122 L' + pb + ',112', class: 'bracket speed' }, svg);
+      el('text', { x: (pa + pb) / 2, y: 140, class: 'mono-lab' }, svg, 'δ = ' + fmt(best.d) + (best.d === 0 ? '  (¡distancia 0!)' : ''));
+      var dup = x[best.a] - x[best.b], zero = dup === 0;
+      panel.innerHTML = '<b>1.</b> El árbol del par más cercano termina en una hoja que dice: <b>par (i, j) = (' + (best.a + 1) + ', ' + (best.b + 1) + ')</b>, o sea ' +
+        xv(1).replace('₁', '') + '<sub>' + (best.a + 1) + '</sub> = ' + fmt(x[best.a]) + ' y ' + 'x<sub>' + (best.b + 1) + '</sub> = ' + fmt(x[best.b]) + '.<br>' +
+        '<b>2.</b> Colgamos <b>un nodo más</b>: el signo de x<sub>' + (best.a + 1) + '</sub> − x<sub>' + (best.b + 1) + '</sub> = ' + fmt(x[best.a]) + ' − ' + fmt(x[best.b]) + ' = <span class="mono">' + fmt(dup) + '</span>.<br>' +
+        '<b>3.</b> ' + (zero ? '<b class="bad">= 0 ⇒ «hay repetidos»</b>: la distancia mínima es 0 si y solo si hay un valor repetido.' : '<b class="hi">≠ 0 ⇒ «todos distintos»</b>: si hubiera repetidos, la distancia mínima sería 0 y la hoja habría devuelto un par con x<sub>i</sub> = x<sub>j</sub>.') +
+        '<br><span style="color:var(--ink-muted)">Costo: la reducción no hace pruebas de signo (identidad) y el nodo extra suma 1: distinción de elementos cuesta T(n)+1.</span>';
+    }
+    $('redInput').addEventListener('input', update);
+    $('btnRedA').onclick = function () { $('redInput').value = '6, 2, 9, 4'; update(); };
+    $('btnRedB').onclick = function () { $('redInput').value = '6, 2, 9, 2, 7'; update(); };
+    update();
+  })();
+
+  // ============================================================ núcleo de la rejilla (sin DOM)
+  var MAXS = BigInt(Number.MAX_SAFE_INTEGER);
+  function normKey(b) { return (b >= -MAXS && b <= MAXS) ? Number(b) : b; }
+  function cellKey(x, lado) { var f = Math.floor(x / lado); return Number.isSafeInteger(f) ? f : BigInt(f); }
+  function addKey(k, d) {
+    if (typeof k === 'number') { var s = k + d; if (Number.isSafeInteger(s)) return s; return normKey(BigInt(k) + BigInt(d)); }
+    return normKey(k + BigInt(d));
+  }
+  // lado = delta, ventana de 3 celdas: es la función de verif.py
+  function runAlg(pts) {
+    var delta = Math.abs(pts[0] - pts[1]);
+    if (delta === 0) return { delta: 0, rebuilds: 0, work: 0 };
+    var grid = new Map(); grid.set(cellKey(pts[0], delta), pts[0]); grid.set(cellKey(pts[1], delta), pts[1]);
+    var rebuilds = 0, work = 0;
+    for (var i = 2; i < pts.length; i++) {
+      var p = pts[i], c = cellKey(p, delta), before = delta;
+      for (var dc = -1; dc <= 1; dc++) {
+        var q = grid.get(addKey(c, dc));
+        if (q !== undefined) { var d = Math.abs(p - q); if (d < delta) delta = d; }
+      }
+      if (delta === 0) return { delta: 0, rebuilds: rebuilds, work: work };
+      if (delta < before) {
+        grid = new Map();
+        for (var j = 0; j <= i; j++) grid.set(cellKey(pts[j], delta), pts[j]);
+        rebuilds++; work += i + 1;
+      } else grid.set(c, p);
+    }
+    return { delta: delta, rebuilds: rebuilds, work: work };
+  }
+
+  // ============================================================ Paso 5: la rejilla animada
+  (function () {
+    var svg = $('gridSvg'), sim = null, playing = false, timer = null, set = [], order = [];
+    function makeSet(kind) {
+      if (kind === 'geo') { var a = []; for (var k = 1; k <= 12; k++) a.push(100 * (1 - Math.pow(0.7, k))); return a; }
+      return spacedSet(12, 2, 120, rng);
+    }
+    function cfg() { var v = $('gVar').value.split(','); return { factor: parseFloat(v[0]), radius: parseInt(v[1], 10) }; }
+    function Sim(pts, factor, radius) {
+      this.pts = pts; this.factor = factor; this.radius = radius; this.k = 2;
+      this.delta = Math.abs(pts[0] - pts[1]); this.lado = this.delta * factor;
+      this.rebuilds = 0; this.work = 0; this.queries = 0; this.missedTotal = 0; this.lost = 0; this.last = null;
+      this.grid = new Map();
+      this.grid.set(this.cell(pts[0]), pts[0]); this.grid.set(this.cell(pts[1]), pts[1]);
+    }
+    Sim.prototype.cell = function (x) { return Math.floor(x / this.lado); };
+    Sim.prototype.done = function () { return this.k >= this.pts.length; };
+    Sim.prototype.step = function () {
+      var p = this.pts[this.k], c = this.cell(p), before = this.delta, r = this.radius, found = [], i;
+      for (var dc = -r; dc <= r; dc++) {
+        this.queries++;
+        var q = this.grid.get(c + dc);
+        if (q !== undefined) { var d = Math.abs(p - q); found.push({ q: q, d: d, cell: c + dc }); if (d < this.delta) this.delta = d; }
+      }
+      var foundSet = {}; found.forEach(function (f) { foundSet[f.q] = 1; });
+      var missed = [];
+      for (i = 0; i < this.k; i++) if (Math.abs(p - this.pts[i]) < before && !foundSet[this.pts[i]]) missed.push(this.pts[i]);
+      var rebuilt = this.delta < before, overwrote = false, ladoOld = this.lado;
+      if (rebuilt) {
+        this.lado = this.delta * this.factor; this.grid = new Map();
+        for (i = 0; i <= this.k; i++) { var key = this.cell(this.pts[i]); if (this.grid.has(key)) this.lost++; this.grid.set(key, this.pts[i]); }
+        this.rebuilds++; this.work += this.k + 1;
+      } else {
+        if (this.grid.has(c)) { overwrote = true; this.lost++; }
+        this.grid.set(c, p);
+      }
+      this.missedTotal += missed.length;
+      this.last = { p: p, c: c, found: found, missed: missed, before: before, after: this.delta, rebuilt: rebuilt, overwrote: overwrote, ladoOld: ladoOld, idx: this.k };
+      this.k++;
+      return this.last;
+    };
+    function draw() {
+      clear(svg);
+      var pts = order, lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts), pad = (hi - lo) * 0.05 + 1;
+      lo -= pad; hi += pad;
+      function X(v) { return 40 + (v - lo) / (hi - lo) * 680; }
+      var Y0 = 150, lado = sim.lado, r = sim.radius, ev = sim.last;
+      var k0 = Math.floor(lo / lado) - 1, k1 = Math.ceil(hi / lado) + 1, many = (k1 - k0) > 260;
+      if (ev) {      // la ventana se dibuja con el lado que tenía cuando se hizo la consulta
+        var lw = ev.ladoOld;
+        el('rect', { x: X((ev.c - r) * lw), y: 66, width: X((ev.c + r + 1) * lw) - X((ev.c - r) * lw), height: 84, class: 'win' }, svg);
+      }
+      if (!many) {
+        for (var k = k0; k <= k1; k++) {
+          var x = X(k * lado); if (x < 38 || x > 722) continue;
+          el('line', { x1: x, y1: 70, x2: x, y2: Y0, class: 'cell-line' }, svg);
+        }
+      } else el('text', { x: 380, y: 100, class: 'small-lab' }, svg, '(celdas demasiado finas para dibujarlas una por una)');
+      el('line', { x1: 40, y1: Y0, x2: 720, y2: Y0, stroke: 'var(--ink-muted)', 'stroke-width': 1.4 }, svg);
+      // puntos insertados
+      var inserted = sim.pts.slice(0, sim.k), rowsG = labelRows(inserted.map(X), 17);
+      inserted.forEach(function (v, i) {
+        var isCur = ev && i === ev.idx, isMiss = ev && ev.missed.indexOf(v) >= 0, isFound = ev && ev.found.some(function (f) { return f.q === v; });
+        if (isMiss) el('circle', { cx: X(v), cy: Y0, r: 12, fill: 'none', stroke: 'var(--accent-cost)', 'stroke-width': 2.6 }, svg);
+        else if (isFound) el('circle', { cx: X(v), cy: Y0, r: 11, fill: 'none', stroke: 'var(--accent-speed)', 'stroke-width': 2.4 }, svg);
+        el('circle', { cx: X(v), cy: Y0, r: isCur ? 7 : 5.5, fill: isCur ? 'var(--accent-speed)' : 'var(--ink)', stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
+        el('text', { x: X(v), y: Y0 - 14 - (isCur ? 3 : 0) - rowsG[i] * 11, class: 'mono-lab', style: isCur ? 'font-weight:700' : '' }, svg, String(i + 1));
+        el('text', { x: X(v), y: Y0 + 20 + rowsG[i] * 11, class: 'mono-lab', style: 'font-size:9.5px' }, svg, fmt(v, 1));
+      });
+      // puntos que faltan (fantasma)
+      for (var m = sim.k; m < sim.pts.length; m++) el('circle', { cx: X(sim.pts[m]), cy: Y0, r: 4, fill: 'none', stroke: 'var(--ink-muted)', 'stroke-width': 1, opacity: 0.45 }, svg);
+      // etiquetas de celdas de la ventana
+      if (ev) el('text', { x: X((ev.c + 0.5) * ev.ladoOld), y: 60, class: 'mono-lab', style: 'font-size:10px' }, svg, 'ventana: celdas ' + (ev.c - r) + (r ? ' a ' + (ev.c + r) : ''));
+      // el par más cercano actual
+      var ins = inserted.slice().sort(function (a, b) { return a - b; }), bd = Infinity, ba = 0;
+      for (var q = 0; q + 1 < ins.length; q++) if (ins[q + 1] - ins[q] < bd) { bd = ins[q + 1] - ins[q]; ba = q; }
+      if (isFinite(bd)) {
+        var xa = X(ins[ba]), xb = X(ins[ba + 1]);
+        el('path', { d: 'M' + xa + ',186 L' + xa + ',196 L' + xb + ',196 L' + xb + ',186', class: 'bracket speed' }, svg);
+        el('text', { x: Math.min(Math.max((xa + xb) / 2, 190), 570), y: 216, class: 'mono-lab' }, svg, 'δ = ' + fmt(bd) + '   ·   lado de celda = ' + fmt(lado));
+      }
+      $('gStIns').textContent = sim.k + ' / ' + sim.pts.length;
+      $('gStDelta').textContent = fmt(sim.delta);
+      $('gStRec').textContent = sim.rebuilds; $('gStWork').textContent = sim.work; $('gStQ').textContent = sim.queries;
+    }
+    function caption() {
+      var ev = sim.last, cap = $('gCaption'), res = $('gResult');
+      if (!ev) { cap.innerHTML = 'Los dos primeros puntos están insertados: δ = <b>' + fmt(sim.delta) + '</b>, lado de celda = <b>' + fmt(sim.lado) + '</b>. Presiona «un paso» para insertar el punto 3.'; res.style.display = 'none'; return; }
+      var h = '<b>Llegada #' + (ev.idx + 1) + ': p = ' + fmt(ev.p) + '.</b> Su celda es ' + ev.c + ' (lado ' + fmt(ev.ladoOld) + '); se miran las celdas ' + (ev.c - sim.radius) + ' a ' + (ev.c + sim.radius) + '. ';
+      if (ev.found.length) h += 'Encuentra ' + ev.found.map(function (f) { return fmt(f.q) + ' (a ' + fmt(f.d) + (f.d < ev.before ? ' &lt; δ' : '') + ')'; }).join(', ') + '. ';
+      else h += 'No hay nadie en la ventana. ';
+      if (ev.missed.length) h += '<b class="bad">¡Error! ' + ev.missed.map(function (v) { return fmt(v); }).join(', ') + ' estaba a distancia &lt; δ de p pero <u>fuera de la ventana</u>: nunca se compara, δ queda mal.</b> ';
+      if (ev.rebuilt) h += 'δ baja de ' + fmt(ev.before) + ' a <b>' + fmt(ev.after) + '</b> ⇒ se <b class="bad">reconstruye</b> la rejilla con lado ' + fmt(sim.lado) + ' (trabajo ' + (ev.idx + 1) + ').';
+      else h += 'δ no cambia: p entra en su celda' + (ev.overwrote ? ', <b class="bad">que ya estaba ocupada: se sobrescribe y se pierde un punto</b>.' : ' (estaba vacía).');
+      cap.innerHTML = h;
+      if (sim.done()) {
+        var exact = minGap(order), ok = Math.abs(sim.delta - exact) < 1e-9;
+        res.style.display = '';
+        res.innerHTML = '<span class="banner ' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓ δ final = ' + fmt(sim.delta) + ' = distancia mínima exacta' : '✗ δ calculado = ' + fmt(sim.delta) + ' ≠ exacto ' + fmt(exact)) + '</span><br>' +
+          'reconstrucciones: <b>' + sim.rebuilds + '</b> de ' + (sim.pts.length - 2) + ' pasos · trabajo de reconstrucción: <b>' + sim.work + '</b> (n²/2 ≈ ' + Math.round(sim.pts.length * sim.pts.length / 2) + ') · vecinos perdidos: <b>' + sim.missedTotal + '</b>.' +
+          (ok && sim.missedTotal > 0 ? ' <b class="bad">El δ final salió bien solo por casualidad: durante la corrida se perdieron vecinos, y esta rejilla no es correcta.</b>' : '') +
+          (sim.rebuilds >= sim.pts.length - 3 ? ' <b class="bad">Casi todos los pasos reconstruyen: es el peor caso Θ(n²).</b> Prueba «al azar».' : '');
+      } else res.style.display = 'none';
+    }
+    function reset() {
+      stop();
+      var c = cfg(), orden = $('gOrden').value;
+      order = orden === 'azar' ? shuffled(set, rng) : set.slice();
+      sim = new Sim(order, c.factor, c.radius); draw(); caption();
+      $('btnGStep').disabled = false; $('btnGFinish').disabled = false; $('btnGPlay').disabled = false;
+    }
+    function stepOnce() { if (sim.done()) { stop(); return; } sim.step(); draw(); caption(); if (sim.done()) { stop(); $('btnGStep').disabled = true; $('btnGFinish').disabled = true; $('btnGPlay').disabled = true; } }
+    function stop() { playing = false; if (timer) clearInterval(timer); timer = null; $('btnGPlay').textContent = '▶ reproducir'; }
+    function play() {
+      if (playing) { stop(); return; }
+      playing = true; $('btnGPlay').textContent = '⏸ pausar';
+      var ms = 1300 - $('gSpeed').value * 12;
+      timer = setInterval(stepOnce, Math.max(80, ms));
+    }
+    $('btnGStep').onclick = stepOnce;
+    $('btnGFinish').onclick = function () { stop(); while (!sim.done()) sim.step(); draw(); caption(); $('btnGStep').disabled = true; $('btnGFinish').disabled = true; $('btnGPlay').disabled = true; };
+    $('btnGPlay').onclick = play;
+    $('btnGReset').onclick = reset;
+    $('gSpeed').addEventListener('input', function () { if (playing) { stop(); play(); } });
+    $('gConj').onchange = function () { set = makeSet(this.value); reset(); };
+    $('gOrden').onchange = reset; $('gVar').onchange = reset;
+    $('btnGNew').onclick = function () { set = makeSet($('gConj').value); reset(); };
+    set = makeSet('rand'); reset();
+  })();
+
+  // ============================================================ Paso 6: simulaciones
+  (function () {
+    var svg = $('histSvg');
+    $('hN').addEventListener('input', function () { $('hNval').textContent = this.value; });
+    $('hR').addEventListener('input', function () { $('hRval').textContent = this.value; });
+    function histogram(counts, n, R) {
+      clear(svg);
+      var mean = counts.reduce(function (a, b) { return a + b; }, 0) / R;
+      var sd = Math.sqrt(counts.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / R);
+      var exact = 2 * H(n) - 3, lnn = 2 * Math.log(n);
+      var lo = Math.max(0, Math.min(Math.min.apply(null, counts), Math.floor(exact - 4 * sd * 0.6)) - 1);
+      var hi = Math.max(Math.max.apply(null, counts), Math.ceil(lnn)) + 2;
+      var bins = []; for (var b = lo; b <= hi; b++) bins.push(0);
+      counts.forEach(function (c) { bins[c - lo]++; });
+      var maxB = Math.max.apply(null, bins), W = 640, Hh = 250, L = 46, Rr = 20, T = 18, B = 40;
+      var plotW = W - L - Rr, plotH = Hh - T - B, slot = plotW / bins.length, bw = Math.min(24, slot - 2);
+      var ymax = Math.max(4, Math.ceil(maxB / 4) * 4);
+      function Y(v) { return T + plotH - v / ymax * plotH; }
+      function X(v) { return L + (v - lo + 0.5) * slot; }
+      for (var g = 0; g <= 4; g++) {
+        var gy = Y(ymax * g / 4);
+        el('line', { x1: L, y1: gy, x2: W - Rr, y2: gy, class: 'grid-h' }, svg);
+        el('text', { x: L - 8, y: gy + 3, 'text-anchor': 'end', class: 'small-lab', style: 'text-anchor:end' }, svg, String(Math.round(ymax * g / 4)));
+      }
+      bins.forEach(function (v, i) {
+        var x = L + i * slot + (slot - bw) / 2, h = v / ymax * plotH, y = T + plotH - h;
+        if (v > 0) {
+          var rr = Math.min(4, bw / 2, h);
+          var path = el('path', { d: 'M' + x + ',' + (y + h) + ' L' + x + ',' + (y + rr) + ' Q' + x + ',' + y + ' ' + (x + rr) + ',' + y + ' L' + (x + bw - rr) + ',' + y + ' Q' + (x + bw) + ',' + y + ' ' + (x + bw) + ',' + (y + rr) + ' L' + (x + bw) + ',' + (y + h) + ' Z', class: 'bar', tabindex: '0' }, svg);
+          var tipFn = function (e) { showTip(e, [(lo + i) + ' reconstrucciones', v + ' de ' + R + ' barajados (' + (100 * v / R).toFixed(1) + '%)']); };
+          path.addEventListener('pointermove', tipFn); path.addEventListener('pointerleave', hideTip);
+          path.addEventListener('focus', function () { var r = path.getBoundingClientRect(); tipFn({ clientX: r.left, clientY: r.top }); }); path.addEventListener('blur', hideTip);
+        }
+        if (slot > 15 || i % 2 === 0) el('text', { x: L + (i + 0.5) * slot, y: T + plotH + 16, class: 'small-lab' }, svg, String(lo + i));
+      });
+      el('line', { x1: L, y1: T + plotH, x2: W - Rr, y2: T + plotH, stroke: 'var(--ink-muted)', 'stroke-width': 1 }, svg);
+      el('text', { x: L + plotW / 2, y: Hh - 6, class: 'small-lab' }, svg, 'número de reconstrucciones en una corrida');
+      // marcadores
+      el('line', { x1: X(lnn - 0.0), y1: T, x2: X(lnn), y2: T + plotH, stroke: 'var(--ink-muted)', 'stroke-width': 2, 'stroke-dasharray': '5 4' }, svg);
+      el('line', { x1: X(exact), y1: T, x2: X(exact), y2: T + plotH, stroke: 'var(--accent-cost)', 'stroke-width': 2 }, svg);
+      el('line', { x1: X(mean), y1: T, x2: X(mean), y2: T + plotH, stroke: 'var(--ink)', 'stroke-width': 2 }, svg);
+      return { mean: mean, sd: sd, exact: exact, lnn: lnn, bins: bins, lo: lo };
+    }
+    function run() {
+      var n = parseInt($('hN').value, 10), R = parseInt($('hR').value, 10), P = [];
+      for (var i = 0; i < n; i++) P.push(rng());
+      var counts = [];
+      for (var r = 0; r < R; r++) counts.push(runAlg(shuffled(P, rng)).rebuilds);
+      var s = histogram(counts, n, R), works = [];
+      $('histLegend').innerHTML = '<span><span class="sw bar-sw"></span>barajados que dieron ese número</span>' +
+        '<span><span class="sw" style="border-color:var(--ink)"></span>media medida</span>' +
+        '<span><span class="sw" style="border-color:var(--accent-cost)"></span>2H<sub>n</sub> − 3 (exacta)</span>' +
+        '<span><span class="sw" style="border-top-style:dashed;border-color:var(--ink-muted)"></span>2 ln n (cota de C2)</span>';
+      $('histStats').innerHTML =
+        '<div class="stat"><div class="k">media medida</div><div class="v">' + s.mean.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="k">desv. típica</div><div class="v">' + s.sd.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="k">2H<sub>n</sub> − 3</div><div class="v cost">' + s.exact.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="k">2 ln n</div><div class="v">' + s.lnn.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="k">error de la media</div><div class="v speed">' + (s.mean - s.exact >= 0 ? '+' : '−') + Math.abs(s.mean - s.exact).toFixed(2) + ' ± ' + (s.sd / Math.sqrt(R)).toFixed(2) + '</div></div>';
+      var rows = '<tr><th>reconstrucciones</th><th>barajados</th></tr>';
+      s.bins.forEach(function (v, i) { if (v) rows += '<tr><td>' + (s.lo + i) + '</td><td>' + v + '</td></tr>'; });
+      $('histTable').innerHTML = rows;
+    }
+    $('btnHist').onclick = function () { var b = this; b.disabled = true; b.textContent = '… simulando'; setTimeout(function () { run(); b.disabled = false; b.textContent = '▶ simular'; }, 20); };
+    run();
+
+    // ---- peor caso
+    $('wN').addEventListener('input', function () { $('wNval').textContent = this.value; });
+    function bar(label, val, max, color, extra) {
+      return '<div class="hbar-row"><div>' + label + '</div><div class="hbar-track"><div class="hbar-fill" style="width:' + Math.max(0.6, 100 * val / max).toFixed(2) + '%;background:' + color + '"></div></div><div class="hbar-val">' + extra + '</div></div>';
+    }
+    function worst() {
+      var n = parseInt($('wN').value, 10), P = [];
+      for (var k = 1; k <= n; k++) P.push(Math.pow(2, -k));
+      var bad = runAlg(P), works = [], recs = [], trials = 30;
+      for (var t = 0; t < trials; t++) { var r = runAlg(shuffled(P, rng)); works.push(r.work); recs.push(r.rebuilds); }
+      var mw = works.reduce(function (a, b) { return a + b; }, 0) / trials, mr = recs.reduce(function (a, b) { return a + b; }, 0) / trials;
+      var log10p = (n - 1) * Math.log10(2); for (var i = 2; i <= n; i++) log10p -= Math.log10(i);
+      $('wcOut').innerHTML =
+        bar('<b>sin barajar</b> (k = 1, 2, …)', bad.work, bad.work, 'var(--accent-cost)', bad.work.toLocaleString('es') + ' &nbsp;(' + bad.rebuilds + ' de ' + (n - 2) + ' pasos reconstruyen)') +
+        bar('<b>barajado</b> (media de ' + trials + ')', mw, bad.work, 'var(--accent-speed)', Math.round(mw).toLocaleString('es') + ' &nbsp;(' + mr.toFixed(1) + ' reconstrucciones)') +
+        '<div class="panel" style="margin-top:8px">n²/2 = <b>' + Math.round(n * n / 2).toLocaleString('es') + '</b> · el trabajo sin barajar es ≈ n²/2 y el barajado ≈ 2n = <b>' + (2 * n).toLocaleString('es') + '</b> · cociente <b>' + (bad.work / Math.max(mw, 1)).toFixed(0) + '×</b>.<br>' +
+        'Probabilidad de que un barajado produzca un orden en que <b>todos</b> los pasos reconstruyan: 2<sup>n−1</sup>/n! ≈ <b>10<sup>' + log10p.toFixed(0) + '</b></sup>' + (n >= 100 ? ' (despreciable).' : '.') + '</div>';
+    }
+    $('btnWc').onclick = function () { var b = this; b.disabled = true; setTimeout(function () { worst(); b.disabled = false; }, 20); };
+    worst();
+
+    // ---- enumeración exacta
+    $('btnEnum').onclick = function () {
+      var n = parseInt($('enN').value, 10), P = [];
+      for (var k = 1; k <= n; k++) P.push(Math.pow(2, -k));
+      var count = 0, total = 0, a = P.slice(), c = new Array(n).fill(0), i = 0;
+      function test() { total++; if (runAlg(a).rebuilds === n - 2) count++; }
+      test();
+      while (i < n) {                                  // algoritmo de Heap
+        if (c[i] < i) { var j = i % 2 === 0 ? 0 : c[i]; var t = a[j]; a[j] = a[i]; a[i] = t; test(); c[i]++; i = 0; }
+        else { c[i] = 0; i++; }
+      }
+      var fact = 1; for (var m = 2; m <= n; m++) fact *= m;
+      $('enOut').innerHTML = '<b>' + count + '</b> de ' + total + ' permutaciones reconstruyen en todos los pasos · 2<sup>n−1</sup> = <b>' + Math.pow(2, n - 1) + '</b> · ' + (count === Math.pow(2, n - 1) && total === fact ? '✓ coincide exactamente' : '✗ no coincide');
+    };
+  })();
+
+  // ============================================================ Paso 7: la franja
+  (function () {
+    // --- figura 2D estática: el rectángulo 2δ × δ en ocho cuadrados de lado δ/2
+    (function () {
+      var svg = $('sq2dSvg'), Lx = 320, d = 120, yb = 220, yt = 100;
+      // La escala horizontal usa los mismos valores de la figura del PDF:
+      // δ = 1.8, con puntos 0.4, 2.2, 4.6, 5.4, 7.6 y 9.8.
+      function X(value) { return Lx + (value - 5) * d / 1.8; }
+      function C(name, value, yoff) { return { name: name, x: X(value), y: yb - yoff * d }; }
+      function letter(pt, left) {
+        el('text', { x: pt.x + (left ? -11 : 11), y: pt.y - 8, 'text-anchor': left ? 'end' : 'start', style: 'font-family:var(--serif);font-style:italic;font-weight:700;font-size:14px' }, svg, pt.name);
+      }
+      el('rect', { x: Lx - d, y: 30, width: 2 * d, height: 280, class: 'strip-band' }, svg);
+      el('line', { x1: Lx, y1: 24, x2: Lx, y2: 316, stroke: 'var(--ink)', 'stroke-width': 2 }, svg);
+      el('text', { x: Lx, y: 16, class: 'small-lab', style: 'font-weight:700' }, svg, 'L (la mediana)');
+      el('text', { x: Lx - 190, y: 16, class: 'small-lab' }, svg, 'mitad izquierda');
+      el('text', { x: Lx + 190, y: 16, class: 'small-lab' }, svg, 'mitad derecha');
+      el('text', { x: Lx, y: 328, class: 'small-lab' }, svg, 'franja de ancho 2δ centrada en L');
+      for (var i = 0; i < 4; i++) for (var j = 0; j < 2; j++)
+        el('rect', { x: Lx - d + i * d / 2, y: yt + j * d / 2, width: d / 2, height: d / 2, fill: 'none', stroke: 'var(--ink-muted)', 'stroke-width': 1 }, svg);
+      el('rect', { x: Lx - d, y: yt, width: 2 * d, height: d, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 2.2 }, svg);
+      el('path', { d: 'M' + (Lx - d) + ',' + (yt - 10) + ' L' + (Lx - d) + ',' + (yt - 18) + ' L' + (Lx + d) + ',' + (yt - 18) + ' L' + (Lx + d) + ',' + (yt - 10), class: 'bracket' }, svg);
+      el('text', { x: Lx, y: yt - 24, class: 'mono-lab' }, svg, '2δ');
+      el('path', { d: 'M' + (Lx + d + 10) + ',' + yt + ' L' + (Lx + d + 18) + ',' + yt + ' L' + (Lx + d + 18) + ',' + yb + ' L' + (Lx + d + 10) + ',' + yb, class: 'bracket' }, svg);
+      el('text', { x: Lx + d + 30, y: (yt + yb) / 2 + 4, class: 'mono-lab' }, svg, 'δ');
+      el('text', { x: Lx - 8, y: yb + 17, class: 'mono-lab', style: 'text-anchor:end;font-size:10px' }, svg, '8 cuadrados de lado δ/2');
+      var a = C('a', 0.4, 0.05), p = C('p', 4.6, 0.486), q = C('q', 5.4, 0.75), b = C('b', 7.6, 0.05);
+      el('line', { x1: a.x, y1: a.y, x2: p.x, y2: p.y, stroke: 'var(--ink)', 'stroke-width': 1.8 }, svg);
+      el('line', { x1: q.x, y1: q.y, x2: b.x, y2: b.y, stroke: 'var(--ink)', 'stroke-width': 1.8, 'stroke-dasharray': '2 3' }, svg);
+      el('line', { x1: p.x, y1: p.y, x2: q.x, y2: q.y, stroke: 'var(--accent-cost)', 'stroke-width': 3.2 }, svg);
+      [a, p, q, b].forEach(function (pt) { el('circle', { cx: pt.x, cy: pt.y, r: 6, fill: 'var(--ink)', stroke: 'var(--surface)', 'stroke-width': 2 }, svg); });
+      letter(a, true); letter(p, true); letter(q, false); letter(b, false);
+      // leyenda (fuera del dibujo, para que no se pise nada)
+      var ly = 352, rows = [
+        ['var(--ink)', '', 'a–p: el mejor par de la izquierda, δ_izq = 1.8'],
+        ['var(--ink)', '2 3', 'q–b: el mejor par de la derecha, δ_der = 2.2'],
+        ['var(--accent-cost)', '', 'p–q: un par cruzado, 0.8 < δ (la franja existe para encontrarlo)']
+      ];
+      rows.forEach(function (r, k) {
+        el('line', { x1: 60, y1: ly + k * 18 - 4, x2: 92, y2: ly + k * 18 - 4, stroke: r[0], 'stroke-width': r[0].indexOf('cost') > 0 ? 3.2 : 1.8, 'stroke-dasharray': r[1] }, svg);
+        el('text', { x: 102, y: ly + k * 18, style: 'font-size:11.5px' }, svg, r[2]);
+      });
+      el('text', { x: 60, y: ly + 3 * 18 + 4, class: 'small-lab', style: 'text-anchor:start' }, svg, 'δ = mín(δ_izq, δ_der) no es la distancia mínima del conjunto: el par cruzado p–q es más corto.');
+    })();
+
+    // --- franja en 1D, interactiva
+    var svg = $('stripSvg');
+    function genSet() { return spacedSet(11, 1 + Math.floor(rng() * 4), 100, rng); }
+    function analyze(Q) {
+      var n = Q.length, m = n >> 1, L = Q[m], left = Q.slice(0, m), right = Q.slice(m);
+      function pair(arr) { var bd = Infinity, bi = -1; for (var i = 0; i + 1 < arr.length; i++) if (arr[i + 1] - arr[i] < bd) { bd = arr[i + 1] - arr[i]; bi = i; } return { d: bd, i: bi }; }
+      var pl = pair(left), pr = pair(right), delta = Math.min(pl.d, pr.d);
+      var sl = left.filter(function (x) { return x > L - delta; }), sr = right.filter(function (x) { return x < L + delta; });
+      var cross = Infinity; sl.forEach(function (a) { sr.forEach(function (b) { cross = Math.min(cross, b - a); }); });
+      return { Q: Q, m: m, L: L, left: left, right: right, pl: pl, pr: pr, delta: delta, sl: sl, sr: sr, cross: cross, answer: Math.min(delta, cross) };
+    }
+    var cur = null;
+    function drawStrip() {
+      clear(svg);
+      var A = cur, Q = A.Q;
+      function X(v) { return 40 + v * 6.8; }
+      var Y0 = 130;
+      el('rect', { x: 40, y: 40, width: X(A.L) - 40, height: 130, class: 'half-l' }, svg);
+      el('rect', { x: X(A.L), y: 40, width: 720 - X(A.L), height: 130, class: 'half-r' }, svg);
+      el('rect', { x: X(A.L - A.delta), y: 40, width: X(A.L + A.delta) - X(A.L - A.delta), height: 130, class: 'strip-band' }, svg);
+      el('line', { x1: X(A.L), y1: 36, x2: X(A.L), y2: 176, stroke: 'var(--ink)', 'stroke-width': 2 }, svg);
+      el('text', { x: X(A.L), y: 30, class: 'small-lab', style: 'font-weight:700' }, svg, 'L = ' + A.L);
+      el('text', { x: 46, y: 56, class: 'small-lab', style: 'text-anchor:start' }, svg, 'mitad izquierda');
+      el('text', { x: 714, y: 56, class: 'small-lab', style: 'text-anchor:end' }, svg, 'mitad derecha');
+      el('text', { x: X(A.L), y: 190, class: 'small-lab', style: 'fill:var(--accent-cost);font-weight:700' }, svg, 'franja (L − δ, L + δ)');
+      el('line', { x1: 40, y1: Y0, x2: 720, y2: Y0, stroke: 'var(--ink-muted)', 'stroke-width': 1.4 }, svg);
+      for (var t = 0; t <= 100; t += 10) el('text', { x: X(t), y: 214, class: 'mono-lab', style: 'font-size:9.5px' }, svg, String(t));
+      // pares mínimos de cada lado
+      function bracket(arr, pr, cls, y) {
+        if (pr.i < 0) return;
+        var xa = X(arr[pr.i]), xb = X(arr[pr.i + 1]);
+        el('path', { d: 'M' + xa + ',' + (y + 8) + ' L' + xa + ',' + y + ' L' + xb + ',' + y + ' L' + xb + ',' + (y + 8), class: 'bracket ' + cls }, svg);
+        return { x: (xa + xb) / 2, y: y };
+      }
+      var bl = bracket(A.left, A.pl, 'speed', 84), br = bracket(A.right, A.pr, 'speed', 84);
+      if (bl) el('text', { x: bl.x, y: bl.y - 5, class: 'mono-lab' }, svg, 'δ_izq = ' + A.pl.d);
+      if (br) el('text', { x: br.x, y: br.y - 5, class: 'mono-lab' }, svg, 'δ_der = ' + A.pr.d);
+      var rowsS = labelRows(Q.map(X), 17);
+      Q.forEach(function (v, i) {
+        var inStrip = A.sl.indexOf(v) >= 0 || A.sr.indexOf(v) >= 0;
+        if (inStrip) el('circle', { cx: X(v), cy: Y0, r: 11, fill: 'none', stroke: 'var(--accent-cost)', 'stroke-width': 2.6 }, svg);
+        el('circle', { cx: X(v), cy: Y0, r: 5.5, fill: 'var(--ink)', stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
+        el('text', { x: X(v), y: Y0 + 24 + rowsS[i] * 11, class: 'mono-lab', style: 'font-size:9.5px' }, svg, String(v));
+      });
+      var p = $('stripPanel'), cz = isFinite(A.cross);
+      p.innerHTML = '<b>δ = mín(δ_izq, δ_der) = mín(' + A.pl.d + ', ' + A.pr.d + ') = <span class="mono">' + A.delta + '</span></b> (mejor par <i>del mismo lado</i>).<br>' +
+        'Franja: <b class="bad">' + A.sl.length + '</b> punto' + (A.sl.length === 1 ? '' : 's') + ' a la izquierda en (L−δ, L] y <b class="bad">' + A.sr.length + '</b> a la derecha en [L, L+δ) ⇒ ' +
+        '<b>a lo sumo uno por lado</b>.<br>' +
+        (cz ? 'Par cruzado de la franja: <span class="mono">' + A.cross + '</span> ' + (A.cross < A.delta ? '<b class="hi">&lt; δ: mejora la respuesta</b>.' : '≥ δ: no mejora.') : 'La franja no tiene puntos de ambos lados: no hay par cruzado.') +
+        '<br>Respuesta = mín(δ, cruzado) = <b class="hi">' + A.answer + '</b> ' + (A.answer === minGap(Q) ? '✓ coincide con ordenar y mirar consecutivos.' : '✗ no coincide.');
+    }
+    $('btnStripNew').onclick = function () { cur = analyze(genSet()); drawStrip(); };
+    $('btnStripCount').onclick = function () {
+      var mL = 0, mR = 0, bad = 0, N = 2000;
+      for (var i = 0; i < N; i++) { var A = analyze(genSet()); mL = Math.max(mL, A.sl.length); mR = Math.max(mR, A.sr.length); if (A.answer !== minGap(A.Q)) bad++; }
+      $('stripPanel').innerHTML += '<br><b class="hi">En ' + N + ' conjuntos al azar:</b> máximo de puntos de la franja a la izquierda = <b>' + mL + '</b>, a la derecha = <b>' + mR + '</b>, respuestas incorrectas = <b>' + bad + '</b>.';
+    };
+    cur = analyze(genSet()); drawStrip();
+  })();
+})();
+</script>
+</body>
+</html>

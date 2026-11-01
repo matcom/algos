@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ejercicio 8 — Misra-Gries</title>
+  <style>
+    :root {
+      --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+      --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+      --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+      --accent-purple: #7564C7; --accent-warn: #B47B13;
+      --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+      --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+    }
+    :root[data-theme="dark"] {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+        --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: var(--sans); display: flex; justify-content: center;
+      align-items: flex-start; min-height: 100vh; padding: 28px 20px;
+    }
+    .card {
+      width: 100%; max-width: 960px; background: var(--surface);
+      border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: var(--shadow); padding: 22px 26px 26px;
+    }
+    h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+    .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+    h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 26px 0 4px; }
+    h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+    .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+    .lead b { color: var(--ink); }
+    .panel {
+      background: var(--surface-2); border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 14px; margin-bottom: 10px;
+      font-size: .82rem; line-height: 1.55;
+    }
+    .panel b.hi { color: var(--accent-speed); }
+    .panel b.warn { color: var(--accent-cost); }
+    .equation {
+      font-family: var(--mono); font-size: .9rem; text-align: center;
+      padding: 8px; color: var(--accent-purple);
+    }
+    .diagram { width: 100%; height: auto; display: block; }
+    .svg-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); }
+    .svg-scroll > .diagram { min-width: 720px; }
+    .cell { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+    .cell.c1 { fill: color-mix(in srgb, var(--accent-speed) 16%, var(--surface)); stroke: var(--accent-speed); stroke-width: 2; }
+    .cell.c2 { fill: color-mix(in srgb, var(--accent-purple) 15%, var(--surface)); stroke: var(--accent-purple); stroke-width: 2; }
+    .cell.cancel { fill: color-mix(in srgb, var(--accent-cost) 17%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2; }
+    .cell.future { fill: var(--surface); stroke: var(--line); stroke-dasharray: 3 3; }
+    .cell.current { stroke: var(--accent-warn); stroke-width: 3; }
+    .svg-text { font-family: var(--mono); font-size: 12px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+    .svg-muted { font-family: var(--sans); font-size: 11px; fill: var(--ink-muted); text-anchor: middle; }
+    .svg-label { font-family: var(--serif); font-style: italic; font-size: 13px; fill: var(--ink); }
+    .svg-small { font-family: var(--sans); font-size: 9px; fill: var(--ink-muted); text-anchor: middle; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 7px 0 2px; font-size: .72rem; color: var(--ink-muted); }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--line); }
+    .swatch.c1 { background: var(--accent-speed); }
+    .swatch.c2 { background: var(--accent-purple); }
+    .swatch.cancel { background: var(--accent-cost); }
+    .swatch.future { background: var(--surface); border-style: dashed; }
+    .three-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 10px 0; }
+    .mini-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; font-size: .76rem; line-height: 1.45; }
+    .mini-card strong { display: block; font-family: var(--mono); color: var(--accent-cost); margin-bottom: 3px; }
+    .config {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      background: var(--surface-2); border: 1px solid var(--line);
+      border-radius: 10px; padding: 10px 14px; margin: 10px 0 14px;
+    }
+    .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+    select, input[type=text] {
+      font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line);
+      border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink);
+    }
+    input[type=text] { width: 100%; font-family: var(--mono); }
+    .custom-field { flex: 1; min-width: 240px; }
+    .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin: 12px 0; }
+    .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 5px; text-align: center; }
+    .stat .k { font-size: .56rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .035em; }
+    .stat .v { font-family: var(--mono); font-weight: 700; font-size: .88rem; margin-top: 2px; overflow-wrap: anywhere; }
+    .stat .v.c1 { color: var(--accent-speed); }
+    .stat .v.c2 { color: var(--accent-purple); }
+    .stat .v.cost { color: var(--accent-cost); }
+    .stat .v.warn { color: var(--accent-warn); }
+    .result-banner { font-family: var(--mono); font-size: .9rem; font-weight: 700; }
+    .result-banner.ok { color: var(--accent-speed); }
+    .result-banner.bad { color: var(--accent-cost); }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 12px; }
+    button {
+      font-family: var(--sans); font-size: .8rem; font-weight: 600;
+      border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+      border-radius: 8px; padding: 8px 13px; cursor: pointer;
+      transition: background .15s ease, transform .1s ease;
+    }
+    button:hover { background: var(--line); }
+    button:active { transform: scale(.96); }
+    button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+    button.danger { color: white; background: var(--accent-cost); border-color: var(--accent-cost); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+    .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+    .caption { min-height: 52px; }
+    .table-wrap { max-height: 265px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .74rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: center; white-space: nowrap; }
+    th { position: sticky; top: 0; background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+    tr:last-child td { border-bottom: 0; }
+    td.branch-c1 { color: var(--accent-speed); font-weight: 700; }
+    td.branch-c2 { color: var(--accent-purple); font-weight: 700; }
+    td.branch-cancel { color: var(--accent-cost); font-weight: 700; }
+    td.branch-new { color: var(--accent-warn); font-weight: 700; }
+    .proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .proof-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: .79rem; line-height: 1.5; }
+    .proof-box h3 { font-size: .8rem; margin: 0 0 5px; }
+    .proof-box p { margin: 0; }
+    .proof-box code, .panel code, footer code { font-family: var(--mono); background: var(--surface); padding: 1px 4px; border-radius: 4px; }
+    .shortcut-table td.good { color: var(--accent-speed); font-weight: 700; }
+    .shortcut-table td.bad { color: var(--accent-cost); font-weight: 700; }
+    footer { margin-top: 12px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+    @media (max-width: 720px) {
+      .card { padding: 18px 15px 22px; }
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .three-grid, .proof-grid { grid-template-columns: 1fr; }
+      .speed-wrap { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Más de n/3 apariciones: de la cancelación a Misra-Gries</h1>
+    <p class="subtitle">Ejercicio 8 · el recorrido completo de la idea, la demostración del invariante, el
+      crecimiento lineal y el error de quitar la segunda pasada.</p>
+
+    <h2><span class="step">Paso 1</span>Qué pide el ejercicio</h2>
+    <p class="lead">Dado un arreglo de tamaño <i>n</i>, hay que devolver los elementos que aparecen
+      estrictamente más de <i>n/3</i> veces. El reto es hacerlo con pocos contadores, sin guardar una tabla
+      de frecuencias completa.</p>
+    <div class="panel">
+      <b>Especificación:</b> entrada = un arreglo <code>A</code> de <code>n</code> elementos;
+      salida = todos los valores <code>c</code> con <code>apariciones(c) &gt; n/3</code>.
+      Como tres valores así sumarían más de <code>n</code>, puede haber como máximo dos.
+      <div class="equation">3 elementos distintos cancelados &nbsp;→&nbsp; 2 candidatos + 2 contadores</div>
+    </div>
+
+    <h2><span class="step">Paso 2</span>La idea: cancelar tríos distintos</h2>
+    <p class="lead">Boyer-Moore cancela parejas de valores diferentes. Aquí el umbral es <i>n/3</i>, así
+      que Misra-Gries mantiene dos candidatos y cancela un trío cuando aparece un tercer valor diferente.
+      Las cancelaciones pueden borrar ruido, pero no pueden borrar por completo un valor que aparezca más de
+      <i>n/3</i> veces.</p>
+    <div class="three-grid">
+      <div class="mini-card"><strong>1. candidato</strong>Si <code>x=cand1</code>, aumenta <code>c1</code>.</div>
+      <div class="mini-card"><strong>2. candidatos</strong>Si hay un contador vacío, <code>x</code> ocupa ese lugar.</div>
+      <div class="mini-card"><strong>3. cancelación</strong>Si los dos están llenos y <code>x</code> es distinto, bajan ambos contadores.</div>
+    </div>
+    <div class="svg-scroll">
+      <svg class="diagram wide-diagram" id="ideaDiagram" viewBox="0 0 720 148" aria-label="Cancelación de un trío"></svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch c1"></i>cand1</span>
+      <span><i class="swatch c2"></i>cand2</span>
+      <span><i class="swatch cancel"></i>tercer valor y cancelación</span>
+    </div>
+
+    <h2><span class="step">Paso 3</span>La base de la correctitud: el invariante</h2>
+    <p class="lead">Después de procesar cualquier prefijo, ese prefijo se puede descomponer en tríos de
+      elementos distintos, más las copias que quedan representadas por los dos contadores.</p>
+    <div class="panel">
+      <b class="hi">Invariante reforzado:</b> el prefijo procesado es igual a
+      <code>t</code> tríos de valores distintos + <code>c1</code> copias de <code>cand1</code> +
+      <code>c2</code> copias de <code>cand2</code>. Por eso
+      <div class="equation">i = 3t + c1 + c2</div>
+      donde <code>i</code> es el número de elementos procesados.
+    </div>
+    <div class="svg-scroll">
+      <svg class="diagram wide-diagram" id="partitionDiagram" viewBox="0 0 720 150" aria-label="Partición en tríos y residuos"></svg>
+    </div>
+    <p class="lead">La conclusión sale directamente: si un valor <code>m</code> no terminara como candidato,
+      solo podría aparecer una vez en cada trío. Entonces aparecería como máximo <code>t ≤ n/3</code> veces,
+      contradiciendo que aparezca más de <code>n/3</code>.</p>
+
+    <h2><span class="step">Paso 4</span>El algoritmo creciendo sobre un caso</h2>
+    <p class="lead">Avanza una posición por vez y observa cómo cambian los candidatos, los contadores y la
+      partición implícita en tríos. El caso de dos mayorías muestra que pueden sobrevivir dos candidatos.</p>
+    <div class="config">
+      <label>caso:
+        <select id="presetSelect">
+          <option value="majority">una mayoría plantada</option>
+          <option value="two">dos elementos sobre n/3</option>
+          <option value="none">sin elemento sobre n/3</option>
+          <option value="counter">contraejemplo del atajo</option>
+          <option value="random">aleatorio chico</option>
+          <option value="custom">personalizado</option>
+        </select>
+      </label>
+      <button id="btnNewCase">🎲 regenerar</button>
+      <button id="btnCounter" class="danger">ver contraejemplo</button>
+    </div>
+    <div class="config" id="customWrap" style="display:none">
+      <label class="custom-field">A, separado por comas:
+        <input type="text" id="customA" placeholder="A,B,C,A,A,D,A">
+      </label>
+      <button id="btnApplyCustom" class="primary">aplicar</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">procesados</div><div class="v cost" id="statIndex">0 / 0</div></div>
+      <div class="stat"><div class="k">cand1</div><div class="v c1" id="statCand1">—</div></div>
+      <div class="stat"><div class="k">c1</div><div class="v c1" id="statC1">0</div></div>
+      <div class="stat"><div class="k">cand2</div><div class="v c2" id="statCand2">—</div></div>
+      <div class="stat"><div class="k">c2</div><div class="v c2" id="statC2">0</div></div>
+      <div class="stat"><div class="k">tríos</div><div class="v warn" id="statTriples">0</div></div>
+    </div>
+    <div class="svg-scroll">
+      <svg class="diagram" id="runStrip" viewBox="0 0 720 150" aria-label="Recorrido del arreglo"></svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch c1"></i>se incorporó a cand1</span>
+      <span><i class="swatch c2"></i>se incorporó a cand2</span>
+      <span><i class="swatch cancel"></i>participó en una cancelación</span>
+      <span><i class="swatch future"></i>todavía no procesado</span>
+    </div>
+    <div class="panel caption" id="stepCaption">Pulsa «un paso» para comenzar el recorrido.</div>
+    <div class="controls">
+      <button id="btnStep">▸ un paso</button>
+      <button id="btnFinish">▸▸ terminar</button>
+      <button id="btnPlay" class="primary">▶ reproducir</button>
+      <button id="btnReset">↺ reiniciar</button>
+      <div class="speed-wrap">velocidad <input type="range" id="speed" min="1" max="100" value="55"></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>x</th><th>acción</th><th>cand1, c1</th><th>cand2, c2</th><th>trío cancelado</th></tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+
+    <h2><span class="step">Paso 5</span>Correctitud en tres movimientos</h2>
+    <p class="lead">La demostración que acompaña al ejercicio se puede leer siguiendo la corrida: primero
+      aparece el invariante, luego cada rama lo conserva y al final se aplica el conteo de los tríos.</p>
+    <div class="proof-grid">
+      <div class="proof-box">
+        <h3>1. Inicialización</h3>
+        <p>Antes de leer elementos, <code>c1=c2=0</code>: hay cero tríos y cero copias residuales. El
+          invariante empieza siendo cierto.</p>
+      </div>
+      <div class="proof-box">
+        <h3>2. Mantenimiento</h3>
+        <p>Coincidir suma una copia; ocupar un contador agrega una copia; el caso restante elimina un trío
+          formado por tres valores distintos y baja ambos contadores.</p>
+      </div>
+      <div class="proof-box">
+        <h3>3. Conclusión</h3>
+        <p id="proofConclusion">Ejecuta al menos un paso para ver la descomposición del prefijo procesado.</p>
+      </div>
+      <div class="proof-box">
+        <h3>4. Segunda pasada</h3>
+        <p>Ser candidato es necesario, pero no suficiente. Al terminar hay que contar las apariciones reales
+          y descartar los candidatos que no superen <code>n/3</code>.</p>
+      </div>
+    </div>
+    <div class="svg-scroll" style="margin-top:10px">
+      <svg class="diagram" id="partitionView" viewBox="0 0 720 145" aria-label="Descomposición del prefijo"></svg>
+    </div>
+
+    <h2><span class="step">Paso 6</span>Por qué el atajo es incorrecto</h2>
+    <p class="lead">El atajo devuelve los candidatos con contador positivo sin hacer la segunda pasada.
+      Esta tabla compara esa salida con la respuesta exacta del oráculo para la corrida actual.</p>
+    <div class="panel" id="shortcutPanel">Termina la primera pasada para comparar el atajo con el conteo real.</div>
+    <div class="controls">
+      <button id="btnShortcutCounter" class="danger">cargar A + 99·B y terminar</button>
+    </div>
+
+    <h2><span class="step">Paso 7</span>Crecimiento del algoritmo</h2>
+    <p class="lead">Cada elemento participa en una cantidad constante de decisiones. La primera pasada cuesta
+      O(n); verificar como máximo dos candidatos cuesta como máximo 2n operaciones adicionales. El crecimiento
+      total sigue siendo lineal y la memoria no crece con n.</p>
+    <div class="svg-scroll">
+      <svg class="diagram wide-diagram" id="growthChart" viewBox="0 0 720 245" aria-label="Crecimiento lineal del algoritmo"></svg>
+    </div>
+    <div class="panel">
+      <b class="hi">Resultado:</b> dos pasadas, tiempo <code>O(n)</code> y memoria adicional
+      <code>O(1)</code>. Solo se almacenan dos candidatos, dos contadores y unas pocas variables auxiliares.
+      El gráfico es una comparación conceptual de la primera pasada, la verificación y su suma.
+    </div>
+
+    <footer>celeste = cand1 · violeta = cand2 · naranja = cancelación · ver
+      <code>ejercicio-08.pdf</code> para la demostración formal completa.</footer>
+  </main>
+
+  <script>
+  (function () {
+    var presets = {
+      majority: ['A','B','C','A','B','A','D','A','C','A','B','A'],
+      two: ['A','B','C','A','B','A','B','A','B','A','B','D'],
+      none: ['A','B','C','A','B','C','D','E','F','G','H','I'],
+      counter: ['A'].concat(Array(99).fill('B')),
+      random: ['A','B','C','A','D','B','E','A','C','B','D','A']
+    };
+    var run;
+    var playTimer = null;
+
+    function esc(value) {
+      return String(value === null || value === undefined ? '—' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function shown(value) {
+      return value === null || value === undefined ? '—' : String(value);
+    }
+    function countValues(A) {
+      var map = Object.create(null);
+      A.forEach(function (x) { map[x] = (map[x] || 0) + 1; });
+      return map;
+    }
+    function realMajorities(A) {
+      var map = countValues(A), threshold = A.length / 3;
+      return Object.keys(map).filter(function (x) { return map[x] > threshold; }).sort();
+    }
+    function sortedUnique(values) {
+      var seen = Object.create(null);
+      values.forEach(function (x) { if (x !== null && x !== undefined) seen[x] = true; });
+      return Object.keys(seen).sort();
+    }
+    function sameArray(a, b) {
+      return a.length === b.length && a.every(function (x, i) { return x === b[i]; });
+    }
+    function parseInput(text) {
+      return text.split(',').map(function (x) { return x.trim(); }).filter(function (x) { return x !== ''; });
+    }
+    function branchClass(branch) {
+      if (branch === 'coincide con cand1') return 'c1';
+      if (branch === 'coincide con cand2') return 'c2';
+      if (branch === 'cand1 vacío') return 'c1';
+      if (branch === 'cand2 vacío') return 'c2';
+      if (branch === 'cancela un trío') return 'cancel';
+      return 'new';
+    }
+    function branchLabel(branch) {
+      if (branch === 'coincide con cand1') return 'cand1 + 1';
+      if (branch === 'coincide con cand2') return 'cand2 + 1';
+      if (branch === 'cand1 vacío') return 'nuevo cand1';
+      if (branch === 'cand2 vacío') return 'nuevo cand2';
+      return branch;
+    }
+
+    function resetRun(A) {
+      run = {
+        A: A.slice(), index: 0, cand1: null, cand2: null, c1: 0, c2: 0,
+        triples: 0, history: [], done: A.length === 0
+      };
+      renderAll();
+    }
+    function stepRun() {
+      if (run.done) return;
+      var x = run.A[run.index];
+      var old1 = run.cand1, old2 = run.cand2;
+      var oldC1 = run.c1, oldC2 = run.c2;
+      var branch, triple = [];
+      if (run.c1 > 0 && x === run.cand1) {
+        run.c1 += 1; branch = 'coincide con cand1';
+      } else if (run.c2 > 0 && x === run.cand2) {
+        run.c2 += 1; branch = 'coincide con cand2';
+      } else if (run.c1 === 0) {
+        run.cand1 = x; run.c1 = 1; branch = 'cand1 vacío';
+      } else if (run.c2 === 0) {
+        run.cand2 = x; run.c2 = 1; branch = 'cand2 vacío';
+      } else {
+        triple = [run.cand1, run.cand2, x];
+        run.c1 -= 1; run.c2 -= 1; run.triples += 1;
+        branch = 'cancela un trío';
+      }
+      run.history.push({
+        number: run.index + 1, x: x, branch: branch, triple: triple,
+        before: [old1, oldC1, old2, oldC2],
+        after: [run.cand1, run.c1, run.cand2, run.c2]
+      });
+      run.index += 1;
+      run.done = run.index >= run.A.length;
+      renderAll();
+    }
+    function finishRun() {
+      while (!run.done) stepRun();
+    }
+    function togglePlay() {
+      if (playTimer) {
+        clearInterval(playTimer); playTimer = null;
+        document.getElementById('btnPlay').textContent = '▶ reproducir';
+        return;
+      }
+      if (run.done) resetRun(run.A);
+      document.getElementById('btnPlay').textContent = '❚❚ pausar';
+      playTimer = setInterval(function () {
+        if (run.done) {
+          clearInterval(playTimer); playTimer = null;
+          document.getElementById('btnPlay').textContent = '▶ reproducir';
+        } else {
+          stepRun();
+        }
+      }, Math.max(90, 820 - Number(document.getElementById('speed').value) * 7));
+    }
+    function loadPreset(name) {
+      if (name === 'custom') {
+        document.getElementById('customWrap').style.display = 'flex';
+        return;
+      }
+      document.getElementById('customWrap').style.display = 'none';
+      resetRun((presets[name] || presets.random).slice());
+    }
+
+    function drawIdea() {
+      var svg = document.getElementById('ideaDiagram');
+      var html = '';
+      var values = ['cand1', 'cand2', 'x'];
+      var colors = ['c1', 'c2', 'cancel'];
+      values.forEach(function (v, i) {
+        var x = 92 + i * 175;
+        html += '<rect class="cell ' + colors[i] + '" x="' + x + '" y="37" width="112" height="48" rx="7"></rect>';
+        html += '<text class="svg-text" x="' + (x + 56) + '" y="57">' + v + '</text>';
+        html += '<text class="svg-small" x="' + (x + 56) + '" y="75">' + (i < 2 ? 'contador positivo' : 'tercer valor') + '</text>';
+        if (i < 2) html += '<text class="svg-muted" x="' + (x + 56) + '" y="113">1 copia</text>';
+      });
+      html += '<path d="M 120 25 L 555 25" stroke="var(--accent-cost)" stroke-width="2" stroke-dasharray="5 4"></path>';
+      html += '<polygon points="555,25 545,20 545,30" fill="var(--accent-cost)"></polygon>';
+      html += '<text class="svg-muted" x="335" y="17">se agrupan y se cancelan juntas</text>';
+      html += '<text class="svg-label" x="35" y="61">entrada:</text>';
+      html += '<rect class="cell cancel" x="220" y="112" width="320" height="25" rx="5"></rect>';
+      html += '<text class="svg-text" x="380" y="125">c1 ← c1−1    c2 ← c2−1    t ← t+1</text>';
+      svg.innerHTML = html;
+    }
+
+    function drawPartition() {
+      var svg = document.getElementById('partitionDiagram');
+      var html = '';
+      var x0 = 95;
+      for (var k = 0; k < 3; k++) {
+        var x = x0 + k * 112;
+        ['a','b','c'].forEach(function (label, j) {
+          html += '<rect class="cell cancel" x="' + (x + j * 28) + '" y="43" width="26" height="32" rx="4"></rect>';
+          html += '<text class="svg-text" x="' + (x + j * 28 + 13) + '" y="59">' + label + '</text>';
+        });
+        html += '<text class="svg-small" x="' + (x + 39) + '" y="92">trío distinto</text>';
+      }
+      html += '<text class="svg-label" x="20" y="62">prefijo =</text>';
+      html += '<text class="svg-muted" x="450" y="57">+ residuos:</text>';
+      html += '<rect class="cell c1" x="510" y="43" width="80" height="32" rx="5"></rect>';
+      html += '<text class="svg-text" x="550" y="59">cand1 × c1</text>';
+      html += '<rect class="cell c2" x="605" y="43" width="80" height="32" rx="5"></rect>';
+      html += '<text class="svg-text" x="645" y="59">cand2 × c2</text>';
+      html += '<text class="svg-muted" x="360" y="124">i = 3t + c1 + c2</text>';
+      svg.innerHTML = html;
+    }
+
+    function renderStrip() {
+      var svg = document.getElementById('runStrip');
+      var A = run.A, n = A.length, cw = n > 34 ? 38 : 52;
+      var width = Math.max(720, 48 + n * cw);
+      svg.setAttribute('viewBox', '0 0 ' + width + ' 150');
+      var html = '<text class="svg-label" x="16" y="48">A:</text>';
+      A.forEach(function (x, i) {
+        var h = run.history[i], cls = h ? branchClass(h.branch) : 'future';
+        if (i === run.index - 1 && h) cls += ' current';
+        var px = 35 + i * cw;
+        html += '<rect class="cell ' + cls + '" x="' + px + '" y="25" width="' + (cw - 5) + '" height="44" rx="5"></rect>';
+        html += '<text class="svg-text" x="' + (px + (cw - 5) / 2) + '" y="47">' + esc(x) + '</text>';
+        html += '<text class="svg-small" x="' + (px + (cw - 5) / 2) + '" y="86">' + (i + 1) + '</text>';
+        if (h && h.branch === 'cancela un trío') {
+          html += '<text class="svg-small" style="fill:var(--accent-cost)" x="' + (px + (cw - 5) / 2) + '" y="105">−3</text>';
+        }
+      });
+      html += '<line x1="26" y1="120" x2="' + (width - 12) + '" y2="120" stroke="var(--line)"></line>';
+      html += '<text class="svg-muted" x="' + (width / 2) + '" y="140">prefijo procesado: ' + run.index + ' de ' + n + '</text>';
+      svg.innerHTML = html;
+    }
+
+    function renderStats() {
+      document.getElementById('statIndex').textContent = run.index + ' / ' + run.A.length;
+      document.getElementById('statCand1').textContent = shown(run.cand1);
+      document.getElementById('statC1').textContent = run.c1;
+      document.getElementById('statCand2').textContent = shown(run.cand2);
+      document.getElementById('statC2').textContent = run.c2;
+      document.getElementById('statTriples').textContent = run.triples;
+    }
+    function renderCaption() {
+      var el = document.getElementById('stepCaption');
+      if (!run.history.length) {
+        el.innerHTML = 'Pulsa «un paso» para comenzar el recorrido. La primera entrada ocupará <code>cand1</code>.';
+        return;
+      }
+      var h = run.history[run.history.length - 1], after = h.after;
+      var text = '<b>Paso ' + h.number + ':</b> entra <code>' + esc(h.x) + '</code>. ';
+      if (h.branch === 'coincide con cand1') {
+        text += 'Coincide con <code>cand1</code>, así que aumenta <code>c1</code> de ' + h.before[1] + ' a ' + after[1] + '.';
+      } else if (h.branch === 'coincide con cand2') {
+        text += 'Coincide con <code>cand2</code>, así que aumenta <code>c2</code> de ' + h.before[3] + ' a ' + after[3] + '.';
+      } else if (h.branch === 'cand1 vacío') {
+        text += 'El primer contador estaba vacío: se convierte en el nuevo <code>cand1</code> con contador 1.';
+      } else if (h.branch === 'cand2 vacío') {
+        text += 'El segundo contador estaba vacío: se convierte en el nuevo <code>cand2</code> con contador 1.';
+      } else {
+        text += 'Es distinto de ambos candidatos. Se cancela el trío <code>(' + h.triple.map(esc).join(', ') +
+          ')</code>; ambos contadores bajan una unidad.';
+      }
+      text += ' Estado: <code>cand1=' + esc(after[0]) + ', c1=' + after[1] +
+        '</code>; <code>cand2=' + esc(after[2]) + ', c2=' + after[3] + '</code>.';
+      el.innerHTML = text;
+    }
+    function renderHistory() {
+      var body = document.getElementById('historyBody');
+      body.innerHTML = run.history.map(function (h) {
+        var cls = branchClass(h.branch);
+        var triple = h.triple.length ? '(' + h.triple.map(esc).join(', ') + ')' : '—';
+        return '<tr><td>' + h.number + '</td><td>' + esc(h.x) + '</td><td class="branch-' +
+          (cls === 'cancel' ? 'cancel' : (cls === 'c1' ? 'c1' : (cls === 'c2' ? 'c2' : 'new'))) + '">' +
+          branchLabel(h.branch) + '</td><td>' + esc(h.after[0]) + ', ' + h.after[1] + '</td><td>' +
+          esc(h.after[2]) + ', ' + h.after[3] + '</td><td>' + triple + '</td></tr>';
+      }).join('');
+    }
+    function renderPartitionView() {
+      var svg = document.getElementById('partitionView');
+      var processed = run.index, residual = run.c1 + run.c2;
+      var t = Math.max(0, Math.floor((processed - residual) / 3));
+      var width = Math.max(720, 34 + Math.min(t, 8) * 74 + (residual ? 190 : 30));
+      svg.setAttribute('viewBox', '0 0 ' + width + ' 145');
+      var html = '<text class="svg-label" x="16" y="55">prefijo:</text>';
+      var shownTriples = Math.min(t, 8);
+      for (var k = 0; k < shownTriples; k++) {
+        var x = 65 + k * 74;
+        ['·','·','·'].forEach(function (label, j) {
+          html += '<rect class="cell cancel" x="' + (x + j * 20) + '" y="31" width="18" height="35" rx="3"></rect>';
+          html += '<text class="svg-text" x="' + (x + j * 20 + 9) + '" y="49">' + label + '</text>';
+        });
+        html += '<text class="svg-small" x="' + (x + 29) + '" y="84">trío</text>';
+      }
+      var next = 65 + shownTriples * 74;
+      if (t > shownTriples) {
+        html += '<text class="svg-muted" x="' + (next + 5) + '" y="50">+' + (t - shownTriples) + ' tríos</text>';
+        next += 86;
+      }
+      if (run.c1 > 0) {
+        html += '<rect class="cell c1" x="' + next + '" y="31" width="92" height="35" rx="4"></rect>';
+        html += '<text class="svg-text" x="' + (next + 46) + '" y="49">' + esc(shown(run.cand1)) + ' × ' + run.c1 + '</text>';
+        next += 105;
+      }
+      if (run.c2 > 0) {
+        html += '<rect class="cell c2" x="' + next + '" y="31" width="92" height="35" rx="4"></rect>';
+        html += '<text class="svg-text" x="' + (next + 46) + '" y="49">' + esc(shown(run.cand2)) + ' × ' + run.c2 + '</text>';
+      }
+      html += '<text class="svg-muted" x="' + (width / 2) + '" y="116">' + processed + ' = 3·' + t + ' + ' + run.c1 + ' + ' + run.c2 + '</text>';
+      svg.innerHTML = html;
+      var proof = document.getElementById('proofConclusion');
+      if (!processed) {
+        proof.textContent = 'Ejecuta al menos un paso para ver la descomposición del prefijo procesado.';
+      } else {
+        proof.innerHTML = 'En esta corrida, <code>' + processed + ' = 3·' + t + ' + ' + run.c1 + ' + ' +
+          run.c2 + '</code>. Si un valor no está en los dos candidatos finales, aparece como máximo una vez por ' +
+          'trío: no puede superar <code>n/3</code>.';
+      }
+    }
+    function renderShortcut() {
+      var box = document.getElementById('shortcutPanel');
+      if (!run.done) {
+        box.innerHTML = 'Termina la primera pasada para comparar el atajo con el conteo real.';
+        return;
+      }
+      var exact = realMajorities(run.A);
+      var shortcut = sortedUnique([run.cand1, run.cand2].filter(function (x, i) {
+        return (i === 0 ? run.c1 : run.c2) > 0;
+      }));
+      var ok = sameArray(exact, shortcut);
+      var counts = countValues(run.A);
+      var rows = Object.keys(counts).sort().map(function (x) {
+        var qualifies = counts[x] > run.A.length / 3;
+        return '<tr><td>' + esc(x) + '</td><td>' + counts[x] + '</td><td>' +
+          (run.A.length / 3).toFixed(2) + '</td><td class="' + (qualifies ? 'good' : 'bad') + '">' +
+          (qualifies ? 'sí' : 'no') + '</td></tr>';
+      }).join('');
+      box.innerHTML = '<div class="result-banner ' + (ok ? 'ok' : 'bad') + '">' +
+        (ok ? 'En este caso el atajo coincide.' : 'El atajo falla: confunde candidato con respuesta.') + '</div>' +
+        '<p>Atajo: <code>[' + shortcut.map(esc).join(', ') + ']</code> · respuesta exacta: <code>[' +
+        exact.map(esc).join(', ') + ']</code></p>' +
+        '<div class="table-wrap"><table class="shortcut-table"><thead><tr><th>valor</th><th>apariciones</th>' +
+        '<th>n/3</th><th>¿califica?</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }
+    function drawGrowth() {
+      var svg = document.getElementById('growthChart'), W = 720, H = 245, left = 55, bottom = 38;
+      var vals = [1, 2, 4, 8, 16, 32, 64], maxN = 64, maxY = 190;
+      var html = '<line x1="' + left + '" y1="18" x2="' + left + '" y2="' + (H - bottom) + '" stroke="var(--line)"></line>';
+      html += '<line x1="' + left + '" y1="' + (H - bottom) + '" x2="700" y2="' + (H - bottom) + '" stroke="var(--line)"></line>';
+      function point(n, operations) {
+        return (left + (n / maxN) * 630) + ',' + (H - bottom - (operations / maxY) * 170);
+      }
+      var lines = [
+        { label: 'primera pasada ≈ n', color: 'var(--accent-speed)', factor: 1 },
+        { label: 'verificación ≤ 2n', color: 'var(--accent-purple)', factor: 2 },
+        { label: 'total ≈ 3n', color: 'var(--accent-cost)', factor: 3 }
+      ];
+      lines.forEach(function (line, index) {
+        var points = vals.map(function (n) { return point(n, line.factor * n); }).join(' ');
+        html += '<polyline points="' + points + '" fill="none" stroke="' + line.color + '" stroke-width="2.5"></polyline>';
+        html += '<line x1="' + (500) + '" y1="' + (28 + index * 18) + '" x2="' + (522) + '" y2="' + (28 + index * 18) +
+          '" stroke="' + line.color + '" stroke-width="3"></line>';
+        html += '<text class="svg-muted" style="text-anchor:start" x="530" y="' + (32 + index * 18) + '">' + line.label + '</text>';
+      });
+      vals.forEach(function (n) {
+        var x = left + (n / maxN) * 630;
+        html += '<text class="svg-small" x="' + x + '" y="' + (H - 25) + '">' + n + '</text>';
+      });
+      html += '<text class="svg-muted" style="text-anchor:start" x="8" y="27">operaciones</text>';
+      html += '<text class="svg-muted" x="680" y="' + (H - 18) + '">n</text>';
+      html += '<rect class="cell" x="55" y="222" width="645" height="20" rx="5"></rect>';
+      html += '<text class="svg-muted" x="377" y="236">la altura crece linealmente; la memoria se mantiene constante</text>';
+      svg.innerHTML = html;
+    }
+    function renderAll() {
+      renderStats(); renderStrip(); renderCaption(); renderHistory();
+      renderPartitionView(); renderShortcut();
+      document.getElementById('btnStep').disabled = run.done;
+      document.getElementById('btnFinish').disabled = run.done;
+    }
+
+    document.getElementById('presetSelect').addEventListener('change', function () { loadPreset(this.value); });
+    document.getElementById('btnNewCase').addEventListener('click', function () {
+      var alphabet = ['A','B','C','D','E'], n = 8 + Math.floor(Math.random() * 9), A = [];
+      for (var i = 0; i < n; i++) A.push(alphabet[Math.floor(Math.random() * alphabet.length)]);
+      resetRun(A);
+      document.getElementById('presetSelect').value = 'random';
+    });
+    document.getElementById('btnCounter').addEventListener('click', function () {
+      document.getElementById('presetSelect').value = 'counter';
+      loadPreset('counter'); finishRun();
+    });
+    document.getElementById('btnShortcutCounter').addEventListener('click', function () {
+      document.getElementById('presetSelect').value = 'counter';
+      loadPreset('counter'); finishRun();
+      document.getElementById('shortcutPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    document.getElementById('btnApplyCustom').addEventListener('click', function () {
+      var A = parseInput(document.getElementById('customA').value);
+      if (A.length) resetRun(A);
+    });
+    document.getElementById('btnStep').addEventListener('click', stepRun);
+    document.getElementById('btnFinish').addEventListener('click', finishRun);
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnReset').addEventListener('click', function () { resetRun(run.A); });
+
+    drawIdea(); drawPartition(); drawGrowth();
+    resetRun(presets.majority);
+  }());
+  </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+\documentclass[11pt]{article}
+\input{../_estilo.tex}
+\renewcommand{\tituloejercicio}{Tema 1 --- Ejercicio 12}
+\usetikzlibrary{arrows.meta}
+
+% Igual que `alerta` de _estilo.tex, pero puede partirse entre paginas
+\newtcolorbox{alertarota}{colback=griscodigo, colframe=grisborde, boxrule=0.6pt, arc=2pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt, breakable, before upper={\parindent0pt}}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azultitulo} Ejercicio 12 --- Gale-Shapley\\ con listas incompletas}
+
+\vspace{2pt}
+\textbf{Dificultad:} $\bigstar\bigstar\bigstar$ \quad \textbf{Conferencias:} C3 (Correctitud);
+método de C2 §1
+\vspace{8pt}
+\hrule
+\vspace{12pt}
+
+\section*{Enunciado}
+\begin{enunciado}
+Gale-Shapley con listas incompletas: cada proponente lista solo a algunos receptores, y prefiere quedarse
+solo antes que con uno que no listó. Adapta el algoritmo, su potencial y la definición de pareja
+bloqueante. ¿Sigue siendo estable el resultado? Demuéstralo.
+\end{enunciado}
+
+\section*{El camino}
+
+Seguimos el ciclo de C2 §1 con las tres herramientas de C3: el invariante, el potencial y el primer fallo. Cada
+paso termina anunciando el siguiente, que resuelve lo que quedó pendiente, hasta llegar a lo que queremos demostrar:
+
+\begin{resultado}{Lo que queremos demostrar}
+El emparejamiento que devuelve Gale-Shapley con listas incompletas sigue siendo \textbf{estable}, para cualquier
+orden de ejecución. La demostración de C3 §8 se conserva y solo necesita \textbf{un caso más}: el proponente
+que termina sin pareja.
+\end{resultado}
+
+\begin{center}\small
+\begin{tabular}{@{}rll@{}}
+\toprule
+\textbf{§} & \textbf{Pregunta que se responde} & \textbf{Y lo que queda por resolver}\\
+\midrule
+1 & ¿Qué es un emparejamiento estable con listas parciales? & el cambio en el algoritmo\\
+2 & ¿Qué algoritmo lo resuelve? & lo que sigue valiendo del código de C3\\
+3 & ¿Qué invariantes mantiene el algoritmo? & la terminación\\
+4 & ¿Termina? ¿Cuántas propuestas hace? (potencial) & la estabilidad\\
+5 & ¿Es estable? (primer fallo) & cuánto de C3 sobrevive\\
+6 & Lo que se hereda de C3 & el costo\\
+7 & Costo y comportamiento medio & ---\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 1: ¿cuál es el problema?}
+
+C2 §1 (pregunta 1) pide precisar la entrada, la salida y los casos raros. Aquí además hay que precisar \emph{qué significa}
+``estable'' cuando algunos pares no son aceptables.
+
+\textbf{El modelo.} Hay $n_a$ proponentes y $n_b$ receptores. Cada proponente $a$ tiene una lista $L(a)$ de
+receptores \emph{aceptables}, sin repetidos y ordenada de mejor a peor. Sea $E=\{(a,b):b\in L(a)\}$ el conjunto de
+\emph{parejas mutuamente aceptables}. El enunciado solo da listas a los proponentes, así que modelamos que cada
+receptor $b$ acepta a cualquier proponente que lo liste (es el único que podría proponerle) y tiene un orden
+estricto $\succ_b$ sobre $E(b)=\{a:(a,b)\in E\}$.
+
+\textbf{Preferencias con el vacío.} Escribimos $\varnothing$ para ``quedarse sin pareja''. La frase del
+enunciado, ``prefiere quedarse solo antes que con uno que no listó'', es exactamente esta preferencia de $a$ sobre
+$B\cup\{\varnothing\}$:
+\[
+  \underbrace{L(a)\ \text{en su orden}}_{\text{aceptables}}\ \succ_a\ \varnothing\ \succ_a\ \underbrace{\text{los no listados}}_{\text{inaceptables}} ,
+\]
+y análogamente para $b$: los proponentes de $E(b)$ en su orden, luego $\varnothing$, luego el resto.
+
+\textbf{Emparejamiento.} Es un $M\subseteq E$ en que cada agente aparece a lo sumo una vez. Puede dejar libres a
+agentes de ambos lados. Escribimos $M(x)=\varnothing$ si $x$ está libre. (Que $M\subseteq E$ es la
+\emph{racionalidad individual}: nadie queda con alguien inaceptable.)
+
+\begin{resultado}{Definición (pareja bloqueante, adaptada)}
+$(a,b)$ \textbf{bloquea} a $M$ si $b\succ_a M(a)$ y $a\succ_b M(b)$. Un emparejamiento es \textbf{estable} si
+$M\subseteq E$ y no tiene parejas bloqueantes.
+\end{resultado}
+
+La adaptación es mínima porque el vacío ya está dentro de las preferencias, pero conviene desplegarla.
+
+\begin{resultado}{Lema 0 (las cuatro cláusulas)}
+Si $(a,b)$ bloquea a $M$, entonces $(a,b)\in E$. Y para $(a,b)\in E$: $(a,b)$ bloquea a $M$ si y solo si
+(\,$a$ está libre \emph{o} prefiere $b$ a $M(a)$\,) \textbf{y} (\,$b$ está libre \emph{o} prefiere $a$ a
+$M(b)$\,).
+\end{resultado}
+
+\textit{Demostración.} Si $b\notin L(a)$, entonces $b$ está por debajo de $\varnothing$ en $\succ_a$, y $M(a)$ es
+$\varnothing$ o un elemento de $L(a)$, los dos por encima de $b$: no se cumple $b\succ_aM(a)$. Lo mismo si
+$a\notin E(b)$. Para $(a,b)\in E$ se tiene $b\succ_a\varnothing$ y $a\succ_b\varnothing$; luego
+$b\succ_aM(a)$ equivale a ``$M(a)=\varnothing$ o $b$ está antes que $M(a)$ en $L(a)$'', y lo mismo del lado de
+$b$. $\square$
+
+La cláusula ``está libre'' es lo nuevo: en C3 §6 el emparejamiento es perfecto y nadie queda libre, así que
+nunca hizo falta. \textbf{El ejemplo que usaremos en todo el ejercicio} tiene cuatro proponentes y tres
+receptores (la figura~\ref{fig:ejemplo} lo dibuja):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+a1: b2 > b1
+a2: b1 > b2
+a3: b1
+a4: b2 > b3
+b1 (lo listan a1,a2,a3): a3 > a2 > a1
+b2 (lo listan a1,a2,a4): a1 > a4 > a2
+b3 (lo listan a4): a4
+\end{lstlisting}
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \tikzset{prop/.style={circle,draw=azultitulo,fill=azulsuave,minimum size=0.8cm,inner sep=0pt,font=\small},
+           rec/.style={rectangle,rounded corners=3pt,draw=black!60,fill=black!6,minimum size=0.8cm,inner sep=0pt,font=\small},
+           libre/.style={draw=naranjastr,fill=naranjastr!16,line width=1.3pt},
+           arista/.style={draw=grisnum!75,thin},
+           pareja/.style={draw=verdecom,line width=2.4pt},
+           rk/.style={fill=white,inner sep=0.9pt,font=\scriptsize,text=black!80}}
+  \node[prop] (a1) at (0,3.9) {$a_1$};
+  \node[prop,libre] (a2) at (0,2.6) {$a_2$};
+  \node[prop] (a3) at (0,1.3) {$a_3$};
+  \node[prop] (a4) at (0,0) {$a_4$};
+  \node[rec] (b1) at (8,3.3) {$b_1$};
+  \node[rec] (b2) at (8,1.95) {$b_2$};
+  \node[rec] (b3) at (8,0.6) {$b_3$};
+  % aristas aceptables: cerca de a, el lugar en la lista de a; cerca de b, el lugar en la lista de b
+  \draw[arista] (a1) -- node[rk,pos=.12]{2} node[rk,pos=.88]{3} (b1);
+  \draw[arista] (a1) -- node[rk,pos=.12]{1} node[rk,pos=.88]{1} (b2);
+  \draw[arista] (a2) -- node[rk,pos=.12]{1} node[rk,pos=.88]{2} (b1);
+  \draw[arista] (a2) -- node[rk,pos=.12]{2} node[rk,pos=.88]{3} (b2);
+  \draw[arista] (a3) -- node[rk,pos=.12]{1} node[rk,pos=.88]{1} (b1);
+  \draw[arista] (a4) -- node[rk,pos=.12]{1} node[rk,pos=.88]{2} (b2);
+  \draw[arista] (a4) -- node[rk,pos=.12]{2} node[rk,pos=.88]{1} (b3);
+  % el emparejamiento estable que encuentra Gale-Shapley
+  \draw[pareja] (a1) -- (b2);
+  \draw[pareja] (a3) -- (b1);
+  \draw[pareja] (a4) -- (b3);
+  \node[font=\scriptsize,text=naranjastr,anchor=east] at (-0.55,2.6) {libre};
+\end{tikzpicture}
+\caption{El ejemplo. Una arista es una pareja aceptable. El número junto a $a_i$ es el lugar de ese receptor
+en la lista de $a_i$; el número junto a $b_j$, el lugar de ese proponente en la lista de $b_j$. En verde, el
+emparejamiento estable que calcula el algoritmo del §2. $a_2$ queda libre: recorrió toda su lista y los dos
+receptores prefieren a otro.}
+\label{fig:ejemplo}
+\end{figure}
+
+\noindent\begin{minipage}{\linewidth}
+\textbf{Los cuatro casos, con ejemplos.} Como cada lado puede estar libre o emparejado, una pareja bloqueante
+tiene cuatro formas posibles, y las cuatro ocurren en este ejemplo (cada fila es un emparejamiento $M$
+y una pareja que lo bloquea):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+  a y b con pareja       M = {a1-b1, a2-b2}         bloquea (a1, b2)
+  a libre, b con pareja  M = {a1-b1}                bloquea (a2, b1)
+  a con pareja, b libre  M = {a1-b1}                bloquea (a1, b2)
+  a y b libres           M = {}                     bloquea (a1, b2)
+\end{lstlisting}
+\end{minipage}
+\textbf{A continuación:} la pregunta 2 adapta el algoritmo de C3 §7 a las listas incompletas.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 2: ¿qué algoritmo lo resuelve?}
+
+El algoritmo de C3 §7 es la aceptación diferida: mientras haya un proponente libre, ese proponente le propone al
+mejor receptor de su lista al que todavía no le propuso; el receptor acepta si está libre, cambia si prefiere al
+nuevo, y rechaza si no. Con listas completas siempre queda alguien a quien proponerle. Con listas incompletas
+un proponente puede \textbf{agotar su lista}, y entonces no tiene a quién proponerle. La adaptación es una sola:
+
+\begin{resultado}{El algoritmo adaptado}
+Mientras exista un proponente \textbf{libre que todavía tenga receptores pendientes en su lista}, ese proponente
+le propone al mejor receptor pendiente. Las tres reacciones del receptor son las de C3. Un proponente que agota
+su lista sin ser aceptado queda libre para siempre.
+\end{resultado}
+
+Es no determinista, como en C3: cualquier proponente libre con pendientes puede actuar, y lo que se demuestre
+tiene que valer para toda elección (la implementación deja elegir cola, pila o azar).
+
+\begin{lstlisting}[style=pseudo]
+funcion GaleShapleyIncompleto(L, R):
+    para cada proponente a:  siguiente[a] (*$\leftarrow$*) 0       // propuestas que a ya hizo
+    para cada receptor b:    pareja[b]    (*$\leftarrow$*) libre
+    libres (*$\leftarrow$*) { a : L[a] no es vacia }              // libres con receptores pendientes
+
+    mientras libres no es vacio:
+        a (*$\leftarrow$*) extrae algun proponente de libres      // no determinista: cola, pila o azar
+        b (*$\leftarrow$*) L[a][siguiente[a]]                     // el mejor receptor pendiente de a
+        siguiente[a] (*$\leftarrow$*) siguiente[a] + 1            // a le propone a b: una propuesta
+
+        si pareja[b] es libre:                           // b acepta
+            pareja[b] (*$\leftarrow$*) a
+            perdedor  (*$\leftarrow$*) nadie
+        sino si R[b][a] < R[b][pareja[b]]:               // b prefiere a: cambia
+            perdedor  (*$\leftarrow$*) pareja[b]
+            pareja[b] (*$\leftarrow$*) a
+        sino:                                            // b rechaza a
+            perdedor  (*$\leftarrow$*) a
+
+        si perdedor existe y siguiente[perdedor] < largo(L[perdedor]):
+            libres (*$\leftarrow$*) libres (*$\cup$*) { perdedor }   // sigue libre y le quedan pendientes
+
+    devolver M = { (a, b) : pareja[b] = a }
+\end{lstlisting}
+Aquí \texttt{L[a]} es la lista de $a$, \texttt{R[b][a]} es el lugar de $a$ en la lista de $b$ (menor es mejor)
+y \texttt{siguiente[a]} cuenta las propuestas de $a$. El código ejecutable, el que se usó en todas las
+verificaciones de este ejercicio, es la función \texttt{gale\_shapley\_incompleto} de \texttt{verif.py}
+(líneas 17 a 42).
+
+La cola \texttt{libres} contiene \emph{exactamente} a los proponentes libres con receptores pendientes: entra
+al comenzar si tiene lista no vacía, y un proponente rechazado o desplazado vuelve a entrar solo si todavía le
+queda alguien. Es esa guarda la que reemplaza al ``mientras haya un proponente libre'' de C3.
+
+\noindent\begin{minipage}{\linewidth}
+Con el ejemplo (cola de proponentes, columna \texttt{phi} que se explica en el §4):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+paso  propone   a  tenia  queda con  phi  que pasa
+   1       a1  b2      -         a1    6  acepta
+   2       a2  b1      -         a2    5  acepta
+   3       a3  b1     a2         a3    4  cambia; a2 queda libre
+   4       a4  b2     a1         a1    3  rechaza a a4
+   5       a2  b2     a1         a1    2  rechaza a a2
+   6       a4  b3      -         a4    1  acepta
+resultado: {a1-b2, a3-b1, a4-b3} en 6 propuestas
+libres: a2 (agoto su lista: b1 > b2)
+parejas bloqueantes de ese resultado: []
+\end{lstlisting}
+\end{minipage}
+$a_2$ propuso a $b_1$ (aceptado), fue desplazado por $a_3$, propuso a $b_2$ (rechazado) y agotó su lista:
+queda libre. Los tres receptores terminan emparejados y el resultado no tiene parejas bloqueantes.
+\textbf{A continuación:} la pregunta 3 enuncia y demuestra, con invariantes, qué de lo que C3 afirma del algoritmo sigue valiendo.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 3: ¿qué invariantes mantiene el algoritmo?}
+
+C3 §7 destaca dos invariantes ``de una línea'', y las demostraciones de estabilidad y de optimalidad se apoyan
+en ellos. Con listas incompletas sigue valiendo lo mismo y hace falta uno más. Aquí se enuncian y se demuestran
+con precisión, por inducción sobre las vueltas. Sea \texttt{siguiente[a]} el número de propuestas que $a$ ya hizo.
+
+\begin{resultado}{Invariantes}
+\textbf{(I1) Receptores.} Un receptor, una vez que tiene pareja, no vuelve a quedar libre, y su pareja solo
+mejora en $\succ_b$.\\
+\textbf{(I2) Proponentes.} Las propuestas de $a$ recorren $L(a)$ de arriba abajo, sin saltos ni repeticiones: si
+\texttt{siguiente[a]} $=k$, entonces $a$ propuso exactamente a los primeros $k$ receptores de $L(a)$. Si $a$
+está emparejado con $b$, entonces $b$ es el \emph{último} al que le propuso.\\
+\textbf{(I3) La cola (nuevo).} La cola contiene exactamente a los proponentes libres con receptores
+pendientes.
+\end{resultado}
+
+\subsection*{Demostración: inducción sobre las vueltas, acotada por el potencial}
+
+\textbf{Estados y vueltas.} El estado tras $t$ vueltas es $s_t=(\sigma_t,\pi_t,Q_t)$: $\sigma_t(a)$ es el valor
+de \texttt{siguiente[a]}, $\pi_t(b)\in A\cup\{\varnothing\}$ es la pareja de $b$ y $Q_t$ es la cola. Un proponente
+está \emph{libre en $s$} si no es pareja de ningún receptor, y \emph{tiene pendientes} si $\sigma(a)<|L(a)|$.
+Sea $F(s)$ el conjunto de los proponentes libres con pendientes. El estado inicial es $\sigma_0\equiv0$,
+$\pi_0\equiv\varnothing$ y $Q_0=\{a:L(a)\ne\varnothing\}$. Una \emph{vuelta} elige cualquier $a\in Q_t$, toma
+$b=L(a)[\sigma_t(a)]$ y sube $\sigma(a)$ en $1$; lo demás depende de la rama del receptor:
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{rama} & \textbf{pareja de $b$ después} & \textbf{perdedor $\ell$}\\
+\midrule
+acepta: $\pi_t(b)=\varnothing$ & $\pi_{t+1}(b)=a$ & $\ell=\varnothing$\\
+cambia: $\pi_t(b)=a'$ y $a\succ_ba'$ & $\pi_{t+1}(b)=a$ & $\ell=a'$\\
+rechaza: $\pi_t(b)=a'$ y $a'\succ_ba$ & $\pi_{t+1}(b)=a'$ & $\ell=a$\\
+\bottomrule
+\end{tabular}
+\end{center}
+y $Q_{t+1}=(Q_t\setminus\{a\})\ \cup\ \{\ell:\ \ell\ne\varnothing\ \text{y}\ \sigma_{t+1}(\ell)<|L(\ell)|\}$. Ninguna
+otra pareja ni otro $\sigma$ cambia. La figura~\ref{fig:estados} lo muestra con cuatro vueltas del ejemplo.
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}[x=1.3cm,y=1cm]
+  \node[anchor=west,font=\scriptsize\bfseries,text=azultitulo] at (-0.9,2.55) {1.\ acepta: $a_2$ le propone a $b_1$, que está libre \normalfont\color{grisnum}(paso 2 de la traza)};
+  \draw[draw=grisnum!60,thin] (0.21,1.5) -- (1.99,0.75);
+  \draw[draw=grisnum!60,thin] (0.21,1.5) -- (1.99,1.25);
+  \draw[draw=grisnum!60,thin] (0.21,1.0) -- (1.99,1.25);
+  \draw[draw=grisnum!60,thin] (0.21,1.0) -- (1.99,0.75);
+  \draw[draw=grisnum!60,thin] (0.21,0.5) -- (1.99,1.25);
+  \draw[draw=grisnum!60,thin] (0.21,0.0) -- (1.99,0.75);
+  \draw[draw=grisnum!60,thin] (0.21,0.0) -- (1.99,0.25);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,1.5) -- (1.99,0.75);
+  \draw[-{Stealth[length=2mm]},draw=black,line width=1.3pt] (0.21,1.0) -- (1.99,1.25);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,1.5) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,1.5) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,1.0) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,1.0) {{$\sigma{=}0$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,0.5) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,0.5) {{$\sigma{=}0$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,0.0) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,0.0) {{$\sigma{=}0$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,1.25) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,0.75) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,0.25) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (-0.9,-0.28) {$Q=\{$$a_2$,$a_3$,$a_4$$\}$\quad $\Phi=6$};
+  \draw[->,line width=1.3pt,draw=azultitulo] (3.0,0.75) -- (4.9,0.75);
+  \node[font=\scriptsize,anchor=south,align=center] at (3.95,0.82) {vuelta};
+  \draw[draw=grisnum!60,thin] (6.91,1.5) -- (8.69,0.75);
+  \draw[draw=grisnum!60,thin] (6.91,1.5) -- (8.69,1.25);
+  \draw[draw=grisnum!60,thin] (6.91,1.0) -- (8.69,1.25);
+  \draw[draw=grisnum!60,thin] (6.91,1.0) -- (8.69,0.75);
+  \draw[draw=grisnum!60,thin] (6.91,0.5) -- (8.69,1.25);
+  \draw[draw=grisnum!60,thin] (6.91,0.0) -- (8.69,0.75);
+  \draw[draw=grisnum!60,thin] (6.91,0.0) -- (8.69,0.25);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,1.5) -- (8.69,0.75);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,1.0) -- (8.69,1.25);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,1.5) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (6.43,1.5) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,1.0) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (6.43,1.0) {{\color{naranjastr}\bfseries $\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,0.5) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (6.43,0.5) {{$\sigma{=}0$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,0.0) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (6.43,0.0) {{$\sigma{=}0$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,1.25) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,0.75) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,0.25) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (5.8,-0.28) {$Q=\{$$a_3$,$a_4$$\}$\quad \textcolor{naranjastr}{\textbf{$\Phi=5$}}};
+  \node[font=\scriptsize,anchor=south] at (0.0,1.88) {\small $s_{1}$};
+  \node[font=\scriptsize,anchor=south] at (6.7,1.88) {\small $s_{2}$};
+  \node[anchor=west,font=\scriptsize\bfseries,text=azultitulo] at (-0.9,-1.0500000000000003) {2.\ cambia: $a_3$ le propone a $b_1$, que prefiere a $a_3$ sobre $a_2$ \normalfont\color{grisnum}(paso 3 de la traza)};
+  \draw[draw=grisnum!60,thin] (0.21,-2.1) -- (1.99,-2.85);
+  \draw[draw=grisnum!60,thin] (0.21,-2.1) -- (1.99,-2.35);
+  \draw[draw=grisnum!60,thin] (0.21,-2.6) -- (1.99,-2.35);
+  \draw[draw=grisnum!60,thin] (0.21,-2.6) -- (1.99,-2.85);
+  \draw[draw=grisnum!60,thin] (0.21,-3.1) -- (1.99,-2.35);
+  \draw[draw=grisnum!60,thin] (0.21,-3.6) -- (1.99,-2.85);
+  \draw[draw=grisnum!60,thin] (0.21,-3.6) -- (1.99,-3.35);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-2.1) -- (1.99,-2.85);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-2.6) -- (1.99,-2.35);
+  \draw[-{Stealth[length=2mm]},draw=black,line width=1.3pt] (0.21,-3.1) -- (1.99,-2.35);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-2.1) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-2.1) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-2.6) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-2.6) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-3.1) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-3.1) {{$\sigma{=}0$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-3.6) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-3.6) {{$\sigma{=}0$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-2.35) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-2.85) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-3.35) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (-0.9,-3.88) {$Q=\{$$a_3$,$a_4$$\}$\quad $\Phi=5$};
+  \draw[->,line width=1.3pt,draw=azultitulo] (3.0,-2.85) -- (4.9,-2.85);
+  \node[font=\scriptsize,anchor=south,align=center] at (3.95,-2.7800000000000002) {vuelta};
+  \draw[draw=grisnum!60,thin] (6.91,-2.1) -- (8.69,-2.85);
+  \draw[draw=grisnum!60,thin] (6.91,-2.1) -- (8.69,-2.35);
+  \draw[draw=grisnum!60,thin] (6.91,-2.6) -- (8.69,-2.35);
+  \draw[draw=grisnum!60,thin] (6.91,-2.6) -- (8.69,-2.85);
+  \draw[draw=grisnum!60,thin] (6.91,-3.1) -- (8.69,-2.35);
+  \draw[draw=grisnum!60,thin] (6.91,-3.6) -- (8.69,-2.85);
+  \draw[draw=grisnum!60,thin] (6.91,-3.6) -- (8.69,-3.35);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-2.1) -- (8.69,-2.85);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-3.1) -- (8.69,-2.35);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-2.1) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-2.1) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-2.6) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-2.6) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-3.1) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-3.1) {{\color{naranjastr}\bfseries $\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-3.6) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-3.6) {{$\sigma{=}0$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-2.35) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-2.85) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-3.35) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (5.8,-3.88) {$Q=\{$$a_4$,\textcolor{naranjastr}{\textbf{$a_2$}}$\}$\quad \textcolor{naranjastr}{\textbf{$\Phi=4$}}};
+  \node[font=\scriptsize,anchor=south] at (0.0,-1.7200000000000002) {\small $s_{2}$};
+  \node[font=\scriptsize,anchor=south] at (6.7,-1.7200000000000002) {\small $s_{3}$};
+  \node[anchor=west,font=\scriptsize\bfseries,text=azultitulo] at (-0.9,-4.65) {3.\ rechaza, y el perdedor vuelve a la cola: $a_4\to b_2$, que prefiere a $a_1$ \normalfont\color{grisnum}(paso 4 de la traza)};
+  \draw[draw=grisnum!60,thin] (0.21,-5.7) -- (1.99,-6.45);
+  \draw[draw=grisnum!60,thin] (0.21,-5.7) -- (1.99,-5.95);
+  \draw[draw=grisnum!60,thin] (0.21,-6.2) -- (1.99,-5.95);
+  \draw[draw=grisnum!60,thin] (0.21,-6.2) -- (1.99,-6.45);
+  \draw[draw=grisnum!60,thin] (0.21,-6.7) -- (1.99,-5.95);
+  \draw[draw=grisnum!60,thin] (0.21,-7.2) -- (1.99,-6.45);
+  \draw[draw=grisnum!60,thin] (0.21,-7.2) -- (1.99,-6.95);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-5.7) -- (1.99,-6.45);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-6.7) -- (1.99,-5.95);
+  \draw[-{Stealth[length=2mm]},draw=black,line width=1.3pt] (0.21,-7.2) -- (1.99,-6.45);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-5.7) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-5.7) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-6.2) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-6.2) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-6.7) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-6.7) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-7.2) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-7.2) {{$\sigma{=}0$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-5.95) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-6.45) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-6.95) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (-0.9,-7.48) {$Q=\{$$a_4$,$a_2$$\}$\quad $\Phi=4$};
+  \draw[->,line width=1.3pt,draw=azultitulo] (3.0,-6.45) -- (4.9,-6.45);
+  \node[font=\scriptsize,anchor=south,align=center] at (3.95,-6.38) {vuelta};
+  \draw[draw=grisnum!60,thin] (6.91,-5.7) -- (8.69,-6.45);
+  \draw[draw=grisnum!60,thin] (6.91,-5.7) -- (8.69,-5.95);
+  \draw[draw=grisnum!60,thin] (6.91,-6.2) -- (8.69,-5.95);
+  \draw[draw=grisnum!60,thin] (6.91,-6.2) -- (8.69,-6.45);
+  \draw[draw=grisnum!60,thin] (6.91,-6.7) -- (8.69,-5.95);
+  \draw[draw=grisnum!60,thin] (6.91,-7.2) -- (8.69,-6.45);
+  \draw[draw=grisnum!60,thin] (6.91,-7.2) -- (8.69,-6.95);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-5.7) -- (8.69,-6.45);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-6.7) -- (8.69,-5.95);
+  \draw[draw=naranjastr,dashed,line width=1.1pt] (6.91,-7.2) -- (8.69,-6.45);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-5.7) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-5.7) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-6.2) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-6.2) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-6.7) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-6.7) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-7.2) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-7.2) {{\color{naranjastr}\bfseries $\sigma{=}1$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-5.95) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-6.45) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-6.95) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (5.8,-7.48) {$Q=\{$$a_2$,\textcolor{naranjastr}{\textbf{$a_4$}}$\}$\quad \textcolor{naranjastr}{\textbf{$\Phi=3$}}};
+  \node[font=\scriptsize,anchor=south] at (0.0,-5.32) {\small $s_{3}$};
+  \node[font=\scriptsize,anchor=south] at (6.7,-5.32) {\small $s_{4}$};
+  \node[anchor=west,font=\scriptsize\bfseries,text=azultitulo] at (-0.9,-8.25) {4.\ rechaza, y el perdedor agotó su lista: $a_2\to b_2$, que prefiere a $a_1$ \normalfont\color{grisnum}(paso 5 de la traza)};
+  \draw[draw=grisnum!60,thin] (0.21,-9.3) -- (1.99,-10.05);
+  \draw[draw=grisnum!60,thin] (0.21,-9.3) -- (1.99,-9.55);
+  \draw[draw=grisnum!60,thin] (0.21,-9.8) -- (1.99,-9.55);
+  \draw[draw=grisnum!60,thin] (0.21,-9.8) -- (1.99,-10.05);
+  \draw[draw=grisnum!60,thin] (0.21,-10.3) -- (1.99,-9.55);
+  \draw[draw=grisnum!60,thin] (0.21,-10.8) -- (1.99,-10.05);
+  \draw[draw=grisnum!60,thin] (0.21,-10.8) -- (1.99,-10.55);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-9.3) -- (1.99,-10.05);
+  \draw[draw=verdecom,line width=2.2pt] (0.21,-10.3) -- (1.99,-9.55);
+  \draw[-{Stealth[length=2mm]},draw=black,line width=1.3pt] (0.21,-9.8) -- (1.99,-10.05);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-9.3) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-9.3) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-9.8) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-9.8) {{$\sigma{=}1$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-10.3) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-10.3) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (0,-10.8) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (-0.27,-10.8) {{$\sigma{=}1$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-9.55) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-10.05) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (2.2,-10.55) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (-0.9,-11.08) {$Q=\{$$a_2$,$a_4$$\}$\quad $\Phi=3$};
+  \draw[->,line width=1.3pt,draw=azultitulo] (3.0,-10.05) -- (4.9,-10.05);
+  \node[font=\scriptsize,anchor=south,align=center] at (3.95,-9.98) {vuelta};
+  \draw[draw=grisnum!60,thin] (6.91,-9.3) -- (8.69,-10.05);
+  \draw[draw=grisnum!60,thin] (6.91,-9.3) -- (8.69,-9.55);
+  \draw[draw=grisnum!60,thin] (6.91,-9.8) -- (8.69,-9.55);
+  \draw[draw=grisnum!60,thin] (6.91,-9.8) -- (8.69,-10.05);
+  \draw[draw=grisnum!60,thin] (6.91,-10.3) -- (8.69,-9.55);
+  \draw[draw=grisnum!60,thin] (6.91,-10.8) -- (8.69,-10.05);
+  \draw[draw=grisnum!60,thin] (6.91,-10.8) -- (8.69,-10.55);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-9.3) -- (8.69,-10.05);
+  \draw[draw=verdecom,line width=2.2pt] (6.91,-10.3) -- (8.69,-9.55);
+  \draw[draw=naranjastr,dashed,line width=1.1pt] (6.91,-9.8) -- (8.69,-10.05);
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-9.3) {$a_1$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-9.3) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-9.8) {$a_2$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-9.8) {{\color{naranjastr}\bfseries $\sigma{=}2$}};
+  \node[circle,draw=azultitulo,fill=azulsuave,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-10.3) {$a_3$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-10.3) {{$\sigma{=}1$}};
+  \node[circle,draw=naranjastr,fill=naranjastr!18,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (6.7,-10.8) {$a_4$};
+  \node[font=\scriptsize,anchor=east] at (6.43,-10.8) {{$\sigma{=}1$}};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-9.55) {$b_1$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-10.05) {$b_2$};
+  \node[rectangle,rounded corners=1.5pt,draw=black!60,fill=black!6,minimum size=0.42cm,inner sep=0pt,font=\scriptsize] at (8.9,-10.55) {$b_3$};
+  \node[font=\footnotesize,anchor=north west] at (5.8,-11.08) {$Q=\{$$a_4$$\}$\quad \textcolor{naranjastr}{\textbf{$\Phi=2$}}};
+  \node[font=\scriptsize,anchor=south] at (0.0,-8.920000000000002) {\small $s_{4}$};
+  \node[font=\scriptsize,anchor=south] at (6.7,-8.920000000000002) {\small $s_{5}$};
+\end{tikzpicture}
+\caption{Una vuelta es una transición $s_t\to s_{t+1}$. Cada fila es una vuelta real del ejemplo (pasos 2 a 5 de
+la traza): a la izquierda el estado antes, con la propuesta (flecha negra); a la derecha el estado después. En cada
+estado: $\sigma$ junto a cada proponente (propuestas que ya hizo), $\pi$ en las aristas verdes gruesas (parejas),
+la cola $Q$ y el potencial $\Phi$. En naranja, lo que cambia. $\sigma(a)$ sube en 1 y $\Phi$ baja exactamente 1 en las
+cuatro; $\pi$ cambia solo en \emph{acepta} y \emph{cambia}; y el perdedor entra a la cola solo si le quedan
+pendientes: en la fila 3 $a_4$ vuelve, en la fila 4 $a_2$ ya agotó su lista (en naranja, libre) y \textbf{no} vuelve a
+entrar, que es lo que dice (I3). Los proponentes libres están en naranja; la arista punteada es una propuesta
+rechazada.}
+\label{fig:estados}
+\end{figure}
+
+\textbf{Esquema.} Cada invariante es una afirmación $P(s)$ sobre estados, y se demuestra como en C3 §1: la
+\emph{inicialización} $P(s_0)$ y el \emph{mantenimiento} $P(s_t)\Rightarrow P(s_{t+1})$ para toda vuelta posible,
+es decir, para cualquier $a\in Q_t$ y cualquiera de las tres ramas. La inducción alcanza a toda la ejecución
+porque \textbf{el potencial la acota}: $\Phi(s)=\sum_a\bigl(|L(a)|-\sigma(a)\bigr)$ baja exactamente $1$ en cada
+vuelta (solo cambia $\sigma(a)$, en $+1$) y es $\ge0$; ambas cosas exigen que la vuelta esté bien definida, o sea
+que $a$ tenga pendientes, y eso lo da (I3), que se prueba \emph{primero} y no usa $\Phi$. Entonces toda ejecución es
+una sucesión finita $s_0,s_1,\dots,s_T$ con $T\le\Phi(s_0)=\sum_a|L(a)|$ y $Q_T=\varnothing$, y cada $P$ vale en
+todos sus estados, en particular en el final.
+
+\textbf{(I3) $Q=F(s)$.}
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item \emph{Inicialización.} En $s_0$ todos están libres y $\sigma_0=0$, luego $F(s_0)=\{a:L(a)\ne\varnothing\}=Q_0$.
+\item \emph{Mantenimiento.} Supongamos $Q_t=F(s_t)$ y una vuelta con $a\in Q_t$: $a$ está libre con pendientes, y la
+vuelta está bien definida. Solo cambian el estado de $a$ y el del perdedor $\ell$; ningún otro proponente cambia
+su $\sigma$ ni su condición de libre o emparejado. \emph{Acepta:} $a$ queda emparejado y no hay perdedor, así que
+$F(s_{t+1})=F(s_t)\setminus\{a\}$. \emph{Cambia:} $a$ queda emparejado y $a'$ pasa a libre con el mismo $\sigma$, así
+que $F(s_{t+1})=(F(s_t)\setminus\{a\})\cup\{a'\ \text{si}\ \sigma(a')<|L(a')|\}$. \emph{Rechaza:} $a$ sigue libre con
+$\sigma+1$, luego $F(s_{t+1})=(F(s_t)\setminus\{a\})\cup\{a\ \text{si}\ \sigma_t(a)+1<|L(a)|\}$. En las tres ramas es
+exactamente $Q_{t+1}$.
+\end{itemize}
+
+\textbf{(I2) Proponentes.} $P_2(s)$: (a) las propuestas de cada $a$ son exactamente los primeros $\sigma(a)$
+receptores de $L(a)$; (b) si $\pi(b)=a$, entonces $b=L(a)[\sigma(a)-1]$.
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item \emph{Inicialización.} $\sigma_0\equiv0$ y nadie está emparejado.
+\item \emph{Mantenimiento.} (a): la vuelta solo agrega a $a$ la propuesta a $L(a)[\sigma_t(a)]$, el siguiente de su
+lista, y sube $\sigma(a)$ en $1$. (b): las parejas de $s_{t+1}$ son las de $s_t$, salvo $\pi_{t+1}(b)=a$ en las
+ramas acepta y cambia, y menos la del desplazado $a'$. Para la nueva, $b=L(a)[\sigma_t(a)]=L(a)[\sigma_{t+1}(a)-1]$.
+Para una pareja $\pi(b'')=a''$ que sobrevive, $a''\ne a$, porque $a\in Q_t=F(s_t)$ \emph{estaba libre} (I3); entonces
+$\sigma(a'')$ no cambió y (b) vale por hipótesis.
+\end{itemize}
+
+\textbf{(I1) Receptores.} $P_1$: en toda vuelta, si $\pi_t(b)\ne\varnothing$, entonces $\pi_{t+1}(b)\ne\varnothing$ y
+$\pi_{t+1}(b)=\pi_t(b)$ o $\pi_{t+1}(b)\succ_b\pi_t(b)$. Es una propiedad de un paso: la vuelta solo puede cambiar la
+pareja del receptor $b$ que recibe la propuesta, y ninguna rama deja a nadie sin pareja. En \emph{acepta} no hay
+nada que conservar ($\pi_t(b)=\varnothing$); en \emph{cambia}, $\pi_{t+1}(b)=a\succ_b a'=\pi_t(b)$; en \emph{rechaza}
+no hay cambio. Por transitividad de $\succ_b$ vale entre dos estados cualesquiera $s_t,s_{t'}$ con $t\le t'$: una vez con
+pareja, nunca libre, y la pareja solo mejora. $\square$
+
+\textbf{Por qué (I3) es nuevo.} En C3 la cola contiene a \emph{todos} los proponentes libres, y eso basta:
+con listas completas un proponente libre siempre tiene a quién proponerle (es lo que demuestra el argumento del
+emparejamiento perfecto de C3 §7), así que ``estar libre'' y ``estar en la cola'' son lo mismo. Aquí no.
+Un proponente puede quedar libre \emph{habiendo agotado su lista}: sigue libre, pero ya no hay nada que
+procesar con él y sale de la cola para siempre. La cola deja de ser ``los libres'' y pasa a ser ``los libres con
+pendientes'' (la guarda del §2), y (I3) es el que lo afirma. Su consecuencia es la que reemplaza a C3: cuando la
+cola se vacía, \textbf{los que siguen libres son exactamente los que agotaron su lista}, en vez de ``todos
+están emparejados''.
+
+\begin{resultado}{Lema 2 (qué le pasa a quien recibe una propuesta)}
+Si $a$ le propuso a $b$ en algún momento, entonces al terminar $b$ tiene pareja y $M(b)=a$ o $M(b)\succ_ba$.
+\end{resultado}
+
+\textit{Demostración.} Sea la vuelta en que $a$ le propone a $b$. En $s_{t+1}$ se tiene $\pi(b)=a$ (ramas acepta y
+cambia) o $\pi(b)=a'\succ_ba$ (rama rechaza). Por (I1) desde ahí $b$ tiene pareja siempre y su pareja solo mejora,
+luego en el estado final $\pi(b)\ne\varnothing$ y $\pi(b)=a$ o $\pi(b)\succ_ba$. $\square$
+
+\noindent\begin{minipage}{\linewidth}
+\textbf{Un invariante también se puede ejecutar} (C3 §4). Esta versión vigilada del algoritmo comprueba, en
+cada vuelta, (I1), (I2), (I3), el Lema 2 y, de paso, que el potencial del §4 baja exactamente $1$:
+
+\lstinputlisting[style=python,firstline=64,lastline=97]{verif.py}
+\end{minipage}
+
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+3000 instancias: 49061 vueltas comprobadas, violaciones (deberia ser 0): 0
+propuestas <= suma de los largos de las listas: 3000 de 3000
+\end{lstlisting}
+\textbf{A continuación:} la pregunta 4 demuestra que termina y cuenta cuántas propuestas hace.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 4: ¿termina? El potencial adaptado}
+
+Es la terminación de C3 §1: una cantidad entera no negativa que baja en cada vuelta.
+
+\begin{resultado}{Potencial}
+$\Phi=\#\{(a,b)\in E:\ a\text{ todavía no le propuso a }b\}=\sum_a\bigl(|L(a)|-\texttt{siguiente[a]}\bigr)$.
+\end{resultado}
+
+Gracias a la guarda del §2, \textbf{cada vuelta es exactamente una propuesta}: por (I3) el proponente que actúa tiene
+pendientes, y por (I2) una propuesta nunca se repite. Entonces $\Phi$ baja en $1$ por vuelta y $\Phi\ge0$, que es
+el argumento del esquema del §3. La diferencia con C3 es la cota inicial: antes era $n^2$ (todas las listas de largo
+$n$); ahora $\Phi_0=\sum_a|L(a)|$.
+
+\begin{resultado}{Terminación}
+El algoritmo hace a lo sumo $\sum_a|L(a)|$ vueltas, y todas son propuestas. Al terminar no queda ningún proponente
+libre con pendientes (I3).
+\end{resultado}
+
+\textbf{Cuántas propuestas hace, exactamente.} Por (I2), un proponente emparejado propuso hasta su pareja
+inclusive, y uno libre al terminar propuso a toda su lista (I3). Entonces:
+\[
+  \text{propuestas}\;=\;\sum_{a\ \text{emparejado}}\mathrm{pos}\bigl(M(a)\bigr)\;+\;\sum_{a\ \text{libre}}|L(a)| ,
+\]
+donde $\mathrm{pos}$ es el lugar (desde 1) del receptor en $L(a)$. Lo que sobra hasta $\Phi_0$ es lo que cada
+emparejado no necesitó probar, los receptores que estaban \emph{debajo} de su pareja final. En el ejemplo:
+$1+1+2$ de los emparejados y $2$ del libre dan las $6$ propuestas de la tabla, y $\Phi$ termina en $1$.
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+propuestas = suma pos(M(a)) (emparejados) + suma |L(a)| (libres):
+   coincide en 3000 de 3000 instancias
+\end{lstlisting}
+
+\textbf{Por qué importa la guarda.} Una variante natural deja en la cola a todos los proponentes y descarta al
+agotado cuando lo saca. Esa vuelta de descarte no es una propuesta: $\Phi$ no baja, y la afirmación ``cada vuelta
+baja $\Phi$ en 1'' deja de ser cierta. La cota correcta de \emph{vueltas} para esa variante sería
+$\sum_a|L(a)|+n_a$, y la que se escribe por analogía con C3, $\sum_a|L(a)|$, es falsa:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+cola con agotados: vueltas > suma|L| en 672 de 3000 instancias
+   (exceso maximo 14); con 3 listas vacias: suma = 0, vueltas = 3
+\end{lstlisting}
+\textbf{A continuación:} la pregunta 5 demuestra que el resultado es estable.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Pregunta 5: ¿es estable? El primer fallo}
+
+Falta la correctitud parcial, que en C3 §8 se demuestra por contradicción sobre el primer fallo.
+
+\begin{resultado}{Teorema}
+El emparejamiento que devuelve el algoritmo del §2 es estable, para cualquier orden de ejecución.
+\end{resultado}
+
+\textit{Demostración.} Sea $M$ el resultado. Es un emparejamiento y $M\subseteq E$, porque solo se propone a
+receptores de la lista, cada receptor tiene una única pareja y, por (I2), cada proponente solo puede estar
+emparejado con el último receptor al que le propuso. Supongamos que $(a,b)$ bloquea a $M$. Por el
+Lema~0, $(a,b)\in E$, o sea $b\in L(a)$, con $b\succ_aM(a)$ y $a\succ_bM(b)$.
+
+\emph{Primero se ve que $a$ le propuso a $b$ en algún momento.} Hay dos casos.
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item $M(a)=\varnothing$ (\textbf{el caso nuevo}). Por (I3), al terminar no queda ningún proponente libre con
+pendientes, así que $a$ propuso a toda su lista; en particular a $b\in L(a)$.
+\item $M(a)=b'\ne\varnothing$. Por (I2), $b'$ es el último receptor al que $a$ le propuso, y las propuestas
+siguen el orden de la lista. Como $b\succ_ab'$, $b$ está antes que $b'$ en $L(a)$, y $a$ le propuso a $b$ antes.
+\end{itemize}
+Por el Lema~2, al terminar $b$ tiene pareja y $M(b)=a$ o $M(b)\succ_ba$. Si fuera $M(b)=a$ tendríamos $M(a)=b$,
+y no $b\succ_aM(a)$. Luego $M(b)\succ_ba$, lo que contradice $a\succ_bM(b)$. $\square$
+
+Respecto de C3 §8, la demostración cambia en un lugar: aparece el caso $M(a)=\varnothing$, que allí no existía
+porque todos terminaban emparejados, y se resuelve con el invariante nuevo (I3). La cláusula ``$b$ libre'' del
+bloqueo no necesita un caso propio: si $a$ le propuso a $b$, el Lema~2 asegura que $b$ no terminó libre.
+
+\textbf{Corolario.} Toda instancia con listas incompletas tiene un emparejamiento estable, y el algoritmo lo
+construye.
+
+\textbf{Verificado}, con un oráculo independiente que busca parejas bloqueantes con las cuatro cláusulas:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+emparejamiento valido (M en E, sin repetir receptor): 3000 de 3000
+sin parejas bloqueantes (deberia ser 3000 de 3000): 3000 de 3000
+\end{lstlisting}
+El listado del oráculo, que es el Lema~0 (las cuatro cláusulas del §1) escrito tal cual:
+
+\lstinputlisting[style=python,firstline=47,lastline=59]{verif.py}
+
+\textbf{La cláusula ``libre'' no es decorativa.} Un chequeo que solo compara preferencias cuando los dos
+tienen pareja, como el verificador de C3 §8, no ve las parejas bloqueantes con un agente libre. Se rompe una pareja del
+resultado de Gale-Shapley (los dos quedan libres y son mutuamente aceptables):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+romper una pareja (1000 casos): el chequeo ingenuo dice 'estable' en 1000;
+   el chequeo con las cuatro clausulas encuentra la pareja bloqueante en 1000
+\end{lstlisting}
+Y la definición con el vacío del §1 es la misma que las cuatro cláusulas, no solo en teoría:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+vacio en las listas vs cuatro clausulas: 0 diferencias en 6130 emparejamientos
+\end{lstlisting}
+\textbf{A continuación:} la sección 6 recorre cuánto de lo que C3 demostró para listas completas sobrevive.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Lo que se hereda de C3}
+
+C3 §9 demuestra que el resultado es óptimo para quien propone y no depende del orden. Con listas incompletas
+\textbf{la misma demostración funciona con un caso más}: al tomar el primer rechazo hecho por una pareja válida,
+$a$ rechazado por $b$ a favor de $a'$, si $a'$ no tiene pareja en el emparejamiento estable $M'$ donde $a$ y $b$
+están juntos, entonces $(a',b)$ bloquea $M'$ igual (por la cláusula ``$a'$ libre''). Por eso ejecutamos las
+mismas afirmaciones que C3 enumerando \emph{todos} los emparejamientos de instancias pequeñas, y se agrega una
+propia de las listas incompletas:
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+600 instancias de 3 a 5 por lado: 98 con mas de un estable,
+   238 con algun proponente libre:
+  el resultado de GS es uno de los estables: 600 de 600
+  cada proponente obtiene su mejor pareja valida: 600 de 600
+  cada receptor emparejado obtiene su peor pareja valida: 600 de 600
+  todos los estables emparejan a los mismos agentes: 600 de 600
+  mismo resultado con cuatro ordenes de ejecucion: 600 de 600
+  solo en las 98 con varios estables: optimo 98, mismos agentes 98
+\end{lstlisting}
+\begin{itemize}[leftmargin=14pt,itemsep=2pt]
+\item \textbf{Mismo resultado en cualquier orden} y \textbf{óptimo para los proponentes}: cada $a$ obtiene su mejor
+pareja válida (o queda libre si lo está en todos los estables). El reverso de C3, ejercicio 5, también vale:
+cada receptor emparejado obtiene su peor pareja válida.
+\item \textbf{Nuevo: todos los estables emparejan a los mismos agentes.} Quién queda libre no depende del
+emparejamiento estable que se elija ni del orden de ejecución. No lo demostramos aquí; es un caso particular del
+teorema de los hospitales rurales (Roth, 1984 y 1986; Gale y Sotomayor, 1985), y lo verificamos en este modelo.
+\end{itemize}
+Gale-Shapley sigue sin ser neutral: decide quién propone, y eso decide quién gana entre los estables.
+\textbf{A continuación:} la sección 7 calcula cuánto cuesta.
+
+%% ------------------------------------------------------------------------------------------------
+\section{Costo y comportamiento medio}
+
+Como en C3 §10, el potencial acota las vueltas, y para que cada una cueste $O(1)$ hacen falta las dos
+estructuras de C3: \texttt{siguiente[a]} y la tabla invertida \texttt{R[b][a]}, que se construye en
+$O(n_b+\sum_a|L(a)|)$ porque la suma de los tamaños de las listas de los receptores es $\sum_a|L(a)|$. Con las
+inicializaciones de \texttt{siguiente}, \texttt{pareja} y \texttt{libres}, que recorren a los $n_a$ proponentes y a los $n_b$ receptores, el
+costo es $O\bigl(n_a+n_b+\sum_a|L(a)|\bigr)$ en tiempo y en memoria, que es \textbf{lineal en el tamaño de la entrada},
+como en C3. (Aparecen $n_a$ y $n_b$ y no solo $\sum_a|L(a)|$ porque hay instancias con listas vacías, como las del §4.)
+
+En promedio es mucho menor que la cota, como en C3 §8: el caso típico y la garantía son cosas distintas. Con
+$n_a=n_b=12$ y cada receptor aceptable para cada proponente con probabilidad $p$ (300 instancias por fila; la segunda
+columna es la fracción de proponentes que terminan libres y la tercera, el promedio de propuestas$/\sum_a|L(a)|$),
+se ve también cómo $p=1$ recupera el caso completo (nadie queda libre):
+\begin{lstlisting}[style=salida,basicstyle=\ttfamily\footnotesize\color{black},columns=fixed]
+    p  proponentes libres  propuestas / suma|L|
+  0.2               0.227                 0.567
+  0.4               0.092                 0.418
+  0.6               0.027                 0.341
+  0.8               0.007                 0.256
+  1.0               0.000                 0.215
+\end{lstlisting}
+
+\begin{resultado}{Respuesta}
+\textbf{Algoritmo:} el de C3, con la guarda ``proponente libre \emph{con pendientes}''. \textbf{Potencial:}
+$\Phi=\sum_a(|L(a)|-\texttt{siguiente[a]})$, con $\Phi_0=\sum_a|L(a)|$, que baja en $1$ por vuelta.
+\textbf{Pareja bloqueante:} $(a,b)$ con $b\succ_aM(a)$ y $a\succ_bM(b)$, con el vacío entre las preferencias; es
+decir, (\,$a$ libre o prefiere $b$\,) y (\,$b$ libre o prefiere $a$\,). \textbf{¿Estable?} Sí: la demostración de C3
+§8 con el caso adicional $M(a)=\varnothing$, resuelto por el invariante (I3).
+\end{resultado}
+
+%% ------------------------------------------------------------------------------------------------
+\section*{Errores que hay que vigilar}
+
+\begin{alertarota}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Contar vueltas donde hay que contar propuestas.} Si la cola guarda a los agotados, hay vueltas que no
+son propuestas y la cota $\sum_a|L(a)|$ de \emph{vueltas} es falsa: con tres proponentes de listas vacías la suma
+es $0$ y hay $3$ vueltas, y ocurre en 672 de 3000 instancias aleatorias. La guarda del §2 hace que cada
+vuelta sea una propuesta.
+\item \textbf{Chequear la estabilidad sin las cláusulas ``libre''.} Compara solo cuando los dos tienen pareja y
+declara estable un emparejamiento al que se le rompió una pareja (1000 de 1000 casos). Con un
+agente libre y una pareja mutuamente aceptable \emph{sí} hay bloqueo: preferirían estar juntos a estar solos.
+\item \textbf{Confundir ``estable'' con ``todos emparejados''.} Son independientes. En las instancias con listas
+incompletas suele haber agentes libres en un emparejamiento estable (en 238 de 600 instancias del §6 algún
+proponente queda libre); la estabilidad solo dice que ningún par mutuamente aceptable preferiría juntarse.
+\item \textbf{Aceptar parejas inaceptables.} Un emparejamiento tiene que ser un $M\subseteq E$: un proponente
+prefiere quedarse solo a quedar con un receptor que no listó. Un chequeador que no verifique $M\subseteq E$ aprobaría emparejamientos ilegales.
+\item \textbf{Suponer que quien termina libre ``no lo intentó''.} El invariante (I3) dice lo contrario: un
+proponente que termina libre propuso a toda su lista y todos lo rechazaron (o lo desplazaron).
+\item \textbf{Creer que el orden de ejecución cambia quién queda libre.} No: el resultado es el mismo con cola,
+pila o azar (600 de 600 instancias), y por el teorema de los hospitales rurales los agentes libres son
+los mismos en todos los estables.
+\end{itemize}
+\end{alertarota}
+
+\end{document}

@@ -1,0 +1,699 @@
+<title>Ejercicio 6 — Búsqueda en escalera</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+    padding: 28px 20px;
+  }
+  .card {
+    width: 100%; max-width: 900px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 22px 26px 26px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  .subtitle b { color: var(--ink); }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 26px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .8rem; color: var(--ink-muted); margin: 0 0 12px; line-height: 1.55; }
+
+  .corner-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  svg.cornerSvg { flex: none; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+  .corner-side { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 8px; }
+  .corner-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .corner-btns button { font-size: .72rem; padding: 10px 6px; }
+  .verdict { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font-size: .78rem; line-height: 1.5; min-height: 70px; }
+  .verdict b.ok { color: var(--accent-speed); }
+  .verdict b.bad { color: var(--accent-cost); }
+
+  .cell-bg { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+  .cell-bg.discarded { fill: color-mix(in srgb, var(--ink-muted) 14%, var(--surface)); }
+  .cell-bg.active { fill: color-mix(in srgb, var(--accent-speed) 9%, var(--surface)); }
+  .cell-bg.current { fill: var(--accent-cost); fill-opacity: .55; stroke: var(--accent-cost); stroke-width: 2; }
+  .cell-bg.eliminating { fill: color-mix(in srgb, var(--accent-cost) 22%, var(--surface)); }
+  .cell-bg.antidiag { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 3 2; }
+  .cell-bg.antidiag-picked { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: none; }
+  .cell-bg.x-inserted { fill: color-mix(in srgb, var(--accent-speed) 35%, var(--surface)); stroke: var(--accent-speed); stroke-width: 2.5; }
+  .cell-bg.neighbor-ok { fill: color-mix(in srgb, var(--accent-speed) 30%, var(--surface)); stroke: var(--accent-speed); stroke-width: 2; }
+  .cell-bg.neighbor-bad { fill: color-mix(in srgb, var(--accent-cost) 28%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2; }
+  .cell-bg.corner-pick { stroke: var(--ink); stroke-width: 2.5; }
+  .cell-txt { font-family: var(--mono); font-size: 12px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .axis-txt { font-family: var(--mono); font-size: 10px; fill: var(--ink-muted); text-anchor: middle; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 14px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  select, input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: 1rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); }
+  .stat .v.speed { color: var(--accent-speed); }
+
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; font-size: .82rem; line-height: 1.5; }
+  .result-banner { font-family: var(--mono); font-size: .9rem; font-weight: 700; }
+  .result-banner.yes { color: var(--accent-cost); }
+  .result-banner.no { color: var(--accent-speed); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 18px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); }
+  button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button.active-corner { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  button.ghost { color: var(--accent-cost); border-color: color-mix(in srgb, var(--accent-cost) 40%, var(--line)); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  #phiTable th, #phiTable td { border: 1px solid var(--line); padding: 6px 10px; text-align: center; }
+  #phiTable th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  #phiTable td.phi { color: var(--accent-speed); font-weight: 700; }
+
+  footer { margin-top: 10px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="card">
+  <h1>Búsqueda en escalera: de "qué esquina sirve" a la cota 2n−1</h1>
+  <p class="subtitle">Ejercicio 6 · primero exploramos qué esquina deja descartar una fila o columna con una
+  sola comparación; después corremos el algoritmo completo sobre distintas matrices.</p>
+
+  <h2><span class="step">Paso 1</span>El objetivo: descartar una fila o columna por comparación</h2>
+  <p class="lead">Si cada comparación solo nos dijera algo sobre la celda que miramos, en el peor caso haría
+  falta revisar las n² celdas una por una. Para bajar a O(n) —lineal en el <i>lado</i>, no en la cantidad de
+  celdas— cada comparación individual tiene que descartar, con certeza, una fila o una columna <b>entera</b>
+  de una sola vez. Eso no es automático: depende de qué celda elijamos para comparar primero. La pregunta de
+  diseño es entonces muy concreta:</p>
+  <div class="panel" style="font-weight:600">¿Desde qué celda una sola comparación alcanza para eliminar
+  una fila <i>o</i> una columna completa, sin importar el resultado de la comparación?</div>
+  <p class="lead" style="margin-top:8px">Las únicas candidatas razonables son las cuatro esquinas (son las
+  únicas celdas con solo dos vecinos relevantes en vez de cuatro). Probemos las cuatro.</p>
+
+  <h2><span class="step">Paso 2</span>¿Qué esquina conviene?</h2>
+  <p class="lead">Toca cada esquina. Se resaltan sus dos vecinos relevantes (los que importan para decidir
+  hacia dónde moverse) y el veredicto: si uno es mayor y el otro menor, una comparación alcanza para
+  descartar una fila <i>o</i> una columna entera; si los dos van para el mismo lado, no se puede decidir.</p>
+  <div class="corner-wrap">
+    <svg class="cornerSvg" id="cornerSvg" width="280" height="280" viewBox="0 0 280 280"></svg>
+    <div class="corner-side">
+      <div class="corner-btns">
+        <button id="btnTL">↖ superior izq.</button>
+        <button id="btnTR">↗ superior der.</button>
+        <button id="btnBL">↙ inferior izq.</button>
+        <button id="btnBR">↘ inferior der.</button>
+      </div>
+      <div class="verdict" id="cornerVerdict">Toca una esquina para ver su veredicto.</div>
+    </div>
+  </div>
+
+  <h2><span class="step">Paso 3</span>El algoritmo en acción</h2>
+  <p class="lead">Elige una matriz de ejemplo y corre el recorrido en escalera paso a paso. Después, prueba
+  tus propias combinaciones de n y x para ver si encontrás algo peor que el caso propuesto.</p>
+  <div class="config">
+    <label>matriz:
+      <select id="presetSelect">
+        <option value="random">aleatoria chica</option>
+        <option value="worst">peor caso: antidiagonal</option>
+        <option value="notfound">x no está</option>
+      </select>
+    </label>
+    <label>n: <b id="nVal">6</b><input type="range" id="nSlider" min="2" max="12" value="6"></label>
+    <button id="btnNewMatrix">🎲 regenerar</button>
+  </div>
+  <div class="config">
+    <label>probar otro x en esta misma matriz: <input type="number" id="customX" style="width:7ch" step="0.5"></label>
+    <button id="btnTryX">▸ correr con este x</button>
+    <button id="btnWorstX" class="ghost">🔍 buscar el peor x para esta matriz</button>
+  </div>
+
+  <svg id="matrixSvg" width="420" height="420" viewBox="0 0 420 420"></svg>
+
+  <div class="stats">
+    <div class="stat"><div class="k">fila, col</div><div class="v" id="statPos">0, 5</div></div>
+    <div class="stat"><div class="k">comparaciones</div><div class="v cost" id="statComp">0</div></div>
+    <div class="stat"><div class="k">cota 2n−1</div><div class="v" id="statBound">11</div></div>
+    <div class="stat"><div class="k">buscando x =</div><div class="v speed" id="statX">—</div></div>
+  </div>
+
+  <div class="panel" id="stepCaption">Presiona "un paso" para empezar.</div>
+  <div class="panel" id="resultPanel" style="display:none"></div>
+
+  <div class="controls">
+    <button id="btnStep">▸ un paso</button>
+    <button id="btnFinish">▸▸ terminar</button>
+    <button id="btnPlay" class="primary">▶ reproducir</button>
+    <button id="btnReset">↺ reiniciar</button>
+    <div class="speed-wrap">velocidad <input type="range" id="speed" min="1" max="100" value="55"></div>
+  </div>
+
+  <h2><span class="step">Paso 4</span>El invariante, paso a paso</h2>
+  <p class="lead">La misma corrida de antes, pero ahora mirando específicamente qué pasa con el invariante en
+  cada vuelta: qué afirma <i>antes</i> del paso, qué desigualdad concreta justifica descartar una fila o
+  columna entera, y por qué lo que queda sigue cumpliendo <b>exactamente la misma forma de afirmación</b>
+  que antes —solo que sobre un rectángulo más chico—. Es la inducción de la demostración, vuelta a vuelta.</p>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start">
+    <svg id="invSvg" width="340" height="340" viewBox="0 0 340 340" style="flex:none"></svg>
+    <div style="flex:1; min-width:260px; display:flex; flex-direction:column; gap:8px">
+      <div class="panel" id="invBefore"></div>
+      <div class="panel" id="invJustif"></div>
+      <div class="panel" id="invAfter"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="invPrev">◂ paso anterior</button>
+    <span id="invCounter" style="font-family:var(--mono); font-size:.8rem; color:var(--ink-muted)">paso 1 / 6</span>
+    <button id="invNext">paso siguiente ▸</button>
+  </div>
+
+  <h2><span class="step">Paso 5</span>De dónde sale el potencial de la terminación</h2>
+  <p class="lead">El invariante de arriba demuestra que, <i>si</i> el ciclo termina, la respuesta es correcta.
+  Falta la otra mitad: demostrar que el ciclo <b>sí</b> termina. Para eso hace falta encontrar una cantidad
+  que suba (o baje) sin parar y esté acotada — y no sale de la nada, se construye con esta cadena de
+  razonamiento:</p>
+
+  <div class="panel">
+    <b>1. Quiero acotar cuántas vueltas da el ciclo.</b> Miro qué cambia en cada vuelta: exactamente una de
+    dos cosas —<code>fila</code> sube 1, o <code>col</code> baja 1— nunca las dos a la vez, nunca ninguna.
+  </div>
+  <div class="panel">
+    <b>2. El problema es que una sube y la otra baja.</b> No puedo sumarlas tal cual: se cancelarían, dando
+    una cantidad que a veces sube y a veces baja, inútil para acotar nada. Necesito que las dos se vean como
+    "progreso positivo" al mismo tiempo.
+  </div>
+  <div class="panel">
+    <b>3. Entonces invierto el signo de <code>col</code>.</b> <code>fila</code> ya mide avance directo desde
+    0. Para <code>col</code>, que arranca en n−1 y baja, el avance equivalente —cuánto bajó desde donde
+    arrancó— es (n−1−col): vale 0 al principio, y sube exactamente 1 cada vez que <code>col</code> baja 1.
+    Es el mismo truco que convertir una cuenta regresiva en una cuenta normal.
+  </div>
+  <div class="panel">
+    <b>4. Sumo las dos cantidades ya "enderezadas":</b> Φ = (n−1−col) + fila. Por construcción, esta suma
+    sube <b>exactamente 1</b> en cada vuelta, sin importar cuál rama se tomó —porque cada rama hace subir en
+    1 exactamente uno de los dos términos—. En cualquier momento, Φ es literalmente igual a la cantidad de
+    vueltas ya dadas.
+  </div>
+  <div class="panel">
+    <b>5. Entonces solo falta acotar Φ.</b> <code>fila</code> nunca pasa de n, <code>col</code> nunca baja de
+    −1 — pero el ciclo para apenas <b>uno</b> de los dos toca su límite, no hace falta que los dos lo
+    toquen. El valor más alto que Φ alcanza antes de cortar es 2n−1 (el mismo detalle del "−1" que ya vimos:
+    alcanza con que un solo contador llegue al límite).
+  </div>
+
+  <p class="lead">Confirmemos con el mismo ejemplo de 6 pasos de arriba: en cada vuelta, Φ tiene que subir
+  exactamente 1 respecto a la anterior, sin importar si esa vuelta descartó una fila o una columna.</p>
+  <div style="overflow-x:auto">
+    <table id="phiTable" style="border-collapse:collapse; width:100%; font-family:var(--mono); font-size:.78rem">
+    </table>
+  </div>
+
+  <h2><span class="step">Paso 6</span>Por qué no hay un algoritmo más rápido (el adversario)</h2>
+  <p class="lead">Hasta acá vimos qué tan rápido es <i>nuestro</i> algoritmo. Esto es distinto: hay que mostrar
+  que <b>ningún</b> algoritmo correcto —ni este ni ningún otro que alguien invente— puede evitar mirar
+  alguna de las n celdas de la antidiagonal. Como no sabemos cómo funciona por dentro ese otro algoritmo
+  hipotético, se razona por contradicción: se supone que existe uno que se salta una celda, y se construyen
+  dos matrices que ese algoritmo no puede distinguir pero que tienen respuestas distintas.</p>
+
+  <div class="panel" style="font-weight:600">Elige una celda de la antidiagonal y mira qué pasa si un
+  algoritmo nunca la consulta.</div>
+  <div class="corner-btns" id="advButtons" style="grid-template-columns:repeat(3,1fr); max-width:420px"></div>
+
+  <div class="corner-wrap" style="margin-top:12px">
+    <div>
+      <p class="lead" style="margin:0 0 4px; font-weight:600">M (x=5 no está en ningún lado)</p>
+      <svg id="advSvgM" width="210" height="210" viewBox="0 0 210 210"></svg>
+    </div>
+    <div>
+      <p class="lead" style="margin:0 0 4px; font-weight:600">M′ (idéntica, salvo la celda elegida)</p>
+      <svg id="advSvgMp" width="210" height="210" viewBox="0 0 210 210"></svg>
+    </div>
+    <div style="flex:1; min-width:240px">
+      <div class="panel" id="advExplain">Elige una celda arriba para ver la construcción.</div>
+    </div>
+  </div>
+
+  <footer>gris = descartado · celeste = submatriz activa (donde x todavía puede estar) · naranja = celda
+  que se está comparando ahora · ver <code>ejercicio-06.pdf</code> para las demostraciones completas</footer>
+</div>
+
+<script>
+(function () {
+  // ---------- Paso 1: explorador de esquinas ----------
+  var cornerM = [
+    [1, 3, 5, 8, 12],
+    [2, 4, 7, 10, 14],
+    [3, 6, 9, 13, 17],
+    [5, 8, 11, 15, 19],
+    [7, 10, 14, 18, 22]
+  ];
+  var cN = cornerM.length;
+  var cornerSvg = document.getElementById('cornerSvg');
+  var cS = 280 / cN;
+
+  function drawCornerGrid(highlight) {
+    var html = '';
+    for (var r = 0; r < cN; r++) {
+      for (var c = 0; c < cN; c++) {
+        var cls = 'cell-bg';
+        if (highlight) {
+          if (highlight.corner && highlight.corner[0] === r && highlight.corner[1] === c) cls += ' corner-pick';
+          highlight.neighbors.forEach(function (nb) {
+            if (nb.r === r && nb.c === c) cls += nb.ok ? ' neighbor-ok' : ' neighbor-bad';
+          });
+        }
+        html += '<rect class="' + cls + '" x="' + (c * cS) + '" y="' + (r * cS) + '" width="' + cS + '" height="' + cS + '"></rect>';
+        html += '<text class="cell-txt" x="' + (c * cS + cS / 2) + '" y="' + (r * cS + cS / 2) + '">' + cornerM[r][c] + '</text>';
+      }
+    }
+    cornerSvg.innerHTML = html;
+  }
+  drawCornerGrid(null);
+
+  function showCorner(which) {
+    var r, c, neighbors, verdictHtml;
+    if (which === 'TL') {
+      r = 0; c = 0;
+      var right = cornerM[r][c + 1], down = cornerM[r + 1][c];
+      neighbors = [{ r: r, c: c + 1, ok: false }, { r: r + 1, c: c, ok: false }];
+      verdictHtml = 'Vecino derecha = ' + right + ' (mayor), vecino abajo = ' + down + ' (mayor). ' +
+        'Los dos aumentan: si M[0][0] &lt; x, no se sabe si avanzar en fila o en columna. <b class="bad">✗ no sirve</b> — degenera en explorar un árbol.';
+    } else if (which === 'TR') {
+      r = 0; c = cN - 1;
+      var left = cornerM[r][c - 1], down2 = cornerM[r + 1][c];
+      neighbors = [{ r: r, c: c - 1, ok: true }, { r: r + 1, c: c, ok: true }];
+      verdictHtml = 'Vecino izquierda = ' + left + ' (menor), vecino abajo = ' + down2 + ' (mayor). ' +
+        'Uno de cada: una comparación alcanza para descartar toda la fila o toda la columna. <b class="ok">✓ sirve</b> — esta es la esquina que usa el algoritmo.';
+    } else if (which === 'BL') {
+      r = cN - 1; c = 0;
+      var up = cornerM[r - 1][c], right2 = cornerM[r][c + 1];
+      neighbors = [{ r: r - 1, c: c, ok: true }, { r: r, c: c + 1, ok: true }];
+      verdictHtml = 'Vecino arriba = ' + up + ' (menor), vecino derecha = ' + right2 + ' (mayor). ' +
+        'Uno de cada: también serviría (simétrica a la superior derecha). <b class="ok">✓ sirve</b>.';
+    } else {
+      r = cN - 1; c = cN - 1;
+      var left2 = cornerM[r][c - 1], up2 = cornerM[r - 1][c];
+      neighbors = [{ r: r, c: c - 1, ok: false }, { r: r - 1, c: c, ok: false }];
+      verdictHtml = 'Vecino izquierda = ' + left2 + ' (menor), vecino arriba = ' + up2 + ' (menor). ' +
+        'Los dos bajan: tampoco se puede decidir. <b class="bad">✗ no sirve</b>.';
+    }
+    drawCornerGrid({ corner: [r, c], neighbors: neighbors });
+    document.getElementById('cornerVerdict').innerHTML = verdictHtml;
+    ['btnTL', 'btnTR', 'btnBL', 'btnBR'].forEach(function (id) { document.getElementById(id).classList.remove('active-corner'); });
+    document.getElementById('btn' + which).classList.add('active-corner');
+  }
+  document.getElementById('btnTL').addEventListener('click', function () { showCorner('TL'); });
+  document.getElementById('btnTR').addEventListener('click', function () { showCorner('TR'); });
+  document.getElementById('btnBL').addEventListener('click', function () { showCorner('BL'); });
+  document.getElementById('btnBR').addEventListener('click', function () { showCorner('BR'); });
+
+  // ---------- Paso 2: simulador del algoritmo ----------
+  var n, M, x, fila, col, comps, phase, playing = false, playTimer = null;
+  var msvg = document.getElementById('matrixSvg');
+
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function randomMatrix(size, seed) {
+    var rng = mulberry32(seed);
+    var mat = [];
+    for (var i = 0; i < size; i++) mat.push(new Array(size).fill(0));
+    mat[0][0] = 1 + Math.floor(rng() * 5);
+    for (var j = 1; j < size; j++) mat[0][j] = mat[0][j - 1] + 1 + Math.floor(rng() * 5);
+    for (var i2 = 1; i2 < size; i2++) mat[i2][0] = mat[i2 - 1][0] + 1 + Math.floor(rng() * 5);
+    for (var i3 = 1; i3 < size; i3++) {
+      for (var j3 = 1; j3 < size; j3++) {
+        mat[i3][j3] = Math.max(mat[i3 - 1][j3], mat[i3][j3 - 1]) + 1 + Math.floor(rng() * 5);
+      }
+    }
+    return mat;
+  }
+
+  function buildPreset(kind, size, seed) {
+    n = size;
+    if (kind === 'worst') {
+      M = [];
+      for (var i = 0; i < n; i++) { var row = []; for (var j = 0; j < n; j++) row.push(i + j); M.push(row); }
+      x = n - 0.5;
+    } else if (kind === 'notfound') {
+      M = randomMatrix(n, seed || 42);
+      x = M[n - 1][n - 1] + 10;
+    } else {
+      M = randomMatrix(n, seed || 7);
+      var ri = Math.floor(mulberry32((seed || 7) + 500)() * n);
+      var rj = Math.floor(mulberry32((seed || 7) + 501)() * n);
+      x = M[ri][rj];
+    }
+  }
+
+  function startRun(newX) {
+    x = newX;
+    fila = 0; col = n - 1; comps = 0; phase = 'running';
+    setPlaying(false);
+    document.getElementById('resultPanel').style.display = 'none';
+    document.getElementById('statX').textContent = x;
+    document.getElementById('statBound').textContent = 2 * n - 1;
+    document.getElementById('stepCaption').textContent = 'Presiona "un paso" para empezar.';
+    render();
+  }
+
+  function reset() {
+    var kind = document.getElementById('presetSelect').value;
+    var size = parseInt(document.getElementById('nSlider').value, 10);
+    document.getElementById('nVal').textContent = size;
+    buildPreset(kind, size, Date.now() % 100000);
+    startRun(x);
+  }
+
+  function staircaseComps(mat, size, xx) {
+    var r = 0, c = size - 1, k = 0;
+    while (r >= 0 && r < size && c >= 0 && c < size) {
+      var v = mat[r][c]; k++;
+      if (v === xx) return k;
+      else if (v > xx) c--;
+      else r++;
+    }
+    return k;
+  }
+
+  function findWorstX() {
+    var vals = [];
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) vals.push(M[i][j]);
+    vals = Array.from(new Set(vals)).sort(function (a, b) { return a - b; });
+    var candidates = vals.slice();
+    for (var k = 0; k < vals.length; k++) candidates.push(vals[k] - 0.5);
+    candidates.push(vals[0] - 1, vals[vals.length - 1] + 1);
+    var best = -1, bestX = null;
+    candidates.forEach(function (cand) {
+      var c = staircaseComps(M, n, cand);
+      if (c > best) { best = c; bestX = cand; }
+    });
+    return { x: bestX, comps: best };
+  }
+
+  function cellSize() { return 420 / n; }
+
+  function render() {
+    var s = cellSize();
+    var html = '';
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        var cls = 'cell-bg';
+        if (phase !== 'init') {
+          if (r < fila || c > col) cls += ' discarded';
+          else cls += ' active';
+        }
+        if (r === fila && c === col && phase === 'running') cls += ' current';
+        html += '<rect class="' + cls + '" x="' + (c * s) + '" y="' + (r * s) + '" width="' + s + '" height="' + s + '"></rect>';
+        html += '<text class="cell-txt" x="' + (c * s + s / 2) + '" y="' + (r * s + s / 2) + '">' + M[r][c] + '</text>';
+      }
+    }
+    msvg.innerHTML = html;
+    document.getElementById('statPos').textContent = (fila < n && col >= 0) ? (fila + ', ' + col) : '—';
+    document.getElementById('statComp').textContent = comps;
+  }
+
+  function stepOnce() {
+    if (phase !== 'running') return;
+    if (!(fila >= 0 && fila < n && col >= 0 && col < n)) { finish(false); return; }
+    var v = M[fila][col];
+    comps++;
+    if (v === x) {
+      document.getElementById('stepCaption').innerHTML = 'M[' + fila + '][' + col + ']=' + v + ' = x → <b>¡encontrado!</b>';
+      render();
+      finish(true);
+      return;
+    } else if (v > x) {
+      document.getElementById('stepCaption').innerHTML = 'M[' + fila + '][' + col + ']=' + v + ' &gt; x=' + x + ' → se descarta la columna ' + col;
+      col -= 1;
+    } else {
+      document.getElementById('stepCaption').innerHTML = 'M[' + fila + '][' + col + ']=' + v + ' &lt; x=' + x + ' → se descarta la fila ' + fila;
+      fila += 1;
+    }
+    if (!(fila >= 0 && fila < n && col >= 0 && col < n)) {
+      render();
+      finish(false);
+      return;
+    }
+    render();
+  }
+
+  function finishSilent() {
+    var guard = 0;
+    while (phase === 'running' && guard < 1000) { stepOnce(); guard++; }
+  }
+
+  function finish(found) {
+    phase = 'done';
+    render();
+    var panel = document.getElementById('resultPanel');
+    var bound = 2 * n - 1;
+    panel.style.display = '';
+    panel.innerHTML =
+      '<div class="result-banner ' + (found ? 'yes' : 'no') + '">' + (found ? 'x = ' + x + ' SÍ está en M' : 'x = ' + x + ' NO está en M') + '</div>' +
+      '<div style="margin-top:6px">comparaciones hechas: <b>' + comps + '</b> · cota probada 2n−1 = <b>' + bound + '</b>' +
+      (comps === bound ? ' — ¡se alcanzó exacto el peor caso!' : '') + '</div>';
+    setPlaying(false);
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    document.getElementById('btnPlay').textContent = playing ? '⏸ pausar' : '▶ reproducir';
+    if (playing) schedule(); else clearTimeout(playTimer);
+  }
+  function schedule() {
+    if (!playing) return;
+    stepOnce();
+    if (phase !== 'running') { setPlaying(false); return; }
+    var speed = parseInt(document.getElementById('speed').value, 10);
+    playTimer = setTimeout(schedule, Math.max(80, 900 - speed * 8));
+  }
+
+  document.getElementById('btnStep').addEventListener('click', function () { setPlaying(false); stepOnce(); });
+  document.getElementById('btnFinish').addEventListener('click', function () { setPlaying(false); finishSilent(); });
+  document.getElementById('btnPlay').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('btnReset').addEventListener('click', reset);
+  document.getElementById('btnNewMatrix').addEventListener('click', reset);
+  document.getElementById('presetSelect').addEventListener('change', reset);
+  document.getElementById('nSlider').addEventListener('input', function () {
+    document.getElementById('nVal').textContent = this.value;
+  });
+  document.getElementById('nSlider').addEventListener('change', reset);
+  document.getElementById('btnTryX').addEventListener('click', function () {
+    var v = parseFloat(document.getElementById('customX').value);
+    if (isNaN(v)) return;
+    startRun(v);
+    document.getElementById('stepCaption').textContent = 'Corriendo con x=' + v + ' sobre la misma matriz. Presiona "un paso" para empezar.';
+  });
+  document.getElementById('btnWorstX').addEventListener('click', function () {
+    var r = findWorstX();
+    document.getElementById('customX').value = r.x;
+    startRun(r.x);
+    var bound = 2 * n - 1;
+    document.getElementById('stepCaption').innerHTML = 'Peor x encontrado para esta matriz: <b>' + r.x +
+      '</b> → ' + r.comps + ' comparaciones' + (r.comps === bound ? ' (¡exactamente la cota 2n−1=' + bound + '!)' : ' (cota 2n−1=' + bound + ')') + '. Presiona "un paso" para recorrerlo.';
+  });
+
+  phase = 'init';
+  reset();
+})();
+
+(function () {
+  // ---------- Paso 4: el invariante, paso a paso (matriz fija, recorrido guiado) ----------
+  var gM = [
+    [1, 4, 6, 9, 14],
+    [3, 7, 10, 13, 18],
+    [5, 9, 12, 16, 20],
+    [8, 11, 15, 19, 23],
+    [12, 15, 18, 22, 27]
+  ];
+  var gN = gM.length, gX = 15;
+
+  function buildTrace(M, x, n) {
+    var steps = [];
+    var fila = 0, col = n - 1;
+    while (fila >= 0 && fila < n && col >= 0 && col < n) {
+      var v = M[fila][col];
+      if (v === x) {
+        steps.push({ fila: fila, col: col, value: v, outcome: 'found' });
+        break;
+      } else if (v > x) {
+        steps.push({ fila: fila, col: col, value: v, outcome: 'col-elim', afterFila: fila, afterCol: col - 1 });
+        col -= 1;
+      } else {
+        steps.push({ fila: fila, col: col, value: v, outcome: 'row-elim', afterFila: fila + 1, afterCol: col });
+        fila += 1;
+      }
+    }
+    return steps;
+  }
+  var gTrace = buildTrace(gM, gX, gN);
+  var gIdx = 0;
+  var gSvg = document.getElementById('invSvg');
+
+  function gRender() {
+    var step = gTrace[gIdx];
+    var s = 340 / gN;
+    var html = '';
+    for (var r = 0; r < gN; r++) {
+      for (var c = 0; c < gN; c++) {
+        var cls = 'cell-bg';
+        if (r < step.fila || c > step.col) cls += ' discarded';
+        else cls += ' active';
+        if (step.outcome === 'row-elim' && r === step.fila && c <= step.col) cls += ' eliminating';
+        if (step.outcome === 'col-elim' && c === step.col && r >= step.fila) cls += ' eliminating';
+        if (r === step.fila && c === step.col) cls += ' current';
+        html += '<rect class="' + cls + '" x="' + (c * s) + '" y="' + (r * s) + '" width="' + s + '" height="' + s + '"></rect>';
+        html += '<text class="cell-txt" x="' + (c * s + s / 2) + '" y="' + (r * s + s / 2) + '">' + gM[r][c] + '</text>';
+      }
+    }
+    gSvg.innerHTML = html;
+
+    document.getElementById('invCounter').textContent = 'paso ' + (gIdx + 1) + ' / ' + gTrace.length;
+    document.getElementById('invBefore').innerHTML =
+      '<b>Invariante antes de este paso:</b> si x=' + gX + ' está en M, está en M[' + step.fila + ':, :' +
+      (step.col + 1) + '] — filas ≥ ' + step.fila + ', columnas ≤ ' + step.col + '.';
+
+    var justif, after;
+    if (step.outcome === 'found') {
+      justif = '<b>Comparación:</b> M[' + step.fila + '][' + step.col + ']=' + step.value + ' = x=' + gX +
+        ' → <b>¡encontrado!</b> No hace falta el invariante acá: se ve directamente.';
+      after = 'El invariante ya cumplió su función en los pasos anteriores; este paso cierra la búsqueda por observación directa, no por vaciar el rectángulo.';
+    } else if (step.outcome === 'col-elim') {
+      justif = '<b>Comparación:</b> M[' + step.fila + '][' + step.col + ']=' + step.value + ' &gt; x=' + gX +
+        ' → para toda fila i ≥ ' + step.fila + ', M[i][' + step.col + '] ≥ M[' + step.fila + '][' + step.col + ']=' +
+        step.value + ' &gt; ' + gX + ' (la columna crece hacia abajo). Ninguna celda de la columna ' + step.col +
+        ' es x: se descarta <b>entera</b> (resaltada arriba).';
+      after = '<b>Invariante después de este paso:</b> si x está en M, está en M[' + step.afterFila + ':, :' +
+        (step.afterCol + 1) + '] — misma forma de afirmación que antes, con una columna menos.';
+    } else {
+      justif = '<b>Comparación:</b> M[' + step.fila + '][' + step.col + ']=' + step.value + ' &lt; x=' + gX +
+        ' → para toda columna j ≤ ' + step.col + ', M[' + step.fila + '][j] ≤ M[' + step.fila + '][' + step.col + ']=' +
+        step.value + ' &lt; ' + gX + ' (la fila crece hacia la derecha). Ninguna celda de la fila ' + step.fila +
+        ' es x: se descarta <b>entera</b> (resaltada arriba).';
+      after = '<b>Invariante después de este paso:</b> si x está en M, está en M[' + step.afterFila + ':, :' +
+        (step.afterCol + 1) + '] — misma forma de afirmación que antes, con una fila menos.';
+    }
+    document.getElementById('invJustif').innerHTML = justif;
+    document.getElementById('invAfter').innerHTML = after;
+    document.getElementById('invPrev').disabled = gIdx === 0;
+    document.getElementById('invNext').disabled = gIdx === gTrace.length - 1;
+  }
+
+  document.getElementById('invPrev').addEventListener('click', function () { if (gIdx > 0) { gIdx--; gRender(); } });
+  document.getElementById('invNext').addEventListener('click', function () { if (gIdx < gTrace.length - 1) { gIdx++; gRender(); } });
+  gRender();
+
+  function renderPhiTable() {
+    var rows = '<tr><th>vuelta</th><th>fila</th><th>col</th><th>n−1−col</th><th>Φ=(n−1−col)+fila</th><th>descartó</th></tr>';
+    gTrace.forEach(function (step, i) {
+      var phi = (gN - 1 - step.col) + step.fila;
+      var que = step.outcome === 'found' ? 'encontrado' : (step.outcome === 'col-elim' ? 'columna ' + step.col : 'fila ' + step.fila);
+      rows += '<tr><td>' + (i + 1) + '</td><td>' + step.fila + '</td><td>' + step.col + '</td><td>' +
+        (gN - 1 - step.col) + '</td><td class="phi">' + phi + '</td><td>' + que + '</td></tr>';
+    });
+    document.getElementById('phiTable').innerHTML = rows;
+  }
+  renderPhiTable();
+})();
+
+(function () {
+  // ---------- Paso 6: el adversario sobre la antidiagonal ----------
+  var aN = 3;
+  var aM = [];
+  for (var i = 0; i < aN; i++) { var row = []; for (var j = 0; j < aN; j++) row.push(2 * (i + j)); aM.push(row); }
+  var aX = 2 * (aN - 1) + 1; // impar, cae justo en el hueco de cualquier celda de la antidiagonal
+  var antidiag = [];
+  for (var k = 0; k < aN; k++) antidiag.push([k, aN - 1 - k]);
+  var picked = null;
+
+  var btnWrap = document.getElementById('advButtons');
+  antidiag.forEach(function (cell, idx) {
+    var b = document.createElement('button');
+    b.textContent = '(' + cell[0] + ',' + cell[1] + ')';
+    b.addEventListener('click', function () { picked = idx; renderAdv(); });
+    btnWrap.appendChild(b);
+  });
+
+  function drawGrid(svgEl, M, highlightCell, markAntidiag) {
+    var s = 210 / aN;
+    var html = '';
+    for (var r = 0; r < aN; r++) {
+      for (var c = 0; c < aN; c++) {
+        var cls = 'cell-bg active';
+        var isAnti = antidiag.some(function (cell) { return cell[0] === r && cell[1] === c; });
+        if (markAntidiag && isAnti) cls += ' antidiag';
+        if (highlightCell && highlightCell[0] === r && highlightCell[1] === c) {
+          cls += highlightCell.insertedX ? ' x-inserted' : ' antidiag-picked';
+        }
+        html += '<rect class="' + cls + '" x="' + (c * s) + '" y="' + (r * s) + '" width="' + s + '" height="' + s + '"></rect>';
+        html += '<text class="cell-txt" x="' + (c * s + s / 2) + '" y="' + (r * s + s / 2) + '">' + M[r][c] + '</text>';
+      }
+    }
+    svgEl.innerHTML = html;
+  }
+
+  function renderAdv() {
+    var svgM = document.getElementById('advSvgM');
+    var svgMp = document.getElementById('advSvgMp');
+    var explain = document.getElementById('advExplain');
+    var btns = btnWrap.querySelectorAll('button');
+    btns.forEach(function (b, idx) { b.classList.toggle('active-corner', idx === picked); });
+
+    if (picked === null) {
+      drawGrid(svgM, aM, null, true);
+      drawGrid(svgMp, aM, null, true);
+      explain.textContent = 'Elige una celda arriba para ver la construcción.';
+      return;
+    }
+    var cell = antidiag[picked];
+    var Mp = aM.map(function (row) { return row.slice(); });
+    Mp[cell[0]][cell[1]] = aX;
+    var hcM = [cell[0], cell[1]]; hcM.insertedX = false;
+    var hcMp = [cell[0], cell[1]]; hcMp.insertedX = true;
+    drawGrid(svgM, aM, hcM, true);
+    drawGrid(svgMp, Mp, hcMp, true);
+    explain.innerHTML =
+      'Supongamos que un algoritmo <b>nunca consulta</b> la celda (' + cell[0] + ',' + cell[1] + ').<br><br>' +
+      'En <b>M</b>, esa celda vale ' + aM[cell[0]][cell[1]] + ' y x=' + aX + ' no aparece en ningún lado — ' +
+      'la respuesta correcta es <b>NO</b>.<br><br>' +
+      'En <b>M′</b>, cambié <i>solo</i> esa celda a x=' + aX + ' (cabe justo entre sus vecinos, la matriz ' +
+      'sigue siendo válida). Ahora x=' + aX + ' <b>sí</b> está — la respuesta correcta es <b>SÍ</b>.<br><br>' +
+      'Como el algoritmo nunca mira esa celda y todo lo demás es idéntico entre M y M′, hace exactamente las ' +
+      'mismas comparaciones y ve las mismas respuestas en los dos casos — así que da la <b>misma salida</b> en ' +
+      'ambos. Pero la respuesta correcta es distinta: se equivoca en uno de los dos. <b>Contradicción</b> con ' +
+      'que fuera correcto.';
+  }
+  renderAdv();
+})();
+</script>

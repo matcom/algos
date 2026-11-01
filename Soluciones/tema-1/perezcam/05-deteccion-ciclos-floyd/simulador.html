@@ -1,0 +1,536 @@
+<title>Ejercicio 5 — Simulador de Floyd (tortuga y liebre)</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+    display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+    padding: 28px 20px;
+  }
+  .card {
+    width: 100%; max-width: 860px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    padding: 22px 26px 26px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  .subtitle b { color: var(--ink); }
+  h2 { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); margin: 18px 0 8px; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  .config b { color: var(--ink); font-family: var(--mono); min-width: 1.2em; display: inline-block; }
+  input[type=range] { accent-color: var(--accent-speed); }
+
+  svg#listSvg { width: 100%; height: auto; display: block; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+  .marker { transition: transform .35s ease; }
+  .marker circle { stroke: var(--surface); stroke-width: 2; }
+  .marker-lento circle { fill: var(--accent-speed); }
+  .marker-rapido circle { fill: var(--accent-cost); }
+  .marker-p1 circle { fill: var(--accent-speed); }
+  .marker-p2 circle { fill: var(--accent-cost); }
+  .marker text { fill: white; font-size: 13px; font-family: var(--sans); font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .node-dot { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .node-dot.in-cycle { fill: color-mix(in srgb, var(--accent-speed) 8%, var(--surface)); }
+  .node-dot.meeting { stroke: var(--accent-cost); stroke-width: 2.5; }
+  .node-dot.cycle-start { stroke: var(--accent-speed); stroke-width: 2.5; }
+  .edge { stroke: var(--ink-muted); stroke-width: 1.3; fill: none; opacity: .55; }
+  #arrow path { fill: var(--ink-muted); opacity: .7; }
+  .lbl { font-size: 10px; fill: var(--ink-muted); font-family: var(--mono); text-anchor: middle; }
+  .tag { font-size: 11px; fill: var(--ink-muted); font-family: var(--sans); }
+
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: 1rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v.cost { color: var(--accent-cost); }
+  .stat .v.speed { color: var(--accent-speed); }
+
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; }
+  .eq-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-family: var(--mono); font-size: .85rem; margin-bottom: 4px; }
+  .eq-row:last-child { margin-bottom: 0; }
+  .eq-row b { color: var(--ink); }
+  .eq-row b.hi { color: var(--accent-speed); font-size: 1.02rem; }
+  .panel-note { font-size: .7rem; color: var(--ink-muted); margin-top: 7px; line-height: 1.5; }
+  .result-banner { font-family: var(--mono); font-size: .92rem; font-weight: 700; }
+  .result-banner.yes { color: var(--accent-cost); }
+  .result-banner.no { color: var(--accent-speed); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 18px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); }
+  button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button.ghost-cost { color: var(--accent-cost); border-color: color-mix(in srgb, var(--accent-cost) 40%, var(--line)); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  footer { margin-top: 10px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="card">
+  <h1>Simulador: tortuga y liebre (algoritmo de Floyd)</h1>
+  <p class="subtitle">Ejercicio 5 · <b style="color:var(--accent-speed)">🐢 lento</b> avanza 1 nodo por vuelta,
+  <b style="color:var(--accent-cost)">🐇 rápido</b> avanza 2. Arma la lista con los controles (una cola de
+  $\mu$ nodos, un ciclo de $\lambda$ nodos) y corre el algoritmo paso a paso.</p>
+
+  <div class="config">
+    <label>$\mu$ (cola): <b id="muVal">3</b><input type="range" id="muSlider" min="0" max="6" value="3"></label>
+    <label>$\lambda$ (ciclo, 0 = sin ciclo): <b id="lamVal">4</b><input type="range" id="lamSlider" min="0" max="8" value="4"></label>
+    <button id="btnRandom">🎲 lista aleatoria</button>
+    <button id="btnApply" class="primary">↻ generar</button>
+  </div>
+
+  <svg id="listSvg" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-muted)" opacity=".7"></path>
+      </marker>
+    </defs>
+    <g id="edgesLayer"></g>
+    <g id="nodesLayer"></g>
+    <g id="markersLayer">
+      <g class="marker marker-lento" id="markerLento"><circle r="13"></circle><text dy="1">🐢</text></g>
+      <g class="marker marker-rapido" id="markerRapido"><circle r="13"></circle><text dy="1">🐇</text></g>
+      <g class="marker marker-p1" id="markerP1" style="display:none"><circle r="13"></circle><text dy="1">P1</text></g>
+      <g class="marker marker-p2" id="markerP2" style="display:none"><circle r="13"></circle><text dy="1">P2</text></g>
+    </g>
+  </svg>
+
+  <div class="stats">
+    <div class="stat"><div class="k">vueltas t</div><div class="v" id="statT">0</div></div>
+    <div class="stat"><div class="k">pos(lento)=t</div><div class="v speed" id="statPosL">0</div></div>
+    <div class="stat"><div class="k">pos(rápido)=2t</div><div class="v cost" id="statPosR">0</div></div>
+    <div class="stat"><div class="k">¿ambos en ciclo?</div><div class="v" id="statBoth">no</div></div>
+    <div class="stat"><div class="k">potencial Φ</div><div class="v" id="statPhi">—</div></div>
+  </div>
+
+  <h2>El argumento, en vivo</h2>
+  <div class="panel">
+    <div class="eq-row">
+      <span>pos(lento) = t = <b id="eqT1">0</b></span>
+      <span>pos(rápido) = 2t = <b id="eqT2">0</b></span>
+    </div>
+    <div class="eq-row" id="eqDynamicRow">
+      <span id="eqDynamic">esperando el primer paso…</span>
+    </div>
+    <div class="panel-note" id="panelNote">mientras no haya ciclo, posiciones distintas son siempre nodos
+    distintos (sección 2, invariante). Si hay ciclo, una vez que ambos punteros entran, Φ mide cuánto le
+    falta a rápido para alcanzar a lento y baja 1 por vuelta.</div>
+  </div>
+
+  <div class="controls">
+    <button id="btnStep">▸ un paso</button>
+    <button id="btnFinish">▸▸ terminar fase 1</button>
+    <button id="btnPlay" class="primary">▶ reproducir</button>
+    <button id="btnReset">↺ reiniciar</button>
+    <div class="speed-wrap">velocidad <input type="range" id="speed" min="1" max="100" value="55"></div>
+  </div>
+
+  <div class="panel" id="resultPanel" style="display:none">
+    <div class="result-banner" id="resultBanner"></div>
+    <div class="panel-note" id="resultNote"></div>
+  </div>
+
+  <div id="fase2Section" style="display:none">
+    <h2>Fase 2 — encontrar dónde empieza el ciclo</h2>
+    <div class="panel">
+      <div class="eq-row">
+        <span>P1 desde la cabeza, P2 desde el encuentro, ambos de a 1 paso</span>
+      </div>
+      <div class="eq-row">
+        <span>pasos dados: <b id="f2T">0</b></span>
+        <span>nodo de P1: <b id="f2P1">—</b></span>
+        <span>nodo de P2: <b id="f2P2">—</b></span>
+      </div>
+      <div class="panel-note">se vuelven a encontrar exactamente en el inicio del ciclo (demostración en el
+      documento, con álgebra modular).</div>
+      <div class="result-banner yes" id="resultBanner2" style="margin-top:8px"></div>
+    </div>
+    <div class="controls">
+      <button id="btnStartFase2" class="ghost-cost">⤷ iniciar fase 2</button>
+      <button id="btnStep2">▸ un paso</button>
+      <button id="btnFinish2">▸▸ terminar fase 2</button>
+    </div>
+  </div>
+
+  <h2>Verificación a gran escala</h2>
+  <p class="panel-note" style="margin:-2px 0 10px">el dibujo de arriba solo tiene sentido con pocos nodos;
+  acá se corre exactamente el mismo algoritmo (sin dibujar nada) con $\mu,\lambda$ grandes, para confirmar
+  que la cota $t\le\mu+\lambda$ se sigue cumpliendo aunque no se pueda ver nodo por nodo.</p>
+  <div class="config">
+    <label>$\mu$: <input type="number" id="muBig" value="1000000" min="0" max="5000000" style="width:8ch"></label>
+    <label>$\lambda$: <input type="number" id="lamBig" value="777" min="0" max="5000000" style="width:8ch"></label>
+    <button id="btnBig" class="primary">calcular</button>
+  </div>
+  <div class="panel" id="bigResult" style="display:none"></div>
+
+  <footer>el nodo con borde naranja es el punto de encuentro; el nodo con borde teal es el inicio real del
+  ciclo, una vez que la fase 2 lo encuentra · ver <code>ejercicio-05.pdf</code> para las demostraciones
+  completas</footer>
+</div>
+
+<script>
+(function () {
+  var mu, lambda, coords, total;
+  var rawLento, rawRapido, t, phase, meetingRaw, meetingIdx;
+  var p1Raw, p2Raw, t2, cycleStartIdx;
+  var playing = false, playTimer = null;
+
+  var muSlider = document.getElementById('muSlider');
+  var lamSlider = document.getElementById('lamSlider');
+  var muVal = document.getElementById('muVal');
+  var lamVal = document.getElementById('lamVal');
+  var svg = document.getElementById('listSvg');
+  var edgesLayer = document.getElementById('edgesLayer');
+  var nodesLayer = document.getElementById('nodesLayer');
+  var speedInput = document.getElementById('speed');
+
+  muSlider.addEventListener('input', function () { muVal.textContent = muSlider.value; });
+  lamSlider.addEventListener('input', function () { lamVal.textContent = lamSlider.value; });
+
+  function resolvedIndex(raw) {
+    if (raw == null) return null;
+    if (raw < mu) return raw;
+    if (lambda > 0) return mu + ((raw - mu) % lambda);
+    return null;
+  }
+  function hasNext(idx) {
+    if (idx === null) return false;
+    if (lambda > 0) return true;
+    return idx < mu - 1;
+  }
+  function canDoRound() { return hasNext(resolvedIndex(rawRapido)); }
+
+  function buildLayout() {
+    var spacing = 65, startX = 45, tailY = 190;
+    coords = [];
+    for (var i = 0; i < mu; i++) coords.push({ x: startX + i * spacing, y: tailY });
+    if (lambda > 0) {
+      var R = Math.max(55, lambda * spacing / (2 * Math.PI));
+      var cx = startX + mu * spacing + R;
+      var cy = tailY;
+      for (var j = 0; j < lambda; j++) {
+        var angle = Math.PI - j * (2 * Math.PI / lambda);
+        coords.push({ x: cx + R * Math.cos(angle), y: cy - R * Math.sin(angle) });
+      }
+    }
+    total = mu + lambda;
+  }
+
+  function buildStatic() {
+    edgesLayer.innerHTML = '';
+    nodesLayer.innerHTML = '';
+    function addEdge(a, b) {
+      var A = coords[a], B = coords[b];
+      var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', A.x); line.setAttribute('y1', A.y);
+      line.setAttribute('x2', B.x); line.setAttribute('y2', B.y);
+      line.setAttribute('class', 'edge');
+      line.setAttribute('marker-end', 'url(#arrow)');
+      edgesLayer.appendChild(line);
+    }
+    for (var i = 0; i < mu - 1; i++) addEdge(i, i + 1);
+    if (mu > 0 && lambda > 0) addEdge(mu - 1, mu);
+    if (lambda > 0) {
+      for (var j = 0; j < lambda; j++) addEdge(mu + j, mu + ((j + 1) % lambda));
+    }
+    if (total === 0) {
+      var t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t1.setAttribute('x', 45); t1.setAttribute('y', 190); t1.setAttribute('class', 'tag');
+      t1.textContent = 'lista vacía (cabeza = None)';
+      nodesLayer.appendChild(t1);
+    }
+    for (var k = 0; k < total; k++) {
+      var c = coords[k];
+      var circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circ.setAttribute('cx', c.x); circ.setAttribute('cy', c.y); circ.setAttribute('r', 15);
+      circ.setAttribute('class', 'node-dot' + (k >= mu ? ' in-cycle' : ''));
+      circ.setAttribute('id', 'node-' + k);
+      nodesLayer.appendChild(circ);
+      var lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('x', c.x); lbl.setAttribute('y', c.y + 26); lbl.setAttribute('class', 'lbl');
+      lbl.setAttribute('text-anchor', 'middle');
+      lbl.textContent = k;
+      nodesLayer.appendChild(lbl);
+    }
+    if (mu === 0 && lambda > 0) {
+      var tagc = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tagc.setAttribute('x', coords[0].x - 30); tagc.setAttribute('y', coords[0].y - 22);
+      tagc.setAttribute('class', 'tag'); tagc.textContent = 'cabeza';
+      nodesLayer.appendChild(tagc);
+    } else if (mu > 0) {
+      var tagh = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tagh.setAttribute('x', coords[0].x); tagh.setAttribute('y', coords[0].y - 24);
+      tagh.setAttribute('class', 'tag'); tagh.setAttribute('text-anchor', 'middle'); tagh.textContent = 'cabeza';
+      nodesLayer.appendChild(tagh);
+    }
+    if (lambda === 0) {
+      var nx = (total === 0) ? 45 : coords[total - 1].x + 65;
+      var ny = (total === 0) ? 190 : coords[total - 1].y;
+      var noneCirc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      noneCirc.setAttribute('cx', nx); noneCirc.setAttribute('cy', ny); noneCirc.setAttribute('r', 13);
+      noneCirc.setAttribute('fill', 'none'); noneCirc.setAttribute('stroke', 'var(--line)');
+      noneCirc.setAttribute('stroke-dasharray', '3 3');
+      nodesLayer.appendChild(noneCirc);
+      var noneLbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      noneLbl.setAttribute('x', nx); noneLbl.setAttribute('y', ny + 26); noneLbl.setAttribute('class', 'lbl');
+      noneLbl.setAttribute('text-anchor', 'middle'); noneLbl.textContent = 'None';
+      nodesLayer.appendChild(noneLbl);
+      if (total > 0) {
+        var le = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        le.setAttribute('x1', coords[total - 1].x); le.setAttribute('y1', coords[total - 1].y);
+        le.setAttribute('x2', nx); le.setAttribute('y2', ny);
+        le.setAttribute('class', 'edge'); le.setAttribute('marker-end', 'url(#arrow)');
+        edgesLayer.appendChild(le);
+      }
+    }
+    noneCoord = { x: (total === 0) ? 45 : coords[total - 1].x + 65, y: (total === 0) ? 190 : coords[total - 1].y };
+  }
+
+  var noneCoord = { x: 45, y: 190 };
+
+  function posFor(idx) { return idx === null ? noneCoord : coords[idx]; }
+
+  function setMarkerTransform(el, pos, dy) {
+    el.style.transform = 'translate(' + pos.x + 'px,' + (pos.y + dy) + 'px)';
+  }
+
+  function reset() {
+    mu = parseInt(muSlider.value, 10);
+    lambda = parseInt(lamSlider.value, 10);
+    muVal.textContent = mu; lamVal.textContent = lambda;
+    buildLayout();
+    buildStatic();
+    rawLento = 0; rawRapido = 0; t = 0; phase = 'fase1';
+    meetingRaw = null; meetingIdx = null;
+    p1Raw = null; p2Raw = null; t2 = 0; cycleStartIdx = null;
+    setPlaying(false);
+    document.getElementById('resultPanel').style.display = 'none';
+    document.getElementById('fase2Section').style.display = 'none';
+    document.getElementById('markerP1').style.display = 'none';
+    document.getElementById('markerP2').style.display = 'none';
+    document.getElementById('markerLento').style.display = total === 0 ? 'none' : '';
+    document.getElementById('markerRapido').style.display = total === 0 ? 'none' : '';
+    render();
+  }
+
+  function stepFase1() {
+    if (phase !== 'fase1') return;
+    if (!canDoRound()) {
+      phase = 'done-nociclo';
+      render();
+      finalizeFase1(false);
+      return;
+    }
+    rawLento += 1; rawRapido += 2; t += 1;
+    var il = resolvedIndex(rawLento), ir = resolvedIndex(rawRapido);
+    if (il !== null && ir !== null && il === ir) {
+      meetingRaw = rawLento; meetingIdx = il;
+      phase = 'done-ciclo';
+      render();
+      finalizeFase1(true);
+      return;
+    }
+    render();
+  }
+
+  function finishFase1Silent() {
+    var guard = 0;
+    while (phase === 'fase1' && guard < 10000) { stepFase1(); guard++; }
+  }
+
+  function finalizeFase1(hayCiclo) {
+    var panel = document.getElementById('resultPanel');
+    var banner = document.getElementById('resultBanner');
+    var note = document.getElementById('resultNote');
+    panel.style.display = '';
+    if (hayCiclo) {
+      banner.className = 'result-banner yes';
+      banner.textContent = 'hay_ciclo = True — encontrados en el nodo ' + meetingIdx + ' tras t=' + t + ' vueltas';
+      note.textContent = 'cota probada: t ≤ μ+λ = ' + (mu + lambda) + '. Usa "iniciar fase 2" para encontrar dónde empieza el ciclo.';
+      document.getElementById('fase2Section').style.display = '';
+      var mcircle = document.getElementById('node-' + meetingIdx);
+      if (mcircle) mcircle.classList.add('meeting');
+    } else {
+      banner.className = 'result-banner no';
+      banner.textContent = 'hay_ciclo = False — rápido llegó a None tras t=' + t + ' vueltas';
+      note.textContent = 'cota probada para este caso: t ≤ ⌈μ/2⌉ = ' + Math.ceil(mu / 2) + '.';
+    }
+  }
+
+  function stepFase2() {
+    if (phase !== 'fase2') return;
+    p1Raw += 1; p2Raw += 1; t2 += 1;
+    var i1 = resolvedIndex(p1Raw), i2 = resolvedIndex(p2Raw);
+    if (i1 === i2) {
+      cycleStartIdx = i1;
+      phase = 'done-fase2';
+      var scircle = document.getElementById('node-' + cycleStartIdx);
+      if (scircle) scircle.classList.add('cycle-start');
+      document.getElementById('resultBanner2').textContent = 'inicio del ciclo = nodo ' + cycleStartIdx + ' (encontrado en ' + t2 + ' pasos, P1 desde la cabeza)';
+    }
+    render();
+  }
+  function finishFase2Silent() {
+    var guard = 0;
+    while (phase === 'fase2' && guard < 10000) { stepFase2(); guard++; }
+  }
+
+  function startFase2() {
+    if (meetingIdx === null) return;
+    p1Raw = 0; p2Raw = meetingRaw; t2 = 0; phase = 'fase2';
+    document.getElementById('markerLento').style.display = 'none';
+    document.getElementById('markerRapido').style.display = 'none';
+    document.getElementById('markerP1').style.display = '';
+    document.getElementById('markerP2').style.display = '';
+    render();
+  }
+
+  function render() {
+    var il = resolvedIndex(rawLento), ir = resolvedIndex(rawRapido);
+    setMarkerTransform(document.getElementById('markerLento'), posFor(il), -16);
+    setMarkerTransform(document.getElementById('markerRapido'), posFor(ir), 16);
+
+    document.getElementById('statT').textContent = t;
+    document.getElementById('statPosL').textContent = rawLento;
+    document.getElementById('statPosR').textContent = rawRapido;
+    var bothInCycle = lambda > 0 && rawLento >= mu && rawRapido >= mu;
+    document.getElementById('statBoth').textContent = bothInCycle ? 'sí' : 'no';
+    document.getElementById('eqT1').textContent = rawLento;
+    document.getElementById('eqT2').textContent = rawRapido;
+
+    var dyn = document.getElementById('eqDynamic');
+    var phiEl = document.getElementById('statPhi');
+    if (phase === 'done-ciclo' || phase === 'fase2' || phase === 'done-fase2') {
+      phiEl.textContent = '0';
+      dyn.innerHTML = '¡Encontrados! Φ llegó a 0 en el nodo <b class="hi">' + meetingIdx + '</b>.';
+    } else if (bothInCycle) {
+      var phi = ((rawLento - rawRapido) % lambda + lambda) % lambda;
+      phiEl.textContent = phi;
+      dyn.innerHTML = 'Φ = (pos(lento) − pos(rápido)) mod λ = <b class="hi">' + phi + '</b> (baja 1 cada vuelta)';
+    } else if (lambda === 0) {
+      phiEl.textContent = '—';
+      dyn.textContent = (il === null && ir === null) ? 'rápido ya llegó a None: sin ciclo confirmado' : 'sin ciclo: posiciones distintas garantizan nodos distintos';
+    } else {
+      phiEl.textContent = '—';
+      dyn.textContent = 'esperando a que ambos punteros entren al ciclo (nodo ≥ μ)';
+    }
+
+    document.getElementById('btnStep').disabled = phase !== 'fase1';
+    document.getElementById('btnFinish').disabled = phase !== 'fase1';
+    document.getElementById('btnPlay').disabled = (phase !== 'fase1' && phase !== 'fase2');
+    document.getElementById('btnStartFase2').disabled = phase !== 'done-ciclo';
+    document.getElementById('btnStep2').disabled = phase !== 'fase2';
+    document.getElementById('btnFinish2').disabled = phase !== 'fase2';
+
+    if (phase === 'fase2' || phase === 'done-fase2') {
+      var i1 = resolvedIndex(p1Raw), i2 = resolvedIndex(p2Raw);
+      setMarkerTransform(document.getElementById('markerP1'), posFor(i1), -16);
+      setMarkerTransform(document.getElementById('markerP2'), posFor(i2), 16);
+      document.getElementById('f2T').textContent = t2;
+      document.getElementById('f2P1').textContent = i1;
+      document.getElementById('f2P2').textContent = i2;
+    }
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    document.getElementById('btnPlay').textContent = playing ? '⏸ pausar' : '▶ reproducir';
+    if (playing) schedule(); else clearTimeout(playTimer);
+  }
+  function schedule() {
+    if (!playing) return;
+    var speed = parseInt(speedInput.value, 10);
+    if (phase === 'fase1') stepFase1();
+    else if (phase === 'fase2') stepFase2();
+    else { setPlaying(false); return; }
+    var delay = Math.max(60, 650 - speed * 6);
+    playTimer = setTimeout(schedule, delay);
+  }
+
+  function simulateFast(bigMu, bigLambda) {
+    function resolved(raw) {
+      if (raw < bigMu) return raw;
+      if (bigLambda > 0) return bigMu + ((raw - bigMu) % bigLambda);
+      return null;
+    }
+    function canGo(idx) {
+      if (idx === null) return false;
+      if (bigLambda > 0) return true;
+      return idx < bigMu - 1;
+    }
+    var rL = 0, rR = 0, rt = 0, guard = 0;
+    var cap = (bigMu + bigLambda) * 2 + 10;
+    while (canGo(resolved(rR)) && guard < cap) {
+      rL += 1; rR += 2; rt += 1; guard++;
+      var il = resolved(rL), ir = resolved(rR);
+      if (il !== null && ir !== null && il === ir) {
+        var p1 = 0, p2 = rL, t2 = 0, g2 = 0;
+        while (resolved(p1) !== resolved(p2) && g2 < cap) { p1++; p2++; t2++; g2++; }
+        return { hayCiclo: true, t: rt, meetingIdx: il, cycleStart: resolved(p1), t2: t2 };
+      }
+    }
+    return { hayCiclo: false, t: rt, bound: Math.ceil(bigMu / 2) };
+  }
+
+  document.getElementById('btnBig').addEventListener('click', function () {
+    var bigMu = Math.max(0, Math.min(5000000, parseInt(document.getElementById('muBig').value, 10) || 0));
+    var bigLambda = Math.max(0, Math.min(5000000, parseInt(document.getElementById('lamBig').value, 10) || 0));
+    var r = simulateFast(bigMu, bigLambda);
+    var box = document.getElementById('bigResult');
+    box.style.display = '';
+    if (r.hayCiclo) {
+      var bound = bigMu + bigLambda;
+      box.innerHTML =
+        '<div class="result-banner yes">hay_ciclo = True — encontrados tras t=' + r.t.toLocaleString('es') + ' vueltas</div>' +
+        '<div class="panel-note">cota probada μ+λ = ' + bound.toLocaleString('es') + ' &nbsp;→&nbsp; t/(μ+λ) = ' + (r.t / bound).toFixed(4) + ' (nunca pasa de 1). ' +
+        'Fase 2 encontró el inicio del ciclo en ' + r.t2.toLocaleString('es') + ' pasos, exactamente μ = ' + bigMu.toLocaleString('es') + (r.t2 === bigMu ? ' ✓ coincide' : ' (revisar)') + '.</div>';
+    } else {
+      box.innerHTML =
+        '<div class="result-banner no">hay_ciclo = False — rápido llegó a None tras t=' + r.t.toLocaleString('es') + ' vueltas</div>' +
+        '<div class="panel-note">cota probada ⌈μ/2⌉ = ' + r.bound.toLocaleString('es') + '.</div>';
+    }
+  });
+
+  document.getElementById('btnApply').addEventListener('click', reset);
+  document.getElementById('btnRandom').addEventListener('click', function () {
+    muSlider.value = Math.floor(Math.random() * 7);
+    lamSlider.value = Math.random() < 0.15 ? 0 : (2 + Math.floor(Math.random() * 7));
+    muVal.textContent = muSlider.value; lamVal.textContent = lamSlider.value;
+    reset();
+  });
+  document.getElementById('btnStep').addEventListener('click', function () { setPlaying(false); stepFase1(); });
+  document.getElementById('btnFinish').addEventListener('click', function () { setPlaying(false); finishFase1Silent(); });
+  document.getElementById('btnPlay').addEventListener('click', function () { setPlaying(!playing); });
+  document.getElementById('btnReset').addEventListener('click', function () { setPlaying(false); reset(); });
+  document.getElementById('btnStartFase2').addEventListener('click', function () { setPlaying(false); startFase2(); });
+  document.getElementById('btnStep2').addEventListener('click', function () { setPlaying(false); stepFase2(); });
+  document.getElementById('btnFinish2').addEventListener('click', function () { setPlaying(false); finishFase2Silent(); });
+
+  reset();
+})();
+</script>

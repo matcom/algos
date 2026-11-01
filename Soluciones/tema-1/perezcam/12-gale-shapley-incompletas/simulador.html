@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 12 — Gale-Shapley con listas incompletas</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 28px 20px; }
+  .card { width: 100%; max-width: 920px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 22px 26px 26px; }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 32px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .lead .q { color: var(--accent-cost); font-weight: 700; }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); } .panel b.bad { color: var(--accent-cost); }
+  .panel .mono, .mono { font-family: var(--mono); font-size: .78rem; }
+  .panel ul { margin: 4px 0 0; padding-left: 18px; } .panel li { margin: 2px 0; }
+  .thesis { border-left: 3px solid var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 9%, var(--surface)); padding: 10px 14px; border-radius: 6px; font-size: .84rem; line-height: 1.55; margin: 6px 0 12px; }
+  .roadmap { counter-reset: r; list-style: none; padding: 0; margin: 0 0 6px; font-size: .78rem; color: var(--ink-muted); }
+  .roadmap li { counter-increment: r; padding: 3px 0 3px 28px; position: relative; line-height: 1.45; }
+  .roadmap li::before { content: counter(r); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); text-align: center; font-family: var(--mono); font-size: .68rem; line-height: 18px; color: var(--ink); }
+  .roadmap li b { color: var(--ink); }
+
+  svg.diagram { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .scrollx { overflow-x: auto; } svg.wide { min-width: 560px; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+  .small-lab { font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .mono-lab { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 12px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  .config select { max-width: 100%; }
+  select, input[type=text], input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=range] { accent-color: var(--accent-speed); }
+  .val { font-family: var(--mono); color: var(--ink); min-width: 3ch; display: inline-block; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .92rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); } .stat .v.speed { color: var(--accent-speed); }
+  .banner { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+  .banner.ok { color: var(--accent-speed); } .banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); } button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  table.t { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .75rem; }
+  table.t th, table.t td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+  table.t th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  table.t td.num { text-align: right; }
+  table.t tr.cur td { background: color-mix(in srgb, var(--accent-speed) 14%, transparent); }
+  table.t td.ok { color: var(--accent-speed); font-weight: 700; } table.t td.bad { color: var(--accent-cost); font-weight: 700; }
+  .ch { display: inline-block; font-family: var(--mono); font-size: .72rem; border: 1.5px solid var(--line); border-radius: 6px; padding: 1px 6px; margin: 1px 2px 1px 0; color: var(--ink-muted); }
+  .ch.prop { border-color: var(--accent-cost); color: var(--ink); background: color-mix(in srgb, var(--accent-cost) 10%, transparent); }
+  .ch.eng { border-color: var(--accent-speed); color: var(--ink); background: color-mix(in srgb, var(--accent-speed) 18%, transparent); font-weight: 700; }
+  .ch.pend { border-style: dashed; }
+  .badge { display: inline-block; font-size: .64rem; font-weight: 700; border-radius: 10px; padding: 1px 7px; margin-left: 4px; }
+  .badge.libre { background: color-mix(in srgb, var(--accent-cost) 20%, transparent); color: var(--accent-cost); }
+  .badge.emp { background: color-mix(in srgb, var(--accent-speed) 20%, transparent); color: var(--accent-speed); }
+  .badge.ago { background: var(--surface-2); color: var(--ink-muted); border: 1px solid var(--line); }
+  .inv { display: flex; flex-wrap: wrap; gap: 8px; }
+  .inv span { font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; background: var(--surface); }
+  .inv span.ok { border-color: var(--accent-speed); color: var(--accent-speed); }
+  .inv span.bad { border-color: var(--accent-cost); color: var(--accent-cost); font-weight: 700; }
+
+  .n-a { fill: color-mix(in srgb, var(--accent-speed) 12%, var(--surface)); stroke: var(--accent-speed); stroke-width: 1.8; }
+  .n-a.libre { fill: color-mix(in srgb, var(--accent-cost) 18%, var(--surface)); stroke: var(--accent-cost); stroke-width: 2.4; }
+  .n-b { fill: var(--surface-2); stroke: var(--ink-muted); stroke-width: 1.6; }
+  .n-b.libre { stroke-dasharray: 4 3; }
+  .nt { font-size: 12px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .e-ok { stroke: var(--ink-muted); stroke-width: 1.1; opacity: .55; }
+  .e-prop { stroke: var(--accent-cost); stroke-width: 1.8; stroke-dasharray: 2 4; opacity: .8; }
+  .e-m { stroke: var(--accent-speed); stroke-width: 4; stroke-linecap: round; }
+  .e-blq { stroke: var(--accent-cost); stroke-width: 3; stroke-dasharray: 7 5; }
+  .e-cur { stroke: var(--ink); stroke-width: 3.2; }
+  .e-hit { stroke: transparent; stroke-width: 14; cursor: pointer; }
+  .rk { font-size: 9.5px; font-family: var(--mono); fill: var(--ink-muted); text-anchor: middle; dominant-baseline: central; }
+  .rkbg { fill: var(--surface); }
+
+  .grid-h { stroke: var(--line); stroke-width: 1; } .axis { stroke: var(--ink-muted); stroke-width: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .74rem; color: var(--ink-muted); margin: 6px 0 4px; }
+  .legend .sw { display: inline-block; width: 18px; height: 0; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: .74rem; padding: 6px 9px; border-radius: 7px; line-height: 1.4; opacity: 0; transition: opacity .1s; max-width: 260px; }
+  .tip.show { opacity: 1; } .tip b { font-family: var(--mono); }
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 600px) { .card { padding: 16px 14px 20px; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Gale-Shapley con listas incompletas: ¿sigue siendo estable el resultado?</h1>
+  <p class="subtitle">Ejercicio 12 · el ciclo de C2 §1 con las tres herramientas de C3 (invariante, potencial, primer fallo) sobre una
+  instancia compartida. Cada paso termina anunciando el siguiente, que resuelve lo que quedó pendiente.</p>
+
+  <div class="thesis"><b>Lo que queremos demostrar.</b> El emparejamiento que devuelve Gale-Shapley con listas incompletas sigue siendo <b>estable</b>
+  para cualquier orden de ejecución. La demostración de C3 §8 se conserva y solo necesita <b>un caso más</b>: el proponente que termina sin pareja.</div>
+  <ol class="roadmap">
+    <li><b>El problema</b> — ¿qué es estable cuando hay listas parciales? La pareja bloqueante con el vacío.</li>
+    <li><b>El algoritmo</b> — la guarda «libre con pendientes». ¿Qué sigue valiendo?</li>
+    <li><b>Invariantes</b> — I1, I2 de C3 y uno nuevo, I3. ¿Termina?</li>
+    <li><b>Potencial</b> — cada vuelta es una propuesta; cuántas, exactamente. ¿Es estable?</li>
+    <li><b>Estabilidad</b> — la demostración ejecutada pareja por pareja (primer fallo).</li>
+    <li><b>Lo que se hereda</b> — optimalidad, orden de ejecución, mismos agentes emparejados.</li>
+    <li><b>Costo</b> — lineal en la entrada y en promedio mucho menos.</li>
+  </ol>
+
+  <div class="config" id="instBar">
+    <label>instancia:
+      <select id="instKind"><option value="ej">ejemplo del PDF (4 × 3)</option><option value="az">aleatoria</option></select></label>
+    <label>proponentes <input type="range" id="iA" min="2" max="12" value="5"> <span class="val" id="iAv">5</span></label>
+    <label>receptores <input type="range" id="iB" min="2" max="12" value="5"> <span class="val" id="iBv">5</span></label>
+    <label>p (aceptable) <input type="range" id="iP" min="0.2" max="1" step="0.1" value="0.6"> <span class="val" id="iPv">0.6</span></label>
+    <button id="btnInst" class="primary">🎲 nueva aleatoria</button>
+  </div>
+  <div class="panel" id="instInfo"></div>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <h2><span class="step">Paso 1</span>El problema: qué es «estable» con listas parciales</h2>
+  <p class="lead">Cada proponente a lista solo algunos receptores (<b>aceptables</b>). Cada receptor acepta a quien lo lista y los ordena. «Quedarse solo» se escribe
+  ∅ y queda <b>entre</b> los aceptables y los inaceptables. Un emparejamiento M puede dejar agentes <b>libres</b> en ambos lados. Un par aceptable (a, b) <b>bloquea</b> M si
+  b ≻<sub>a</sub> M(a) <b>y</b> a ≻<sub>b</sub> M(b), o sea: (a libre o prefiere b) <b>y</b> (b libre o prefiere a). La cláusula «libre» es lo nuevo. <b>Arma un emparejamiento a mano</b>
+  (clic en una arista aceptable) y mira qué parejas bloquean y de cuál de los cuatro casos son.</p>
+  <div class="config">
+    <button id="btnEmpty">vaciar M</button>
+    <button id="btnPutGS">poner el resultado de Gale-Shapley</button>
+    <label><input type="checkbox" id="chkNaive"> comparar con el chequeo ingenuo (sin «libre»)</label>
+  </div>
+  <div class="scrollx"><svg class="diagram wide" id="svg1" role="img" aria-label="Grafo bipartito de proponentes y receptores"></svg></div>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-speed)"></span>pareja en M</span>
+    <span><span class="sw" style="border-color:var(--accent-cost);border-top-style:dashed"></span>pareja bloqueante</span>
+    <span><span class="sw" style="border-color:var(--ink-muted);border-top-width:1px"></span>pareja aceptable</span></div>
+  <div class="panel" id="panel1"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 2 adapta el algoritmo de C3 §7 a las listas incompletas.</p>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <h2><span class="step">Paso 2</span>El algoritmo adaptado</h2>
+  <p class="lead">La aceptación diferida de C3 §7, con <b>una sola adaptación</b>: solo actúan los proponentes <b>libres que todavía tienen receptores pendientes</b>. Un proponente que agota su lista
+  sin ser aceptado queda libre para siempre. Cada vuelta, el proponente propone al mejor receptor pendiente; el receptor acepta si está libre, cambia si prefiere al nuevo, y rechaza si no.
+  Es no determinista: cambia el orden (cola, pila, azar) y el resultado no cambia.</p>
+  <div id="gsA"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 3 enuncia y demuestra, con invariantes, qué de lo que C3 afirma del algoritmo sigue valiendo.</p>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <h2><span class="step">Paso 3</span>Los invariantes del algoritmo, demostrados y ejecutados</h2>
+  <p class="lead"><b>I1</b> (receptores): una vez con pareja, nunca libre, y su pareja solo mejora. <b>I2</b> (proponentes): las propuestas recorren la lista de arriba abajo; el emparejado está con el
+  <i>último</i> al que le propuso. <b>I3</b> (nuevo): la cola es exactamente «libres con pendientes». En C3 la cola eran <i>todos</i> los libres; aquí un libre puede haber agotado su lista, sigue libre pero sale de la cola y no se vuelve a procesar. <b>Lema 2:</b> si a le propuso a b, b termina con a o algo mejor. En cada vuelta se comprueban
+  los cinco (y que Φ baje exactamente 1). En las listas de abajo: <span class="ch prop">propuesto</span> <span class="ch eng">pareja actual = el último propuesto</span> <span class="ch pend">pendiente</span>.</p>
+  <div id="gsB"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 4 demuestra que termina y cuenta cuántas propuestas hace.</p>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <h2><span class="step">Paso 4</span>El potencial adaptado, y cuántas propuestas hace exactamente</h2>
+  <p class="lead"><b>Φ = Σ<sub>a</sub>(|L(a)| − siguiente[a])</b>: las parejas aceptables a las que todavía no se propuso. Gracias a la guarda, <b>cada vuelta es una propuesta</b> y Φ baja exactamente 1, de Σ|L| hasta 0 como mucho.
+  Una variante natural deja en la cola a todos y <b>descarta</b> al agotado al sacarlo: esa vuelta no es una propuesta y Φ <b>no baja</b>; la cota Σ|L| de <i>vueltas</i> por analogía con C3 es entonces <b>falsa</b>.
+  Además la cantidad de propuestas es exacta: <b>Σ<sub>emparejados</sub> pos(M(a)) + Σ<sub>libres</sub> |L(a)|</b>.</p>
+  <svg class="diagram" id="phiSvg" viewBox="0 0 640 260" role="img" aria-label="Potencial contra vueltas para las dos variantes"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-speed)"></span>con guarda (cada vuelta baja Φ en 1)</span>
+    <span><span class="sw" style="border-color:var(--accent-cost)"></span>con descarte (hay tramos planos)</span></div>
+  <div class="stats" id="phiStats"></div>
+  <div class="panel" id="phiInfo"></div>
+  <div class="controls"><button id="btnBatch4" class="primary">▶ probar 3000 instancias aleatorias (n ≤ 15, p = 0.6)</button></div>
+  <div class="panel" id="batch4" style="display:none"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 5 demuestra que el resultado es estable.</p>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <h2><span class="step">Paso 5</span>¿Es estable? La demostración, ejecutada pareja por pareja</h2>
+  <p class="lead"><b>Teorema.</b> El resultado es estable. <b>Demostración (primer fallo).</b> Si (a, b) bloqueara, entonces a le propuso a b: si a quedó <b>libre</b>, por I3 propuso a toda su lista (<b>el caso nuevo</b>); si quedó con
+  b′ y b ≻<sub>a</sub> b′, por I2 le propuso a b antes que a b′. Por el Lema 2, b terminó con a o algo mejor: contradicción con a ≻<sub>b</sub> M(b). Abajo, <b>cada pareja aceptable fuera de M</b> con la razón concreta de por qué no bloquea
+  en el resultado de Gale-Shapley sobre la instancia actual.</p>
+  <div class="scrollx"><table class="t" id="proofTable"></table></div>
+  <div class="panel" id="proofInfo" style="margin-top:10px"></div>
+  <div class="config">
+    <label>romper una pareja del resultado: <select id="breakSel"></select></label>
+    <button id="btnBreak" class="primary">romper</button>
+    <button id="btnRestore">restaurar</button>
+  </div>
+  <div class="panel" id="breakInfo"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 6 recorre lo que más de lo que C3 demostró para listas completas sobrevive.</p>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <h2><span class="step">Paso 6</span>Lo que se hereda de C3: todos los estables, enumerados</h2>
+  <p class="lead">Con ≤ 5 por lado se pueden <b>enumerar todos los emparejamientos</b> y quedarse con los estables. Se comprueba: el resultado de GS es uno de ellos; cada proponente obtiene su <b>mejor pareja válida</b>
+  y cada receptor emparejado su <b>peor</b>; <b>todos los estables emparejan a los mismos agentes</b> (teorema de los hospitales rurales: Roth 1984/1986, Gale–Sotomayor 1985); y el resultado no depende del orden.
+  Casi todas las instancias tienen un solo estable: busca una con varios.</p>
+  <div class="controls"><button id="btnFindMulti" class="primary">🔍 buscar una instancia con varios estables (5 × 5)</button></div>
+  <div class="panel" id="allInfo"></div>
+  <div class="scrollx"><table class="t" id="allTable"></table></div>
+  <p class="lead" style="margin-top:12px"><span class="q">A continuación:</span> el paso 7 calcula cuánto cuesta.</p>
+
+  <!-- ===================== PASO 7 ===================== -->
+  <h2><span class="step">Paso 7</span>Costo y comportamiento medio</h2>
+  <p class="lead">Con la tabla invertida R[b][a] (se construye en O(Σ|L|)) cada vuelta cuesta O(1): tiempo y memoria <b>O(n<sub>a</sub> + n<sub>b</sub> + Σ|L|)</b>, lineal en el tamaño de la entrada. En promedio es mucho menos que la cota (C3 §8).
+  Con n = 12 y cada receptor aceptable con probabilidad p, <b>p = 1</b> recupera el caso completo (nadie queda libre).</p>
+  <div class="controls"><button id="btnStats7" class="primary">▶ calcular (100 instancias por fila)</button></div>
+  <div class="scrollx"><table class="t" id="statsTable"></table></div>
+
+  <div class="thesis" style="margin-top:16px"><b>Respuesta.</b> <b>Algoritmo:</b> el de C3 con la guarda «proponente libre <i>con pendientes</i>». <b>Potencial:</b> Φ = Σ(|L(a)| − siguiente[a]), con Φ₀ = Σ|L|, que baja 1 por vuelta.
+  <b>Pareja bloqueante:</b> b ≻<sub>a</sub> M(a) y a ≻<sub>b</sub> M(b), con ∅ entre las preferencias: (a libre o prefiere b) y (b libre o prefiere a). <b>¿Estable?</b> Sí: la demostración de C3 §8 con el caso adicional M(a) = ∅,
+  resuelto por el invariante I3.</div>
+
+  <footer>teal = lo que sale bien / lo que se usa · naranja = lo que bloquea, falla o se rechaza · ver <code>ejercicio-12.pdf</code> para las demostraciones completas y <code>verif.py</code> para las pruebas</footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rng = mulberry32((Date.now() ^ 0x9E3779B9) >>> 0);
+  function shuffled(arr, r) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function nA(a) { return 'a' + (a + 1); } function nB(b) { return 'b' + (b + 1); }
+  var tip = $('tip');
+  function showTip(evt, lines) {
+    clear(tip);
+    lines.forEach(function (ln, i) { var d = document.createElement('div'); if (i === 0) { var b = document.createElement('b'); b.textContent = ln; d.appendChild(b); } else d.textContent = ln; tip.appendChild(d); });
+    tip.classList.add('show'); tip.style.left = Math.min(evt.clientX + 14, window.innerWidth - 270) + 'px'; tip.style.top = (evt.clientY + 14) + 'px';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+
+  // ================================================================== núcleo (sin DOM)
+  function exampleInst() { return { nA: 4, nB: 3, L: [[1, 0], [0, 1], [0], [1, 2]], R: [{ 2: 0, 1: 1, 0: 2 }, { 0: 0, 3: 1, 1: 2 }, { 3: 0 }] }; }
+  function randomInst(na, nb, p, r) {
+    var L = [], R = [], a, b;
+    for (a = 0; a < na; a++) { var ac = []; for (b = 0; b < nb; b++) if (r() < p) ac.push(b); L.push(shuffled(ac, r)); }
+    for (b = 0; b < nb; b++) { var q = []; for (a = 0; a < na; a++) if (L[a].indexOf(b) >= 0) q.push(a); q = shuffled(q, r); var o = {}; q.forEach(function (x, i) { o[x] = i; }); R.push(o); }
+    return { nA: na, nB: nb, L: L, R: R };
+  }
+  function sumL(inst) { return inst.L.reduce(function (s, l) { return s + l.length; }, 0); }
+
+  // el algoritmo, paso a paso. variante: 'guarda' (la correcta) o 'descarte' (la cola guarda a todos)
+  function GS(inst, order, variant, seed) {
+    this.inst = inst; this.order = order; this.variant = variant; this.rnd = mulberry32((seed | 0) + 12345);
+    this.sig = inst.L.map(function () { return 0; });
+    this.par = []; for (var b = 0; b < inst.nB; b++) this.par.push(-1);   // par[b] = proponente o -1
+    this.queue = [];
+    for (var a = 0; a < inst.nA; a++) if (variant === 'descarte' || inst.L[a].length > 0) this.queue.push(a);
+    this.props = 0; this.vueltas = 0; this.phi = sumL(inst); this.hist = [this.phi];
+    this.proposed = {};            // 'a,b' -> estado de esa propuesta
+  }
+  GS.prototype.done = function () { return this.queue.length === 0; };
+  GS.prototype.step = function () {
+    if (this.done()) return null;
+    var q = this.queue, L = this.inst.L, R = this.inst.R, idx = this.order === 'cola' ? 0 : (this.order === 'pila' ? q.length - 1 : Math.floor(this.rnd() * q.length));
+    var a = q.splice(idx, 1)[0], phiAntes = this.phi;
+    this.vueltas++;
+    if (this.sig[a] >= L[a].length) { this.hist.push(this.phi); return { kind: 'descarte', a: a, phiAntes: phiAntes, phiDespues: this.phi }; }
+    var b = L[a][this.sig[a]]; this.sig[a]++; this.props++; this.phi--;
+    var actual = this.par[b], out, perdedor = -1;
+    if (actual < 0) { this.par[b] = a; out = 'acepta'; }
+    else if (R[b][a] < R[b][actual]) { this.par[b] = a; out = 'cambia'; perdedor = actual; this.proposed[actual + ',' + b] = 'desplazado'; }
+    else { out = 'rechaza'; perdedor = a; this.proposed[a + ',' + b] = 'rechazado'; }
+    if (out !== 'rechaza') this.proposed[a + ',' + b] = 'activo';
+    if (perdedor >= 0 && (this.variant === 'descarte' || this.sig[perdedor] < L[perdedor].length)) q.push(perdedor);
+    this.hist.push(this.phi);
+    return { kind: 'prop', a: a, b: b, actual: actual, out: out, perdedor: perdedor, phiAntes: phiAntes, phiDespues: this.phi };
+  };
+  GS.prototype.M = function () { var M = []; for (var a = 0; a < this.inst.nA; a++) M.push(-1); for (var b = 0; b < this.par.length; b++) if (this.par[b] >= 0) M[this.par[b]] = b; return M; };
+  function runFull(inst, order, variant, seed) { var g = new GS(inst, order, variant, seed); while (!g.done()) g.step(); return g; }
+
+  function blocking(M, inst) {   // M[a] = b o -1
+    var par = []; for (var b = 0; b < inst.nB; b++) par.push(-1);
+    M.forEach(function (bb, a) { if (bb >= 0) par[bb] = a; });
+    var out = [];
+    inst.L.forEach(function (Lst, a) {
+      Lst.forEach(function (b, pos) {
+        var aq = M[a] < 0 || pos < Lst.indexOf(M[a]), cur = par[b], bq = cur < 0 || inst.R[b][a] < inst.R[b][cur];
+        if (aq && bq) out.push({ a: a, b: b, aFree: M[a] < 0, bFree: cur < 0 });
+      });
+    });
+    return out;
+  }
+  function blockingNaive(M, inst) {
+    var par = []; for (var b = 0; b < inst.nB; b++) par.push(-1);
+    M.forEach(function (bb, a) { if (bb >= 0) par[bb] = a; });
+    var out = [];
+    inst.L.forEach(function (Lst, a) {
+      if (M[a] < 0) return;
+      Lst.forEach(function (b, pos) { var cur = par[b]; if (cur >= 0 && pos < Lst.indexOf(M[a]) && inst.R[b][a] < inst.R[b][cur]) out.push({ a: a, b: b, aFree: false, bFree: false }); });
+    });
+    return out;
+  }
+  function caso(p) { return p.aFree && p.bFree ? 'a y b libres' : p.aFree ? 'a libre, b con pareja' : p.bFree ? 'a con pareja, b libre' : 'a y b con pareja'; }
+  function matchedSet(M) { var as = [], bs = []; M.forEach(function (b, a) { if (b >= 0) { as.push(a); bs.push(b); } }); return as.join(',') + '|' + bs.sort().join(','); }
+  function matchingStr(M) { var s = []; M.forEach(function (b, a) { if (b >= 0) s.push(nA(a) + '–' + nB(b)); }); return s.length ? '{' + s.join(', ') + '}' : '{ }'; }
+
+  function allMatchings(inst) {
+    var res = [], cur = [], used = {};
+    (function rec(a) {
+      if (a === inst.nA) { res.push(cur.slice()); return; }
+      cur[a] = -1; rec(a + 1);
+      inst.L[a].forEach(function (b) { if (!used[b]) { used[b] = true; cur[a] = b; rec(a + 1); used[b] = false; } });
+      cur[a] = -1;
+    })(0);
+    return res;
+  }
+
+  // ================================================================== instancia compartida
+  var INST = null, listeners = [];
+  function setInst(i) { INST = i; showInstInfo(); listeners.forEach(function (f) { f(); }); }
+  function showInstInfo() {
+    var h = '<b>Instancia:</b> ' + INST.nA + ' proponentes, ' + INST.nB + ' receptores, Σ|L| = <b>' + sumL(INST) + '</b> parejas aceptables.<br><span class="mono">';
+    INST.L.forEach(function (l, a) { h += nA(a) + ': ' + (l.length ? l.map(nB).join(' > ') : '(lista vacía)') + '<br>'; });
+    INST.R.forEach(function (r, b) { var ks = Object.keys(r).map(Number).sort(function (x, y) { return r[x] - r[y]; }); h += nB(b) + ': ' + (ks.length ? ks.map(nA).join(' > ') : '(nadie lo lista)') + '<br>'; });
+    $('instInfo').innerHTML = h + '</span>';
+  }
+  function newRandom() { setInst(randomInst(+$('iA').value, +$('iB').value, +$('iP').value, rng)); }
+  ['iA', 'iB', 'iP'].forEach(function (id) { $(id).addEventListener('input', function () { $(id + 'v').textContent = this.value; if ($('instKind').value === 'az') newRandom(); }); });
+  $('instKind').onchange = function () { if (this.value === 'ej') setInst(exampleInst()); else newRandom(); };
+  $('btnInst').onclick = function () { $('instKind').value = 'az'; newRandom(); };
+
+  // ================================================================== dibujo del grafo bipartito
+  function drawGraph(svg, st, onEdge) {
+    clear(svg);
+    var inst = INST, n = Math.max(inst.nA, inst.nB), H = Math.max(250, 44 * n + 40), W = 640, xa = 90, xb = 550;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    function ya(i) { return inst.nA === 1 ? H / 2 : 34 + i * (H - 68) / (inst.nA - 1); }
+    function yb(j) { return inst.nB === 1 ? H / 2 : 34 + j * (H - 68) / (inst.nB - 1); }
+    var M = st.M || [], par = []; for (var b0 = 0; b0 < inst.nB; b0++) par.push(-1);
+    M.forEach(function (bb, a) { if (bb >= 0) par[bb] = a; });
+    var small = n <= 6, blk = {}; (st.blocking || []).forEach(function (p) { blk[p.a + ',' + p.b] = p; });
+    var gE = el('g', {}, svg), gN = el('g', {}, svg);
+    inst.L.forEach(function (Lst, a) {
+      Lst.forEach(function (b, pos) {
+        var key = a + ',' + b, x1 = xa + 16, y1 = ya(a), x2 = xb - 18, y2 = yb(b), inM = M[a] === b;
+        var cls = 'e-ok'; if (st.proposed && st.proposed[key] && st.proposed[key] !== 'activo') cls = 'e-prop';
+        el('line', { x1: x1, y1: y1, x2: x2, y2: y2, class: cls }, gE);
+        if (small) {
+          [[0.14, pos + 1], [0.86, inst.R[b][a] + 1]].forEach(function (t) {
+            var tx = x1 + (x2 - x1) * t[0], ty = y1 + (y2 - y1) * t[0];
+            el('circle', { cx: tx, cy: ty, r: 7, class: 'rkbg' }, gE); el('text', { x: tx, y: ty, class: 'rk' }, gE, String(t[1]));
+          });
+        }
+      });
+    });
+    inst.L.forEach(function (Lst, a) {
+      Lst.forEach(function (b) {
+        var key = a + ',' + b, x1 = xa + 16, y1 = ya(a), x2 = xb - 18, y2 = yb(b);
+        if (M[a] === b) el('line', { x1: x1, y1: y1, x2: x2, y2: y2, class: 'e-m' }, gE);
+        if (blk[key]) el('line', { x1: x1, y1: y1, x2: x2, y2: y2, class: 'e-blq' }, gE);
+        if (onEdge) { var h = el('line', { x1: x1, y1: y1, x2: x2, y2: y2, class: 'e-hit' }, gE); (function (aa, bb) { h.addEventListener('click', function () { onEdge(aa, bb); }); h.addEventListener('pointermove', function (e) { showTip(e, ['(' + nA(aa) + ', ' + nB(bb) + ')', 'clic: ' + (M[aa] === bb ? 'quitar de M' : 'poner en M')]); }); h.addEventListener('pointerleave', hideTip); })(a, b); }
+      });
+    });
+    if (st.cur) el('line', { x1: xa + 16, y1: ya(st.cur.a), x2: xb - 18, y2: yb(st.cur.b), class: 'e-cur' }, gE);
+    for (var a = 0; a < inst.nA; a++) {
+      var libre = M[a] < 0 && !(st.hideFree);
+      el('circle', { cx: xa, cy: ya(a), r: 16, class: 'n-a' + (libre ? ' libre' : '') }, gN);
+      el('text', { x: xa, y: ya(a), class: 'nt' }, gN, nA(a));
+    }
+    for (var b = 0; b < inst.nB; b++) {
+      el('rect', { x: xb - 17, y: yb(b) - 14, width: 34, height: 28, rx: 7, class: 'n-b' + (par[b] < 0 && !(st.hideFree) ? ' libre' : '') }, gN);
+      el('text', { x: xb, y: yb(b), class: 'nt' }, gN, nB(b));
+    }
+    el('text', { x: xa, y: 14, class: 'small-lab' }, svg, 'proponentes');
+    el('text', { x: xb, y: 14, class: 'small-lab' }, svg, 'receptores');
+  }
+
+  // ================================================================== Paso 1: armar M a mano
+  (function () {
+    var M = [];
+    function reset(m) { M = m || INST.L.map(function () { return -1; }); upd(); }
+    function toggle(a, b) {
+      if (M[a] === b) M[a] = -1;
+      else { for (var x = 0; x < M.length; x++) if (M[x] === b) M[x] = -1; M[a] = b; }
+      upd();
+    }
+    function upd() {
+      var bl = blocking(M, INST), nv = $('chkNaive').checked ? blockingNaive(M, INST) : null;
+      drawGraph($('svg1'), { M: M, blocking: bl }, toggle);
+      var h = '<b>M</b> = <span class="mono">' + matchingStr(M) + '</span> · ';
+      h += bl.length ? '<b class="bad">inestable</b>: ' + bl.length + ' pareja' + (bl.length > 1 ? 's' : '') + ' bloqueante' + (bl.length > 1 ? 's' : '') : '<b class="hi">estable</b> (ninguna pareja bloqueante)';
+      if (bl.length) {
+        h += '<ul>';
+        bl.slice(0, 12).forEach(function (p) {
+          var pb = -1; for (var x = 0; x < M.length; x++) if (M[x] === p.b) pb = x;
+          var why = (p.aFree ? nA(p.a) + ' está libre' : nA(p.a) + ' prefiere ' + nB(p.b) + ' a ' + nB(M[p.a])) + ' y ' + (p.bFree ? nB(p.b) + ' está libre' : nB(p.b) + ' prefiere ' + nA(p.a) + ' a ' + nA(pb));
+          h += '<li><span class="mono">(' + nA(p.a) + ', ' + nB(p.b) + ')</span> — <b>' + caso(p) + '</b>: ' + why + '.</li>';
+        });
+        if (bl.length > 12) h += '<li>… y ' + (bl.length - 12) + ' más</li>';
+        h += '</ul>';
+      }
+      if (nv) h += '<br><b>Chequeo ingenuo</b> (solo compara si los dos tienen pareja): ve <b class="' + (nv.length < bl.length ? 'bad' : 'hi') + '">' + nv.length + ' de ' + bl.length + '</b>' + (nv.length < bl.length ? ' — se le escapan ' + (bl.length - nv.length) + ' (las que tienen un agente libre).' : '.');
+      $('panel1').innerHTML = h;
+    }
+    $('btnEmpty').onclick = function () { reset(); };
+    $('btnPutGS').onclick = function () { reset(runFull(INST, 'cola', 'guarda', 0).M()); };
+    $('chkNaive').addEventListener('change', upd);
+    listeners.push(function () { reset(); });
+  })();
+
+  // ================================================================== Pasos 2 y 3: la máquina de Gale-Shapley
+  function gsWidget(root, opts) {
+    opts = opts || {};
+    root.innerHTML =
+      '<div class="config"><label>orden: <select class="g-ord"><option value="cola">cola</option><option value="pila">pila</option><option value="azar">azar</option></select></label></div>' +
+      '<div class="scrollx"><svg class="diagram wide g-svg"></svg></div>' +
+      '<div class="stats"><div class="stat"><div class="k">vueltas = propuestas</div><div class="v g-v">0</div></div><div class="stat"><div class="k">Φ (propuestas que faltan)</div><div class="v speed g-phi">—</div></div>' +
+      '<div class="stat"><div class="k">Σ|L| (Φ₀)</div><div class="v g-sum">—</div></div><div class="stat"><div class="k">cola (libres con pendientes)</div><div class="v cost g-q">—</div></div></div>' +
+      '<div class="panel g-cap"></div>' + (opts.inv ? '<div class="panel"><div class="inv g-inv"></div></div>' : '') + '<div class="panel g-res" style="display:none"></div>' +
+      '<div class="controls"><button class="g-step">▸ un paso</button><button class="g-all">▸▸ terminar</button><button class="g-play primary">▶ reproducir</button><button class="g-reset">↺ reiniciar</button>' +
+      '<div class="speed-wrap">velocidad <input type="range" class="g-speed" min="1" max="100" value="55"></div></div>' +
+      '<div class="scrollx"><table class="t g-listA"></table></div><div class="scrollx" style="margin-top:8px"><table class="t g-listB"></table></div>' +
+      '<div class="scrollx" style="margin-top:8px"><table class="t g-trace"></table></div>';
+    var q = function (c) { return root.querySelector(c); };
+    var gs, trace, last, timer = null, playing = false, prevRank, viol, inv;
+
+    function reset() {
+      stop();
+      gs = new GS(INST, q('.g-ord').value, 'guarda', 7); trace = []; last = null; prevRank = {}; viol = 0;
+      inv = { phi: true, i1: true, i2: true, i3: true, l2: true, n: 0 };
+      q('.g-res').style.display = 'none'; ['.g-step', '.g-all', '.g-play'].forEach(function (c) { q(c).disabled = false; });
+      draw(); caption();
+    }
+    function check(ev) {
+      var L = INST.L, R = INST.R, v = { phi: true, i1: true, i2: true, i3: true, l2: true }, b;
+      if (ev.kind === 'prop') { v.phi = ev.phiAntes - ev.phiDespues === 1; v.l2 = gs.par[ev.b] >= 0 && R[ev.b][gs.par[ev.b]] <= R[ev.b][ev.a]; }
+      for (b = 0; b < INST.nB; b++) {
+        var cur = gs.par[b];
+        if (prevRank[b] !== undefined && (cur < 0 || R[b][cur] > prevRank[b])) v.i1 = false;
+        if (cur >= 0) prevRank[b] = R[b][cur];
+        if (cur >= 0 && L[cur][gs.sig[cur] - 1] !== b) v.i2 = false;
+      }
+      var emp = {}; gs.par.forEach(function (a) { if (a >= 0) emp[a] = true; });
+      var pend = []; for (var a = 0; a < INST.nA; a++) if (!emp[a] && gs.sig[a] < L[a].length) pend.push(a);
+      if (pend.slice().sort().join() !== gs.queue.slice().sort().join()) v.i3 = false;
+      inv.n++; ['phi', 'i1', 'i2', 'i3', 'l2'].forEach(function (k) { if (!v[k]) { inv[k] = false; viol++; } });
+      return v;
+    }
+    function draw() {
+      var M = gs.M(), L = INST.L;
+      drawGraph(q('.g-svg'), { M: M, proposed: gs.proposed, cur: last && last.kind === 'prop' ? { a: last.a, b: last.b } : null, hideFree: false });
+      q('.g-v').textContent = gs.vueltas; q('.g-phi').textContent = gs.phi; q('.g-sum').textContent = sumL(INST);
+      q('.g-q').textContent = gs.queue.length ? '[' + gs.queue.map(nA).join(', ') + ']' : '∅';
+      // listas de los proponentes
+      var h = '<tr><th>proponente</th><th>su lista (de mejor a peor)</th><th>siguiente</th><th>estado</th></tr>';
+      for (var a = 0; a < INST.nA; a++) {
+        var chips = L[a].map(function (b, k) { var c = 'pend'; if (k < gs.sig[a]) c = (M[a] === b) ? 'eng' : 'prop'; return '<span class="ch ' + c + '">' + nB(b) + '</span>'; }).join('') || '<span class="mono" style="color:var(--ink-muted)">(vacía)</span>';
+        var st = M[a] >= 0 ? '<span class="badge emp">con ' + nB(M[a]) + '</span>' : (gs.sig[a] >= L[a].length ? '<span class="badge ago">libre, agotó su lista</span>' : '<span class="badge libre">libre</span>');
+        h += '<tr><td>' + nA(a) + '</td><td>' + chips + '</td><td class="num">' + gs.sig[a] + ' / ' + L[a].length + '</td><td>' + st + '</td></tr>';
+      }
+      q('.g-listA').innerHTML = h;
+      h = '<tr><th>receptor</th><th>su lista (quienes lo listan, de mejor a peor)</th><th>pareja actual</th></tr>';
+      for (var b = 0; b < INST.nB; b++) {
+        var ks = Object.keys(INST.R[b]).map(Number).sort(function (x, y) { return INST.R[b][x] - INST.R[b][y]; });
+        var ch = ks.map(function (x) { return '<span class="ch ' + (gs.par[b] === x ? 'eng' : (gs.proposed[x + ',' + b] ? 'prop' : 'pend')) + '">' + nA(x) + '</span>'; }).join('') || '<span class="mono" style="color:var(--ink-muted)">(nadie lo lista)</span>';
+        h += '<tr><td>' + nB(b) + '</td><td>' + ch + '</td><td>' + (gs.par[b] >= 0 ? '<span class="badge emp">' + nA(gs.par[b]) + '</span>' : '<span class="badge libre">libre</span>') + '</td></tr>';
+      }
+      q('.g-listB').innerHTML = h;
+      var t = '<tr><th>paso</th><th>propone</th><th>a</th><th>tenía</th><th>queda con</th><th>Φ</th><th>qué pasa</th></tr>';
+      trace.forEach(function (r, i) { t += '<tr class="' + (i === trace.length - 1 ? 'cur' : '') + '"><td class="num">' + (i + 1) + '</td><td>' + nA(r.a) + '</td><td>' + nB(r.b) + '</td><td>' + (r.actual >= 0 ? nA(r.actual) : '—') + '</td><td>' + nA(r.queda) + '</td><td class="num">' + r.phi + '</td><td>' + r.txt + '</td></tr>'; });
+      q('.g-trace').innerHTML = t;
+    }
+    function caption() {
+      var cap = q('.g-cap'), res = q('.g-res');
+      if (!last) { cap.innerHTML = 'Cola inicial: <b>' + (gs.queue.length ? gs.queue.map(nA).join(', ') : 'vacía (nadie tiene lista)') + '</b> (los libres con receptores pendientes). Presiona «un paso».'; }
+      else if (last.kind === 'prop') {
+        var s = '<b>' + nA(last.a) + '</b> propone a <b>' + nB(last.b) + '</b> (su #' + (gs.sig[last.a]) + '). ';
+        s += last.out === 'acepta' ? nB(last.b) + ' estaba libre: <b class="hi">acepta</b>.' : last.out === 'cambia' ? nB(last.b) + ' prefiere a ' + nA(last.a) + ' sobre ' + nA(last.actual) + ': <b class="hi">cambia</b>; ' + nA(last.actual) + ' queda libre' + (gs.sig[last.actual] < INST.L[last.actual].length ? ' y vuelve a la cola.' : ' y ya agotó su lista: <b class="bad">libre para siempre</b>.') : nB(last.b) + ' prefiere a ' + nA(last.actual) + ': <b class="bad">rechaza</b>' + (gs.sig[last.a] < INST.L[last.a].length ? ' y ' + nA(last.a) + ' vuelve a la cola.' : '; ' + nA(last.a) + ' agotó su lista: <b class="bad">libre para siempre</b>.');
+        cap.innerHTML = s;
+      }
+      if (opts.inv && last) {
+        var v = last.v, f = function (k, t) { return '<span class="' + (v[k] ? 'ok' : 'bad') + '">' + t + ' ' + (v[k] ? '✓' : '✗') + '</span>'; };
+        q('.g-inv').innerHTML = f('phi', 'Φ baja 1') + f('i1', 'I1 receptores') + f('i2', 'I2 proponentes') + f('i3', 'I3 la cola') + f('l2', 'Lema 2') + '<span class="' + (viol ? 'bad' : 'ok') + '">violaciones acumuladas: ' + viol + '</span>';
+      } else if (opts.inv) q('.g-inv').innerHTML = '<span>Los invariantes se comprueban en cada vuelta.</span>';
+      if (gs.done() && last) {
+        var M = gs.M(), bl = blocking(M, INST), libres = [];
+        M.forEach(function (b, a) { if (b < 0) libres.push(nA(a)); });
+        res.style.display = '';
+        res.innerHTML = '<span class="banner ' + (bl.length ? 'bad' : 'ok') + '">' + (bl.length ? '✗ hay parejas bloqueantes' : '✓ el resultado es estable: ninguna pareja bloqueante') + '</span><br>' +
+          'M = <span class="mono">' + matchingStr(M) + '</span> · propuestas: <b>' + gs.props + '</b> de Σ|L| = ' + sumL(INST) + ' · proponentes libres: <b>' + (libres.length ? libres.join(', ') : 'ninguno') + '</b>' +
+          (libres.length ? ' (cada uno propuso a toda su lista: I3)' : '') + (opts.inv ? '<br>invariantes: ' + (viol ? '<b class="bad">' + viol + ' violaciones</b>' : '<b class="hi">0 violaciones en ' + inv.n + ' vueltas</b>') : '');
+        ['.g-step', '.g-all', '.g-play'].forEach(function (c) { q(c).disabled = true; }); stop();
+      }
+    }
+    function once() {
+      var ev = gs.step(); if (!ev) return;
+      if (ev.kind === 'prop') { trace.push({ a: ev.a, b: ev.b, actual: ev.actual, queda: gs.par[ev.b], phi: gs.phi, txt: ev.out === 'acepta' ? 'acepta' : ev.out === 'cambia' ? 'cambia; ' + nA(ev.actual) + ' queda libre' : 'rechaza a ' + nA(ev.a) }); }
+      ev.v = opts.inv ? check(ev) : null; last = ev; draw(); caption();
+    }
+    function stop() { playing = false; if (timer) clearInterval(timer); timer = null; var p = q('.g-play'); if (p) p.textContent = '▶ reproducir'; }
+    function play() { if (playing) { stop(); return; } playing = true; q('.g-play').textContent = '⏸ pausar'; timer = setInterval(function () { if (gs.done()) { stop(); return; } once(); }, Math.max(80, 1000 - q('.g-speed').value * 9)); }
+    q('.g-step').onclick = once;
+    q('.g-all').onclick = function () { stop(); while (!gs.done()) once(); };
+    q('.g-play').onclick = play; q('.g-reset').onclick = reset; q('.g-ord').onchange = reset;
+    q('.g-speed').addEventListener('input', function () { if (playing) { stop(); play(); } });
+    listeners.push(reset);
+    return { reset: reset };
+  }
+  gsWidget($('gsA'), {});
+  gsWidget($('gsB'), { inv: true });
+
+  // ================================================================== Paso 4: potencial y propuestas exactas
+  function niceTicks(lo, hi, n) {
+    var span = Math.max(hi - lo, 1), raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag, out = [];
+    var step = (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * mag;
+    for (var v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(v);
+    return out;
+  }
+  function drawChart(svg, cfg) {
+    clear(svg);
+    var W = 640, H = cfg.H || 260, L = 56, R = 20, T = 14, B = 44;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    function sx(v) { return L + (v - cfg.xmin) / (cfg.xmax - cfg.xmin) * (W - L - R); }
+    function sy(v) { return H - B - (v - cfg.ymin) / (cfg.ymax - cfg.ymin) * (H - T - B); }
+    niceTicks(cfg.ymin, cfg.ymax, 5).forEach(function (v) { el('line', { x1: L, y1: sy(v), x2: W - R, y2: sy(v), class: 'grid-h' }, svg); el('text', { x: L - 8, y: sy(v) + 3, class: 'small-lab', style: 'text-anchor:end' }, svg, String(Math.round(v))); });
+    niceTicks(cfg.xmin, cfg.xmax, 8).forEach(function (v) { el('line', { x1: sx(v), y1: H - B, x2: sx(v), y2: H - B + 5, class: 'axis' }, svg); el('text', { x: sx(v), y: H - B + 18, class: 'small-lab' }, svg, String(Math.round(v))); });
+    el('line', { x1: L, y1: H - B, x2: W - R, y2: H - B, class: 'axis' }, svg); el('line', { x1: L, y1: T, x2: L, y2: H - B, class: 'axis' }, svg);
+    el('text', { x: L + (W - L - R) / 2, y: H - 6, class: 'small-lab' }, svg, cfg.xlabel);
+    el('text', { x: 13, y: T + (H - T - B) / 2, class: 'small-lab', transform: 'rotate(-90 13 ' + (T + (H - T - B) / 2) + ')' }, svg, cfg.ylabel);
+    cfg.series.forEach(function (s) {
+      el('polyline', { points: s.pts.map(function (p) { return sx(p[0]) + ',' + sy(p[1]); }).join(' '), fill: 'none', stroke: s.color, 'stroke-width': 2.4, 'stroke-linejoin': 'round', opacity: s.op || 1 }, svg);
+      if (s.dots) s.pts.forEach(function (p, i) {
+        el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: 3.6, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 1.5 }, svg);
+        var h = el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: 10, fill: 'transparent' }, svg);
+        h.addEventListener('pointermove', function (e) { showTip(e, [s.name, 'después de ' + p[0] + ' vueltas: Φ = ' + p[1]]); }); h.addEventListener('pointerleave', hideTip);
+      });
+    });
+  }
+  function formulaProps(inst, M) { var s = 0; for (var a = 0; a < inst.nA; a++) s += M[a] >= 0 ? inst.L[a].indexOf(M[a]) + 1 : inst.L[a].length; return s; }
+  function upd4() {
+    var g = runFull(INST, 'cola', 'guarda', 0), d = runFull(INST, 'cola', 'descarte', 0), S = sumL(INST), M = g.M();
+    var ser = [{ name: 'con guarda', color: 'var(--accent-speed)', dots: true, pts: g.hist.map(function (p, i) { return [i, p]; }) },
+               { name: 'con descarte', color: 'var(--accent-cost)', dots: true, op: 0.9, pts: d.hist.map(function (p, i) { return [i, p]; }) }];
+    var xmax = Math.max(g.hist.length - 1, d.hist.length - 1, 1);
+    drawChart($('phiSvg'), { xmin: 0, xmax: xmax, ymin: 0, ymax: Math.max(S, 1), xlabel: 'vueltas del ciclo', ylabel: 'Φ', series: [ser[1], ser[0]] });
+    var fo = formulaProps(INST, M);
+    $('phiStats').innerHTML =
+      '<div class="stat"><div class="k">Σ|L| (Φ₀)</div><div class="v">' + S + '</div></div>' +
+      '<div class="stat"><div class="k">propuestas (guarda)</div><div class="v speed">' + g.props + '</div></div>' +
+      '<div class="stat"><div class="k">vueltas (guarda)</div><div class="v speed">' + g.vueltas + '</div></div>' +
+      '<div class="stat"><div class="k">vueltas (descarte)</div><div class="v ' + (d.vueltas > S ? 'cost' : '') + '">' + d.vueltas + '</div></div>' +
+      '<div class="stat"><div class="k">Φ final</div><div class="v">' + g.phi + '</div></div>';
+    var parts = []; for (var a = 0; a < INST.nA; a++) parts.push(M[a] >= 0 ? 'pos(' + nB(M[a]) + ')=' + (INST.L[a].indexOf(M[a]) + 1) : '|L(' + nA(a) + ')|=' + INST.L[a].length + ' (libre)');
+    $('phiInfo').innerHTML = '<b>Propuestas exactas:</b> <span class="mono">' + parts.join(' + ') + ' = ' + fo + '</span> → ' + (fo === g.props ? '<b class="hi">coincide con las ' + g.props + ' propuestas</b>' : '<b class="bad">NO coincide</b>') + '.<br>' +
+      (d.vueltas > S ? '<b class="bad">En la variante con descarte hay ' + (d.vueltas - S) + ' vuelta(s) de más que Σ|L| = ' + S + '</b>: las vueltas de descarte no bajan Φ (tramos planos en naranja), así que «Φ baja 1 por vuelta» y la cota Σ|L| de vueltas son falsas ahí; la cota correcta de esa variante es Σ|L| + n<sub>a</sub>.' : 'En esta instancia el descarte no alcanza a superar Σ|L| (' + d.vueltas + ' ≤ ' + S + '); con muchas listas vacías o cortas sí (prueba p bajo).');
+  }
+  listeners.push(upd4);
+  $('btnBatch4').onclick = function () {
+    var btn = this; btn.disabled = true;
+    setTimeout(function () {
+      var r = mulberry32(2024), excede = 0, peor = 0, formula = 0, estable = 0, N = 3000;
+      for (var i = 0; i < N; i++) {
+        var inst = randomInst(1 + Math.floor(r() * 15), 1 + Math.floor(r() * 15), 0.6, r), S = sumL(inst);
+        var g = runFull(inst, 'cola', 'guarda', 0), d = runFull(inst, 'cola', 'descarte', 0), M = g.M();
+        if (d.vueltas > S) { excede++; peor = Math.max(peor, d.vueltas - S); }
+        if (formulaProps(inst, M) === g.props) formula++;
+        if (blocking(M, inst).length === 0 && g.props <= S) estable++;
+      }
+      var p = $('batch4'); p.style.display = '';
+      p.innerHTML = 'En <b>' + N + '</b> instancias aleatorias: propuestas = fórmula exacta en <b class="hi">' + formula + '</b>; resultado estable con propuestas ≤ Σ|L| en <b class="hi">' + estable + '</b>; con la cola que guarda a los agotados, las <i>vueltas</i> superan a Σ|L| en <b class="bad">' + excede + '</b> (exceso máximo ' + peor + '). (verif.py, con otro generador: 3000/3000, 3000/3000 y 672.)';
+      btn.disabled = false;
+    }, 30);
+  };
+
+  // ================================================================== Paso 5: la demostración, ejecutada
+  (function () {
+    var broken = null, base = null;
+    function upd() {
+      var g = runFull(INST, 'cola', 'guarda', 0), M = g.M(); base = M; broken = null;
+      var L = INST.L, R = INST.R, rows = '<tr><th>pareja (a, b) ∉ M</th><th>estado de a</th><th>¿a le propuso a b?</th><th>M(b) al final</th><th>por qué no bloquea</th></tr>', n = 0, ok = 0, byCase = { libre: 0, antes: 0, prefiere: 0 };
+      for (var a = 0; a < INST.nA; a++) L[a].forEach(function (b, pos) {
+        if (M[a] === b) return;
+        n++;
+        var propuso = pos < g.sig[a], mb = g.par[b], why, est, verdict = true;
+        if (M[a] < 0) { est = 'libre al final'; why = '<b>I3:</b> a terminó libre ⇒ propuso a toda su lista, incluido ' + nB(b) + '. <b>Lema 2:</b> ' + nB(b) + ' terminó con ' + nA(mb) + ' ≻ ' + nA(a) + '.'; byCase.libre++; verdict = propuso && mb >= 0 && R[b][mb] < R[b][a]; }
+        else if (pos < L[a].indexOf(M[a])) { est = 'con ' + nB(M[a]) + ' (peor que ' + nB(b) + ')'; why = '<b>I2:</b> ' + nB(b) + ' está antes que ' + nB(M[a]) + ' en la lista de ' + nA(a) + ' ⇒ le propuso antes. <b>Lema 2:</b> ' + nB(b) + ' terminó con ' + nA(mb) + ' ≻ ' + nA(a) + '.'; byCase.antes++; verdict = propuso && mb >= 0 && R[b][mb] < R[b][a]; }
+        else { est = 'con ' + nB(M[a]) + ' (mejor que ' + nB(b) + ')'; why = nA(a) + ' prefiere su pareja ' + nB(M[a]) + ' a ' + nB(b) + ': la cláusula de ' + nA(a) + ' no se cumple.'; byCase.prefiere++; }
+        if (verdict) ok++;
+        rows += '<tr><td>(' + nA(a) + ', ' + nB(b) + ')</td><td>' + est + '</td><td>' + (propuso ? 'sí' : 'no') + '</td><td>' + (mb >= 0 ? nA(mb) : 'libre') + '</td><td class="' + (verdict ? '' : 'bad') + '">' + why + '</td></tr>';
+      });
+      if (!n) rows += '<tr><td colspan="5">No hay parejas aceptables fuera de M.</td></tr>';
+      $('proofTable').innerHTML = rows;
+      $('proofInfo').innerHTML = '<b>' + n + '</b> parejas aceptables fuera de M: <b>' + byCase.libre + '</b> por el caso nuevo (a libre, I3), <b>' + byCase.antes + '</b> por I2, <b>' + byCase.prefiere + '</b> porque a prefiere su pareja. ' +
+        '<b class="' + (ok === n ? 'hi' : 'bad') + '">' + ok + ' de ' + n + ' razonamientos se verifican en esta ejecución</b>; parejas bloqueantes reales: <b>' + blocking(M, INST).length + '</b>.';
+      var sel = $('breakSel'); sel.innerHTML = '';
+      M.forEach(function (b, a) { if (b >= 0) { var o = document.createElement('option'); o.value = a; o.textContent = nA(a) + '–' + nB(b); sel.appendChild(o); } });
+      $('btnBreak').disabled = !sel.options.length;
+      $('breakInfo').innerHTML = 'Elige una pareja del resultado y rómpela: los dos quedan libres y, como son mutuamente aceptables, <b>preferirían estar juntos a estar solos</b>.';
+    }
+    $('btnBreak').onclick = function () {
+      var a = +$('breakSel').value, M = base.slice(), b = M[a]; M[a] = -1;
+      var bl = blocking(M, INST), nv = blockingNaive(M, INST);
+      $('breakInfo').innerHTML = 'Sin la pareja <b>' + nA(a) + '–' + nB(b) + '</b>, M = <span class="mono">' + matchingStr(M) + '</span>.<br>' +
+        '<b>Chequeo con las cuatro cláusulas:</b> <b class="bad">' + bl.length + ' pareja(s) bloqueante(s)</b>' + (bl.length ? ' — ' + bl.slice(0, 4).map(function (p) { return '(' + nA(p.a) + ', ' + nB(p.b) + ') [' + caso(p) + ']'; }).join('; ') : '') + '.<br>' +
+        '<b>Chequeo ingenuo (sin «libre»):</b> <b class="' + (nv.length ? 'hi' : 'bad') + '">' + nv.length + '</b> ' + (nv.length ? '' : '→ dice <b class="bad">«estable»</b>: se equivoca.');
+    };
+    $('btnRestore').onclick = upd;
+    listeners.push(upd);
+  })();
+
+  // ================================================================== Paso 6: todos los estables
+  (function () {
+    function upd() {
+      var info = $('allInfo'), tbl = $('allTable');
+      if (INST.nA > 5 || INST.nB > 5) { info.innerHTML = '<b class="bad">La instancia es de ' + INST.nA + ' × ' + INST.nB + '.</b> Para enumerar todos los emparejamientos hace falta ≤ 5 por lado: baja los controles de arriba, elige el ejemplo, o usa el botón de abajo.'; tbl.innerHTML = ''; return; }
+      var all = allMatchings(INST), est = all.filter(function (M) { return blocking(M, INST).length === 0; });
+      var g = runFull(INST, 'cola', 'guarda', 0), M = g.M(), gsKey = M.join(',');
+      var esta = est.some(function (E) { return E.join(',') === gsKey; });
+      var best = [], worst = [], a, b;
+      for (a = 0; a < INST.nA; a++) { var vs = est.map(function (E) { return E[a]; }).filter(function (x) { return x >= 0; }); best.push(vs.length ? vs.sort(function (x, y) { return INST.L[a].indexOf(x) - INST.L[a].indexOf(y); })[0] : -1); }
+      for (b = 0; b < INST.nB; b++) { var ws = est.map(function (E) { return E.indexOf(b); }).filter(function (x) { return x >= 0; }); worst.push(ws.length ? ws.sort(function (x, y) { return INST.R[b][y] - INST.R[b][x]; })[0] : -1); }
+      var optOK = true, pesOK = true;
+      for (a = 0; a < INST.nA; a++) if (M[a] !== best[a]) optOK = false;
+      for (b = 0; b < INST.nB; b++) if (g.par[b] !== worst[b]) pesOK = false;
+      var sets = {}; est.forEach(function (E) { sets[matchedSet(E)] = 1; }); var mismos = Object.keys(sets).length === 1;
+      var ords = [['cola', 0], ['pila', 0], ['azar', 1], ['azar', 2]].map(function (o) { return runFull(INST, o[0], 'guarda', o[1]).M().join(','); }), ordOK = ords.every(function (x) { return x === ords[0]; });
+      var f = function (ok) { return ok ? '<b class="hi">✓</b>' : '<b class="bad">✗</b>'; };
+      info.innerHTML = '<b>' + all.length + '</b> emparejamientos posibles, <b>' + est.length + '</b> estable' + (est.length === 1 ? '' : 's') + '.<ul>' +
+        '<li>El resultado de GS es uno de los estables: ' + f(esta) + '</li><li>Cada proponente obtiene su mejor pareja válida (o queda libre si lo está en todos): ' + f(optOK) + '</li>' +
+        '<li>Cada receptor emparejado obtiene su peor pareja válida: ' + f(pesOK) + '</li><li>Todos los estables emparejan a los mismos agentes (hospitales rurales): ' + f(mismos) + '</li>' +
+        '<li>Mismo resultado con cola, pila y azar (dos semillas): ' + f(ordOK) + '</li></ul>' + (est.length === 1 ? 'Esta instancia tiene un solo estable: las propiedades se cumplen pero no distinguen mucho. Prueba «buscar una instancia con varios estables».' : '');
+      var rows = '<tr><th>#</th><th>emparejamiento estable</th><th>agentes libres</th><th>nota</th></tr>';
+      est.forEach(function (E, i) {
+        var libA = [], libB = [], emp = {}; E.forEach(function (bb, aa) { if (bb < 0) libA.push(nA(aa)); else emp[bb] = 1; }); for (var bb = 0; bb < INST.nB; bb++) if (!emp[bb]) libB.push(nB(bb));
+        var isGS = E.join(',') === gsKey;
+        rows += '<tr class="' + (isGS ? 'cur' : '') + '"><td class="num">' + (i + 1) + '</td><td>' + matchingStr(E) + '</td><td>' + ((libA.concat(libB)).join(', ') || '—') + '</td><td>' + (isGS ? '<b>resultado de Gale-Shapley</b> (óptimo para los proponentes)' : '') + '</td></tr>';
+      });
+      tbl.innerHTML = rows;
+    }
+    listeners.push(upd);
+    $('btnFindMulti').onclick = function () {
+      var btn = this; btn.disabled = true;
+      setTimeout(function () {
+        var r = mulberry32((Date.now() ^ 0x1234567) >>> 0), found = null;
+        for (var t = 0; t < 600 && !found; t++) {
+          var inst = randomInst(5, 5, 0.85, r), est = allMatchings(inst).filter(function (M) { return blocking(M, inst).length === 0; });
+          if (est.length > 1) found = inst;
+        }
+        btn.disabled = false;
+        if (found) { $('instKind').value = 'az'; $('iA').value = 5; $('iB').value = 5; $('iAv').textContent = 5; $('iBv').textContent = 5; $('iP').value = 0.9; $('iPv').textContent = 0.9; setInst(found); }
+        else $('allInfo').innerHTML = 'No encontré una instancia con varios estables en 600 intentos; prueba de nuevo.';
+      }, 30);
+    };
+  })();
+
+  // ================================================================== Paso 7: costo medio
+  $('btnStats7').onclick = function () {
+    var btn = this; btn.disabled = true;
+    setTimeout(function () {
+      var rows = '<tr><th>p</th><th>proponentes libres (fracción)</th><th>propuestas / Σ|L|</th></tr>', r = mulberry32(99);
+      [0.2, 0.4, 0.6, 0.8, 1.0].forEach(function (p) {
+        var lib = 0, rat = 0, N = 100;
+        for (var i = 0; i < N; i++) { var inst = randomInst(12, 12, p, r), g = runFull(inst, 'cola', 'guarda', 0), S = sumL(inst); lib += (12 - g.M().filter(function (b) { return b >= 0; }).length) / 12; rat += S ? g.props / S : 0; }
+        rows += '<tr><td>' + p + '</td><td class="num">' + (lib / N).toFixed(3) + '</td><td class="num">' + (rat / N).toFixed(3) + '</td></tr>';
+      });
+      $('statsTable').innerHTML = rows; btn.disabled = false;
+    }, 30);
+  };
+
+  setInst(exampleInst());
+})();
+</script>
+</body>
+</html>

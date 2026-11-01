@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicio 11 — La mochila entera y la pseudopolinomialidad</title>
+<style>
+  :root {
+    --bg: #F6F7F9; --surface: #FFFFFF; --surface-2: #EEF0F3;
+    --ink: #1A2230; --ink-muted: #5B6675; --line: #D7DCE3;
+    --accent-cost: #C2552A; --accent-speed: #0E9C8A;
+    --shadow: 0 1px 2px rgba(20,24,33,.04), 0 8px 24px rgba(20,24,33,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+    --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151D; --surface: #171E29; --surface-2: #1D2530;
+      --ink: #E8ECF1; --ink-muted: #8B97A8; --line: #2A3341;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 28px 20px; }
+  .card { width: 100%; max-width: 920px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 22px 26px 26px; }
+  h1 { font-size: 1.25rem; font-weight: 700; margin: 0 0 2px; text-wrap: balance; }
+  .subtitle { font-size: .82rem; color: var(--ink-muted); margin: 0 0 16px; line-height: 1.5; }
+  h2 { font-size: .95rem; font-weight: 700; color: var(--ink); margin: 32px 0 4px; }
+  h2 .step { color: var(--accent-speed); font-family: var(--mono); margin-right: 6px; }
+  .lead { font-size: .82rem; color: var(--ink-muted); margin: 0 0 10px; line-height: 1.6; }
+  .lead b { color: var(--ink); }
+  .lead .q { color: var(--accent-cost); font-weight: 700; }
+  .panel { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: .82rem; line-height: 1.55; }
+  .panel b.hi { color: var(--accent-speed); }
+  .panel b.bad { color: var(--accent-cost); }
+  .panel .mono, .mono { font-family: var(--mono); font-size: .78rem; }
+  .thesis { border-left: 3px solid var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 9%, var(--surface)); padding: 10px 14px; border-radius: 6px; font-size: .84rem; line-height: 1.55; margin: 6px 0 12px; }
+  .roadmap { counter-reset: r; list-style: none; padding: 0; margin: 0 0 6px; font-size: .78rem; color: var(--ink-muted); }
+  .roadmap li { counter-increment: r; padding: 3px 0 3px 28px; position: relative; line-height: 1.45; }
+  .roadmap li::before { content: counter(r); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); text-align: center; font-family: var(--mono); font-size: .68rem; line-height: 18px; color: var(--ink); }
+  .roadmap li b { color: var(--ink); }
+
+  svg.diagram { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .scrollx { overflow-x: auto; }
+  svg.wide { min-width: 600px; }
+  svg text { font-family: var(--sans); fill: var(--ink); }
+  .small-lab { font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+  .mono-lab { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-muted); text-anchor: middle; }
+
+  .config { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0 12px; }
+  .config label { font-size: .78rem; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  select, input[type=text], input[type=number] { font-family: var(--sans); font-size: .78rem; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; background: var(--surface); color: var(--ink); }
+  input[type=range] { accent-color: var(--accent-speed); }
+  .val { font-family: var(--mono); color: var(--ink); min-width: 3ch; display: inline-block; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 12px 0; }
+  .stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 6px; text-align: center; }
+  .stat .k { font-size: .58rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-family: var(--mono); font-weight: 700; font-size: .92rem; margin-top: 2px; }
+  .stat .v.cost { color: var(--accent-cost); } .stat .v.speed { color: var(--accent-speed); }
+  .banner { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+  .banner.ok { color: var(--accent-speed); } .banner.bad { color: var(--accent-cost); }
+
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 14px; }
+  button { font-family: var(--sans); font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 8px; padding: 8px 13px; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+  button:hover { background: var(--line); } button:active { transform: scale(.96); }
+  button.primary { background: var(--accent-speed); color: white; border-color: var(--accent-speed); }
+  button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible, select:focus-visible, input:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent-speed); outline-offset: 2px; }
+  .speed-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .76rem; color: var(--ink-muted); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+  .chip { font-family: var(--sans); font-size: .8rem; font-weight: 600; background: var(--surface-2); border: 2px solid var(--line); border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+  .chip[aria-pressed="true"] { border-color: var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 14%, var(--surface)); }
+  .chip .wv { font-family: var(--mono); font-weight: 400; color: var(--ink-muted); display: block; font-size: .72rem; }
+  .bar-track { height: 16px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; position: relative; margin: 6px 0; }
+  .bar-fill { height: 100%; transition: width .15s; }
+  .bar-fill.ok { background: var(--accent-speed); } .bar-fill.over { background: var(--accent-cost); }
+
+  table.t { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .76rem; }
+  table.t th, table.t td { border: 1px solid var(--line); padding: 4px 8px; text-align: right; }
+  table.t th { background: var(--surface-2); color: var(--ink-muted); font-weight: 600; }
+  table.t td.lbl { text-align: left; color: var(--ink-muted); white-space: nowrap; }
+  table.t td.upd { background: color-mix(in srgb, var(--accent-speed) 16%, transparent); font-weight: 700; }
+  table.t td.bad { background: color-mix(in srgb, var(--accent-cost) 22%, transparent); font-weight: 700; }
+  table.t tr.best td { background: color-mix(in srgb, var(--accent-speed) 16%, transparent); font-weight: 700; }
+  table.t td.hi { color: var(--accent-speed); font-weight: 700; } table.t td.cost { color: var(--accent-cost); font-weight: 700; }
+
+  .dpc { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.2; }
+  .dpc.upd { fill: color-mix(in srgb, var(--accent-speed) 16%, var(--surface)); }
+  .dpc.tgt { stroke: var(--accent-speed); stroke-width: 3.2; }
+  .dpc.src { stroke: var(--ink); stroke-width: 2.4; stroke-dasharray: 5 3; }
+  .dpc.srcbad { stroke: var(--accent-cost); stroke-width: 3.2; stroke-dasharray: 5 3; }
+  .dpc.bad { fill: color-mix(in srgb, var(--accent-cost) 28%, var(--surface)); }
+  .dpv { font-family: var(--mono); font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .optc { fill: none; stroke: var(--line); stroke-dasharray: 3 3; }
+  .item { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.2; }
+  .item.cur { stroke: var(--accent-speed); stroke-width: 3; fill: color-mix(in srgb, var(--accent-speed) 12%, var(--surface)); }
+  .item.done { opacity: .5; }
+  .arrow { fill: none; stroke: var(--ink); stroke-width: 2; }
+  .arrow.bad { stroke: var(--accent-cost); stroke-width: 2.6; }
+
+  .grid-h { stroke: var(--line); stroke-width: 1; }
+  .axis { stroke: var(--ink-muted); stroke-width: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .74rem; color: var(--ink-muted); margin: 6px 0 4px; }
+  .legend .sw { display: inline-block; width: 18px; height: 0; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: .74rem; padding: 6px 9px; border-radius: 7px; line-height: 1.4; opacity: 0; transition: opacity .1s; max-width: 260px; }
+  .tip.show { opacity: 1; } .tip b { font-family: var(--mono); }
+
+  .hbar-row { display: grid; grid-template-columns: 190px 1fr 150px; gap: 10px; align-items: center; font-size: .78rem; margin: 7px 0; }
+  .hbar-track { height: 14px; background: var(--surface-2); border-radius: 4px; position: relative; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 4px; }
+  .hbar-mark { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); opacity: .7; }
+  .hbar-val { font-family: var(--mono); font-weight: 700; text-align: right; font-size: .76rem; }
+  .bits { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
+  .bitbox { width: 22px; height: 24px; border: 1.5px solid var(--accent-speed); background: color-mix(in srgb, var(--accent-speed) 10%, var(--surface)); border-radius: 4px; font-family: var(--mono); font-size: .72rem; display: flex; align-items: center; justify-content: center; }
+  .unit { width: 9px; height: 18px; border-left: 2px solid var(--ink-muted); }
+  .strip { display: flex; flex-wrap: wrap; gap: 1px; margin: 6px 0; }
+  .cellbox { width: 8px; height: 18px; background: color-mix(in srgb, var(--accent-cost) 30%, var(--surface)); border: 1px solid var(--accent-cost); }
+
+  footer { margin-top: 18px; font-size: .72rem; color: var(--ink-muted); text-align: center; line-height: 1.6; }
+  footer code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 600px) { .card { padding: 16px 14px 20px; } .hbar-row { grid-template-columns: 1fr; } .hbar-val { text-align: left; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>La mochila entera: de «O(nW) parece polinomial» a «es pseudopolinomial»</h1>
+  <p class="subtitle">Ejercicio 11 · el ciclo de C2 §1 (problema → algoritmo → correctitud → costo → ¿se puede mejor?) sobre un
+  solo ejemplo. Cada paso termina anunciando el siguiente, que resuelve lo que quedó pendiente, hasta la demostración.</p>
+
+  <div class="thesis"><b>Lo que queremos demostrar.</b> La mochila con tabla de O(nW) es <b>pseudopolinomial</b>: <b>lineal en el valor</b> de W y
+  <b>exponencial en su tamaño</b> b = log₂W. Y tiene la misma forma que la primalidad por división.</div>
+  <ol class="roadmap">
+    <li><b>El problema</b> — ¿hay algo mejor que mirar los 2ⁿ subconjuntos?</li>
+    <li><b>El algoritmo</b> — la tabla por capacidades. ¿Es correcto?</li>
+    <li><b>Correctitud</b> — dos invariantes (C3), uno por ciclo, y el primer fallo del ciclo equivocado. ¿Cuánto cuesta?</li>
+    <li><b>Costo</b> — contar celdas: sale lineal en n y en W. ¿Polinomial en qué?</li>
+    <li><b>El giro</b> — medir en bits (C1 §8). ¿Se puede demostrar que no es polinomial?</li>
+    <li><b>La demostración</b> — una instancia mínima, y por qué los pesos crecen con W.</li>
+    <li><b>Contar en unario</b> — por qué se llama pseudopolinomial, y lo que el modelo no cobra (memoria, C1 §6).</li>
+    <li><b>Una computadora más rápida</b> (C1 §7) — la quinta pregunta y la primalidad (C2 §8).</li>
+  </ol>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <h2><span class="step">Paso 1</span>¿Cuál es el problema?</h2>
+  <p class="lead">Mochila 0/1: <b>n objetos</b> con peso y valor enteros, y una <b>capacidad entera W</b>; llevar el subconjunto de
+  peso ≤ W con el mayor valor. Hay un detalle que parece menor y es el centro del ejercicio: <b>W no es una cantidad de cosas</b>,
+  es un <i>número</i> escrito en la entrada. Prueba a armar la mochila a mano con el ejemplo que usaremos todo el tiempo.</p>
+  <div class="chips" id="chips"></div>
+  <div class="bar-track"><div class="bar-fill ok" id="wbar" style="width:0%"></div></div>
+  <div class="panel" id="packInfo"></div>
+  <details style="margin:0 0 6px"><summary style="cursor:pointer;font-size:.78rem;color:var(--ink-muted)">ver los 2⁴ = 16 subconjuntos (la fuerza bruta)</summary>
+    <div class="scrollx" style="margin-top:8px"><table class="t" id="subsetTable"></table></div></details>
+  <p class="lead">La fuerza bruta mira 16 subconjuntos aquí, pero 2⁴⁰ ≈ 10¹² con 40 objetos. <span class="q">A continuación:</span> el paso 2 propone un algoritmo que lo evita: una tabla indexada por capacidades.</p>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <h2><span class="step">Paso 2</span>El algoritmo: una tabla indexada por capacidades</h2>
+  <p class="lead">Sea <i>f(i, c)</i> el mejor valor usando solo los primeros i objetos con capacidad c. El algoritmo guarda un solo arreglo
+  <i>dp[0..W]</i> y tiene <b>dos ciclos anidados</b>: el <b>ciclo externo</b> da una vuelta por objeto i = 1, …, n (la <i>ronda i</i>); el <b>ciclo interno</b>
+  recorre, dentro de la ronda i, las capacidades j = W, W − 1, …, wᵢ <b>de mayor a menor</b> y en cada vuelta actualiza una sola celda:
+  <i>dp[j] = máx(dp[j], dp[j − wᵢ] + vᵢ)</i> (llevar o no llevar el objeto i). Mira de dónde sale el valor (línea punteada) y cómo cada fila de abajo
+  es el estado tras terminar una ronda.</p>
+  <div id="dpA"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 3 demuestra que es correcto, y por qué importa tanto el sentido del ciclo interno.</p>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <h2><span class="step">Paso 3</span>¿Es correcto? Dos invariantes (C3) y el primer fallo</h2>
+  <p class="lead">Con precondición (n ≥ 0, pesos y valores enteros positivos, W ≥ 0) y postcondición <i>dp[W] = f(n, W)</i>, la demostración (C3) tiene un
+  <b>invariante por ciclo</b>. <b>Externo</b> I<sub>ext</sub>(i): tras i vueltas del ciclo externo, <i>dp[c] = f(i, c)</i> para todo c. <b>Interno</b> I<sub>int</sub>(i, j) (el
+  reforzado, que hace inductivo al anterior): en la ronda i, las celdas <i>ya tocadas</i> valen <i>f(i, c)</i> y las <i>aún sin tocar</i> valen <i>f(i − 1, c)</i>.
+  El sentido descendente se usa en <b>un solo lugar</b>: <i>dp[j − wᵢ]</i> está sin tocar, porque lo tocado son los índices &gt; j. Con el ciclo <b>ascendente</b> lo
+  tocado son los índices &lt; j y, <b>desde j = 2wᵢ</b>, <i>dp[j − wᵢ]</i> ya incluye al objeto i: el mantenimiento puede fallar (<b>primer fallo</b>), y el algoritmo calcula la
+  mochila no acotada. Abajo, las dos filas punteadas son los óptimos reales f(i − 1, ·) y f(i, ·) (fuerza bruta): en <b>cada vuelta</b> se comprueba el invariante
+  interno y las celdas que no cumplen se pintan de rojo. Prueba el ciclo ascendente con el ejemplo: falla en j = 4 = 2wᵢ.</p>
+  <div id="dpB"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 4 cuenta cuánto cuesta el algoritmo correcto.</p>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <h2><span class="step">Paso 4</span>¿Cuánto cuesta? Contar celdas</h2>
+  <p class="lead">Cada objeto con wᵢ ≤ W actualiza W − wᵢ + 1 celdas: <b>celdas = Σ(W − wᵢ + 1) ≤ nW</b>, y la memoria es W + 1 celdas. Haz
+  crecer una variable por vez (los pesos son ~U[1, W/2]): el costo es una <b>recta</b> tanto en n como en el <i>valor</i> de W.</p>
+  <div class="config">
+    <label><input type="radio" name="costMode" value="W" checked> variar el <b>valor de W</b> (n fijo)</label>
+    <label><input type="radio" name="costMode" value="n"> variar <b>n</b> (W fijo)</label>
+    <label>n = <input type="range" id="cN" min="10" max="1600" step="10" value="40"> <span class="val" id="cNv">40</span></label>
+    <label>W = <input type="range" id="cW" min="1000" max="1000000" step="1000" value="400000"> <span class="val" id="cWv">400000</span></label>
+  </div>
+  <svg class="diagram" id="costSvg" viewBox="0 0 640 280" role="img" aria-label="Celdas contra n o contra el valor de W"></svg>
+  <div class="stats" id="costStats"></div>
+  <p class="lead">Lineal en n, lineal en W: O(nW) <i>parece</i> polinomial. C1 §8: un algoritmo se
+  mide en función del <b>tamaño</b> de su entrada, y el tamaño no es W. <span class="q">A continuación:</span> el paso 5 mide el costo en bits para ver en qué es polinomial, si lo es.</p>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <h2><span class="step">Paso 5</span>El giro: el tamaño de la entrada se mide en bits (C1 §8)</h2>
+  <p class="lead">Un número x ocupa ⌊log₂x⌋ + 1 bits. Si b son los bits de W y d los del mayor valor, la entrada mide s ≤ n(b + d) + b, y el costo es nW ≥ n·2<sup>b−1</sup>.
+  Estos son los <b>mismos 13 datos</b> medidos (n = 40, pesos ~U[1, W/2]). Cambia el eje horizontal de <b>valor</b> a <b>bits</b>: lo que era una
+  recta se vuelve una exponencial. Con escala logarítmica en y, la exponencial es una recta (pendiente ≈ 1 por bit).</p>
+  <div class="config">
+    <label><input type="radio" name="bitsX" value="val" checked> eje x: <b>valor</b> de W</label>
+    <label><input type="radio" name="bitsX" value="bits"> eje x: <b>tamaño</b> b en bits</label>
+    <label><input type="radio" name="bitsY" value="lin" checked> y lineal</label>
+    <label><input type="radio" name="bitsY" value="log"> y logarítmico</label>
+    <label>b = <input type="range" id="bB" min="12" max="24" step="1" value="20"> <span class="val" id="bBv">20</span></label>
+  </div>
+  <svg class="diagram" id="bitsSvg" viewBox="0 0 640 290" role="img" aria-label="Los mismos 13 puntos contra el valor o contra el tamaño en bits"></svg>
+  <div class="stats" id="bitsStats"></div>
+  <p class="lead">La entrada casi no crece (de 754 a 1269 bits: <b>menos del doble</b>) y las celdas pasan de 1.3·10⁵ a 4.9·10⁸ (unas <b>3900 veces</b>): cada bit
+  duplica las celdas. Medir sugiere y no demuestra. <span class="q">A continuación:</span> el paso 6 demuestra que no es polinomial, con una instancia mínima.</p>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <h2><span class="step">Paso 6</span>La demostración: una instancia mínima, y por qué los pesos crecen con W</h2>
+  <p class="lead">Para refutar «polinomial» basta <b>una familia</b>. Toma un solo objeto (w = v = 1) y capacidad W = 2<sup>b</sup>: la entrada mide
+  <b>s = b + 3</b> bits y el algoritmo actualiza <b>2<sup>b</sup> = 2<sup>s−3</sup></b> celdas. Ningún polinomio aguanta eso: elige el exponente k y mira desde
+  qué tamaño s la exponencial pasa a s<sup>k</sup>.</p>
+  <div class="config">
+    <span style="font-size:.78rem;color:var(--ink-muted)">polinomio s<sup>k</sup>, k =</span>
+      <label style="gap:3px"><input type="radio" name="polyK" value="1"> 1</label>
+      <label style="gap:3px"><input type="radio" name="polyK" value="2"> 2</label>
+      <label style="gap:3px"><input type="radio" name="polyK" value="3"> 3</label>
+      <label style="gap:3px"><input type="radio" name="polyK" value="5" checked> 5</label>
+      <label style="gap:3px"><input type="radio" name="polyK" value="10"> 10</label>
+    <label>s = <input type="range" id="pS" min="3" max="80" step="1" value="30"> <span class="val" id="pSv">30</span> bits</label>
+  </div>
+  <svg class="diagram" id="polySvg" viewBox="0 0 640 280" role="img" aria-label="2 a la s-3 contra un polinomio, en escala logarítmica"></svg>
+  <div class="legend"><span><span class="sw" style="border-color:var(--accent-cost)"></span>celdas de la instancia mínima: 2<sup>s−3</sup></span>
+    <span><span class="sw" style="border-color:var(--accent-speed)"></span>el polinomio s<sup>k</sup></span></div>
+  <div class="panel" id="polyInfo"></div>
+  <p class="lead"><b>La trampa de diseño de la medición.</b> Si en el Paso 5 hubiéramos dejado los pesos acotados (≤ 1000) y subido W, la instancia se habría vuelto
+  <i>trivial</i>: si W ≥ Σwᵢ la respuesta es «llevarse todo», que se calcula en O(n), y el algoritmo igual gasta nW. Por eso los pesos deben crecer con W.
+  Pruébalo (n = 40):</p>
+  <div class="config">
+    <label><input type="radio" name="trapMode" value="acot" checked> pesos acotados (≤ 1000)</label>
+    <label><input type="radio" name="trapMode" value="esc"> pesos ~U[1, W/2] (crecen con W)</label>
+    <label>b = <input type="range" id="tB" min="10" max="22" step="1" value="18"> <span class="val" id="tBv">18</span></label>
+    <label><input type="checkbox" id="tClip"> recortar W ← mín(W, Σw)</label>
+  </div>
+  <div class="panel" id="trapInfo"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 7 explica de dónde viene el nombre «pseudopolinomial»: contar en unario.</p>
+
+  <!-- ===================== PASO 7 ===================== -->
+  <h2><span class="step">Paso 7</span>Contar en unario, y lo que el modelo no cobra</h2>
+  <p class="lead">La tabla recorre cada capacidad 0, 1, …, W: <b>cuenta en unario</b>. Si W se escribiera en unario, la entrada mediría W y nW sería polinomial:
+  <b>pseudopolinomial = polinomial en la codificación unaria</b>. Mueves b y ves las dos cosas: la entrada crece de a una casilla, la tabla se duplica.
+  Y aparece lo que el modelo RAM no cobra: <b>la memoria</b> (Θ(W) celdas, C1 §6) se agota antes que el tiempo.</p>
+  <div class="config">
+    <label>b = <input type="range" id="uB" min="1" max="64" step="1" value="6"> <span class="val" id="uBv">6</span> bits</label>
+    <label><input type="radio" name="uMode" value="bin" checked> W en binario</label>
+    <label><input type="radio" name="uMode" value="un"> W en unario</label>
+    <label>RAM disponible: <select id="uRam"><option value="8">8 GB</option><option value="16" selected>16 GB</option><option value="64">64 GB</option><option value="512">512 GB</option></select></label>
+  </div>
+  <div id="uInput"></div>
+  <div id="uTable"></div>
+  <div class="stats" id="uStats"></div>
+  <div id="uBars"></div>
+  <div class="panel" id="uVerdict"></div>
+  <p class="lead"><span class="q">A continuación:</span> el paso 8 muestra si una computadora más rápida lo arregla, y si se puede hacer mejor con <i>cualquier</i> algoritmo.</p>
+
+  <!-- ===================== PASO 8 ===================== -->
+  <h2><span class="step">Paso 8</span>Una computadora más rápida (C1 §7), la quinta pregunta y la primalidad</h2>
+  <p class="lead">C1 §7: con un algoritmo exponencial, mil veces más potencia «suma unas 10 unidades». Compara con la <b>primalidad por división</b> (C1 §8),
+  cuyo costo es 2<sup>b/2</sup> divisiones, contra el de la mochila con n = 40: n·2<sup>b</sup> celdas. Los dos recorren todos los enteros hasta un valor
+  de la entrada; la diferencia es <i>cuál</i> número juega ese papel.</p>
+  <div class="config">
+    <label>b = <input type="range" id="pB" min="8" max="128" step="1" value="64"> <span class="val" id="pBv">64</span> bits</label>
+    <label>10⁹ operaciones por segundo</label>
+  </div>
+  <div id="pBars"></div>
+  <div class="panel" id="pInfo"></div>
+  <div class="config">
+    <span style="font-size:.78rem;color:var(--ink-muted)">computadora <b>k</b> veces más rápida: k =</span>
+      <label style="gap:3px"><input type="radio" name="kSpeed" value="10"> 10</label>
+      <label style="gap:3px"><input type="radio" name="kSpeed" value="100"> 100</label>
+      <label style="gap:3px"><input type="radio" name="kSpeed" value="1000" checked> 1000</label>
+  </div>
+  <div class="scrollx"><table class="t" id="kTable"></table></div>
+  <div class="panel" style="margin-top:12px">
+    <b>La quinta pregunta cambia el sujeto</b> (C2 §8): ya no pregunta cuánto cuesta <i>este</i> algoritmo sino <i>cualquiera</i>.
+    <ul style="margin:6px 0 0 18px;padding:0">
+      <li><b>Primalidad:</b> existe un algoritmo polinomial en b (Agrawal–Kayal–Saxena, 2002; C1 §8). La exponencialidad era un defecto <i>del algoritmo</i>.</li>
+      <li><b>Mochila:</b> se desconoce si hay uno; equivale a P = NP (la versión de decisión es NP-completa; Tema 3). Que tenga un algoritmo pseudopolinomial la
+      clasifica como «débilmente» NP-difícil, y no la hace fácil.</li>
+    </ul>
+  </div>
+  <div class="thesis"><b>Respuesta a las dos preguntas.</b> <b>¿Es polinomial ese algoritmo?</b> No: cuesta Θ(nW) = Θ(n·2<sup>b</sup>) con b = log₂W el tamaño de W en bits (la instancia mínima
+  del Paso 6 lo demuestra); es pseudopolinomial. <b>¿En qué se parece a la primalidad por división?</b> Los dos recorren todos los enteros hasta un valor de la entrada
+  —cuentan en unario— y por eso son polinomiales en ese valor y exponenciales en su tamaño. La diferencia: para la primalidad existe un algoritmo polinomial; para la mochila se desconoce.</div>
+
+  <footer>teal = lo que sale bien / lo que se usa · naranja = lo que cuesta o falla · ver <code>ejercicio-11.pdf</code> para las demostraciones completas y
+  <code>verif.py</code> para las pruebas</footer>
+</div>
+<div id="tip" class="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var rng = mulberry32((Date.now() ^ 0x9E3779B9) >>> 0);
+  function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : null; }
+  function sci(x, d) {
+    d = d === undefined ? 3 : d;
+    if (x < 1e6) return Math.round(x).toLocaleString('es');
+    return x.toExponential(d - 1).replace('e+', '·10^');
+  }
+  function human(b, unit) {      // potencias de 1000, como en verif.py
+    var us = unit === 'B' ? ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'] : [];
+    var i = 0; while (b >= 1000 && i < us.length - 1) { b /= 1000; i++; }
+    return (b >= 100 ? b.toFixed(0) : b >= 10 ? b.toFixed(1) : b.toFixed(2)) + ' ' + us[i];
+  }
+  function humanBytes(b) {
+    if (b >= 1e21) return b.toExponential(2).replace('e+', '·10^') + ' B';
+    return human(b, 'B');
+  }
+  function humanTime(s) {
+    if (s < 1e-3) return (s * 1e6).toFixed(0) + ' µs';
+    if (s < 1) return (s * 1000).toFixed(1) + ' ms';
+    if (s < 60) return s.toFixed(2) + ' s';
+    if (s < 3600) return (s / 60).toFixed(1) + ' min';
+    if (s < 86400) return (s / 3600).toFixed(1) + ' h';
+    if (s < 3.15e7) return (s / 86400).toFixed(1) + ' días';
+    var y = s / 3.1536e7;
+    return (y < 1e6 ? Math.round(y).toLocaleString('es') : y.toExponential(2).replace('e+', '·10^')) + ' años';
+  }
+  var tip = $('tip');
+  function showTip(evt, lines) {
+    clear(tip);
+    lines.forEach(function (ln, i) {
+      var d = document.createElement('div');
+      if (i === 0) { var b = document.createElement('b'); b.textContent = ln; d.appendChild(b); } else d.textContent = ln;
+      tip.appendChild(d);
+    });
+    tip.classList.add('show');
+    tip.style.left = Math.min(evt.clientX + 14, window.innerWidth - 270) + 'px'; tip.style.top = (evt.clientY + 14) + 'px';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+  function niceTicks(lo, hi, n) {
+    var span = hi - lo, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / mag;
+    var step = (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * mag, out = [];
+    for (var v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(v);
+    return out;
+  }
+  function fmtAxis(v) {
+    var a = Math.abs(v);
+    if (a >= 1e9) return (v / 1e9) + 'G';
+    if (a >= 1e6) return (v / 1e6) + 'M';
+    if (a >= 1e3) return (v / 1e3) + 'k';
+    return String(Math.round(v * 100) / 100);
+  }
+  // gráfico genérico: series [{pts:[[x,y]..], color, dots, name}], escalas lineal o log10
+  function drawChart(svg, cfg) {
+    clear(svg);
+    var W = cfg.W || 640, H = cfg.H || 280, L = 62, R = 20, T = 16, B = 46;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    function sx(v) { var a = cfg.xlog ? Math.log10(cfg.xmin) : cfg.xmin, b = cfg.xlog ? Math.log10(cfg.xmax) : cfg.xmax, t = cfg.xlog ? Math.log10(v) : v; return L + (t - a) / (b - a) * (W - L - R); }
+    function sy(v) { var a = cfg.ylog ? Math.log10(cfg.ymin) : cfg.ymin, b = cfg.ylog ? Math.log10(cfg.ymax) : cfg.ymax, t = cfg.ylog ? Math.log10(Math.max(v, cfg.ymin)) : v; return H - B - (t - a) / (b - a) * (H - T - B); }
+    cfg.yticks.forEach(function (t) {
+      el('line', { x1: L, y1: sy(t.v), x2: W - R, y2: sy(t.v), class: 'grid-h' }, svg);
+      el('text', { x: L - 8, y: sy(t.v) + 3, class: 'small-lab', style: 'text-anchor:end' }, svg, t.label);
+    });
+    cfg.xticks.forEach(function (t) {
+      el('line', { x1: sx(t.v), y1: H - B, x2: sx(t.v), y2: H - B + 5, class: 'axis' }, svg);
+      el('text', { x: sx(t.v), y: H - B + 18, class: 'small-lab' }, svg, t.label);
+    });
+    el('line', { x1: L, y1: H - B, x2: W - R, y2: H - B, class: 'axis' }, svg);
+    el('line', { x1: L, y1: T, x2: L, y2: H - B, class: 'axis' }, svg);
+    el('text', { x: L + (W - L - R) / 2, y: H - 6, class: 'small-lab' }, svg, cfg.xlabel);
+    el('text', { x: 14, y: T + (H - T - B) / 2, class: 'small-lab', transform: 'rotate(-90 14 ' + (T + (H - T - B) / 2) + ')' }, svg, cfg.ylabel);
+    if (cfg.marker) {
+      var mx = sx(cfg.marker.x);
+      el('line', { x1: mx, y1: T, x2: mx, y2: H - B, stroke: 'var(--ink-muted)', 'stroke-width': 1.4, 'stroke-dasharray': '4 4' }, svg);
+      if (cfg.marker.label) el('text', { x: mx, y: T - 3, class: 'mono-lab' }, svg, cfg.marker.label);
+    }
+    cfg.series.forEach(function (s, si) {
+      el('polyline', { points: s.pts.map(function (p) { return sx(p[0]) + ',' + sy(p[1]); }).join(' '), fill: 'none', stroke: s.color, 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, svg);
+      if (s.dots) s.pts.forEach(function (p, pi) {
+        el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: 4.2, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 2 }, svg);
+        if (cfg.tip) {
+          var h = el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: 12, fill: 'transparent', tabindex: '0', style: 'cursor:pointer' }, svg);
+          var f = function (e) { showTip(e, cfg.tip(si, pi)); };
+          h.addEventListener('pointermove', f); h.addEventListener('pointerleave', hideTip);
+          h.addEventListener('focus', function () { var r = h.getBoundingClientRect(); f({ clientX: r.left, clientY: r.top }); }); h.addEventListener('blur', hideTip);
+        }
+      });
+    });
+    if (cfg.point) el('circle', { cx: sx(cfg.point[0]), cy: sy(cfg.point[1]), r: 7.5, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 2.6 }, svg);
+    return { sx: sx, sy: sy };
+  }
+
+  // ============================================================ Paso 1: armar la mochila a mano
+  var EX = { w: [2, 3, 4, 5], v: [3, 4, 5, 6], W: 8 };
+  (function () {
+    var sel = [false, false, false, false], chips = $('chips'), btns = [];
+    EX.w.forEach(function (w, i) {
+      var b = document.createElement('button'); b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = 'objeto ' + (i + 1) + '<span class="wv">peso ' + w + ' · valor ' + EX.v[i] + '</span>';
+      b.onclick = function () { sel[i] = !sel[i]; b.setAttribute('aria-pressed', String(sel[i])); update(); };
+      chips.appendChild(b); btns.push(b);
+    });
+    var best = 0, bestMask = 0, rows = '<tr><th style="text-align:left">subconjunto</th><th>peso</th><th>valor</th><th>cabe (≤ ' + EX.W + ')</th></tr>';
+    var all = [];
+    for (var m = 0; m < 16; m++) {
+      var pw = 0, vl = 0, names = [];
+      for (var i = 0; i < 4; i++) if (m >> i & 1) { pw += EX.w[i]; vl += EX.v[i]; names.push(i + 1); }
+      all.push({ names: names, pw: pw, vl: vl, fits: pw <= EX.W });
+      if (pw <= EX.W && vl > best) { best = vl; bestMask = m; }
+    }
+    all.forEach(function (r, m) {
+      rows += '<tr class="' + (m === bestMask ? 'best' : '') + '"><td class="lbl">{' + r.names.join(', ') + '}</td><td>' + r.pw + '</td><td>' + r.vl + '</td><td>' + (r.fits ? 'sí' : 'no') + '</td></tr>';
+    });
+    $('subsetTable').innerHTML = rows;
+    function update() {
+      var pw = 0, vl = 0;
+      sel.forEach(function (s, i) { if (s) { pw += EX.w[i]; vl += EX.v[i]; } });
+      var fits = pw <= EX.W;
+      $('wbar').style.width = Math.min(100, 100 * pw / EX.W) + '%';
+      $('wbar').className = 'bar-fill ' + (fits ? 'ok' : 'over');
+      $('packInfo').innerHTML = 'Peso total <b>' + pw + ' / ' + EX.W + '</b> · valor <b>' + vl + '</b> · ' + (fits ? '<b class="hi">cabe</b>' : '<b class="bad">NO cabe</b>') +
+        (fits && vl === best ? ' · <b class="hi">¡es el óptimo (valor ' + best + ')!</b>' : fits ? ' · el óptimo es ' + best + ' (objetos 2 y 4, peso 8)' : '');
+    }
+    update();
+  })();
+
+  // ============================================================ Pasos 2 y 3: la DP, paso a paso
+  function dpWidget(root, opts) {
+    opts = opts || {};
+    root.innerHTML =
+      '<div class="config"><label>instancia: <select class="w-inst"><option value="ej">el ejemplo (4 objetos, W = 8)</option><option value="az">otra al azar (4 objetos, W = 10)</option></select></label>' +
+      (opts.asc ? '<label>ciclo interno: <select class="w-dir"><option value="desc">de W hacia abajo (correcto)</option><option value="asc">de wᵢ hacia arriba (incorrecto)</option></select></label>' : '') +
+      '<button class="w-new">🎲 otra instancia</button></div>' +
+      '<div class="scrollx"><svg class="diagram wide w-svg" viewBox="0 0 760 292"></svg></div>' +
+      '<div class="stats"><div class="stat"><div class="k">objeto actual</div><div class="v w-cur">—</div></div>' +
+      '<div class="stat"><div class="k">celdas actualizadas</div><div class="v cost w-cells">0</div></div>' +
+      '<div class="stat"><div class="k">Σ(W − wᵢ + 1)</div><div class="v w-form">—</div></div></div>' +
+      '<div class="panel w-cap"></div><div class="panel w-res" style="display:none"></div>' +
+      '<div class="controls"><button class="w-step">▸ un paso</button><button class="w-item">▸▸ terminar el objeto</button><button class="w-all">▸▸▸ terminar todo</button>' +
+      '<button class="w-play primary">▶ reproducir</button><button class="w-reset">↺ reiniciar</button><div class="speed-wrap">velocidad <input type="range" class="w-speed" min="1" max="100" value="55"></div></div>' +
+      '<div class="scrollx"><table class="t w-hist"></table></div>';
+    var q = function (c) { return root.querySelector(c); };
+    var svg = q('.w-svg'), items, W, dp, upd, snaps, pos, celdas, last, optTab, badCells, firstFail = null, timer = null, playing = false, asc = false;
+
+    function makeInst(kind) {
+      if (kind === 'ej') return { w: EX.w.slice(), v: EX.v.slice(), W: EX.W };
+      var w = [], v = [];
+      for (var i = 0; i < 4; i++) { w.push(1 + Math.floor(rng() * 5)); v.push(1 + Math.floor(rng() * 9)); }
+      return { w: w, v: v, W: 10 };
+    }
+    function bestFirst(k, cap) {          // fuerza bruta sobre los primeros k objetos
+      var best = 0;
+      for (var m = 0; m < (1 << k); m++) {
+        var pw = 0, vl = 0;
+        for (var i = 0; i < k; i++) if (m >> i & 1) { pw += items.w[i]; vl += items.v[i]; }
+        if (pw <= cap && vl > best) best = vl;
+      }
+      return best;
+    }
+    function seq(i) {
+      var w = items.w[i], out = [], j;
+      if (asc) for (j = w; j <= W; j++) out.push(j); else for (j = W; j >= w; j--) out.push(j);
+      return out;
+    }
+    function reset() {
+      stop();
+      asc = opts.asc && q('.w-dir') ? q('.w-dir').value === 'asc' : false;
+      W = items.W; dp = []; for (var j = 0; j <= W; j++) dp.push(0);
+      upd = {}; snaps = [dp.slice()]; pos = { i: 0, k: 0 }; celdas = 0; last = null; badCells = {}; firstFail = null;
+      optTab = []; for (var k = 0; k <= items.w.length; k++) { var row = []; for (j = 0; j <= W; j++) row.push(bestFirst(k, j)); optTab.push(row); }
+      q('.w-res').style.display = 'none';
+      ['.w-step', '.w-item', '.w-all', '.w-play'].forEach(function (c) { q(c).disabled = false; });
+      draw(); caption();
+    }
+    function newInst() { var kind = q('.w-inst').value; var t = makeInst(kind); items = { w: t.w, v: t.v }; W = t.W; items.W = t.W; reset(); }
+    function done() { return pos.i >= items.w.length; }
+    function finishItem() {
+      var k = pos.i + 1, mism = [];
+      snaps.push(dp.slice());
+      for (var j = 0; j <= W; j++) if (dp[j] !== optTab[k][j]) { mism.push(j); }
+      badCells = {}; mism.forEach(function (j) { badCells[j] = true; });
+      last.itemEnd = { k: k, mism: mism };
+      pos.i++; pos.k = 0; upd = {};
+    }
+    function step() {
+      if (done()) return false;
+      var i = pos.i, js = seq(i);
+      if (js.length === 0) { last = { i: i, empty: true }; finishItem(); return true; }
+      var j = js[pos.k], w = items.w[i], v = items.v[i], src = j - w, before = dp[j];
+      var srcUpdated = !!upd[src], cand = dp[src] + v, took = cand > before;
+      if (took) dp[j] = cand;
+      upd[j] = true; celdas++;
+      badCells = {};
+      var innerBad = [];
+      if (opts.inv) {      // invariante interno: tocadas = f(i, .), sin tocar = f(i-1, .)   (i es 1-based en f)
+        for (var c = 0; c <= W; c++) { var esp = upd[c] ? optTab[i + 1][c] : optTab[i][c]; if (dp[c] !== esp) innerBad.push(c); }
+        innerBad.forEach(function (c) { badCells[c] = true; });
+        if (innerBad.length && !firstFail) firstFail = { i: i + 1, j: j };
+      }
+      last = { i: i, j: j, src: src, before: before, cand: cand, srcVal: dp[src], took: took, srcUpdated: srcUpdated, w: w, v: v, innerBad: opts.inv ? innerBad : undefined };
+      pos.k++;
+      if (pos.k >= js.length) finishItem();
+      return true;
+    }
+    function draw() {
+      clear(svg);
+      var n = items.w.length, cw = Math.min(58, 650 / (W + 1)), x0 = (760 - cw * (W + 1)) / 2, yA = 112;
+      svg.setAttribute('viewBox', '0 0 760 ' + (opts.inv ? 292 : 190));
+      var curI = done() ? -1 : pos.i;
+      for (var i = 0; i < n; i++) {
+        var cls = 'item' + (i === curI ? ' cur' : (i < pos.i ? ' done' : ''));
+        var ix = 30 + i * 180;
+        el('rect', { x: ix, y: 10, width: 160, height: 40, rx: 9, class: cls }, svg);
+        el('text', { x: ix + 80, y: 26, 'text-anchor': 'middle', style: 'font-size:12px;font-weight:700' }, svg, 'objeto ' + (i + 1));
+        el('text', { x: ix + 80, y: 42, class: 'mono-lab' }, svg, 'peso ' + items.w[i] + ' · valor ' + items.v[i]);
+      }
+      var tgt = (last && !last.empty && last.j !== undefined) ? last : null;
+      for (var j = 0; j <= W; j++) {
+        var c = 'dpc';
+        if (upd[j]) c += ' upd';
+        if (badCells[j]) c += ' bad';
+        if (tgt) {
+          if (j === tgt.j) c += ' tgt';
+          else if (j === tgt.src) c += tgt.srcUpdated ? ' srcbad' : ' src';
+        }
+        el('rect', { x: x0 + j * cw, y: yA, width: cw, height: 46, class: c }, svg);
+        el('text', { x: x0 + j * cw + cw / 2, y: yA + 24, class: 'dpv' }, svg, String(dp[j]));
+        el('text', { x: x0 + j * cw + cw / 2, y: yA + 64, class: 'mono-lab' }, svg, 'j=' + j);
+      }
+      el('text', { x: x0 - 8, y: yA + 24, class: 'mono-lab', style: 'text-anchor:end' }, svg, 'dp');
+      if (tgt && tgt.src !== undefined && tgt.src >= 0) {
+        var a = x0 + tgt.src * cw + cw / 2, b = x0 + tgt.j * cw + cw / 2;
+        el('path', { d: 'M' + a + ',' + (yA - 2) + ' Q' + ((a + b) / 2) + ',' + (yA - 52) + ' ' + b + ',' + (yA - 4), class: 'arrow' + (tgt.srcUpdated ? ' bad' : '') }, svg);
+        el('text', { x: (a + b) / 2, y: yA - 36, class: 'mono-lab', style: 'font-weight:700' }, svg, '+' + tgt.v);
+      }
+      if (opts.inv) {
+        var kk = Math.min(pos.i + 1, items.w.length);
+        [[kk - 1, 196, 'f(i−1,·)'], [kk, 232, 'f(i,·)']].forEach(function (rd) {
+          el('text', { x: x0 - 8, y: rd[1] + 18, class: 'mono-lab', style: 'text-anchor:end' }, svg, rd[2]);
+          for (var c2 = 0; c2 <= W; c2++) {
+            el('rect', { x: x0 + c2 * cw, y: rd[1], width: cw, height: 28, class: 'optc' }, svg);
+            el('text', { x: x0 + c2 * cw + cw / 2, y: rd[1] + 18, class: 'mono-lab', style: 'font-size:12px' }, svg, String(optTab[rd[0]][c2]));
+          }
+        });
+        el('text', { x: 380, y: 282, class: 'small-lab' }, svg, 'óptimos reales con los primeros ' + (kk - 1) + ' y ' + kk + ' objetos · celdas ya tocadas deben valer f(i,·); las demás, f(i−1,·)');
+      }
+      q('.w-cur').textContent = done() ? 'fin' : (pos.i + 1) + ' (' + items.w[pos.i] + ',' + items.v[pos.i] + ')';
+      q('.w-cells').textContent = celdas;
+      var form = 0; items.w.forEach(function (w) { if (w <= W) form += W - w + 1; });
+      q('.w-form').textContent = form;
+      var rows = '<tr><th style="text-align:left">dp[j] tras…</th>' + dp.map(function (_, j) { return '<th>' + j + '</th>'; }).join('') + '</tr>';
+      snaps.forEach(function (s, i2) {
+        rows += '<tr><td class="lbl">' + (i2 === 0 ? 'inicio' : 'objeto ' + i2 + ' (' + items.w[i2 - 1] + ',' + items.v[i2 - 1] + ')') + '</td>' + s.map(function (x) { return '<td>' + x + '</td>'; }).join('') + '</tr>';
+      });
+      if (!done() && pos.k > 0) {
+        rows += '<tr><td class="lbl">objeto ' + (pos.i + 1) + ' (en curso)</td>' + dp.map(function (x, j) { return '<td class="' + (upd[j] ? 'upd' : '') + '">' + x + '</td>'; }).join('') + '</tr>';
+      }
+      q('.w-hist').innerHTML = rows;
+    }
+    function caption() {
+      var cap = q('.w-cap'), res = q('.w-res'), s = '';
+      if (!last) {
+        cap.innerHTML = 'Se va a procesar el objeto <b>1</b> (peso ' + items.w[0] + ', valor ' + items.v[0] + '): ' + (asc ? 'j de ' + items.w[0] + ' <b>hacia arriba</b>' : 'j de ' + W + ' <b>hacia abajo</b>') + ' hasta ' + (asc ? W : items.w[0]) + '. Presiona «un paso».';
+        return;
+      }
+      if (!last.empty) {
+        s = '<b>Objeto ' + (last.i + 1) + ', j = ' + last.j + ':</b> <span class="mono">máx( dp[' + last.j + '] = ' + last.before + '  (no llevarlo),  dp[' + last.src + '] + ' + last.v + ' = ' + last.srcVal + ' + ' + last.v + ' = ' + last.cand + '  (llevarlo) ) = ' + Math.max(last.before, last.cand) + '</span> ' +
+            (last.took ? '→ <b class="hi">llevarlo mejora</b>.' : '→ se queda como estaba.');
+        if (last.srcUpdated) s += ' <b class="bad">⚠ dp[' + last.src + '] ya había sido actualizado con este mismo objeto en esta ronda: el objeto se está usando otra vez.</b>';
+        if (opts.inv && last.innerBad) {
+          s += '<br><b>Invariante interno I<sub>int</sub>(' + (last.i + 1) + ', ' + (last.j - 1) + '):</b> ' + (last.innerBad.length ? '<b class="bad">✗ falla en las celdas c = ' + last.innerBad.join(', ') + ' (dp[c] no vale lo que debería).</b>' : '<b class="hi">✓ se cumple</b>: celdas tocadas = f(i,·), sin tocar = f(i−1,·).');
+          if (firstFail) s += ' <b class="bad">Primer fallo de esta corrida: ronda ' + firstFail.i + ', j = ' + firstFail.j + '</b> (la teoría dice que no puede fallar antes de j = 2wᵢ = ' + 2 * items.w[firstFail.i - 1] + ').';
+        }
+      }
+      if (last.itemEnd) {
+        var ie = last.itemEnd;
+        s += '<br><b>Fin de la ronda ' + ie.k + '.</b> ' + (opts.inv ? (ie.mism.length ? '<b class="bad">✗ I<sub>ext</sub>(' + ie.k + ') falla: dp difiere de f(' + ie.k + ',·) en c = ' + ie.mism.join(', ') + '.</b>' : '<b class="hi">✓ I<sub>ext</sub>(' + ie.k + ') se cumple: dp[c] = f(' + ie.k + ', c) para todo c.</b>') : 'La fila de abajo guarda el estado.');
+      }
+      cap.innerHTML = s;
+      if (done()) {
+        var opt = optTab[items.w.length][W], ok = dp[W] === opt;
+        res.style.display = '';
+        res.innerHTML = '<span class="banner ' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓ dp[' + W + '] = ' + dp[W] + ' = el óptimo (fuerza bruta)' : '✗ dp[' + W + '] = ' + dp[W] + ' ≠ óptimo ' + opt) + '</span><br>' +
+          'celdas actualizadas: <b>' + celdas + '</b>' + (opts.inv && firstFail ? ' · primer fallo del invariante interno: ronda ' + firstFail.i + ', j = ' + firstFail.j : '') + (asc && !ok ? ' · <b class="bad">con el ciclo ascendente se llena la mochila repitiendo objetos (mochila no acotada).</b>' : '');
+        ['.w-step', '.w-item', '.w-all', '.w-play'].forEach(function (c) { q(c).disabled = true; });
+        stop();
+      }
+    }
+    function once() { if (step()) { draw(); caption(); } }
+    function stop() { playing = false; if (timer) clearInterval(timer); timer = null; q('.w-play').textContent = '▶ reproducir'; }
+    function play() {
+      if (playing) { stop(); return; }
+      playing = true; q('.w-play').textContent = '⏸ pausar';
+      timer = setInterval(once, Math.max(60, 1000 - q('.w-speed').value * 9));
+    }
+    q('.w-step').onclick = once;
+    q('.w-item').onclick = function () { var i0 = pos.i; stop(); while (!done() && pos.i === i0) step(); draw(); caption(); };
+    q('.w-all').onclick = function () { stop(); while (!done()) step(); draw(); caption(); };
+    q('.w-play').onclick = play;
+    q('.w-reset').onclick = reset;
+    q('.w-speed').addEventListener('input', function () { if (playing) { stop(); play(); } });
+    q('.w-inst').onchange = newInst; q('.w-new').onclick = function () { q('.w-inst').value = 'az'; newInst(); };
+    if (opts.asc) q('.w-dir').onchange = reset;
+    var t0 = makeInst('ej'); items = { w: t0.w, v: t0.v, W: t0.W }; reset();
+  }
+  dpWidget($('dpA'), {});
+  dpWidget($('dpB'), { asc: true, inv: true });
+
+  // ============================================================ Paso 4: costo contra n o contra el valor de W
+  var U = []; (function () { var r = mulberry32(12345); for (var i = 0; i < 1600; i++) U.push(r()); })();
+  function celdasDe(n, W) { var s = 0; for (var i = 0; i < n; i++) { var w = 1 + Math.floor(U[i] * (W / 2)); if (w <= W) s += W - w + 1; } return s; }
+  (function () {
+    function upd() {
+      var mode = radio('costMode'), n = +$('cN').value, W = +$('cW').value;
+      $('cNv').textContent = n; $('cWv').textContent = W;
+      var pts = [], xmin, xmax, i, steps = 40;
+      if (mode === 'W') { xmin = 1000; xmax = 1000000; for (i = 0; i <= steps; i++) { var w = xmin + (xmax - xmin) * i / steps; pts.push([w, celdasDe(n, Math.round(w))]); } }
+      else { xmin = 10; xmax = 1600; for (i = 0; i <= steps; i++) { var nn = Math.round(xmin + (xmax - xmin) * i / steps); pts.push([nn, celdasDe(nn, W)]); } }
+      var ymax = Math.max.apply(null, pts.map(function (p) { return p[1]; })) * 1.05;
+      var yt = niceTicks(0, ymax, 5).map(function (v) { return { v: v, label: fmtAxis(v) }; });
+      var xt = niceTicks(xmin, xmax, 5).map(function (v) { return { v: v, label: fmtAxis(v) }; });
+      var cur = mode === 'W' ? W : n, curY = celdasDe(n, W);
+      drawChart($('costSvg'), { xmin: xmin, xmax: xmax, ymin: 0, ymax: ymax, xticks: xt, yticks: yt, xlabel: mode === 'W' ? 'valor de W' : 'número de objetos n', ylabel: 'celdas actualizadas',
+        series: [{ pts: pts, color: 'var(--accent-speed)' }], marker: { x: cur, label: (mode === 'W' ? 'W = ' : 'n = ') + cur }, point: [cur, curY] });
+      $('costStats').innerHTML =
+        '<div class="stat"><div class="k">celdas Σ(W − wᵢ + 1)</div><div class="v cost">' + sci(curY) + '</div></div>' +
+        '<div class="stat"><div class="k">n · W</div><div class="v">' + sci(n * W) + '</div></div>' +
+        '<div class="stat"><div class="k">celdas / (n·W)</div><div class="v speed">' + (curY / (n * W)).toFixed(3) + '</div></div>' +
+        '<div class="stat"><div class="k">memoria W + 1 celdas</div><div class="v">' + sci(W + 1) + '</div></div>';
+    }
+    ['cN', 'cW'].forEach(function (id) { $(id).addEventListener('input', upd); });
+    document.querySelectorAll('input[name="costMode"]').forEach(function (r) { r.addEventListener('change', upd); });
+    upd();
+  })();
+
+  // ============================================================ Paso 5: los mismos datos, en valor o en bits
+  var DATA = { bits: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+    size: [754, 812, 893, 901, 944, 958, 1025, 1050, 1082, 1119, 1178, 1227, 1269],
+    cells: [127435, 244527, 458662, 985845, 1873783, 3884566, 7845866, 15444895, 31954753, 62839150, 124192302, 252523802, 494198441] };
+  (function () {
+    function upd() {
+      var mx = radio('bitsX'), my = radio('bitsY'), b = +$('bB').value, idx = b - 12;
+      $('bBv').textContent = b;
+      var pts = DATA.bits.map(function (bb, i) { return [mx === 'val' ? Math.pow(2, bb) : bb, DATA.cells[i]]; });
+      var xmin = mx === 'val' ? 0 : 12, xmax = mx === 'val' ? Math.pow(2, 24) : 24;
+      var xt = mx === 'val' ? [0, 4e6, 8e6, 12e6, 16e6].map(function (v) { return { v: v, label: fmtAxis(v) }; }) : [12, 14, 16, 18, 20, 22, 24].map(function (v) { return { v: v, label: String(v) }; });
+      var yt, ymin, ymax;
+      if (my === 'lin') { ymin = 0; ymax = 5e8; yt = [0, 1e8, 2e8, 3e8, 4e8, 5e8].map(function (v) { return { v: v, label: fmtAxis(v) }; }); }
+      else { ymin = 1e4; ymax = 1e9; yt = [4, 5, 6, 7, 8, 9].map(function (e) { return { v: Math.pow(10, e), label: '10^' + e }; }); }
+      drawChart($('bitsSvg'), { H: 290, xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax, ylog: my === 'log', xticks: xt, yticks: yt,
+        xlabel: mx === 'val' ? 'valor de W' : 'tamaño de W en bits (b)', ylabel: 'celdas actualizadas',
+        series: [{ pts: pts, color: mx === 'val' ? 'var(--accent-speed)' : 'var(--accent-cost)', dots: true }],
+        point: [pts[idx][0], pts[idx][1]],
+        tip: function (si, pi) { return ['b = ' + DATA.bits[pi] + ' bits (W = ' + Math.pow(2, DATA.bits[pi]).toLocaleString('es') + ')', 'tamaño de la entrada: ' + DATA.size[pi] + ' bits', 'celdas: ' + DATA.cells[pi].toLocaleString('es')]; } });
+      var ratio = idx > 0 ? (DATA.cells[idx] / DATA.cells[idx - 1]).toFixed(2) : '—';
+      $('bitsStats').innerHTML =
+        '<div class="stat"><div class="k">bits de W (el tamaño b)</div><div class="v">' + b + '</div></div>' +
+        '<div class="stat"><div class="k">valor de W</div><div class="v">' + Math.pow(2, b).toLocaleString('es') + '</div></div>' +
+        '<div class="stat"><div class="k">tamaño de la entrada</div><div class="v speed">' + DATA.size[idx] + ' bits</div></div>' +
+        '<div class="stat"><div class="k">celdas</div><div class="v cost">' + DATA.cells[idx].toLocaleString('es') + '</div></div>' +
+        '<div class="stat"><div class="k">celdas / anterior</div><div class="v">' + ratio + '</div></div>';
+    }
+    document.querySelectorAll('input[name="bitsX"],input[name="bitsY"]').forEach(function (r) { r.addEventListener('change', upd); });
+    $('bB').addEventListener('input', upd); upd();
+  })();
+
+  // ============================================================ Paso 6: la instancia mínima y los polinomios
+  (function () {
+    function crossing(k) { var s = 4n, K = BigInt(k); while ((1n << (s - 3n)) <= s ** K) s++; return Number(s); }
+    function upd() {
+      var k = +radio('polyK'), s = +$('pS').value, sStar = crossing(k);
+      $('pSv').textContent = s;
+      var lo = Math.log10(2), N = 80, pe = [], pp = [];
+      for (var t = 3; t <= N; t++) { pe.push([t, Math.pow(10, (t - 3) * lo)]); pp.push([t, Math.pow(t, k)]); }
+      var ymaxE = 28, yt = [0, 4, 8, 12, 16, 20, 24, 28].map(function (e) { return { v: Math.pow(10, e), label: '10^' + e }; });
+      var xt = [3, 10, 20, 30, 40, 50, 60, 70, 80].map(function (v) { return { v: v, label: String(v) }; });
+      drawChart($('polySvg'), { xmin: 3, xmax: N, ymin: 1, ymax: Math.pow(10, ymaxE), ylog: true, xticks: xt, yticks: yt, xlabel: 'tamaño de la entrada s (bits)', ylabel: 'celdas (escala log)',
+        series: [{ pts: pp, color: 'var(--accent-speed)' }, { pts: pe, color: 'var(--accent-cost)' }], marker: { x: sStar, label: 's* = ' + sStar }, point: [s, Math.pow(10, (s - 3) * lo)] });
+      var e = 1n << BigInt(s - 3), p = BigInt(s) ** BigInt(k);
+      var fe = e < 10n ** 15n ? e.toLocaleString('es') : Number(e).toExponential(2).replace('e+', '·10^'), fp = p < 10n ** 15n ? p.toLocaleString('es') : Number(p).toExponential(2).replace('e+', '·10^');
+      $('polyInfo').innerHTML = 'Instancia: n = 1, w = v = 1, W = 2<sup>b</sup> con b = s − 3 = <b>' + (s - 3) + '</b>. Con s = <b>' + s + '</b> bits: celdas = 2<sup>' + (s - 3) + '</sup> = <b class="' + (e > p ? 'bad' : 'hi') + '">' + fe + '</b> contra s<sup>' + k + '</sup> = <b>' + fp + '</b> → ' +
+        (e > p ? '<b class="bad">la exponencial ya supera al polinomio</b>.' : '<b class="hi">todavía gana el polinomio</b>.') +
+        '<br>Desde <b>s* = ' + sStar + ' bits</b> la instancia mínima supera a s<sup>' + k + '</sup> para siempre: ninguna cota polinomial sirve. (verif.py: 6, 10, 15, 27, 63 para k = 1, 2, 3, 5, 10.)';
+    }
+    document.querySelectorAll('input[name="polyK"]').forEach(function (r) { r.addEventListener('change', upd); });
+    $('pS').addEventListener('input', upd); upd();
+  })();
+
+  // ---- la trampa de las instancias triviales
+  (function () {
+    var N = 40, UU = [], VV = []; (function () { var r = mulberry32(777); for (var i = 0; i < N; i++) { UU.push(r()); VV.push(1 + Math.floor(r() * 1000)); } })();
+    var pending = null;
+    function solve(W, ps, vs) {
+      var dp = new Int32Array(W + 1);
+      for (var i = 0; i < ps.length; i++) { var w = ps[i], v = vs[i]; if (w > W) continue; for (var j = W; j >= w; j--) { var c = dp[j - w] + v; if (c > dp[j]) dp[j] = c; } }
+      return dp[W];
+    }
+    function upd() {
+      var mode = radio('trapMode'), b = +$('tB').value, clip = $('tClip').checked, W = Math.pow(2, b);
+      $('tBv').textContent = b;
+      var ps = UU.map(function (u) { return mode === 'acot' ? 1 + Math.floor(u * 1000) : 1 + Math.floor(u * (W / 2)); });
+      var sw = ps.reduce(function (a, c) { return a + c; }, 0), sv = VV.reduce(function (a, c) { return a + c; }, 0);
+      var Wuse = clip ? Math.min(W, sw) : W;
+      var cells = 0; ps.forEach(function (w) { if (w <= Wuse) cells += Wuse - w + 1; });
+      var best = solve(Wuse, ps, VV), trivial = W >= sw;
+      var cellsFull = 0; ps.forEach(function (w) { if (w <= W) cellsFull += W - w + 1; });
+      $('trapInfo').innerHTML = 'W = 2<sup>' + b + '</sup> = <b>' + W.toLocaleString('es') + '</b> · Σ pesos = <b>' + sw.toLocaleString('es') + '</b> · Σ valores = <b>' + sv.toLocaleString('es') + '</b><br>' +
+        'mejor valor (la DP) = <b>' + best.toLocaleString('es') + '</b> → ' + (trivial ? '<b class="bad">W ≥ Σw: la respuesta es «llevarse todo» (' + sv.toLocaleString('es') + '): la instancia es trivial, se resuelve en O(n)</b>.' : '<b class="hi">W &lt; Σw: instancia no trivial</b>.') +
+        '<br>celdas que gasta la DP: <b class="' + (trivial && !clip ? 'bad' : '') + '">' + cells.toLocaleString('es') + '</b>' + (clip ? ' (con W recortado a ' + Wuse.toLocaleString('es') + '; sin recortar serían ' + cellsFull.toLocaleString('es') + ')' : '') +
+        (trivial && !clip ? ' — para una respuesta que se calcula en ' + N + ' pasos.' : '.');
+    }
+    function sched() { if (pending) clearTimeout(pending); pending = setTimeout(upd, 30); }
+    document.querySelectorAll('input[name="trapMode"]').forEach(function (r) { r.addEventListener('change', upd); });
+    $('tB').addEventListener('input', sched); $('tClip').addEventListener('change', upd); upd();
+  })();
+
+  // ============================================================ Paso 7: unario, memoria y tiempo
+  (function () {
+    var N = 40;
+    function logbar(label, v, lo, hi, color, valtxt, marks) {
+      var pct = Math.max(0.5, Math.min(100, (Math.log10(Math.max(v, 1e-300)) - lo) / (hi - lo) * 100));
+      var m = (marks || []).map(function (mk) { return '<div class="hbar-mark" style="left:' + Math.max(0, Math.min(100, (Math.log10(mk.v) - lo) / (hi - lo) * 100)) + '%" title="' + mk.t + '"></div>'; }).join('');
+      return '<div class="hbar-row"><div>' + label + '</div><div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%;background:' + color + '"></div>' + m + '</div><div class="hbar-val">' + valtxt + '</div></div>';
+    }
+    function upd() {
+      var b = +$('uB').value, mode = radio('uMode'), ramGB = +$('uRam').value, W = Math.pow(2, b);
+      $('uBv').textContent = b;
+      // entrada
+      var h = '<div class="lead" style="margin:6px 0 0">La entrada (W) <b>' + (mode === 'bin' ? 'en binario: ' + b + ' casillas' : 'en unario: ' + (b <= 6 ? W + ' marcas' : W.toExponential(2).replace('e+', '·10^') + ' marcas')) + '</b></div>';
+      if (mode === 'bin') { h += '<div class="bits">'; for (var i = 0; i < b; i++) h += '<div class="bitbox">' + (i === 0 ? 1 : 0) + '</div>'; h += '</div>'; }
+      else if (b <= 6) { h += '<div class="bits" style="gap:2px">'; for (var u = 0; u < W; u++) h += '<div class="unit"></div>'; h += '</div>'; }
+      else h += '<div class="panel" style="margin-top:6px">Unario no cabe en pantalla: serían ' + W.toExponential(2).replace('e+', '·10^') + ' marcas. Por eso el tamaño de la entrada en unario es W, no b.</div>';
+      $('uInput').innerHTML = h;
+      // tabla dp
+      var t = '<div class="lead" style="margin:8px 0 0">La tabla <i>dp[0..W]</i> que recorre el algoritmo: <b>' + (W + 1 > 1e6 ? (W + 1).toExponential(2).replace('e+', '·10^') : (W + 1).toLocaleString('es')) + ' celdas</b></div>';
+      if (b <= 7) { t += '<div class="strip">'; for (var c = 0; c <= W; c++) t += '<div class="cellbox"></div>'; t += '</div>'; }
+      else t += '<div class="panel" style="margin-top:6px">(' + (W + 1).toExponential(2).replace('e+', '·10^') + ' celdas: no se dibujan una por una. Con b ≤ 7 sí.)</div>';
+      $('uTable').innerHTML = t;
+      // contadores
+      var cells = N * W, mem = 8 * W, secs = cells / 1e9, ram = ramGB * 1e9;
+      $('uStats').innerHTML =
+        '<div class="stat"><div class="k">tamaño de la entrada</div><div class="v speed">' + (N * b + b + 10 * N) + ' bits</div></div>' +
+        '<div class="stat"><div class="k">celdas de la tabla × n = 40</div><div class="v cost">' + sci(cells) + '</div></div>' +
+        '<div class="stat"><div class="k">memoria (8 B por celda)</div><div class="v cost">' + humanBytes(mem) + '</div></div>' +
+        '<div class="stat"><div class="k">tiempo a 10⁹ celdas/s</div><div class="v cost">' + humanTime(secs) + '</div></div>';
+      var lg = Math.log10;
+      $('uBars').innerHTML =
+        logbar('memoria de la tabla', mem, 0, 26, 'var(--accent-cost)', humanBytes(mem), [{ v: ram, t: 'tu RAM: ' + ramGB + ' GB' }]) +
+        logbar('tiempo de cómputo', secs, -3, 20, 'var(--accent-cost)', humanTime(secs), [{ v: 3600, t: '1 hora' }, { v: 3.1536e7, t: '1 año' }]) +
+        '<div style="font-size:.7rem;color:var(--ink-muted);margin-left:200px">raya negra en memoria = tu RAM · rayas en tiempo = 1 hora y 1 año (escalas logarítmicas)</div>';
+      var bMem = Math.floor(Math.log2(ram / 8)), memOver = mem > ram;
+      $('uVerdict').innerHTML = (memOver ? '<b class="bad">La tabla ya no cabe en ' + ramGB + ' GB</b> (la pared de memoria llega en b ≈ ' + (bMem + 1) + '), mientras que el tiempo sería de ' + humanTime(secs) + '.' : 'Con b = ' + b + ' la tabla cabe en ' + ramGB + ' GB (la pared llega en b ≈ ' + (bMem + 1) + ').') +
+        '<br>Recuerda la tabla de C1 §8 para la primalidad: allí la pared es el <i>tiempo</i>. Aquí es la <b>memoria</b>: con b = 32 la tabla pide 34.4 GB y el tiempo son 2.86 min.';
+    }
+    ['uB', 'uRam'].forEach(function (id) { $(id).addEventListener('input', upd); });
+    document.querySelectorAll('input[name="uMode"]').forEach(function (r) { r.addEventListener('change', upd); });
+    upd();
+  })();
+
+  // ============================================================ Paso 8: máquinas más rápidas y la primalidad
+  (function () {
+    var N = 40, HORA = 3.6e12;
+    function bar(label, log10v, hi, color, valtxt, marks) {
+      var pct = Math.max(0.5, Math.min(100, log10v / hi * 100));
+      var m = marks.map(function (mk) { return '<div class="hbar-mark" style="left:' + Math.min(100, Math.log10(mk.v) / hi * 100) + '%" title="' + mk.t + '"></div>'; }).join('');
+      return '<div class="hbar-row"><div>' + label + '</div><div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%;background:' + color + '"></div>' + m + '</div><div class="hbar-val">' + valtxt + '</div></div>';
+    }
+    function upd() {
+      var b = +$('pB').value; $('pBv').textContent = b;
+      var lp = b / 2 * Math.log10(2), lm = Math.log10(N) + b * Math.log10(2), hi = Math.log10(N) + 128 * Math.log10(2);
+      var marks = [{ v: HORA, t: '1 hora a 10^9/s' }, { v: 3.1536e16, t: '1 año a 10^9/s' }];
+      $('pBars').innerHTML =
+        bar('<b>primalidad</b>: 2<sup>b/2</sup> divisiones', lp, hi, 'var(--accent-speed)', humanTime(Math.pow(2, b / 2) / 1e9), marks) +
+        bar('<b>mochila</b>: n·2<sup>b</sup> celdas (n = 40)', lm, hi, 'var(--accent-cost)', humanTime(N * Math.pow(2, b) / 1e9), marks) +
+        '<div style="font-size:.7rem;color:var(--ink-muted);margin-left:200px">rayas negras: 1 hora y 1 año a 10⁹ operaciones/s (escala logarítmica de operaciones)</div>';
+      $('pInfo').innerHTML = 'Con <b>b = ' + b + '</b> bits: la división hace 2<sup>' + (b / 2) + '</sup> = ' + sci(Math.pow(2, b / 2)) + ' divisiones (<b>' + humanTime(Math.pow(2, b / 2) / 1e9) + '</b>); la mochila, ' + sci(N * Math.pow(2, b)) + ' celdas (<b>' + humanTime(N * Math.pow(2, b) / 1e9) + '</b>). ' +
+        (b === 64 ? 'A 64 bits la división tarda 4.29 s (C1 §8) y la mochila 2.3·10⁴ años: la forma es la misma, la constante en el exponente no.' : '');
+      var k = +radio('kSpeed'), rows = '<tr><th style="text-align:left"></th><th>b máximo en 1 hora</th><th>con una máquina ' + k + '× más rápida</th><th>bits que gana</th></tr>';
+      var bp1 = Math.floor(2 * Math.log2(HORA)), bpk = Math.floor(2 * Math.log2(HORA * k)), bm1 = Math.floor(Math.log2(HORA / N)), bmk = Math.floor(Math.log2(HORA * k / N));
+      rows += '<tr><td class="lbl">primalidad (2<sup>b/2</sup>)</td><td>' + bp1 + '</td><td>' + bpk + '</td><td class="hi">+' + (2 * Math.log2(k)).toFixed(1) + '</td></tr>';
+      rows += '<tr><td class="lbl">mochila (n·2<sup>b</sup>)</td><td>' + bm1 + '</td><td>' + bmk + '</td><td class="cost">+' + Math.log2(k).toFixed(1) + '</td></tr>';
+      $('kTable').innerHTML = rows;
+    }
+    $('pB').addEventListener('input', upd);
+    document.querySelectorAll('input[name="kSpeed"]').forEach(function (r) { r.addEventListener('change', upd); });
+    upd();
+  })();
+})();
+</script>
+</body>
+</html>
