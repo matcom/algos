@@ -1,6 +1,6 @@
 ## Problema
 
-Considere el algoritmo de Gale-Shapley adaptado al escenario de **listas incompletas**, donde cada proponente lista únicamente a un subconjunto de receptores aceptables, prefiriendo explícitamente quedarse solo antes que emparejarse con alguien omitido de su lista (y viceversa).
+Considere el algoritmo de Gale-Shapley adaptado al escenario de listas incompletas, donde cada proponente lista únicamente a un subconjunto de receptores aceptables, prefiriendo explícitamente quedarse solo antes que emparejarse con alguien omitido de su lista (y viceversa).
 
 1. **Adaptación:** Describa la modificación del algoritmo y de la definición de pareja bloqueante.
 2. **Terminación:** Defina la función potencial que demuestra la terminación finita del algoritmo.
@@ -17,7 +17,7 @@ Considere el algoritmo de Gale-Shapley adaptado al escenario de **listas incompl
 * **Listas de Preferencia:** Cada proponente $p$ posee una lista ordenada exclusivamente de receptores aceptables. Cualquier receptor ausente de dicha lista se considera inaceptable para $p$ (y de forma recíproca para los receptores respecto a los proponentes).
 * **Fase de Propuestas:**
 1. Un proponente libre $p$ que aún conserve receptores aceptables en su lista propone al primer receptor de la misma al que no le haya propuesto previamente.
-2. Si un proponente agota la totalidad de su lista de aceptables y es rechazado, se retira definitivamente y permanece soltero.
+2. Si un proponente agota la totalidad de su lista de aceptables y is rechazado, se retira definitivamente y permanece soltero.
 
 
 * **Respuesta del Receptor $a$:** Al recibir una propuesta de $p$:
@@ -42,10 +42,14 @@ Una pareja $(p, a)$ constituye un bloque para un emparejamiento final $M$ si y s
 
 Para garantizar formalmente que el proceso iterativo concluye en un número finito de pasos, definimos una función potencial $\Phi$ basada en las opciones de propuesta no exploradas:
 
-* **Definición de $\Phi$:** Sea $\Phi$ el número total de pares ordenados $(p, a)$ tales que el proponente $p$ considera aceptable al receptor $a$, pero **aún no le ha propuesto**.
+* **Definición de $\Phi$:** Sea $\Phi$ el número total de pares ordenados $(p, a)$ tales que el proponente $p$ considera aceptable al receptor $a$, pero aún no le ha propuesto.
 * **Propiedades de $\Phi$:**
-1. **Entera y no negativa:** $\Phi \ge 0$, puesto que la cantidad de pares no probados nunca puede ser inferior a cero.
-2. **Decrecimiento estricto:** En cada paso del algoritmo, un proponente $p$ realiza una propuesta a un receptor $a$ de su lista al cual no le había propuesto antes. Dicho par transita de la categoría de "no intentado" a "intentado", reduciendo el valor de la función potencial exactamente en una unidad ($\Phi_{\text{nuevo}} = \Phi_{\text{actual}} - 1$).
+1. **Entera y no negativa:** $\Phi \geq 0$, puesto que la cantidad de pares no probados nunca puede ser inferior a cero.
+2. **Decrecimiento estricto:** En cada paso del algoritmo, un proponente $p$ realiza una propuesta a un receptor $a$ de su lista al cual no le había propuesto antes. Dicho par transita de la categoría de "no intentado" a "intentado", reduciendo el valor de la función potencial exactamente en una unidad:
+
+$$\Phi_{\text{nuevo}} = \Phi_{\text{actual}} - 1$$
+
+
 
 
 
@@ -55,7 +59,7 @@ Dado que $\Phi$ es una secuencia de enteros no negativos acotada superiormente p
 
 ### 3. ¿Sigue siendo estable el resultado? Demostración Formal
 
-**Sí, el resultado producido por el algoritmo adaptado sigue siendo perfectamente estable.**
+Sí, el resultado producido por el algoritmo adaptado sigue siendo perfectamente estable.
 
 #### Demostración por Reducción al Absurdo
 
@@ -67,10 +71,12 @@ Supongamos por contradicción que el emparejamiento final $M$ producido por el a
 * Ambas partes se consideran mutuamente aceptables.
 
 
-2. Puesto que los proponentes realizan sus ofertas en orden estrictamente decreciente de preferencia (comenzando por su primera opción), y el enunciado establece que $p$ prefiere a $a$ por encima de su pareja final $m(p)$, es un hecho lógico que **$p$ le propuso a $a$ en algún momento anterior** de la ejecución antes de ser rechazado definitivamente o antes de casarse con $m(p)$ (si $p$ terminó soltero).
-3. Dado que $p$ le propuso a $a$, debió ocurrir un rechazo: en algún instante temporal, $a$ rechazó a $p$ (o lo abandonó tras haberlo aceptado de manera provisional para sustituirlo por un pretendiente de mayor preferencia). Por la propiedad monótona fundamental de los receptores en los procesos de asignación estable, un receptor jamás empeora su situación: únicamente rechaza candidatos para retener a otros que valora más (o permanece libre si la alternativa vigente es inferior). En consecuencia, al finalizar el algoritmo, la pareja asignada a $a$, $m(a)$, es preferida por $a$ (o es la única disponible) frente a cualquier pretendiente que haya tenido en el pasado, incluido $p$.
-4. Esto entra en contradicción directa con la premisa de la pareja bloqueante, la cual afirmaba que $a$ prefería estrictamente a $p$ por encima de su pareja actual $m(a)$.
+2. Puesto que los proponentes realizan sus ofertas en orden estrictamente decreciente de preferencia (comenzando por su primera opción), y el enunciado establece que $p$ prefiere a $a$ por encima de su pareja final $m(p)$, es un hecho lógico que $p$ le propuso a $a$ en algún momento anterior de la ejecución, antes de ser emparejado con $m(p)$ o de agotar su lista de aceptables si terminó soltero.
+3. Dado que $p$ le propuso a $a$ y ambos se consideran mutuamente aceptables, $a$ tuvo que aceptar inicialmente la propuesta si se encontraba libre, o compararla con su pareja provisional si ya estaba emparejado. Como en el emparejamiento final $p$ no está emparejado con $a$, necesariamente ocurrió un rechazo: o bien $a$ rechazó inicialmente a $p$ porque prefería a otro proponente, o bien lo abandonó tras haberlo aceptado provisionalmente para sustituirlo por un pretendiente de mayor preferencia.
+4. Por la propiedad monótona fundamental de los receptores en los procesos de asignación estable, un receptor que ha aceptado una propuesta nunca empeora su situación: únicamente rechaza candidatos para retener a otros que valora más. Además, un receptor que ha aceptado provisionalmente a alguien nunca vuelve a quedar libre, pues solamente sustituye a su pareja provisional por otra que prefiere estrictamente más.
+5. En consecuencia, como $a$ recibió y rechazó la propuesta de $p$, necesariamente terminó emparejado con otro proponente $m(a)$ que prefiere estrictamente más que a $p$. No puede terminar soltero, ya que una vez que aceptó una propuesta nunca vuelve a quedar libre.
+6. Esto entra en contradicción directa con la premisa de la pareja bloqueante, la cual afirmaba que $a$ prefería estrictamente a $p$ por encima de su pareja actual $m(a)$ (o que estaba soltero).
 
 #### Conclusión
 
-La suposición de la existencia de una pareja bloqueante conduce a una contradicción insalvable. Por lo tanto, se demuestra formalmente que **el resultado del algoritmo de Gale-Shapley con listas incompletas conserva la propiedad de estabilidad**.
+La suposición de la existencia de una pareja bloqueante conduce a una contradicción insalvable. Por lo tanto, se demuestra formalmente que el resultado del algoritmo de Gale-Shapley con listas incompletas conserva la propiedad de estabilidad.
