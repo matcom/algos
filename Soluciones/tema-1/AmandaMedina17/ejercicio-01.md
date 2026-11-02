@@ -7,9 +7,7 @@ Sea $T(n) = c \cdot n^2$ la función de costo que representa el número de opera
 Sea $P$ la potencia de la computadora (cantidad de operaciones por segundo). Teniendo un tiempo fijo de una hora en segundos,  $t = 3600$ segundos, la capacidad total de operaciones disponibles es $O = P \cdot t$.
 
 El tamaño máximo de entrada ($n$), que puede resolverse en ese tiempo tiene que satisfacer:
-$$
-c \cdot n^2 \le O \implies n = \sqrt{\frac{O}{c}}
-$$
+$$c \cdot n^2 \le O \implies n = \sqrt{\frac{O}{c}}$$
 
 
 Luego, al usar una computadora 1000 veces más rápida, la capacidad total de operaciones pasa a ser  $O_{1000} = 1000 \cdot O$. Entonces, el tamaño máximo de entrada que puede resolverse en ese tiempo pasa a ser:
