@@ -1,4 +1,4 @@
-# Ejercicio 11: la mochila entera y el tamaño de la entrada en bits
+# Ejercicio 11
 
 **Enunciado.** La mochila entera se puede resolver con programación dinámica en $O(nW)$, donde $W$ es la capacidad de la mochila. Hay que medir el tamaño de la entrada en bits y decidir si este algoritmo es polinomial. También hay que compararlo con la prueba de primalidad por división.
 

@@ -1,4 +1,4 @@
-# Ejercicio 7: mediana de dos arreglos ordenados
+# Ejercicio 7
 
 
 > Enunciado. Mediana de dos arreglos ordenados de largo `n`: el `n`-ésimo menor de los `2n` elementos. Diseña un algoritmo `O(log n)`, demuestra su correctitud y da la cota de información.

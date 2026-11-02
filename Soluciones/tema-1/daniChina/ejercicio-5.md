@@ -1,4 +1,4 @@
-# Tema 1 · Ejercicio 5: detección de ciclos (Floyd)
+# Tema 1 · Ejercicio 5
 
 **Enunciado.** Detección de ciclos en una lista enlazada con dos punteros que avanzan a velocidades 1 y 2. Demostrar que se encuentran si y solo si hay un ciclo (con un invariante) y que el algoritmo termina (con un potencial). Dar el costo.
 

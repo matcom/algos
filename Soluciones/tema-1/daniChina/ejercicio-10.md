@@ -1,4 +1,4 @@
-# Ejercicio 10: par más cercano en una dimensión
+# Ejercicio 10
 
 *El código del ejercicio está en `ejercicio-10.py`.*
 

@@ -1,4 +1,4 @@
-# Ejercicio 8: el elemento que aparece más de n/3 veces
+# Ejercicio 8
 
 
 > **Enunciado.** Generaliza Boyer-Moore con dos candidatos, enuncia el invariante reforzado y demuéstralo. Después escribe la versión que devuelve los candidatos con contador positivo sin verificarlos, y busca un generador de pruebas que no la atrape. Cuidado: el análogo del generador binario sí la atrapa.

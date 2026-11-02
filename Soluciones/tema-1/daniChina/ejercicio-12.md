@@ -1,4 +1,4 @@
-# Ejercicio 12: emparejamiento estable con listas incompletas
+# Ejercicio 12
 
 **Enunciado.** Gale-Shapley con listas incompletas: cada proponente lista solo a algunos receptores, y prefiere quedarse solo antes que con uno que no listó. Adaptar el algoritmo, su potencial y la definición de pareja bloqueante. ¿Sigue siendo estable el resultado? Demostrarlo.
 
@@ -8,7 +8,7 @@ El código está en `ejercicio-12.py`.
 
 ## 1. Problema y definiciones adaptadas
 
-Hay $n$ proponentes $a_1, \dots, a_n$ y $n$ receptores $b_1, \dots, b_n$. Cada persona tiene una lista **estricta** (sin empates) y **posiblemente incompleta** con algunas personas del otro lado, ordenada de la más a la menos preferida. Para ser general, dejo que los receptores también tengan listas incompletas. Si los receptores listan a todos, es justo el caso del enunciado.
+Hay $n$ proponentes $a_1, \dots, a_n$ y $n$ receptores $b_1, \dots, b_n$. Cada persona tiene una lista estricta (sin empates) y posiblemente incompleta con algunas personas del otro lado, ordenada de la más a la menos preferida. Para ser general, dejo que los receptores también tengan listas incompletas. Si los receptores listan a todos, es justo el caso del enunciado.
 
 **Preferencias.** Una persona prefiere $x$ a $y$ si $x$ aparece antes que $y$ en su lista. Además:
 
@@ -17,14 +17,14 @@ Hay $n$ proponentes $a_1, \dots, a_n$ y $n$ receptores $b_1, \dots, b_n$. Cada p
 
 **Par aceptable.** $(a, b)$ es aceptable si $a$ lista a $b$ **y** $b$ lista a $a$. Es el único tipo de par que nadie rechaza de antemano.
 
-**Emparejamiento.** Un conjunto $M$ de pares aceptables en el que cada persona aparece a lo sumo una vez. Escribo $M(a)$ para la pareja de $a$, o "solo" si no tiene. **Ya no tiene por qué ser perfecto:** hay gente que se queda sola.
+**Emparejamiento.** Un conjunto $M$ de pares aceptables en el que cada persona aparece a lo sumo una vez. Escribo $M(a)$ para la pareja de $a$, o "solo" si no tiene. Ya no tiene por qué ser perfecto: hay gente que se queda sola.
 
 **Pareja bloqueante (adaptada).** Un par aceptable $(a, b)$ que no está en $M$ es bloqueante si
 
 - $a$ prefiere $b$ a su situación en $M$ (su pareja, o estar solo), y
 - $b$ prefiere $a$ a su situación en $M$ (su pareja, o estar sola).
 
-Lo que cambia respecto a listas completas es que "su situación" incluye **estar solo**: una persona sola preferiría cualquier pareja aceptable. Y solo se consideran pares aceptables.
+Lo que cambia respecto a listas completas es que "su situación" incluye estar solo: una persona sola preferiría cualquier pareja aceptable. Y solo se consideran pares aceptables.
 
 **Estable.** $M$ es estable si no tiene parejas bloqueantes.
 
@@ -34,15 +34,15 @@ Lo que cambia respecto a listas completas es que "su situación" incluye **estar
 
 La idea es la misma de siempre: los proponentes proponen de su favorito hacia abajo, y cada receptor se queda con la mejor propuesta que ha recibido hasta ahora, sin comprometerse del todo. Solo hay tres cosas nuevas:
 
-1. Un proponente solo le propone a receptores **de su lista**.
-2. Un receptor **rechaza** a quien no lista.
-3. Antes era imposible que a un proponente se le acabara la lista; ahora puede pasar. Si le propuso a todos los de su lista y todos lo rechazaron, **se queda solo** para siempre.
+1. Un proponente solo le propone a receptores de su lista.
+2. Un receptor rechaza a quien no lista.
+3. Antes era imposible que a un proponente se le acabara la lista; ahora puede pasar. Si le propuso a todos los de su lista y todos lo rechazaron, se queda solo para siempre.
 
-> Mientras haya un proponente libre al que todavía le quede algún receptor de su lista sin proponerle, ese proponente le propone al mejor receptor de su lista al que todavía no le ha propuesto. El receptor:
-> - lo rechaza si no lo lista;
-> - lo acepta si está libre;
-> - lo acepta (y deja libre a su pareja anterior) si ya tiene pareja pero prefiere al nuevo;
-> - si no, lo rechaza.
+ Mientras haya un proponente libre al que todavía le quede algún receptor de su lista sin proponerle, ese proponente le propone al mejor receptor de su lista al que todavía no le ha propuesto. El receptor:
+ - lo rechaza si no lo lista;
+ - lo acepta si está libre;
+ - lo acepta (y deja libre a su pareja anterior) si ya tiene pareja pero prefiere al nuevo;
+ - si no, lo rechaza.
 
 El algoritmo sigue siendo no determinista: no dice cuál proponente libre actúa primero, y todo lo que se demuestre tiene que valer para cualquier elección.
 
@@ -112,7 +112,7 @@ Tres hechos de una línea (se demuestran leyendo el código) que se usan despué
 
 - **(I1)** Un receptor, una vez que tiene pareja, no vuelve a estar solo, y su pareja solo mejora: cambia únicamente por alguien a quien prefiere.
 - **(I2)** Un proponente propone en el orden de su lista, de la mejor opción a la peor.
-- **(I3)** Un proponente solo termina solo si le propuso a **todos** los de su lista: únicamente deja el conjunto de libres cuando se le acaba la lista.
+- **(I3)** Un proponente solo termina solo si le propuso a todos los de su lista: únicamente deja el conjunto de libres cuando se le acaba la lista.
 
 ---
 
@@ -203,4 +203,3 @@ Las tres adaptaciones no son un detalle. Cada una, si se omite, rompe algo, y el
 
 - con listas completas el resultado es perfecto en 300 de 300 instancias, como antes.
 
-Esto no reemplaza la demostración, pero es el experimento que conviene correr antes de intentarla.
