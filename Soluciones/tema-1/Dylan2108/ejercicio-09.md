@@ -117,8 +117,7 @@ n = 5, entrada intercalada del adversario: A = [0, 2, 4, 6, 8], B = [1, 3, 5, 7,
 ```
 
 Hizo solo $2n - 3 = 7$ comparaciones y dejó **dos** pares de vecinos sin comparar: los
-que rodean a $a_5$. Es lógico, porque en cuanto $a_5$ se queda solo en $A$, ya no se
-compara con nada.
+que rodean a $a_5$. 
 
 ### El intercambio
 
