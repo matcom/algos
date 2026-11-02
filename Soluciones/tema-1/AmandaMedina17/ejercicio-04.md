@@ -28,15 +28,34 @@ Análisis del $i$-ésimo incremento:
 - Antes del incremento había $k$ unos consecutivos que se perdieron, y se añadió un nuevo uno. El cambio de la cantidad de bits en $1$ es $\Phi(D_i) - \Phi(D_{i-1}) = 1 - k$
 - Sustituyendo ambos términos en la ecuación del coste amortizado: $$c_i^{\text{amortized}} = (k + 1) + (1 - k) = 2$$
 
-El coste amortizado de cualquier incremento, sin importar cuan costoso sea en la realidad ($c_i = \Theta(\log m)$), es siempre contante: $$c_i^{\text{amortized}} = 2 = {O}(1)$$
+El coste amortizado de cualquier incremento, sin importar cuan costoso sea en la realidad $(c_i = \Theta(\log m))$, es siempre contante: $$c_i^{\text{amortized}} = 2 = {O}(1)$$
 
 ## Acotación para m incrementos
 
 Queremos calcular el coste total de realizar $m$ incrementos consecutivos partiendo desde el contador $0$. Sabemos por definición que la suma de los costes reales se relaciona con la suma de los costes amortizados mediante la telescopia del potencial:
-$$\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} \left( c_i^{\text{amortized}} - \Phi(D_i) + \Phi(D_{i-1}) \right)$$
-Al expandir la sumatoria telescópica, los potenciales intermedios se cancelan mutuamente:$$\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} c_i^{\text{amortized}} + \Phi(D_m) - \Phi(D_0)$$
-Sustituyendo los valores conocidos ($\Phi(D_0) = 0$ y sabiendo que cada coste amortizado está acotado por $2$):$$\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} 2 + \Phi(D_m) - 0 = 2m + \Phi(D_m)$$
-Dado que el potencial final $\Phi(D_m)$ representa la cantidad de bits encendidos que tiene $m$, esta cantidad nunca puede superar el número total de bits de su representación binaria, es decir, $\Phi(D_m) \le \lfloor \log_2 m \rfloor + 1$. Por consiguiente:$$\sum_{i=1}^{m} c_i \le 2m + \log_2 m = {O}(m)$$
+
+$$
+\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} \left( c_i^{\text{amortized}} - \Phi(D_i) + \Phi(D_{i-1}) \right)
+$$
+
+Al expandir la sumatoria telescópica, los potenciales intermedios se cancelan mutuamente:
+
+$$
+\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} c_i^{\text{amortized}} + \Phi(D_m) - \Phi(D_0)
+$$
+
+Sustituyendo los valores conocidos ($\Phi(D_0) = 0$ y sabiendo que cada coste amortizado está acotado por $2$):
+
+$$
+\sum_{i=1}^{m} c_i = \sum_{i=1}^{m} 2 + \Phi(D_m) - 0 = 2m + \Phi(D_m)
+$$
+
+Dado que el potencial final $\Phi(D_m)$ representa la cantidad de bits encendidos que tiene $m$, esta cantidad nunca puede superar el número total de bits de su representación binaria, es decir, $\Phi(D_m) \le \lfloor \log_2 m \rfloor + 1$. Por consiguiente:
+
+$$
+\sum_{i=1}^{m} c_i \le 2m + \log_2 m = {O}(m)
+$$
+
 
 ## Conclusión:
 
