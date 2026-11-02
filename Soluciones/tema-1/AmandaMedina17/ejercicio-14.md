@@ -1,9 +1,16 @@
 ## Definición formal del problema
 Dado un conjunto $I={ I1, I2, ..., In}$ de $n$ intervalos cerrados en la recta real $\mathbb{R}$, donde cada intervalo $I_i=[l_i,r_i]$ con $l_i<=r_i$ tiene asociado un peso real positivo $w_i > 0$.
 * Función de peso acumulado: Se define $W: \mathbb{R} \to \mathbb{R}_{\ge 0}$ como:
-$$W(x) = \sum_{i : x \in I_i} w_i = \sum_{i : l_i \le x \le r_i} w_i$$
 
-* Objetivo: Encontrar un punto óptimo $x^*$ que pertenece a $\mathbb{R}$ que maximice la función de peso acumulado: $$W(x^*) = \max_{x \in \mathbb{R}} W(x)$$
+$$
+W(x) = \sum_{i : x \in I_i} w_i = \sum_{i : l_i \le x \le r_i} w_i
+$$
+
+* Objetivo: Encontrar un punto óptimo $x^*$ que pertenece a $\mathbb{R}$ que maximice la función de peso acumulado:
+
+$$
+W(x^*) = \max_{x \in \mathbb{R}} W(x)
+$$
 
 ## Modelo de computación
 * Modelo de árboles de decisión algebraicos: Los extremos de los intervalos $l_i$, $r_i$ y sus pesos $w_i$ son números reales. Las decisiones del algoritmo se basan en comparaciones binarias algebraicas de orden  $(ej. x_i < x_j)$.
@@ -23,7 +30,7 @@ Entonces, en lugar de evaluar infinitos puntos en la recta real, reducimos el pr
 ### Estructura de datos de los eventos
 Cada evento en el sistema se representa como una tupla con la siguiente estructura: Evento = $(x, tipo, peso)$
 * $x$ pertenece a $\mathbb{R}$: La coordenada  en la recta real donde ocurre el evento ($l_i$ o $r_i$).
-* tipo pertenece a {$start$, $end$}: Identifica si el intervalo se abre o se cierra.
+* tipo pertenece a { $start$ , $end$ }: Identifica si el intervalo se abre o se cierra.
 * peso pertenece a $\text{peso} \in \mathbb{R}^+$: EL peso positivo $w_i$ asociado al intervalo $i$.
 
 ### Criterio de ordenamiento de eventos
@@ -37,7 +44,7 @@ Para ordenar los $2n$ eventos se define una relación de orden total:
 ## Demostración de correctitud por invariante de ciclo
 Definición del invariante $I(k)$:
 Al finalizar la iteración $k$ del bucle for, se cumplen las tres condiciones siguientes:
-1. Consistencia local: `W_current` es exactamente igual al peso acumulado W($e_k*x_{val}$) de todos los intervalo que cubren el punto $e_k*x_{val}$.
+1. Consistencia local: `W_current` es exactamente igual al peso acumulado $`W(e_k*x_{val})`$ de todos los intervalo que cubren el punto $`e_k*x_{val}`$.
 2. optimalidad parcial: `W_max` contiene el valor máximo de $W(x)$ evaluado en el subconjunto de eventos procesados hasta el momento.
 3. Punto óptimo: `x_opt` almacena la coordenada del punto donde se registró por primera vez dicho valor máximo `W_max`.
 
@@ -58,13 +65,27 @@ Analicemos la complejidad del algoritmo descomponiendo sus fases:
 
 ## Método del potencial
 Definición de la función de potencial: Sea $\Phi_t$, el peso acumulado del conjunto de intervalos activos $A_t$ en la iteración t:
-$$\Phi_t = \sum_{I_i \in A_t} w_i$$
+
+$$
+\Phi_t = \sum_{I_i \in A_t} w_i
+$$
+
 * Estado inicial: Antes de iniciar el barrido $(t=0)$, $A_0 = \emptyset \implies \Phi_0 = 0$.
 * Como todos los pesos son mayor que 0, la función de potencial es no negativa para todo $t$.
 * Costo amortizado por evento ($c_t^{\text{amortized}}$):
 El costo real $c_t$ de procesar un evento en el bucle es $O(1)$. La variación del potencial al procesar el evento $t$ es:
 ($c_t^{\text{amortized}}$)
-Suma Telescópica del Costo Total del Barrido:$$\sum_{t=1}^{2n} c_t = \sum_{t=1}^{2n} \left( c_t^{\text{amortized}} - \Phi_t + \Phi_{t-1} \right) = \sum_{t=1}^{2n} c_t^{\text{amortized}} + \Phi_0 - \Phi_{2n}$$Como al finalizar el barrido todos los intervalos han cerrado ($A_{2n} = \emptyset$), tenemos $\Phi_{2n} = 0$. Por lo tanto:$$\text{Costo real total del barrido} = \sum_{t=1}^{2n} c_t = \sum_{t=1}^{2n} c_t^{\text{amortized}} = \Theta(n)$$
+Suma Telescópica del Costo Total del Barrido:
+
+$$
+\sum_{t=1}^{2n} c_t = \sum_{t=1}^{2n} \left( c_t^{\text{amortized}} - \Phi_t + \Phi_{t-1} \right) = \sum_{t=1}^{2n} c_t^{\text{amortized}} + \Phi_0 - \Phi_{2n}
+$$
+
+Como al finalizar el barrido todos los intervalos han cerrado ($A_{2n} = \emptyset$), tenemos $\Phi_{2n} = 0$. Por lo tanto:
+
+$$
+\text{Costo real total del barrido} = \sum_{t=1}^{2n} c_t = \sum_{t=1}^{2n} c_t^{\text{amortized}} = \Theta(n)
+$$
 
 ## Cota inferior del algoritmo
 Para determinar el límite teórico fundamental en el modelo basado en comparaciones, demostraremos que este problema requiere al menos  $\Omega(n \log n)$ comparaciones mediante una reducción desde el problema de ordenamiento.
@@ -90,12 +111,18 @@ $$2^h \ge n! \implies h \ge \log_2(n!) = \sum_{i=1}^{n} \log_2 i = \Theta(n \log
 ## Coincidencia de cotas
 Cota superior obtenida: $\mathcal{O}(n \log n)$
 Cota inferior del árbol de decisión:  $\Omega(n \log n)$
-Por tanto, el algoritmo en $$\mathcal{C}_{\text{upper}} = \mathcal{C}_{\text{lower}} = \Theta(n \log n)$$. El algoritmo es óptimo en el modelo de árboles de decisión algebraicos basados en comparaciones.
+Por tanto, el algoritmo en 
+
+$$
+\mathcal{C}_{\text{upper}} = \mathcal{C}_{\text{lower}} = \Theta(n \log n)
+$$
+
+El algoritmo es óptimo en el modelo de árboles de decisión algebraicos basados en comparaciones.
 
 ## Rompimiento del modelo
 La cota $\Omega(n \log n)$ solo es irrompible si el algoritmo se restringe al modelo de compraraciones algebraicas. Podemos romper esta cota cambiando al Modelo Word Ram con claves discretas.
 * Supongamos que las coordenadas de los extremos $l_i$, $r_i$ son números enteros dentro de un rango acotado $U = {1, 2,..., K}$, o pueden ser representados mediante enteros de $w$ bits $(w>=logn)$.
-* En el algoritmo, en lugar de utilizar un ordenamiento basado en comparaciones ($O(n \log n)$), ordenamos la lista $E$ de $2n$ eventos utilizando Counting Sort.
+* En el algoritmo, en lugar de utilizar un ordenamiento basado en comparaciones $`(O(n \log n))`$, ordenamos la lista $E$ de $2n$ eventos utilizando Counting Sort.
 * Nuevo costo computacional:
     - Generación de eventos: $\Theta(n)$.
     - Ordenamiento con Counting Sort: $O(n+K)$.
