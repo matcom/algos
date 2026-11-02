@@ -7,16 +7,16 @@ Sea $T(n) = c \cdot n^2$ la función de costo que representa el número de opera
 Sea $P$ la potencia de la computadora (cantidad de operaciones por segundo). Teniendo un tiempo fijo de una hora en segundos,  $t = 3600$ segundos, la capacidad total de operaciones disponibles es $O = P \cdot t$.
 
 El tamaño máximo de entrada ($n$), que puede resolverse en ese tiempo tiene que satisfacer:
+
 $$
 c \cdot n^2 \le O \implies n = \sqrt{\frac{O}{c}}
-
 $$
 
 
 Luego, al usar una computadora 1000 veces más rápida, la capacidad total de operaciones pasa a ser  $O_{1000} = 1000 \cdot O$. Entonces, el tamaño máximo de entrada que puede resolverse en ese tiempo pasa a ser:
+
 $$
 c \cdot (n')^2 \le 1000 \cdot O \implies n' = \sqrt{1000} \cdot \sqrt{\frac{O}{c}} = \sqrt{1000} \cdot n
-
 $$
 
 **Conclusión para $\Theta(n^2)$:**
@@ -27,6 +27,7 @@ El tamaño de la entrada que se puede resolver en una hora aumenta en un factor 
 Sea $T(n) = c \cdot n \log n$ la función de costo que representa el número de operaciones necesarias para procesar una entrada de tamaño $n$.
 
 Para una computadora normal el procedimiento es equivalente siendo  $O$ la capacidad total de operaciones disponibles en un tiempo $t$:
+
 $$
 c \cdot n \log n \le O \implies n \log n \le \frac{O}{c}
 $$
@@ -47,6 +48,7 @@ x(\log x + \log n) = 1000 \cdot \log n \implies x\left(\frac{\log x}{\log n} + 1
 $$
 
 Entonces, tomando el límite cuando $n$ tiende al infinito, sabiendo que $x > 1$, permanece acotado superiormente por 1000:
+
 $$
 \lim_{n \to \infty} \frac{\log x}{\log n} = 0 \implies \lim_{n \to \infty} x(1 + 0) = 1000 \implies x \to 1000
 $$
