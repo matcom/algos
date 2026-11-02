@@ -10,18 +10,35 @@ $$\Phi(T) = \sum_{x \in T} r(x)$$
 Donde el rango $r(x)$ de un nodo $x$ se define logarítmicamente en función del tamaño de su subárbol $s(x)$ (el número de descendientes de $x$, incluyéndose a sí mismo): $r(x) = log_2s(x)$
 
 El Lema de Acceso establece que el costo amortizado $\hat{c}$ de realizar la operación $splay(x)$ sobre un nodo $x$ está acotado superiormente por:
-$$\hat{c} \le 3 \left( r(\text{root}) - r(x) \right) + 1 = 3 \log_2 \left( \frac{s(\text{root})}{s(x)} \right) + 1$$
-Como el tamaño del subárbol de la raíz es siempre $s(root) = n$, el costo amortizado de acceder a cualquier nodo $x$ que tenga un subárbol de tamaño $s(x)$ es: $$\hat{c}(x) = \mathcal{O}\left( \log_2 \left( \frac{n}{s(x)} \right) \right)$$
+
+$$
+\hat{c} \le 3 \left( r(\text{root}) - r(x) \right) + 1 = 3 \log_2 \left( \frac{s(\text{root})}{s(x)} \right) + 1
+$$
+
+Como el tamaño del subárbol de la raíz es siempre $s(root) = n$, el costo amortizado de acceder a cualquier nodo $x$ que tenga un subárbol de tamaño $s(x)$ es: 
+
+$$
+\hat{c}(x) = \mathcal{O}\left( \log_2 \left( \frac{n}{s(x)} \right) \right)
+$$
 
 ## Sumatoria del costo total para el acceso secuencial (1, 2, ..., n)
 Si aplicamos el Lema de Acceso de forma general para cada acceso $i$ en la secuencia $1, 2, ..., n$, el costo amortizado acumulado se obtiene de los costos individuales:
-$$\text{Costo Amortizado Total} = \sum_{i=1}^{n} \left( 3 \log_2 \left( \frac{n}{s(i)} \right) + 1 \right)$$
+
+$$
+\text{Costo Amortizado Total} = \sum_{i=1}^{n} \left( 3 \log_2 \left( \frac{n}{s(i)} \right) + 1 \right)
+$$
 
 En el peor escenario estructural considerado por el lema (donde el tamaño del subárbol s(i) para cada elemento al momento de su acceso es acotado de manera conservadora), al sumar los términos logarítmicos $log_2(n/i)$:
-$$\sum_{i=1}^{n} \log_2 \left( \frac{n}{i} \right) = \sum_{i=1}^{n} (\log_2 n - \log_2 i) = n \log_2 n - \log_2(n!)$$
+
+$$
+\sum_{i=1}^{n} \log_2 \left( \frac{n}{i} \right) = \sum_{i=1}^{n} (\log_2 n - \log_2 i) = n \log_2 n - \log_2(n!)
+$$
 
 Utilizando la aproximación de Stirling para el factorial ($\log_2(n!) = \Theta(n \log_2 n)$):
-$$\text{Costo Total Acotado por el Lema de Acceso} = \mathcal{O}(n \log n)$$
+
+$$
+\text{Costo Total Acotado por el Lema de Acceso} = \mathcal{O}(n \log n)
+$$
 
 ## Análisis
 El teorema de Acceso Secuencial demuestra rigurosamente que el costo real total de acceder a las $n$ claves en orden secuencial $(1, 2, ..., n)$ en un árbol Splay es $O(n)$, independientemente de la forma inicial del árbol (incluso si parte como el peor camino lineal posible).
