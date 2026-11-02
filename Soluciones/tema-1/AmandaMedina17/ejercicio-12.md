@@ -14,7 +14,7 @@ Mientras existe un proponente $m$ libre que aún tenga receptores no contactados
 * $m$ elige al receptor $w \in L(m)$ de mayor preferencia al que aún no le haya propuesto.
 * $w$ evalúa la propuesta recibida de $m$:
     - Caso de aceptación directa: Si $w$ está libre y $m \in L(w)$ ($m$ es aceptable para $w$), $w$ acepta temporalmente a $m$.
-    - Caso de reemplazo/mejora: Si $w$ está actualmente emparejada con un $m'$, pero $m \in L(w)$ y $w$ prefiere estrictamente a $m$ sobre ese $m'$ (según $L(w)$), $w$ acepta a $m$ y libera a $m'$(quien vuelve a estar libre).
+    - Caso de reemplazo/mejora: Si $w$ está actualmente emparejada con un $m'$, pero $m \in L(w)$ y $w$ prefiere estrictamente a $m$ sobre ese $m'$ (según $L(w)$ ), $w$ acepta a $m$ y libera a $m'$(quien vuelve a estar libre).
     - Caso de rechazo: En cualquier otro caso (si $m \notin L(w)$, o si $w$ prefiere a su pareja actual $m'$ sobre $m$), $w$ rechaza a $m$.
 ### 3. Terminación: 
 El algoritmo finaliza cuando ningún proponente libre puede realizar más propuestas.
