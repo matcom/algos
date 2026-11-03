@@ -291,7 +291,7 @@ def mezcla_optimizada(A, B):
     return salida, comparaciones
 
 def mezclar_correcta(A, B):
-    """Mezcla estándar de referencia O(n+m)"""
+     
     i, j = 0, 0
     salida = []
     while i < len(A) and j < len(B):
@@ -306,11 +306,7 @@ def mezclar_correcta(A, B):
     return salida
 
 def construir_contraejemplo_adversario(n):
-    """
-    Construye la entrada adversarial donde a_n < b_n.
-    A = [1, 2, ..., n-1, 2n - 1]
-    B = [n, n+1, ..., 2n - 2, 2n]
-    """
+ 
     A = list(range(1, n)) + [2 * n - 1]
     B = list(range(n, 2 * n - 1)) + [2 * n]
     return A, B

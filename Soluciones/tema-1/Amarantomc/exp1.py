@@ -1,72 +1,32 @@
-import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
-def mezcla_optimizada(A, B):
-    i, j = 0, 0
-    salida = []
-    comparaciones = 0
+def dibujar_grid_1d():
+    fig, ax = plt.subplots(figsize=(10, 3))
     
-    while (len(A) - i > 1) and (j < len(B)):
-        comparaciones += 1
-        if A[i] <= B[j]:
-            salida.append(A[i])
-            i += 1
-        else:
-            salida.append(B[j])
-            j += 1
+    r = 1.0 # lado del intervalo
+    # Dibujar divisiones de celdas
+    for c in range(-3, 4):
+        ax.axvline(x=c*r, color='gray', linestyle='--', alpha=0.7)
+        ax.text(c*r + 0.4*r, 0.6, f'Celda {c}', fontsize=9)
 
-    if j < len(B):
-        salida.extend(B[j:])
-    if i < len(A):
-        salida.append(A[-1])
-
-    return salida, comparaciones
-
-def mezclar_correcta(A, B):
-    """Mezcla estándar de referencia O(n+m)"""
-    i, j = 0, 0
-    salida = []
-    while i < len(A) and j < len(B):
-        if A[i] <= B[j]:
-            salida.append(A[i])
-            i += 1
-        else:
-            salida.append(B[j])
-            j += 1
-    salida.extend(A[i:])
-    salida.extend(B[j:])
-    return salida
-
-def construir_contraejemplo_adversario(n):
-    """
-    Construye la entrada adversarial donde a_n < b_n.
-    A = [1, 2, ..., n-1, 2n - 1]
-    B = [n, n+1, ..., 2n - 2, 2n]
-    """
-    A = list(range(1, n)) + [2 * n - 1]
-    B = list(range(n, 2 * n - 1)) + [2 * n]
-    return A, B
-
-def probar_contraejemplos():
-    casos = [2, 3, 4, 5, 8]
-    reporte = []
-
-    for n in casos:
-        A, B = construir_contraejemplo_adversario(n)
-        resultado_algoritmo, comps = mezcla_optimizada(A, B)
-        resultado_esperado = mezclar_correcta(A, B)
-        es_correcto = (resultado_algoritmo == resultado_esperado)
-
-        reporte.append({
-            "n": n,
-            "Lista A": str(A),
-            "Lista B": str(B),
-            "Salida Algoritmo": str(resultado_algoritmo),
-            "Salida Correcta": str(resultado_esperado),
-            "¿Correcto?": es_correcto
-        })
-
-    df = pd.DataFrame(reporte)
-    print(df.to_string(index=False))
+    # Resaltar las 5 celdas inspeccionadas para un punto en Celda 0
+    ax.axvspan(-2*r, 3*r, color='green', alpha=0.15, label='Bloque de 5 Celdas Inspeccionadas (c-2 a c+2)')
+    
+    # Dibujar punto nuevo p
+    p_x = 0.3 * r
+    ax.scatter([p_x], [0.2], color='red', s=120, zorder=5, label='Punto Nuevo (p)')
+    
+    ax.set_xlim(-3.5*r, 4.5*r)
+    ax.set_ylim(0, 1)
+    ax.get_yaxis().set_visible(False)
+    ax.set_xlabel('Recta Real 1D (Intervalos de tamaño r = δ/2)')
+    ax.set_title('Estructura del Grid 1D y Rango de Búsqueda de Vecinos')
+    ax.legend(loc='upper right')
+    
+    plt.tight_layout()
+    plt.savefig('grid_1d_ilustracion.png', dpi=300)
+    
 
 if __name__ == "__main__":
-    probar_contraejemplos()
+    dibujar_grid_1d()
