@@ -98,7 +98,9 @@ La complejidad espacial auxiliar es: $O(1)$
 Sea el valor buscado **$x = 2(n - 1)$**. Para formalizar las respuestas del adversario, definimos dos familias de matrices válidas sobre la **anti-diagonal principal** $\{(i, n - 1 - i) \mid 0 \le i \le n-1\}$:
 
 1. **Matriz $M_0$ (instancia donde $x \notin M_0$):**
+
    $$A[i][j] = \begin{cases} 2(i + j) & \text{si } i + j \neq n - 1 \\ x - 1 & \text{si } i + j = n - 1 \end{cases}$$
+
    * Fuera de la anti-diagonal, si $i + j < n - 1$ los valores son $\le x - 2$, y si $i + j > n - 1$ los valores son $\ge x + 2$.
    * En la anti-diagonal, todas las $n$ celdas valen $x - 1$. Como $x - 2 < x - 1 < x + 2$, la matriz mantiene filas y columnas estrictamente crecientes.
    * La respuesta correcta para $M_0$ es **`False`**.
@@ -114,11 +116,11 @@ Sea el valor buscado **$x = 2(n - 1)$**. Para formalizar las respuestas del adve
 
 ### Construcción de la Contradicción (Lema de Indistinguibilidad)
 
- Supongamos por contradicción que existe un algoritmo determinista y correcto que realiza menos de $n$ comparaciones (es decir, en tiempo $o(n)$).
+ Supongamos por contradicción que existe un algoritmo determinista y correcto que realiza menos de $n$ comparaciones (es decir, en tiempo $`o(n)`$).
 
 1. Ejecutamos el algoritmo contra el adversario respondiendo según la matriz **$M_0$**.
-2. Como el algoritmo realiza menos de $n$ comparaciones y hay $n$ casillas independientes en la anti-diagonal, por el principio del palomar existe al menos una casilla $(k^*, n - 1 - k^*)$ que el algoritmo **nunca consultó ni comparó**.
-3. Consideremos ahora la matriz **$M_{1,k^*}$**. Dado que $M_0$ y $M_{1,k^*}$ difieren **únicamente** en esa casilla $(k^*, n - 1 - k^*)$ que el algoritmo no miró, todas las respuestas que el algoritmo recibe al ejecutarse sobre $M_{1,k^*}$ son **exactamente identicas** a las que recibió sobre $M_0$.
+2. Como el algoritmo realiza menos de $n$ comparaciones y hay $n$ casillas independientes en la anti-diagonal, por el principio del palomar existe al menos una casilla $`(k^*, n - 1 - k^*)`$ que el algoritmo **nunca consultó ni comparó**.
+3. Consideremos ahora la matriz **$`M_{1,k^*}`$**. Dado que $M_0$ y $`M_{1,k^*}`$ difieren **únicamente** en esa casilla $`(k^*, n - 1 - k^*)`$ que el algoritmo no miró, todas las respuestas que el algoritmo recibe al ejecutarse sobre $`M_{1,k^*}`$ son **exactamente identicas** a las que recibió sobre $M_0$.
 4. Al ser un algoritmo determinista, producirá exactamente la misma salida en ambos casos.
 5. Sin embargo, la respuesta correcta es **`False`** para $M_0$ y **`True`** para $M_{1,k^*}$. El algoritmo se equivoca en al menos una de las dos matrices, lo cual contradice la hipótesis de que es un algoritmo correcto.
 

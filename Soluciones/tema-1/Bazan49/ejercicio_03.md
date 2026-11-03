@@ -80,7 +80,7 @@ class MinStack:
 
 ![Traza](extras_03/fig/ej03_fig1_traza.png)
 
-*Figura 1. Traza sobre `push(5), push(3), push(7), push(3), pop(), pop(), push(1), pop(), pop()`. Cada nivel es un par: a la izquierda $x$ y a la derecha el mínimo desde el fondo hasta él (en naranja más oscuro cuando ese `push` cambia el mínimo). Obsérvese cómo el `pop` que quita el $3$ deja el tope en $(7,3)$ y el siguiente deja $(3,3)$: el mínimo $3$ sobrevive porque hay otro $3$ debajo, sin que nadie lo haya recalculado. Al sacar el $1$ vuelve el mínimo anterior ($3$), y al sacar el $3$ vuelve el $5$.*
+<em>Figura 1. Traza sobre `push(5), push(3), push(7), push(3), pop(), pop(), push(1), pop(), pop()`. Cada nivel es un par: a la izquierda $x$ y a la derecha el mínimo desde el fondo hasta él (en naranja más oscuro cuando ese `push` cambia el mínimo). Obsérvese cómo el `pop` que quita el $3$ deja el tope en $(7,3)$ y el siguiente deja $(3,3)$: el mínimo $3$ sobrevive porque hay otro $3$ debajo, sin que nadie lo haya recalculado. Al sacar el $1$ vuelve el mínimo anterior ($3$), y al sacar el $3$ vuelve el $5$.</em>
 
 ## Invariante del algoritmo
 
@@ -101,6 +101,7 @@ El arnés de prueba se fundamenta en dos componentes centrales:
    Tras la ejecución de **cada** operación (`push` o `pop`), la función de vigilancia comprueba computacionalmente dos condiciones de manera simultánea:
    - **Observación externa:** Que las respuestas de `len()`, `top()` y `min()` en la pila bajo prueba coincidan exactamente con las del oráculo.
    - **Estructura interna:** Que se satisfaga la condición del invariante reforzado para cada nivel $i \in \{0, \dots, n-1\}$:
+   
      $$S[i] = (x_i, m_i) \quad \text{donde} \quad m_i = \min \{x_0, x_1, \dots, x_i\}$$
 
 #### Estrategia de Pruebas y Resultados Empíricos
@@ -169,7 +170,9 @@ Asumimos como **Hipótesis de Inducción (HI)** que el invariante $J(n)$ es verd
    - **Sincronización de tamaño:** $|S'| = n + 1 = |X'|$.
    - **Niveles inferiores ($1 \le i \le n$):** Ninguno de los elementos $S[1 \dots n]$ es modificado por la operación de apilamiento. Por la **HI**, la tupla $S[i] = (x_i, m_i)$ sigue siendo válida para todo $i \le n$.
    - **Nuevo tope ($i = n+1$):** Por definición inductiva del mínimo sobre una secuencia:
+
      $$m_{n+1} = \min(x_{n+1}, m_n) \stackrel{\text{HI}}{=} \min(x_{n+1}, \min\{x_1, \dots, x_n\}) = \min\{x_1, \dots, x_n, x_{n+1}\}$$
+     
      Por lo tanto, la tupla insertada en el tope satisface exactamente $S[n+1] = (x_{n+1}, m_{n+1})$.
 4. **Conclusión de `push`:** El invariante $J(n+1)$ se sostiene tras la inserción.
 

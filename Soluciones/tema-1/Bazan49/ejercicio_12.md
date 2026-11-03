@@ -21,12 +21,12 @@ Tenemos un conjunto $A = \{a_1, \dots, a_n\}$ de proponentes y un conjunto $B = 
 
 En un escenario con listas incompletas, la estabilidad exige no solo la ausencia de incentivos cruzados entre parejas, sino también la racionalidad individual (nadie debe estar con alguien inaceptable):
 
-**Racionalidad Individual:** Un emparejamiento $M$ es individualmente racional si para toda pareja $(a, b) \in M$, el par es mutuamente aceptable ($b \in L(a)$ y $a \in L(b)$).
+**Racionalidad Individual:** Un emparejamiento $M$ es individualmente racional si para toda pareja $(a, b) \in M$, el par es mutuamente aceptable ($b \in L(a)$ y $`a \in L(b)`$).
 
 **Pareja Bloqueante (Adaptada):** Un par $(a, b) \in A \times B$ constituye una pareja bloqueante para un emparejamiento $M$ si cumple las tres condiciones siguientes:
 - Aceptabilidad mutua: $b \in L(a)$ y $a \in L(b)$.
-- Preferencia de $a$: $a$ está solo ($M(a) = a$) o bien $a$ prefiere a $b$ sobre su pareja actual $M(a)$ ($b \succ_a M(a)$).
-- Preferencia de $b$: $b$ está solo ($M(b) = b$) o bien $b$ prefiere a $a$ sobre su pareja actual $M(b)$ ($a \succ_b M(b)$).
+- Preferencia de $a$: $a$ está solo ($M(a) = a$) o bien $a$ prefiere a $b$ sobre su pareja actual $M(a)$ ($`b \succ_a M(a)`$).
+- Preferencia de $b$: $b$ está solo ($M(b) = b$) o bien $b$ prefiere a $a$ sobre su pareja actual $M(b)$ ($`a \succ_b M(b)`$).
 
 **Estabilidad:** Un emparejamiento $M$ es estable si es individualmente racional y no contiene ninguna pareja bloqueante.
 
@@ -77,7 +77,7 @@ El algoritmo permite distintos órdenes de ejecución, dependiendo de cómo se s
 | 5 | $a_0$ | $b_1$ | $a_2$ | cambia ($b_1$ prefiere a $a_0$); $a_2$ queda libre |
 | 6 | $a_2$ | $b_2$ | $a_3$ | rechaza ($b_2$ prefiere a $a_3$); **$a_2$ agotó su lista y queda solo** |
 
-Resultado: $a_0$–$b_1$, $a_1$–$b_0$, $a_3$–$b_2$; $a_2$ solo. Son 6 propuestas, y $\ell=6$. Es estable, y es el único emparejamiento estable de la instancia. Nótese que $b_0$ lista a $a_2$, pero $a_2$ no lista a $b_0$: el par no es aceptable y no puede bloquear (figura 1).
+Resultado: $`a_0`$–$`b_1`$, $`a_1`$–$`b_0`$, $`a_3`$–$`b_2`$; $`a_2`$ solo. Son 6 propuestas, y $`\ell=6`$. Es estable, y es el único emparejamiento estable de la instancia. Nótese que $`b_0`$ lista a $`a_2`$, pero $`a_2`$ no lista a $`b_0`$: el par no es aceptable y no puede bloquear (figura 1).
 
 ![El ejemplo](extras_12/fig/ej12_fig1_ejemplo.png)
 
@@ -134,7 +134,7 @@ Supongamos por contradicción que el emparejamiento final $M$ contiene una parej
 
 1. Por definición de pareja bloqueante:
 
-    - $a$ y $b$ son mutuamente aceptables ($b \in L(a)$ y $a \in L(b)$).
+    - $a$ y $b$ son mutuamente aceptables ($b \in L(a)$ y $`a \in L(b)`$).
     - $a$ prefiere a $b$ sobre su asignación en $M$ (es decir, $b \succ_a M(a)$ o $a$ está solo en $M$).
     - $b$ prefiere a $a$ sobre su asignación en $M$ (es decir, $a \succ_b M(b)$ o $b$ está solo en $M$).
 
@@ -154,7 +154,7 @@ Supongamos por contradicción que el emparejamiento final $M$ contiene una parej
 
 5. Contradicción: 
     
-    Llegamos a que $b$ prefiere su pareja final $M(b)$ sobre $a$, lo cual contradice directamente la suposición de que $(a, b)$ es una pareja bloqueante (que exigía $a \succ_b M(b)$).
+    Llegamos a que $b$ prefiere su pareja final $M(b)$ sobre $a$, lo cual contradice directamente la suposición de que $(a, b)$ es una pareja bloqueante (que exigía $`a \succ_b M(b)`$).
     Por lo tanto, no pueden existir parejas bloqueantes. El emparejamiento final $M$ es estable. $\blacksquare$
 
 ## Archivos

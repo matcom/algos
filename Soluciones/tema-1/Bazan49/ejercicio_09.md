@@ -25,7 +25,7 @@ Dado que la mezcla "optimizada" realiza estrictamente **una comparación menos q
 ## Formalización Matemática del Adversario
 
 ### Marco del Modelo de Cómputo
-Trabajamos en el **modelo de comparaciones** sobre un conjunto de elementos pertenecientes a un orden total estricto $(\Omega, <)$. Dado un algoritmo de mezcla, este accede a las entradas únicamente mediante consultas del tipo *"¿es $x < y$?"*.
+Trabajamos en el **modelo de comparaciones** sobre un conjunto de elementos pertenecientes a un orden total estricto $(\Omega, <)$. Dado un algoritmo de mezcla, este accede a las entradas únicamente mediante consultas del tipo *"¿es $`x < y`$?"*.
 
 Sean las dos listas de entrada $A = [a_1, a_2, \dots, a_n]$ y $B = [b_1, b_2, \dots, b_n]$, ordenadas individualmente:
 $a_1 < a_2 < \dots < a_n \quad \text{y} \quad b_1 < b_2 < \dots < b_n$
@@ -39,7 +39,7 @@ $P: \quad b_1 < a_1 < b_2 < a_2 < \dots < b_{n-1} < a_{n-1} < a_n < b_n$
 
 Para cualquier comparación realizada por $\text{ALG}$ entre un elemento $a_i \in A$ y un elemento $b_j \in B$, la **función de respuesta del Adversario** $f(a_i, b_j)$ se define formalmente como:
 
-$f(a_i, b_j) = \begin{cases} a_i < b_j & \text{si } i < j \quad \text{o si } (i = j = n) \\ b_j < a_i & \text{si } j \le i \quad \text{con } (i, j) \neq (n, n) \end{cases}$
+$$f(a_i, b_j) = \begin{cases} a_i < b_j & \text{si } i < j \quad \text{o si } (i = j = n) \\ b_j < a_i & \text{si } j \le i \quad \text{con } (i, j) \neq (n, n) \end{cases}$$
 
 
 > **Lema de Consistencia:** La función $f$ preserva la transitividad y no introduce ciclos con los órdenes parciales preexistentes de $A$ y $B$. Por lo tanto, el conjunto de asignaciones reales de valores numéricos consistentes con $f$ es siempre no vacío.
@@ -135,7 +135,7 @@ Se generan y ejecutan todas las $\binom{2n}{n}$ combinaciones posibles de entrel
 
 ![Preguntas hechas sobre la cadena P](extras_09/fig/fig1_chain_questions.png)
 
-*Figura 1. La cadena $P$ ($n=3$ y $n=6$), los elementos de $A$ en azul y los de $B$ en naranja. Los arcos grises numerados son las preguntas que hace la mezcla "optimizada", en orden. El arco rojo discontinuo es la pregunta que nunca hace: $a_n$ contra $b_n$.*
+<em>Figura 1. La cadena $P$ ($n=3$ y $n=6$), los elementos de $A$ en azul y los de $B$ en naranja. Los arcos grises numerados son las preguntas que hace la mezcla "optimizada", en orden. El arco rojo discontinuo es la pregunta que nunca hace: $a_n$ contra $b_n$.</em>
 
 ---
 
@@ -179,7 +179,7 @@ Se generan y ejecutan todas las $\binom{2n}{n}$ combinaciones posibles de entrel
 
 ![Distribución de comparaciones, n = 6](extras_09/fig/fig3_histogram_n6.png)
 
-*Figura 3. Con $n=6$ (924 entradas): cuántas comparaciones hace cada mezcla y si su salida es correcta. La "optimizada" nunca llega a 11 comparaciones, y en todas las columnas donde hay entradas (de 5 a 10 comparaciones) hay también entradas incorrectas; la estándar es siempre correcta.*
+<em>Figura 3. Con $n=6$ (924 entradas): cuántas comparaciones hace cada mezcla y si su salida es correcta. La "optimizada" nunca llega a 11 comparaciones, y en todas las columnas donde hay entradas (de 5 a 10 comparaciones) hay también entradas incorrectas; la estándar es siempre correcta.*</em>
 
 Por ejemplo, con $n=6$ la "optimizada" hace 10 comparaciones en 378 entradas (252 correctas y 126 incorrectas) y la estándar hace 11 comparaciones en 504.
 

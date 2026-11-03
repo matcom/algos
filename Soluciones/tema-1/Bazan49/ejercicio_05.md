@@ -26,7 +26,8 @@ Dado que cada nodo posee a lo sumo un único sucesor `next`, el camino generado 
 2. **Lista cíclica:** El camino es infinito y se divide en dos secciones:
    - Una **cola** (o prefijo) de $\mu \ge 0$ nodos que se recorren una sola vez.
    - Un **ciclo** de $\lambda \ge 1$ nodos que se repiten indefinidamente:
-     $$\text{nodo}_k = \text{nodo}_{\mu + ((k - \mu) \bmod \lambda)} \quad \text{para todo } k \ge \mu$$
+
+    $$\text{nodo}_k = \text{nodo}_{\mu + ((k - \mu) \bmod \lambda)} \quad \text{para todo } k \ge \mu$$
 
 **Convenio de parámetros $(\mu, \lambda)$:**
 - **Con ciclo:** $\mu \ge 0$ es la longitud de la cola y $\lambda \ge 1$ la longitud del ciclo.
@@ -97,15 +98,16 @@ Tras $t$ iteraciones completas del bucle `while` ($t \ge 0$):
 - **Tortuga (`tortoise`):** Se encuentra ubicada en $\text{nodo}_t$.
 - **Liebre (`hare`):** Se encuentra ubicada en $\text{nodo}_{2t}$.
 
-La afirmación *"los punteros se encuentran en la iteración $t$"* equivale algebraicamente a $\text{nodo}_t = \text{nodo}_{2t}$ con $t \ge 1$ (donde ambos representan exactamente la misma referencia por identidad).
+La afirmación *"los punteros se encuentran en la iteración $`t`$"* equivale algebraicamente a $`\text{nodo}_t = \text{nodo}_{2t}`$ con $`t \ge 1`$ (donde ambos representan exactamente la misma referencia por identidad).
 
 ### Lema del Encuentro
 **Lema.** Supongamos que la lista contiene un ciclo ($\lambda \ge 1$). Para todo $t \ge 1$:
+
 $$\text{nodo}_t = \text{nodo}_{2t} \iff t \ge \mu \quad \land \quad \lambda \mid t$$
 
 *Demostración:*
-- $(\Leftarrow)$ Si $t \ge \mu$, tanto $\text{nodo}_t$ como $\text{nodo}_{2t}$ se encuentran dentro del ciclo. Sus posiciones dentro del recorrido distan en $2t - t = t$ pasos. Como $\lambda \mid t$, la diferencia de distancia $t$ es un múltiplo exacto de la longitud del ciclo $\lambda$, por lo que ambos punteros coinciden en el mismo nodo.
-- $(\Rightarrow)$ Si $t < \mu$, $\text{nodo}_t$ pertenece a la cola (prefijo acíclico). Puesto que los nodos de la cola aparecen una sola vez en el camino y $2t \neq t$ (ya que $t \ge 1$), $\text{nodo}_{2t}$ es necesariamente un nodo distinto. Si $t \ge \mu$, ambos nodos están en el ciclo de $\lambda$ nodos distintos; por tanto, son iguales únicamente si la distancia entre ellos es un múltiplo de $\lambda$, es decir, $\lambda \mid (2t - t) = t$. $\blacksquare$
+- $`(\Leftarrow)`$ Si $`t \ge \mu`$, tanto $`\text{nodo}_t`$ como $`\text{nodo}_{2t}`$ se encuentran dentro del ciclo. Sus posiciones dentro del recorrido distan en $`2t - t = t`$ pasos. Como $`\lambda \mid t`$, la diferencia de distancia $`t`$ es un múltiplo exacto de la longitud del ciclo $`\lambda`$, por lo que ambos punteros coinciden en el mismo nodo.
+- $`(\Rightarrow)`$ Si $`t < \mu`$, $`\text{nodo}_t`$ pertenece a la cola (prefijo acíclico). Puesto que los nodos de la cola aparecen una sola vez en el camino y $`2t \neq t`$ (ya que $`t \ge 1`$), $`\text{nodo}_{2t}`$ es necesariamente un nodo distinto. Si $`t \ge \mu`$, ambos nodos están en el ciclo de $`\lambda`$ nodos distintos; por tanto, son iguales únicamente si la distancia entre ellos es un múltiplo de $`\lambda`$, es decir, $`\lambda \mid (2t - t) = t`$. $`\blacksquare`$
 
 ---
 
@@ -116,15 +118,16 @@ $$t^* = \min \{ t \ge 1 \mid t \ge \mu \;\land\; \lambda \mid t \} = \lambda \cd
 **Acotación de $t^*$:**
 - Si $\mu = 0$ (ciclo puro desde `head`): $t^* = \lambda = N$.
 - Si $\mu \ge 1$: $\max(\mu, \lambda) \le t^* \le \mu + \lambda - 1$.
-*(Nota: La cota superior $t^* \le \mu + \lambda - 1 < N$ garantiza que el primer encuentro ocurre siempre antes de completar $N = \mu + \lambda$ pasos dentro de la estructura. El valor máximo $t^* = \mu + \lambda - 1$ se alcanza cuando $\mu = \lambda + 1$, donde $t^* = 2\lambda$.)*
+
+*(Nota: La cota superior $`t^* \le \mu + \lambda - 1 < N`$ garantiza que el primer encuentro ocurre siempre antes de completar $`N = \mu + \lambda`$ pasos dentro de la estructura. El valor máximo $`t^* = \mu + \lambda - 1`$ se alcanza cuando $`\mu = \lambda + 1`$, donde $`t^* = 2\lambda`$.)*
 
 ## Invariante y Correctitud Parcial
 
 
 Definimos el **Invariante $I(t)$** tras $t$ iteraciones completas del bucle `while` ($t \ge 0$), mientras el algoritmo no haya retornado:
 
-- **(a) Posición de los punteros:** `tortoise` está en $\text{nodo}_t$ y `hare` está en $\text{nodo}_{2t}$ (o `None`, si el recorrido alcanzó el final).
-- **(b) Ausencia de colisiones previas:** Para todo $s \in \{1, \dots, t\}$, $\text{nodo}_s \neq \text{nodo}_{2s}$ (no se ha producido ningún encuentro en iteraciones anteriores).
+- **(a) Posición de los punteros:** `tortoise` está en $`\text{nodo}_t`$ y `hare` está en $`\text{nodo}_{2t}`$ (o `None`, si el recorrido alcanzó el final).
+- **(b) Ausencia de colisiones previas:** Para todo $`s \in \{1, \dots, t\}`$, $`\text{nodo}_s \neq \text{nodo}_{2s}`$ (no se ha producido ningún encuentro en iteraciones anteriores).
 
 ### Demostración por Inducción
 
@@ -136,15 +139,15 @@ Definimos el **Invariante $I(t)$** tras $t$ iteraciones completas del bucle `whi
   Esto implica que existen los nodos en el camino hasta la posición $2t + 1$, y por ende `tortoise = nodo_t` existe ($t \le 2t$).  
   Al ejecutar el cuerpo del bucle:
   - `tortoise = tortoise.next` pasa a $\text{nodo}_{t+1}$.
-  - `hare = hare.next.next` pasa a $\text{nodo}_{2(t+1)} = \text{nodo}_{2t+2}$ (que puede ser un `Node` o `None`).  
+  - `hare = hare.next.next` pasa a $`\text{nodo}_{2(t+1)} = \text{nodo}_{2t+2}`$ (que puede ser un `Node` o `None`).  
   Esto establece la propiedad **(a)** para $t + 1$.  
   A continuación, se evalúa la condición de salida `if tortoise is hare`:
   - Si coinciden (`tortoise is hare`), el algoritmo retorna `True`.
-  - Si no coinciden, se confirma que $\text{nodo}_{t+1} \neq \text{nodo}_{2(t+1)}$, extendiendo la propiedad **(b)** para todo $s \in \{1, \dots, t+1\}$.
+  - Si no coinciden, se confirma que $`\text{nodo}_{t+1} \neq \text{nodo}_{2(t+1)}`$, extendiendo la propiedad **(b)** para todo $s \in \{1, \dots, t+1\}$.
 
 - **Conclusión:**  
   El bucle finaliza únicamente por una de dos vías:
-  1. **Retorna `True` tras $t \ge 1$ iteraciones:** Por (a), $\text{nodo}_t$ y $\text{nodo}_{2t}$ representan la misma referencia física con $t < 2t$. Al tener cada nodo un único sucesor `next`, el camino se repite indefinidamente a partir de esa coincidencia: **existe un ciclo**.
+  1. **Retorna `True` tras $t \ge 1$ iteraciones:** Por (a), $`\text{nodo}_t`$ y $`\text{nodo}_{2t}`$ representan la misma referencia física con $t < 2t$. Al tener cada nodo un único sucesor `next`, el camino se repite indefinidamente a partir de esa coincidencia: **existe un ciclo**.
   2. **Sale por la guarda del `while` tras $t$ iteraciones:** Por (a), `hare = nodo_{2t}` es `None` o `hare.next` es `None`. Esto implica que la lista tiene a lo sumo $2t + 1$ nodos y es finita: **no existe ciclo**, devolviendo `False`.
 
 ## Función de Potencial y Terminación
@@ -171,16 +174,18 @@ Analizamos la función de potencial según la topología de la lista:
 
 ### Caso 2: Lista con ciclo $(\mu, \lambda)$
 
-- **Definición de $\Phi(t)$:** Medimos la distancia en iteraciones que faltan para alcanzar el primer encuentro en $t^*$:
+- **Definición de $\Phi(t)$:** Medimos la distancia en iteraciones que faltan para alcanzar el primer encuentro en $`t^*`$:
+
   $$\Phi(t) = t^* - t$$
+
   donde $t^* = \lambda \cdot \max\left(1, \left\lceil \frac{\mu}{\lambda} \right\rceil\right)$ es la iteración exacta del primer encuentro.
 
 - **Demostración de terminación:**
-  - **No negatividad:** Para todo $t < t^*$, el Invariante $I(t)$ garantiza que no se ha producido colisión previa. Por definición de $t^*$ como la primera iteración de choque, $t^* > t$, por lo que $\Phi(t) \ge 1$.
+  - **No negatividad:** Para todo $`t < t^*`$, el Invariante $`I(t)`$ garantiza que no se ha producido colisión previa. Por definición de $`t^*`$ como la primera iteración de choque, $`t^* > t`$, por lo que $`\Phi(t) \ge 1`$.
   - **Decrecimiento estricto:** En cada iteración $t \to t + 1$:
     $$\Phi(t+1) = t^* - (t + 1) = \Phi(t) - 1$$
     disminuyendo exactamente en $1$ unidad por vuelta.
-  - **Número de vueltas:** Tras exactamente $t = t^*$ iteraciones, se alcanza $\Phi(t^*) = 0$, lo que implica $\text{tortoise} \text{ is } \text{hare}$. La condición de salida se satisface y el algoritmo retorna `True`.
+  - **Número de vueltas:** Tras exactamente $`t = t^*`$ iteraciones, se alcanza $`\Phi(t^*) = 0`$, lo que implica $\text{tortoise} \text{ is } \text{hare}$. La condición de salida se satisface y el algoritmo retorna `True`.
 
 ---
 
@@ -197,7 +202,7 @@ En consecuencia, el algoritmo de Floyd es **totalmente correcto**: retorna `True
 
 ### Complejidad Temporal 
 - **Listas acíclicas ($n$ nodos):** Ejecuta $\lfloor n/2 \rfloor$ iteraciones. Cada iteración realiza $O(1)$ accesos a memoria y comparaciones. Complejidad: $\Theta(n)$.
-- **Listas cíclicas $(\mu, \lambda)$:** Ejecuta $t^*$ iteraciones. Como $t^* \le \mu + \lambda - 1 = N - 1$, la cantidad de iteraciones está acotada por $O(\mu + \lambda) = O(N)$.
+- **Listas cíclicas $(\mu, \lambda)$:** Ejecuta $`t^*`$ iteraciones. Como $`t^* \le \mu + \lambda - 1 = N - 1`$, la cantidad de iteraciones está acotada por $`O(\mu + \lambda) = O(N)`$.
 - **Complejidad Temporal Global:** **$O(N)$**, donde $N = \mu + \lambda$ es el número total de nodos distintos en memoria.
 
 ### Complejidad Espacial Auxiliar

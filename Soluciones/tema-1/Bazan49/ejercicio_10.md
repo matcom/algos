@@ -21,7 +21,7 @@ Un **árbol de decisión algebraico de grado $d$** sobre $n$ variables reales es
 - El costo en el peor caso es la **profundidad** (altura) del árbol $h$.
 
 ### El Teorema Base (Ben-Or, 1983)
-> **Teorema (Ben-Or, 1983; C2 §8).** Todo árbol de decisión algebraico de grado $d$ y profundidad $h$ que resuelva el problema de **Distinción de Elementos** (*dados $n$ reales, decidir si existen $i \neq j$ tales que $x_i = x_j$*) cumple $h = \Omega(n \log n)$.
+> **Teorema (Ben-Or, 1983; C2 §8).** Todo árbol de decisión algebraico de grado $`d`$ y profundidad $`h`$ que resuelva el problema de **Distinción de Elementos** (<em>dados $`n`$ reales, decidir si existen $`i \neq j`$ tales que $`x_i = x_j`$</em>) cumple $`h = \Omega(n \log n)`$.
 
 *Origen de la cota:* El conjunto de entradas en las que todos los elementos son distintos tiene $n!$ componentes conexas, una por cada orden posible de los elementos. Mediante un resultado de Milnor y Thom sobre variedades algebraicas, Ben-Or demuestra que un árbol de decisión algebraico de profundidad $h$ no puede distinguir todas esas componentes si $h$ es menor que un orden de $n\log n$. Por tanto, la distinción de elementos requiere $\Omega(n\log n)$.
 

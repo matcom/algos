@@ -79,19 +79,11 @@ obtenemos una cota superior para el potencial inicial.
 
 Al sumar los costos amortizados sobre una secuencia de $m$ accesos, los términos de potencial intermedios se cancelan:
 
-$$
-\sum_{i=1}^{m}c_i
-=
-\sum_{i=1}^{m}\hat{c}_i-(\Phi_m-\Phi_0)
-$$
+$$\sum_{i=1}^{m}c_i = \sum_{i=1}^{m}\hat{c}_i-(\Phi_m-\Phi_0)$$
 
 Equivalentemente:
 
-$$
-\sum_{i=1}^{m}c_i
-=
-\sum_{i=1}^{m}\hat{c}_i+\Phi_0-\Phi_m
-$$
+$$\sum_{i=1}^{m}c_i=\sum_{i=1}^{m}\hat{c}_i+\Phi_0-\Phi_m$$
 
 Como el potencial final es no negativo, obtenemos:
 

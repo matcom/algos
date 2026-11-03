@@ -47,7 +47,7 @@ Al comienzo de cada iteración del bucle while y al finalizar el mismo, se satis
 - $I_1$ (Ubicación del elemento): Si $x \in A$, entonces existe un índice $k$ tal que $lo \le k < hi$ y $A[k] = x$.
 - $I_2$ (Invariante reforzado): $$\forall p \in [0 \dots lo-1],\, A[p] < x \qquad \text{y} \qquad \forall q \in [hi \dots n-1],\, A[q] > x$$
 
-(Observación: $I_2$ implica directamente a $I_1$, ya que si todos los elementos antes de $lo$ son estrictamente menores que $x$ y todos a partir de $hi$ son estrictamente mayores que $x$, el elemento $x$ solo podría encontrarse dentro del intervalo semiabierto $[lo, hi)$).
+(Observación: $I_2$ implica directamente a $I_1$, ya que si todos los elementos antes de $lo$ son estrictamente menores que $x$ y todos a partir de $hi$ son estrictamente mayores que $x$, el elemento $x$ solo podría encontrarse dentro del intervalo semiabierto $`[lo, hi)`$).
 
 ### Demostración Formal
 

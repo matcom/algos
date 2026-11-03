@@ -28,13 +28,11 @@ El algoritmo recibe dos arreglos $a$ y $b$, de longitudes $n$ y $m$, respectivam
 
 1. **Arreglos ordenados:** ambos arreglos están ordenados de forma no decreciente:
 
-   $$
-   \forall\, 0\le u<v<n,\quad a[u]\le a[v]
-   $$
+   $\forall\, 0\le u<v<n,\quad a[u]\le a[v]
+   $
 
-   $$
-   \forall\, 0\le u<v<m,\quad b[u]\le b[v]
-   $$
+   $\forall\, 0\le u<v<m,\quad b[u]\le b[v]
+   $
 
 2. **Rango del parámetro $k$:**
 
@@ -67,21 +65,15 @@ La idea consiste en dividir ambos arreglos en dos mitades:
 
 3. **Rango inicial de cortes posibles:** no podemos tomar una cantidad negativa de elementos ni más elementos de los que contiene cada arreglo. Por tanto, el rango inicial para elegir $i$ es:
 
-   $
-   lo_0=\max(0,k-m), \qquad hi_0=\min(n,k)
-   $
+   $lo_0=\max(0,k-m), \qquad hi_0=\min(n,k)$
 
    En el caso particular de dos arreglos de tamaño $n$ y $k=n$, este rango se reduce a $[0,n]$.
 
 4. **Condición de corte y propiedad de monotonía:** una partición es válida si todos los elementos de la mitad izquierda son menores o iguales que todos los elementos de la mitad derecha. Como los arreglos están ordenados, basta con comprobar los dos elementos que quedan justo en los límites de la partición:
 
-   $
-   C_1(i): A[i-1]\le B[j]
-   $
+   $C_1(i): A[i-1]\le B[j]$
 
-   $
-   C_2(i): B[j-1]\le A[i]
-   $
+   $C_2(i): B[j-1]\le A[i]$
 
    donde $j=k-i$.
 
@@ -95,47 +87,35 @@ Esto permite reducir el problema a una búsqueda binaria sobre los posibles cort
 
 1. **Inicialización:** se define el rango de búsqueda:
 
-   $
-   lo=\max(0,k-m), \qquad hi=\min(n,k)
-   $
+   $lo=\max(0,k-m), \qquad hi=\min(n,k)$
 
    Estos límites garantizan que tanto $i$ como $j=k-i$ sean índices de corte válidos para sus respectivos arreglos.
 
 2. **Cálculo del punto medio por arriba:** en cada iteración del bucle `while lo < hi`, se calcula:
 
-   $
-   mid=\left\lfloor\frac{lo+hi+1}{2}\right\rfloor
-   $
+   $mid=\left\lfloor\frac{lo+hi+1}{2}\right\rfloor$
 
    > Se utiliza el redondeo hacia arriba para asegurar que $mid>lo$. Esto evita que el algoritmo se quede atrapado en un ciclo infinito cuando actualiza $lo=mid$.
 
 3. **Evaluación de $C_1(mid)$:** se calcula $j=k-mid$ y se verifica si:
 
-   $
-   A[mid-1]\le B[j]
-   $
+   $A[mid-1]\le B[j]$
 
    Se consideran los centinelas cuando alguna de las mitades queda vacía.
 
    - **Si $C_1(mid)$ es verdadera:** significa que todavía podemos tomar $mid$ elementos de $A$ sin violar la condición. Como buscamos el mayor índice que cumple $C_1$, la solución se encuentra en el intervalo $[mid,hi]$. Se actualiza:
 
-     $
-     lo=mid
-     $
+     $lo=mid$
 
    - **Si $C_1(mid)$ es falsa:** significa que hemos tomado demasiados elementos de $A$. Por la monotonía de la condición, los índices mayores tampoco serán válidos. Por tanto, la solución debe estar en $[lo,mid-1]$. Se actualiza:
 
-     $
-     hi=mid-1
-     $
+     $hi=mid-1$
 
 4. **Terminación del bucle:** el bucle finaliza cuando $lo=hi$. En ese momento, hemos encontrado el mayor índice $i$ para el cual $C_1(i)$ es verdadera. Por la propiedad demostrada anteriormente, este índice también satisface $C_2(i)$, por lo que la partición obtenida es válida.
 
 5. **Retorno del resultado:** como la partición es válida, los $k$ elementos de la mitad izquierda son menores o iguales que los elementos de la mitad derecha. Por tanto, el $k$-ésimo menor elemento es el **máximo de la mitad izquierda**:
 
-   $
-   \boxed{\max(A[i-1],B[j-1])}
-   $
+   $\boxed{\max(A[i-1],B[j-1])}$
 
    Si alguna de las dos partes izquierdas está vacía, el resultado corresponde al último elemento de la otra.
 
@@ -189,48 +169,34 @@ Para demostrar la correctitud del algoritmo, utilizaremos un **invariante de cic
 
 **Lema 1 (Partición válida implica respuesta correcta).** Si un índice $i\in[lo_0,hi_0]$ satisface $C_1(i)$ y $C_2(i)$, entonces el $k$-ésimo menor elemento es:
 
-$
-\boxed{\max(A[i-1],B[j(i)-1])}
-$
+$\boxed{\max(A[i-1],B[j(i)-1])}$
 
 *Demostración.*
 
 Consideremos los conjuntos correspondientes a las dos mitades de la partición:
 
-$
-L=A[0..i)\cup B[0..j)
-$
+$L=A[0..i)\cup B[0..j)$
 
-$
-R=A[i..n)\cup B[j..m)
-$
+$R=A[i..n)\cup B[j..m)$
 
 Por definición, el conjunto izquierdo contiene:
 
-$
-|L|=i+j=i+(k-i)=k
-$
+$|L|=i+j=i+(k-i)=k$
 elementos.
 
 Como los arreglos están ordenados, todos los elementos de $A[0..i)$ son menores o iguales que $A[i-1]$, y todos los elementos de $B[0..j)$ son menores o iguales que $B[j-1]$.
 
 Además, las condiciones $C_1(i)$ y $C_2(i)$ garantizan que:
 
-$
-A[i-1]\le B[j]
-$
+$A[i-1]\le B[j]$
 
-$
-B[j-1]\le A[i]
-$
+$B[j-1]\le A[i]$
 
 Por tanto, todos los elementos de la mitad izquierda son menores o iguales que los de la mitad derecha.
 
 Así, $L$ contiene exactamente los $k$ elementos menores de la unión de ambos arreglos. El mayor elemento de $L$ es:
 
-$
-\max(A[i-1],B[j-1])
-$
+$\max(A[i-1],B[j-1])$
 
 Este elemento es, por tanto, el $k$-ésimo menor. $\square$
 
@@ -240,27 +206,19 @@ Este elemento es, por tanto, el $k$-ésimo menor. $\square$
 
 Por definición:
 
-$
-C_1(i): A[i-1]\le B[j(i)]
-$
+$C_1(i): A[i-1]\le B[j(i)]$
 
 Como $j(i-1)=j(i)+1$, la condición $C_1(i-1)$ equivale a:
 
-$
-A[i-2]\le B[j(i)+1]
-$
+$A[i-2]\le B[j(i)+1]$
 
 Por el orden de los arreglos y por la hipótesis $C_1(i)$, tenemos:
 
-$
-A[i-2]\le A[i-1]\le B[j(i)]\le B[j(i)+1]
-$
+$A[i-2]\le A[i-1]\le B[j(i)]\le B[j(i)+1]$
 
 Por transitividad:
 
-$
-A[i-2]\le B[j(i)+1]
-$
+$A[i-2]\le B[j(i)+1]$
 
 Por tanto, $C_1(i-1)$ es verdadera. Si alguno de los elementos no existe, la desigualdad correspondiente se satisface mediante los centinelas. $\square$
 
@@ -270,9 +228,7 @@ Por tanto, $C_1(i-1)$ es verdadera. Si alguno de los elementos no existe, la des
 
 Por definición:
 
-$
-lo_0=\max(0,k-m)
-$
+$lo_0=\max(0,k-m)$
 
 Tenemos dos casos:
 
@@ -283,9 +239,7 @@ En ambos casos se cumple la condición. $\square$
 
 A partir de estos resultados, podemos definir:
 
-$
-i^*=\max\{i\in[lo_0,hi_0]:C_1(i)\text{ es verdadera}\}
-$
+$i^*=\max\{i\in[lo_0,hi_0]:C_1(i)\text{ es verdadera}\}$
 
 Este índice existe por el lema 3, ya que $C_1(lo_0)$ es verdadera.
 
@@ -293,31 +247,25 @@ Este índice existe por el lema 3, ya que $C_1(lo_0)$ es verdadera.
 
 *Demostración.*
 
-Por definición de $i^*$, sabemos que $C_1(i^*)$ es verdadera. Solo falta demostrar que también se cumple $C_2(i^*)$.
+Por definición de $`i^*`$, sabemos que $`C_1(i^*)`$ es verdadera. Solo falta demostrar que también se cumple $C_2(i^*)$.
 
 Consideramos dos casos:
 
-- **Si $i^*=hi_0=\min(n,k)$:** tenemos dos posibilidades:
-  - Si $i^*=n$, entonces $A[i^*]=A[n]=+\infty$, por lo que $C_2(i^*)$ es verdadera.
-  - Si $i^*=k$, entonces $j(i^*)=0$ y $B[j(i^*)-1]=B[-1]=-\infty$, por lo que $C_2(i^*)$ también es verdadera.
+- **Si $`i^*=hi_0=\min(n,k)`$:** tenemos dos posibilidades:
+  - Si $`i^*=n`$, entonces $`A[i^*]=A[n]=+\infty`$, por lo que $`C_2(i^*)`$ es verdadera.
+  - Si $`i^*=k`$, entonces $`j(i^*)=0`$ y $`B[j(i^*)-1]=B[-1]=-\infty`$, por lo que $`C_2(i^*)`$ también es verdadera.
 
-- **Si $i^*<hi_0$:** por la maximalidad de $i^*$, la condición $C_1(i^*+1)$ es falsa. Desarrollando esta condición:
+- **Si $i^*<hi_0$:** por la maximalidad de $`i^*`$, la condición $`C_1(i^*+1)`$ es falsa. Desarrollando esta condición:
 
-  $
-  A[i^*]\le B[j(i^*+1)]
-  $
+  $A[i^*]\le B[j(i^*+1)]$
 
-  Como $j(i^*+1)=j(i^*)-1$, su negación implica:
+  Como $`j(i^*+1)=j(i^*)-1`$, su negación implica:
 
-  $
-  A[i^*]>B[j(i^*)-1]
-  $
+  $A[i^*]>B[j(i^*)-1]$
 
   Por tanto:
 
-  $
-  B[j(i^*)-1]<A[i^*]
-  $
+  $B[j(i^*)-1]<A[i^*]$
 
   lo que garantiza que $C_2(i^*)$ es verdadera.
 
@@ -327,13 +275,11 @@ En ambos casos, $i^*$ satisface $C_1$ y $C_2$, por lo que determina una partici�
 
 Definimos el siguiente invariante, que debe cumplirse antes y después de cada iteración del ciclo:
 
-$
-\boxed{
+$\boxed{
 C_1(lo)\text{ es verdadera}
 \quad\land\quad
 lo\le i^*\le hi
-}
-$
+}$
 
 Es decir, el límite inferior siempre corresponde a un índice que satisface $C_1$, y el índice buscado $i^*$ permanece dentro del intervalo de búsqueda.
 
@@ -341,15 +287,11 @@ Es decir, el límite inferior siempre corresponde a un índice que satisface $C_
 
 Al comenzar el algoritmo:
 
-$
-lo=lo_0,\qquad hi=hi_0
-$
+$lo=lo_0,\qquad hi=hi_0$
 
 Por el lema 3, $C_1(lo_0)$ es verdadera. Además, por definición de $i^*$:
 
-$
-lo_0\le i^*\le hi_0
-$
+$lo_0\le i^*\le hi_0$
 
 Por tanto, el invariante se cumple inicialmente.
 
@@ -359,41 +301,29 @@ Supongamos que el invariante se cumple al comienzo de una iteración y que $lo<h
 
 El algoritmo calcula:
 
-$
-mid=\left\lceil\frac{lo+hi}{2}\right\rceil
-$
+$mid=\left\lceil\frac{lo+hi}{2}\right\rceil$
 
 Por utilizar el redondeo hacia arriba, se cumple:
 
-$
-lo<mid\le hi
-$
+$lo<mid\le hi$
 
 Ahora analizamos los dos posibles resultados de evaluar $C_1(mid)$:
 
 - **Si $C_1(mid)$ es verdadera:** como $i^*$ es el mayor índice que satisface $C_1$, necesariamente:
 
-  $
-  mid\le i^*
-  $
+  $mid\le i^*$
 
   El algoritmo actualiza $lo=mid$. Por tanto, $C_1(lo)$ sigue siendo verdadera y se conserva:
 
-  $
-  lo\le i^*\le hi
-  $
+  $lo\le i^*\le hi$
 
 - **Si $C_1(mid)$ es falsa:** por el lema 2, todos los índices mayores o iguales que $mid$ tampoco pueden satisfacer $C_1$. Por tanto:
 
-  $
-  i^*<mid
-  $
+  $i^*<mid$
 
   El algoritmo actualiza $hi=mid-1$. Así se conserva:
 
-  $
-  lo\le i^*\le hi
-  $
+  $lo\le i^*\le hi$
 
   Además, $lo$ no cambia, por lo que $C_1(lo)$ continúa siendo verdadera.
 
@@ -403,29 +333,21 @@ En ambos casos, el invariante se mantiene después de la iteración.
 
 El ciclo termina cuando:
 
-$
-lo=hi
-$
+$lo=hi$
 
 Por el invariante, sabemos que:
 
-$
-lo\le i^*\le hi
-$
+$lo\le i^*\le hi$
 
 Como ambos límites coinciden, necesariamente:
 
-$
-lo=hi=i^*
-$
+$`lo=hi=i^*`$
 
 Por el lema 4, $i^*$ determina una partición válida, ya que satisface tanto $C_1$ como $C_2$.
 
 Finalmente, por el lema 1, el máximo de la mitad izquierda es el $k$-ésimo menor elemento:
 
-$
-\boxed{\max(A[i^*-1],B[j(i^*)-1])}
-$
+$\boxed{\max(A[i^*-1],B[j(i^*)-1])}$
 
 Las condiciones finales del código contemplan los casos en que alguna de las mitades izquierdas está vacía, devolviendo el único elemento disponible.
 
@@ -435,9 +357,7 @@ Por tanto, si el algoritmo termina, devuelve correctamente el $k$-ésimo menor e
 
 Para demostrar que el ciclo termina, definimos la siguiente función potencial:
 
-$
-P=hi-lo
-$
+$P=hi-lo$
 
 Esta función cumple dos propiedades:
 
@@ -450,9 +370,7 @@ Por otro lado, si $C_1(mid)$ es falsa, se actualiza $hi=mid-1$. Como $mid\le hi$
 
 Por tanto, en cada iteración $P$ disminuye y nunca puede ser negativo. Como no existe una secuencia infinita de enteros no negativos estrictamente decrecientes, el ciclo necesariamente termina cuando:
 
-$
-P=0\iff lo=hi
-$
+$P=0\iff lo=hi$
 
 ### Reducción del intervalo
 
@@ -460,31 +378,23 @@ Además de demostrar la terminación, podemos precisar cuántas iteraciones real
 
 Sea:
 
-$
-s=hi-lo+1
-$
+$s=hi-lo+1$
 
 el número de posibles cortes dentro del intervalo actual.
 
 Como el punto medio se calcula redondeando hacia arriba, después de cada iteración el nuevo intervalo contiene, como máximo:
 
-$
-s'\le\left\lceil\frac{s}{2}\right\rceil
-$
+$s'\le\left\lceil\frac{s}{2}\right\rceil$
 
 posiciones.
 
 Por tanto, partiendo del tamaño inicial:
 
-$
-s_0=hi_0-lo_0+1
-$
+$s_0=hi_0-lo_0+1$
 
 el número de iteraciones está acotado por:
 
-$
-\boxed{r\le\left\lceil\log_2(s_0)\right\rceil}
-$
+$\boxed{r\le\left\lceil\log_2(s_0)\right\rceil}$
 
 Esto confirma que el intervalo de búsqueda se reduce aproximadamente a la mitad en cada iteración, como muestra la figura 2.
 

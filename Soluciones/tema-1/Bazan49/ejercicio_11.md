@@ -21,17 +21,13 @@ En el problema de la mochila tenemos:
 
 Por tanto, al representar los números en binario, el tamaño de la entrada es:
 
-$
-L = \operatorname{bits}(n)+\operatorname{bits}(W)
+$$L = \operatorname{bits}(n)+\operatorname{bits}(W)
 +\sum_{i=1}^{n}\operatorname{bits}(p_i)
-+\sum_{i=1}^{n}\operatorname{bits}(v_i).
-$
++\sum_{i=1}^{n}\operatorname{bits}(v_i).$$
 
 Para un entero positivo $x$, la cantidad de bits necesarios para representarlo es:
 
-$
-\operatorname{bits}(x)=\lfloor\log_2 x\rfloor+1.
-$
+$$\operatorname{bits}(x)=\lfloor\log_2 x\rfloor+1.$$
 
 El caso $x=0$ requiere un bit para su representación.
 
@@ -39,9 +35,7 @@ Es importante distinguir entre el número de objetos y los valores numéricos qu
 
 Sin embargo, el parámetro $W$ tiene una particularidad: aunque su representación binaria necesita solamente
 
-$
-b_W=\lfloor\log_2 W\rfloor+1
-$
+$$b_W=\lfloor\log_2 W\rfloor+1$$
 
 bits, el algoritmo de programación dinámica utiliza su **valor numérico** para determinar el tamaño de la tabla.
 
@@ -55,9 +49,7 @@ Esta diferencia es fundamental para determinar si el algoritmo es polinomial res
 
 La programación dinámica tiene una complejidad temporal de:
 
-$
-T(n,W)=\Theta(n(W+1))=\Theta(nW)
-$
+$$T(n,W)=\Theta(n(W+1))=\Theta(nW)$$
 
 para $W\geq 1$, considerando el costo constante de procesar cada celda de la tabla.
 
@@ -65,42 +57,30 @@ Aunque esta complejidad es polinomial en el valor numérico de $W$, no necesaria
 
 Para demostrarlo, consideremos una familia de entradas en la que:
 
-$
-n=1,\qquad p_1=1,\qquad v_1=1,\qquad W=2^b-1.
-$
+$$n=1,\qquad p_1=1,\qquad v_1=1,\qquad W=2^b-1.$$
 
 Como $W=2^b-1$, su representación binaria necesita exactamente $b$ bits.
 
 El tamaño total de esta entrada es:
 
-$
-L=\operatorname{bits}(1)+\operatorname{bits}(2^b-1)
-+\operatorname{bits}(1)+\operatorname{bits}(1).
-$
+$$L=\operatorname{bits}(1)+\operatorname{bits}(2^b-1)
++\operatorname{bits}(1)+\operatorname{bits}(1).$$
 
 Por tanto:
 
-$
-L=1+b+1+1=b+3.
-$
+$$L=1+b+1+1=b+3.$$
 
 Por otra parte, el algoritmo calcula una tabla con $n(W+1)$ celdas. Para esta familia de entradas:
 
-$
-T(1,W)=1\cdot(2^b-1+1)=2^b.
-$
+$$T(1,W)=1\cdot(2^b-1+1)=2^b.$$
 
 Como $b=L-3$, podemos expresar el costo en función del tamaño de la entrada:
 
-$
-T(L)=2^{L-3}.
-$
+$$T(L)=2^{L-3}.$$
 
 Esta función crece exponencialmente respecto a $L$. En particular, para cualquier constante $k$:
 
-$
-\lim_{L\to\infty}\frac{2^{L-3}}{L^k}=\infty.
-$
+$$\lim_{L\to\infty}\frac{2^{L-3}}{L^k}=\infty.$$
 
 Por tanto, no existe un polinomio en el tamaño de la entrada que acote el costo del algoritmo para todas las entradas.
 
@@ -115,6 +95,7 @@ La similitud está en que ambos algoritmos dependen del valor numérico de un en
 En el algoritmo de primalidad por división, para determinar si un número $N$ es primo, basta comprobar posibles divisores hasta $\sqrt{N}$.
 
 Si $N$ necesita $b$ bits para representarse, entonces:
+
 $$
 N<2^b.
 $$

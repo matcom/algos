@@ -24,9 +24,9 @@ Una solución directa consiste en inicializar el mínimo y el máximo con el pri
 
 En el peor caso, cada elemento requiere dos comparaciones, por lo que el algoritmo realiza:
 
-$
+$$
 C_{\text{ingenuo}}(n)=2(n-1)=2n-2.
-$
+$$
 
 Para optimizar, **procesamos los elementos por parejas no solapadas $(A[i], A[i+1])$**:
 1. Comparamos los dos elementos de la pareja entre sí ($1$ comparación).
@@ -85,11 +85,13 @@ Definimos el subconjunto de elementos procesados hasta la iteración $k$ como $S
 1. **Inicialización:**
    - Si $n$ es impar, $S_0 = \{A[0]\}$, `min_val` = `max_val` = $A[0]$, que es trivialmente el mínimo y máximo de $S_0$.
    - Si $n$ es par, $S_0 = \{A[0], A[1]\}$. Tras 1 comparación entre $A[0]$ y $A[1]$, `min_val` = $\min(A[0], A[1])$ y `max_val` = $\max(A[0], A[1])$, cumpliendo $I(0)$.
+
 2. **Mantenimiento:**  
-   Supongamos que $I(k)$ vale para $S_k$. En la iteración $k+1$, se toman dos nuevos elementos $\{x, y\}$ formando $S_{k+1} = S_k \cup \{x, y\}$.
-   - La primera comparación determina $\text{menor} = \min(x, y)$ y $\text{mayor} = \max(x, y)$.
-   - Como ningún elemento mayor que $\text{menor}$ puede ser el mínimo global de $S_{k+1}$, basta comparar $\text{menor}$ con `min_val`. El nuevo `min_val'` será $\min(\text{min\_val}, \text{menor}) = \min(S_{k+1})$.
-   - Análogamente, el nuevo `max_val'` será $\max(\text{max\_val}, \text{mayor}) = \max(S_{k+1})$. Por tanto, $I(k+1)$ se mantiene.
+   Supongamos que $`I(k)`$ vale para $`S_k`$. En la iteración $`k+1`$, se toman dos nuevos elementos $`\lbrace x, y \rbrace`$ formando $`S_{k+1} = S_k \cup \lbrace x, y \rbrace`$.
+   - La primera comparación determina $`\text{menor} = \min(x, y)`$ y $`\text{mayor} = \max(x, y)`$.
+   - Como ningún elemento mayor que $`\text{menor}`$ puede ser el mínimo global de $`S_{k+1}`$, basta comparar $`\text{menor}`$ con `min_val`. El nuevo `min_val'` será $`\min(\text{min\_val}, \text{menor}) = \min(S_{k+1})`$.
+   - Análogamente, el nuevo `max_val'` será $`\max(\text{max\_val}, \text{mayor}) = \max(S_{k+1})`$. Por tanto, $`I(k+1)`$ se mantiene.
+
 3. **Conclusión:**  
    Al terminar el bucle, $\text{idx} = n$, luego $S_{\text{final}} = A[0 \dots n-1] = A$. Por la validez del invariante, `min_val` y `max_val` son el mínimo y máximo de todo el arreglo $A$.
 

@@ -7,10 +7,12 @@ El elemento que aparece más de $n/3$ veces. Generaliza Boyer-Moore con dos cand
 ### Formulación matemática
 Dado un arreglo $A$ de $n$ elementos, se busca determinar el conjunto $H$ formado por todos los elementos cuya frecuencia en $A$ es **estrictamente mayor a $n/3$**. Formalmente:
 
-$$H = \left\{ x \in A \;\middle|\; \mathrm{cnt}_A(x) > \frac{n}{3} \right\}$$
+$$
+H = \left\lbrace x \in A \;\middle|\; \mathrm{cnt}_A(x) > \frac{n}{3} \right\rbrace
+$$
 
 #### Lema 1 (Acotación del tamaño de la salida):
-*El número de elementos que cumplen la condición es a lo sumo 2, es decir, $|H| \le 2$.*
+*El número de elementos que cumplen la condición es a lo sumo 2, es decir, $`|H| \le 2`$.*
 
 **Demostración (por contradicción):**  
 Supongamos que existen al menos 3 elementos distintos $x, y, z \in H$. Por definición de $H$:
@@ -79,7 +81,7 @@ Al leer cada elemento $x \in A$, los casos se evalúan en estricto orden de prio
 
 ![Traza de ejecución](extras_08/fig/ej08_fig1_traza.png)
 
-*Figura 1. Traza sobre $B\,B\,A\,C\,A\,A\,B\,D$ mostrando el caso del `if` ejecutado en cada posición. Los arcos unen los elementos de las dos ternas canceladas: $\{B,A,C\}$ en las posiciones 1, 3, 4 y $\{B,A,D\}$ en 2, 5, 8. Sobreviven $A$ (candidato 2) y $B$ (candidato 1), tantas copias como marcan los contadores.*
+<em>Figura 1. Traza sobre $B\,B\,A\,C\,A\,A\,B\,D$ mostrando el caso del `if` ejecutado en cada posición. Los arcos unen los elementos de las dos ternas canceladas: $\{B,A,C\}$ en las posiciones 1, 3, 4 y $\{B,A,D\}$ en 2, 5, 8. Sobreviven $A$ (candidato 2) y $B$ (candidato 1), tantas copias como marcan los contadores.</em>
 
 ---
 
@@ -171,7 +173,7 @@ Antes de realizar la demostración formal por inducción, es conveniente comprob
 Para evaluar la condición **(I1)** en el programa, necesitamos decidir si un multiconjunto $S$ se parte en ternas de distintos sin requerir una búsqueda por fuerza bruta.
 
 > **Lema 2 (Caracterización de Partición en Ternas):**  
-> *Un multiconjunto $S$ se parte en ternas de elementos mutuamente distintos si y solo si su tamaño $|S|$ es múltiplo de $3$ ($|S| \equiv 0 \pmod 3$) y ningún elemento aparece más de un tercio del total:*
+> <em>Un multiconjunto $`S`$ se parte en ternas de elementos mutuamente distintos si y solo si su tamaño $`\lvert S \rvert`$ es múltiplo de $`3`$ ($`\lvert S \rvert \equiv 0 \pmod{3}`$) y ningún elemento aparece más de un tercio del total:</em>
 > $max_{x \in S} \mathrm{cnt}_S(x) \le \frac{|S|}{3}$
 
 ### Comprobación Exhaustiva Canónica
@@ -233,30 +235,40 @@ Evaluamos los **cinco casos mutuamente excluyentes** del algoritmo:
 - **Nuevo Estado:** $(\text{cand}_1, c_1, \text{cand}_2, c_2 + 1)$.
 - **Demostración:** Simétrica al Caso 1, absorbiendo $x$ para incrementar $c_2$ a $c_2 + 1$ manteniendo la misma $T$.
 
-##### **Caso 3: $x \notin \{\text{cand}_1, \text{cand}_2\}$ y $c_1 == 0$**
-- **Nuevo Estado:** $(x, 1, \text{cand}_2, c_2)$.
-- **(I1):** Como $c_1 = 0$, el término $(c_1 \times \text{cand}_1) = \emptyset$. Por H.I., $P_i = T \uplus (c_2 \times \text{cand}_2)$.  
-  Así, $P_{i+1} = P_i \uplus \{x\} = T \uplus (1 \times x) \uplus (c_2 \times \text{cand}_2)$. Sostiene $(I1)$ con el mismo $T$ y nuevo candidato $\text{cand}_1' = x$.
-- **(I2):** Contador $c_1' = 1 \ge 0$ y $c_2 \ge 0$.
-- **(I3):** Si $c_2 > 0$, debemos verificar $\text{cand}_1' \neq \text{cand}_2$. Como $\text{cand}_1' = x$ y la condición del caso 3 impone $x \notin \{\text{cand}_1, \text{cand}_2\}$, se garantiza que $x \neq \text{cand}_2$.
+##### **Caso 3:** $`x \notin \lbrace \text{cand}_1, \text{cand}_2 \rbrace`$ y $`c_1 == 0`$
+
+- <strong>Nuevo Estado:</strong> $`(x, 1, \text{cand}_2, c_2)`$.
+- <strong>(I1):</strong> Como $`c_1 = 0`$, el término $`(c_1 \times \text{cand}_1) = \emptyset`$. Por H.I., $`P_i = T \uplus (c_2 \times \text{cand}_2)`$.  
+  Así, $`P_{i+1} = P_i \uplus \lbrace x \rbrace = T \uplus (1 \times x) \uplus (c_2 \times \text{cand}_2)`$. Sostiene $`(I1)`$ con el mismo $`T`$ y nuevo candidato $`\text{cand}_1' = x`$.
+- <strong>(I2):</strong> Contador $`c_1' = 1 \ge 0`$ y $`c_2 \ge 0`$.
+- <strong>(I3):</strong> Si $`c_2 > 0`$, debemos verificar $`\text{cand}_1' \neq \text{cand}_2`$. Como $`\text{cand}_1' = x`$ y la condición del caso 3 impone $`x \notin \lbrace \text{cand}_1, \text{cand}_2 \rbrace`$, se garantiza que $`x \neq \text{cand}_2`$.
 
 ##### **Caso 4: $x \notin \{\text{cand}_1, \text{cand}_2\}$, $c_1 > 0$ y $c_2 == 0$**
 - **Nuevo Estado:** $(\text{cand}_1, c_1, x, 1)$.
 - **Demostración:** Simétrica al Caso 3. 
 
-##### **Caso 5: $x \notin \{\text{cand}_1, \text{cand}_2\}$, $c_1 > 0$ y $c_2 > 0$**
-- **Nuevo Estado:** $(\text{cand}_1, c_1 - 1, \text{cand}_2, c_2 - 1)$.
-- **Demostración de la Terna Válida:**  
-  1. Dado que $c_1 > 0$ y $c_2 > 0$, por H.I. de **(I3)** se garantiza que $\text{cand}_1 \neq \text{cand}_2$.
-  2. Al haber fallado los Casos 1 y 2, tenemos $x \neq \text{cand}_1$ y $x \neq \text{cand}_2$.
-  3. Por lo tanto, el multiconjunto $\{x, \text{cand}_1, \text{cand}_2\}$ es una **terna de elementos mutuamente distintos**.
-- **(I1):** Sustituyendo en la H.I.:
-  $$P_{i+1} = P_i \uplus \{x\} = T \;\uplus\; (c_1 \times \text{cand}_1) \;\uplus\; (c_2 \times \text{cand}_2) \;\uplus\; \{x\}$$
+##### **Caso 5:** $`x \notin \lbrace \text{cand}_1, \text{cand}_2 \rbrace`$, $`c_1 > 0`$ y $`c_2 > 0`$
+
+- <strong>Nuevo Estado:</strong> $`(\text{cand}_1, c_1 - 1, \text{cand}_2, c_2 - 1)`$.
+- <strong>Demostración de la Terna Válida:</strong>  
+  1. Dado que $`c_1 > 0`$ y $`c_2 > 0`$, por H.I. de <strong>(I3)</strong> se garantiza que $`\text{cand}_1 \neq \text{cand}_2`$.
+  2. Al haber fallado los Casos 1 y 2, tenemos $`x \neq \text{cand}_1`$ y $`x \neq \text{cand}_2`$.
+  3. Por lo tanto, el multiconjunto $`\lbrace x, \text{cand}_1, \text{cand}_2 \rbrace`$ es una **terna de elementos mutuamente distintos**.
+- <strong>(I1):</strong> Sustituyendo en la H.I.:
+
+  ```math
+  P_{i+1} = P_i \uplus \lbrace x \rbrace = T \;\uplus\; (c_1 \times \text{cand}_1) \;\uplus\; (c_2 \times \text{cand}_2) \;\uplus\; \lbrace x \rbrace
+  ```
+
   Reagrupando una copia de cada uno para formar la terna:
-  $$P_{i+1} = \bigl(T \;\uplus\; \{x, \text{cand}_1, \text{cand}_2\}\bigr) \;\uplus\; ((c_1 - 1) \times \text{cand}_1) \;\uplus\; ((c_2 - 1) \times \text{cand}_2)$$
-  Definiendo $T' = T \uplus \{x, \text{cand}_1, \text{cand}_2\}$, como $T$ se partía en ternas de distintos y $T'$ agrega una terna válida de distintos, $T'$ se parte en ternas de distintos. Sostiene $(I1)$.
-- **(I2):** Como $c_1 > 0$ y $c_2 > 0$, eran enteros $\ge 1$, por lo que $c_1 - 1 \ge 0$ y $c_2 - 1 \ge 0$.
-- **(I3):** Si los nuevos contadores continúan siendo positivos ($c_1 - 1 > 0$ y $c_2 - 1 > 0$), los candidatos no han cambiado, conservando $\text{cand}_1 \neq \text{cand}_2$ por H.I.
+
+  ```math
+  P_{i+1} = \bigl(T \;\uplus\; \lbrace x, \text{cand}_1, \text{cand}_2 \rbrace\bigr) \;\uplus\; ((c_1 - 1) \times \text{cand}_1) \;\uplus\; ((c_2 - 1) \times \text{cand}_2)
+  ```
+
+  Definiendo $`T' = T \uplus \lbrace x, \text{cand}_1, \text{cand}_2 \rbrace`$, como $`T`$ se partía en ternas de distintos y $`T'`$ agrega una terna válida de distintos, $`T'`$ se parte en ternas de distintos. Sostiene $`(I1)`$.
+- <strong>(I2):</strong> Como $`c_1 > 0`$ y $`c_2 > 0`$, eran enteros $`\ge 1`$, por lo que $`c_1 - 1 \ge 0`$ y $`c_2 - 1 \ge 0`$.
+- <strong>(I3):</strong> Si los nuevos contadores continúan siendo positivos ($`c_1 - 1 > 0`$ y $`c_2 - 1 > 0`$), los candidatos no han cambiado, conservando $`\text{cand}_1 \neq \text{cand}_2`$ por H.I.
 
 **Conclusión del Teorema 1:** Por inducción matemática, $(I1)$, $(I2)$ e $(I3)$ se satisfacen para todo $i = 0, \dots, n$. $\blacksquare$
 
@@ -356,7 +368,7 @@ Los generadores se comparan sobre arreglos de longitud 4 a 15 (con $n\le3$ no ca
 
 ![Error según n](extras_08/fig/ej08_fig3_error_segun_n.png)
 
-*Figura 3. Porcentaje de arreglos en que se equivoca el atajo, según la longitud $n$ (2000 arreglos por punto). El binario cae hacia 0 siguiendo la fórmula exacta (línea punteada); los generadores con una sola mayoría o con alfabetos de 3 y 5 símbolos lo siguen atrapando en todas las longitudes probadas. El pico de "5 símbolos" en $n=100$ ocurre porque $100\equiv1\pmod 3$: sin mayoría, $c_1+c_2\equiv n\pmod 3$ obliga a que sobre algún contador.*
+<em>Figura 3. Porcentaje de arreglos en que se equivoca el atajo, según la longitud $`n`$ (2000 arreglos por punto). El binario cae hacia 0 siguiendo la fórmula exacta (línea punteada); los generadores con una sola mayoría o con alfabetos de 3 y 5 símbolos lo siguen atrapando en todas las longitudes probadas. El pico de "5 símbolos" en $`n=100`$ ocurre porque $`100\equiv1\pmod{3}`$: sin mayoría, $`c_1+c_2\equiv n\pmod{3}`$ obliga a que sobre algún contador.</em>
 
 **Los dos que no lo atrapan.**
 

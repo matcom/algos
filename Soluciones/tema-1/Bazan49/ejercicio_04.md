@@ -4,9 +4,9 @@ Diseña una máquina de Turing de una cinta que sume 1 a un número escrito en b
 
 ## Problema y convenciones
 
-**Representación.** El número está escrito en la cinta en binario, con el bit más significativo a la izquierda. La celda $0$ corresponde al bit **menos significativo (LSB)**, que es donde el cabezal inicia y debe finalizar tras cada incremento. Todo lo que se encuentra a la derecha de la celda $0$ y a la izquierda del bit más significativo contiene el símbolo blanco ($\_$). La ejecución comienza desde el número $0$, representado como `0`.
+**Representación.** El número está escrito en la cinta en binario, con el bit más significativo a la izquierda. La celda $0$ corresponde al bit **menos significativo (LSB)**, que es donde el cabezal inicia y debe finalizar tras cada incremento. Todo lo que se encuentra a la derecha de la celda $0$ y a la izquierda del bit más significativo contiene el símbolo blanco ($`\_`$). La ejecución comienza desde el número $0$, representado como `0`.
 
-**Costo.** Un paso corresponde a una transición de la máquina (leer, escribir, mover). A diferencia del modelo RAM (donde el acceso a memoria es $O(1)$), en una Máquina de Turing de una sola cinta mover el cabezal cuesta la distancia recorrida. Por ello, **el viaje de regreso al bit menos significativo cuenta dentro del costo real** y no puede omitirse.
+**Costo.** Un paso corresponde a una transición de la máquina (leer, escribir, mover). A diferencia del modelo RAM (donde el acceso a memoria es $`O(1)`$), en una Máquina de Turing de una sola cinta mover el cabezal cuesta la distancia recorrida. Por ello, **el viaje de regreso al bit menos significativo cuenta dentro del costo real** y no puede omitirse.
 
 **Tamaño de la entrada.** El tamaño de la entrada se mide en la cantidad de bits $b$ del número. Para un número de $b$ bits, su valor cumple $N < 2^b$, por lo que $b \approx \log_2 N$.
 
@@ -14,8 +14,8 @@ Diseña una máquina de Turing de una cinta que sume 1 a un número escrito en b
 
 La máquina se estructura en torno a dos estados principales más el estado de parada:
 
-1. **Estado `inc` (Incremento y Acarreo):** Inicia en el LSB. Mientras lee `1`, lo cambia a `0` y se desplaza a la izquierda (propagación del acarreo). Al leer el primer `0` (o un blanco $\_$), lo cambia a `1`, se mueve a la derecha y conmuta al estado `volver`.
-2. **Estado `volver` (Retorno al LSB):** Recorre la cinta hacia la derecha leyendo `0`s y `1`s hasta sobrepasar la palabra al leer el primer blanco ($\_$). En ese momento, se mueve un paso a la izquierda para posicionarse exactamente sobre la celda $0$ (LSB) y pasa al estado `alto`.
+1. **Estado `inc` (Incremento y Acarreo):** Inicia en el LSB. Mientras lee `1`, lo cambia a `0` y se desplaza a la izquierda (propagación del acarreo). Al leer el primer `0` (o un blanco $`\_`$), lo cambia a `1`, se mueve a la derecha y conmuta al estado `volver`.
+2. **Estado `volver` (Retorno al LSB):** Recorre la cinta hacia la derecha leyendo `0`s y `1`s hasta sobrepasar la palabra al leer el primer blanco ($`\_`$). En ese momento, se mueve un paso a la izquierda para posicionarse exactamente sobre la celda $0$ (LSB) y pasa al estado `alto`.
 3. **Estado `alto` (Parada):** Estado final donde la máquina concluye el incremento lista para la siguiente operación.
 
 ### Tabla de Transiciones
@@ -24,10 +24,10 @@ La máquina se estructura en torno a dos estados principales más el estado de p
 |---|---|---|---|---|
 | `inc` | `1` | `0` | Izquierda ($\leftarrow$) | `inc` |
 | `inc` | `0` | `1` | Derecha ($\rightarrow$) | `volver` |
-| `inc` | $\_$ | `1` | Derecha ($\rightarrow$) | `volver` |
+| `inc` | $`\_`$ | `1` | Derecha ($\rightarrow$) | `volver` |
 | `volver` | `0` | `0` | Derecha ($\rightarrow$) | `volver` |
 | `volver` | `1` | `1` | Derecha ($\rightarrow$) | `volver` |
-| `volver` | $\_$ | $\_$ | Izquierda ($\leftarrow$) | `alto` |
+| `volver` | $`\_`$ | $`\_`$ | Izquierda ($\leftarrow$) | `alto` |
 
 ![Máquina de Turing](extras_04/fig/ejc04_turing_machine.png)
 
@@ -38,7 +38,7 @@ Para analizar el costo real de una operación de incremento $i$, parametrizamos 
 
 **Demostración**
 
-Sea $N$ el valor entero representado en la cinta antes del incremento. Las celdas $0, -1, \dots, -(k-1)$ contienen el símbolo `1`, mientras que la celda $-k$ contiene un `0` o el símbolo blanco ($\_$). La ejecución se divide en cuatro fases:
+Sea $N$ el valor entero representado en la cinta antes del incremento. Las celdas $0, -1, \dots, -(k-1)$ contienen el símbolo `1`, mientras que la celda $-k$ contiene un `0` o el símbolo blanco ($`\_`$). La ejecución se divide en cuatro fases:
 
 1. **Fase A (Propagación del acarreo, $s$ pasos con $0 \le s \le k$):**
    - **Estado:** `inc`.
@@ -50,15 +50,15 @@ Sea $N$ el valor entero representado en la cinta antes del incremento. Las celda
 2. **Fase B (Escritura del bit de acarreo final, paso $s = k + 1$):**
    - **Estado:** Transición de `inc` a `volver`.
    - **Posición del cabezal:** Celda $-k + 1$.
-   - **Contenido de la cinta:** La celda $-k$ (que contenía un `0` o $\_$) se transforma en `1`.
+   - **Contenido de la cinta:** La celda $-k$ (que contenía un `0` o $`\_`$) se transforma en `1`.
    - **Valor en cinta:** $N + 1$.
-   - *Justificación:* El paso $k+1$ lee el primer `0` (o $\_$) en la celda $-k$, escribe un `1`, mueve el cabezal un paso a la derecha y conmuta al estado `volver`. Requiere **$1$ operación**.
+   - *Justificación:* El paso $k+1$ lee el primer `0` (o $`\_`$) en la celda $-k$, escribe un `1`, mueve el cabezal un paso a la derecha y conmuta al estado `volver`. Requiere **$1$ operación**.
 
 3. **Fase C (Retorno del cabezal al LSB, $k + 1 \le s \le 2k + 1$):**
    - **Estado:** `volver`.
    - **Posición del cabezal:** Se desplaza desde la celda $-k + 1$ hasta la celda $+1$.
    - **Contenido de la cinta:** Invariante (solo lee las celdas $-k+1, \dots, 0$ que contienen `0`s).
-   - *Justificación:* El cabezal recorre de regreso hacia la derecha la longitud del número hasta leer el símbolo blanco ($\_$) de la celda $+1$. Esta fase requiere exactamente **$k$ operaciones** de movimiento.
+   - *Justificación:* El cabezal recorre de regreso hacia la derecha la longitud del número hasta leer el símbolo blanco ($`\_`$) de la celda $+1$. Esta fase requiere exactamente **$k$ operaciones** de movimiento.
 
 4. **Estado Final (Parada, paso $s = 2k + 2$):**
    - **Estado:** Transición de `volver` a `alto`.
@@ -75,7 +75,7 @@ Por lo tanto, una operación de incremento que procesa $k$ acarreos requiere **e
 
 ## Análisis de $n$ Incrementos Consecutivos desde 0
 
-### La Cuenta Ingenua (Cota Pesimista $O(n \log n)$)
+### La Cuenta Ingenua (Cota Pesimista $`O(n \log n)`$)
 
 Para ejecutar el $i$-ésimo incremento (paso del valor $i-1$ al valor $i$), la cantidad de unos finales en la representación binaria equivale a $k = v_2(i)$, donde $v_2(i)$ representa la mayor potencia de 2 que divide exactamente a $i$ (por ejemplo, al pasar de 3 a 4, $i=4$, $v_2(4)=2$, y el número 3 tiene $k=2$ unos finales: `11`).
 
@@ -120,7 +120,7 @@ En el $i$-ésimo incremento con $k$ unos al final:
 
 El costo amortizado resulta ser **estrictamente igual a 4 para cualquier incremento**, independientemente de la cantidad de acarreos $k$. Las operaciones costosas ($k$ grande) liberan el potencial almacenado previamente por las operaciones baratas.
 
-#### Costo Total Acumulado ($T(n)$)
+#### Costo Total Acumulado ($`T(n)`$)
 
 Sumando los costos amortizados sobre la secuencia completa, los términos de potencial se telescopian:
 
