@@ -92,7 +92,9 @@ $$b_1 < a_1 < b_2 < a_2 < \dots < b_{n-1} < a_{n-1} < \dots,$$
 
 donde las comparaciones sacan un elemento de cada lista alternadamente. $\square$
 
-El script recorre todas las entradas sin repetidos para $n \le 10$:
+El script recorre todas las entradas sin repetidos para $n \le 10$, salvo renombrar los
+valores: un algoritmo de comparaciones solo ve el orden relativo, así que basta una
+entrada por cada manera de intercalar $I$ con $D$:
 
 ```
   n  entradas  optimizado  2n - 2   merge  2n - 1  optimizado bien
@@ -108,9 +110,10 @@ El script recorre todas las entradas sin repetidos para $n \le 10$:
  10   184 756          18      18      19      19            50.0%
 ```
 
-El peor caso de la variante es $2n - 2$ y el del merge usual $2n - 1$, para todo
-$n$. La última columna ya delata el problema, pero el objetivo es llegar a esa
-conclusión sin probar nada.
+El peor caso de la variante es $2n - 2$ para todo $n$, por el lema. El del merge usual
+es $2n - 1$: cada comparación saca un elemento y el último sale sin comparar, y la
+sección 4 muestra que la intercalada obliga a hacerlas todas. La última columna ya
+delata el problema, pero el objetivo es llegar a esa conclusión sin probar nada.
 
 ## 4. La cota inferior: la decisión sin ejecutar
 
@@ -131,12 +134,15 @@ $$a_1 < b_1 < a_2 < b_2 < \dots < a_n < b_n ,$$
 con $I = (a_1, \dots, a_n)$ y $D = (b_1, \dots, b_n)$. Esa cadena tiene $2n - 1$ pares
 de vecinos, y cada par tiene un elemento de cada lista. Supongamos que un algoritmo
 termina sin haber comparado algún par de vecinos $x < y$, e intercambiemos sus valores.
-Las dos listas siguen ordenadas, porque $x$ e $y$ son vecinos en la cadena y no hay nada
+Las dos listas siguen ordenadas, porque $x$ e $y$ son de listas distintas y no hay nada
 entre ellos. Todas las comparaciones que el algoritmo hizo dan la misma respuesta,
 porque ninguna enfrentó a $x$ con $y$ y el orden de cada uno con los demás no cambió.
-Pero la salida correcta sí cambió: $x$ e $y$ tienen que aparecer en el orden inverso.
-El algoritmo recibe las mismas respuestas en las dos entradas, da la misma salida, y se
-equivoca en una. Así que todo algoritmo correcto compara los $2n - 1$ pares. $\square$
+Pero la salida correcta sí cambió. El algoritmo devuelve los elementos de la entrada en
+algún orden, y aunque los valores ordenados son los mismos, ahora $x$ e $y$ tienen que
+aparecer en el orden inverso. Además elige cada comparación según las respuestas
+anteriores, así que sobre la entrada nueva hace las mismas comparaciones, recibe las
+mismas respuestas y da la misma salida: se equivoca en una de las dos. Por tanto todo
+algoritmo correcto compara los $2n - 1$ pares. $\square$
 
 ![Intercambiar dos vecinos](animaciones/ejercicio-09-intercambio.gif)
 
@@ -147,8 +153,8 @@ correcta. En mejor calidad: [MP4](animaciones/ejercicio-09-intercambio.mp4).*
 **Corolario.** El merge optimizado no es correcto.
 
 *Demostración.* Por el lema de la sección 3 nunca hace más de $2n - 2$ comparaciones, y
-por el teorema todo algoritmo correcto hace al menos $2n - 1$ sobre la entrada
-intercalada. $\square$
+por la demostración del teorema todo algoritmo correcto hace al menos $2n - 1$ sobre
+la entrada intercalada. $\square$
 
 La conclusión se obtiene sin haber ejecutado la variante sobre una sola entrada.
 
@@ -180,7 +186,9 @@ Cuando a $I$ le queda solo $a_5$, la variante coloca $b_4$ y $b_5$ y después $a
 pero $a_5 < b_5$. La última línea es la demostración del teorema hecha experimento: con
 $a_5$ y $b_5$ intercambiados, las respuestas a todas las comparaciones son las mismas,
 y ahí la variante sí acierta. No puede distinguir las dos entradas, así que falla en
-una. ¿En cuáles exactamente?
+una. Con cualquier $n$ pasa lo mismo. El ciclo nunca compara el último de $I$, y $b_n$,
+que es mayor que todo $I$, nunca sale en el ciclo; así que $(a_n, b_n)$ queda sin
+comparar y la salida termina en $b_n, a_n$, al revés. ¿En cuáles exactamente?
 
 **Lema.** Con valores distintos, el merge optimizado devuelve el merge correcto si y
 solo si el máximo de los $2n$ elementos está en $I$.
@@ -197,8 +205,9 @@ solo si el máximo está en $I$. $\square$
 en las 250 952 entradas con n de 1 a 10, el optimizado acierta si y solo si el máximo está en I: se cumple en 250 952
 ```
 
-Con datos al azar el máximo está en cualquiera de las dos listas con la misma
-probabilidad, y por eso la tabla de la sección 3 da exactamente 50 %.
+Intercambiar los papeles de $I$ y $D$ empareja cada entrada con el máximo en $I$ con una
+que lo tiene en $D$. Por eso la tabla de la sección 3, que recorre todas, da exactamente
+50 %.
 
 ## 6. Qué baterías de pruebas ven el error
 
@@ -225,17 +234,18 @@ $I$.*
 Este error no es difícil de ver al azar: falla en la mitad de los casos. Pero hay
 baterías naturales que no lo ven nunca. "Repartir alternando" toma una lista ordenada y
 la reparte entre $D$ e $I$ empezando por $D$. Es una manera común de fabricar dos
-listas ordenadas, y por el lema de la sección 5 deja siempre el máximo en $I$. Lo mismo
-pasa si $I$ tiene los valores grandes. La cota inferior detectó el error sin correr
+listas ordenadas, y deja siempre el máximo en $I$, porque $2n$ es par y el último le
+toca a $I$. Por el lema de la sección 5, la variante acierta siempre. Lo mismo pasa si
+$I$ tiene los valores grandes. La cota inferior detectó el error sin correr
 nada, y el adversario dijo qué probar: una entrada en la que el último de $I$ no es el
 máximo.
 
 Antes de dibujar, el script se comprueba a sí mismo: 20 000 pares de listas con
 repetidos y largos distintos, donde el merge da lo mismo que ordenar y nunca usa más de
-$|I| + |D| - 1$ comparaciones; todas las entradas con $n \le 10$, donde la variante
-nunca pasa de $2n - 2$ y el merge usual compara exactamente los $2n - 1$ pares de
-vecinos de la intercalada; y 20 000 pares con repetidos, donde la variante acierta si y
-solo si el último de $I$ es al menos el último de $D$:
+$\max(0, |I| + |D| - 1)$ comparaciones; todas las entradas con $n \le 10$, donde la
+variante nunca pasa de $2n - 2$ y el merge usual compara exactamente los $2n - 1$
+pares de vecinos de la intercalada; y 20 000 pares con repetidos, donde la variante
+acierta si y solo si el último de $I$ es al menos el último de $D$:
 
 ```
 290 962 comprobaciones, 0 fallos
@@ -254,7 +264,8 @@ demostración de la cota, que construye la entrada difícil, dice dónde.
   cambiar ninguna comparación.
 - Como $2n - 2 < 2n - 1$, la variante es incorrecta, y eso se decide sin probarla.
 - En la intercalada deja sin comparar $(a_n, b_n)$ y los coloca al revés. En general
-  acierta si y solo si el máximo está en la primera lista: la mitad de las entradas.
+  acierta si y solo si el máximo está en la primera lista: sin repetidos, la mitad de
+  las entradas.
 - Repartir alternando, empezando por la segunda lista, es una batería natural que no ve
   el error nunca.
 

@@ -177,7 +177,7 @@ def costos():
         c = Comparador(M)
         assert saddleback_search(M, x, c)[0] == "no está"
         c2 = Comparador(M)
-        binaria_por_filas(M, x, c2)
+        binaria_por_filas(M, M[0][0] - 1, c2)    # su peor caso: x menor que todo
         print(f"{n:>6} {c.veces:>22} {2 * n - 1:>7} {c2.veces:>18} "
               f"{n * (n).bit_length():>18} {n * n:>13}")
     rng = random.Random(4)
@@ -192,7 +192,7 @@ def costos():
             p = max(p, c.veces)
         peor[n] = p
     print("en matrices al azar, el peor de 2000 búsquedas: "
-          + ", ".join(f"n = {n}: {p}" for n, p in peor.items()))
+          + ", ".join(f"n = {n}: {p} de {2 * n - 1}" for n, p in peor.items()))
 
 
 def adversario_en_accion():

@@ -268,7 +268,7 @@ class Potencial(Scene):
                 else:
                     anims.append(arco.animate.become(nuevo_arco))
                     dicho = (rf"La liebre avanza 2 y la tortuga 1: $D$ baja a {D}"
-                             if D else r"$D = 0$: el mismo nodo, y el ciclo se detiene")
+                             if D else r"$D = 0$: el mismo nodo, y el algoritmo se detiene")
             nueva_barra = self.barra(phi, base, escala)
             anims += [barra.animate.become(nueva_barra),
                       valor.animate.become(self.valor(phi, nueva_barra)),

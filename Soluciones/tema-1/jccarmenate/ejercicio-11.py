@@ -8,7 +8,6 @@ en la prosa sale de aquí. Solo necesita matplotlib.
 """
 
 import itertools
-import math
 import random
 
 import matplotlib
@@ -124,12 +123,12 @@ def crecimiento():
 
 
 def familia_exponencial():
-    seccion("§3. Una familia de entradas: n objetos con pesos de n bits")
-    print(f"{'n':>4} {'bits de la entrada':>19} {'n·W':>12} {'2^sqrt(bits)':>13}")
-    for n in [8, 16, 24, 32, 40]:
-        W = 2 ** n
-        b = n * n + n * 10 + bits(W)        # pesos de n bits, valores de 10 bits
-        print(f"{n:>4} {b:>19} {cien(n * W):>12} {cien(2 ** math.sqrt(b)):>13}")
+    seccion("§3. El peor caso: un objeto de peso 1 y valor 1")
+    print(f"{'bits de la entrada':>19} {'W':>12} {'celdas':>12}")
+    for b in [6, 10, 14, 18, 22]:
+        w, v, W = [1], [1], 2 ** (b - 2) - 1     # W se escribe con b - 2 unos
+        _, celdas = knapsack(w, v, W)
+        print(f"{tamano(w, v, W):>19} {miles(W):>12} {miles(celdas):>12}")
 
 
 def cruce():

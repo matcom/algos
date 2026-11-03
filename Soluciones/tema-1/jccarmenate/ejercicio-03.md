@@ -31,7 +31,8 @@ Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
 - **La pila vacía.** `pop`, `top` y `min` exigen que la pila no esté vacía.
   Es una precondición, no un caso que la estructura tenga que resolver.
 - **Valores repetidos.** El mínimo puede aparecer varias veces. Parece un detalle, y
-  la sección 7 muestra que es exactamente donde se rompe la versión que ahorra memoria.
+  la sección 7 muestra que es exactamente donde se rompe la versión que ahorra memoria
+  si se escribe $<$ en lugar de $\le$.
 
 ## 2. Un ejemplo chico antes de la prueba
 
@@ -73,8 +74,9 @@ sección siguiente pierde.
 **El primer intento** guarda el mínimo en una sola variable $m$. `push` es fácil: si
 $x < m$, el mínimo pasa a ser $x$. `pop` no: si el elemento que sale es justo $m$,
 el mínimo anterior se perdió, y la única manera de recuperarlo es recorrer toda la
-pila. Eso cuesta $\Theta(n)$, y hay secuencias que lo pagan en cada operación: `push` de
-$n, n-1, \dots, 1$ y después `pop` hasta vaciarla. Cada `pop` saca el mínimo actual.
+pila. Eso cuesta $\Theta(n)$, y hay secuencias que lo pagan una y otra vez: `push` de
+$n, n-1, \dots, 1$ y después `pop` hasta vaciarla. Cada `pop` saca el mínimo actual y
+recorre lo que queda, así que el total es $\Theta(n^2)$.
 
 ```
      n       estructura  costo total  peor operación  costo / operación
@@ -118,6 +120,9 @@ class MinStack:
 
     def min(self):
         return self.M[-1]
+
+    def empty(self):
+        return not self.S
 ```
 
 La versión del script es la misma, más la cuenta de costos.
@@ -173,13 +178,14 @@ sobre secuencias al azar con valores repetidos:
 
 ## 5. El costo
 
-**Lema.** Cada operación de la pila paralela hace a lo sumo 4 pasos, sea cual sea el
-tamaño de la pila. La memoria es de $2n$ celdas para $n$ elementos.
+**Lema.** Si $S$ y $M$ son pilas cuyo `push` y `pop` cuestan 1 en el peor caso, cada
+operación de la pila paralela hace a lo sumo 4 pasos, sea cual sea el tamaño de la
+pila. La memoria es de $2n$ celdas para $n$ elementos.
 
 *Demostración.* Ninguna operación tiene ciclos. `push(x)` lee el tope de $M$, compara,
 y escribe en $S$ y en $M$: 4 pasos. `pop()` saca el tope de $M$ y el de $S$: 2.
-`top()` lee el tope de $S$ y `min()` el de $M$: 1 cada una. Cada elemento ocupa una
-celda en $S$ y otra en $M$. $\square$
+`top()` lee el tope de $S$, `min()` el de $M$ y `empty()` compara la altura de $S$ con
+0: 1 cada una. Cada elemento ocupa una celda en $S$ y otra en $M$. $\square$
 
 | operación | qué hace | costo |
 |---|---|---|
@@ -187,17 +193,25 @@ celda en $S$ y otra en $M$. $\square$
 | `pop()` | saca el tope de $M$ y el de $S$ | 2 |
 | `top()` | lee el tope de $S$ | 1 |
 | `min()` | lee el tope de $M$ | 1 |
+| `empty()` | compara la altura de $S$ con 0 | 1 |
 
-Ninguna depende del tamaño de la pila: las cuatro son $O(1)$ en el peor caso, cada
+La hipótesis no es un detalle. La `list` de Python es un arreglo dinámico: cuando se
+llena, `append` pide un bloque más grande y copia todo, y esa llamada cuesta
+$\Theta(n)$. Es $O(1)$ amortizado, justo lo que la sección 1 dice que no basta. Para el
+peor caso, $S$ y $M$ pueden ser listas enlazadas (cada celda lleva además un
+puntero) o arreglos reservados desde el principio con la capacidad máxima. El código
+usa `list` porque se lee mejor, y el script cuenta cada `append` como una escritura.
+
+Ninguna depende del tamaño de la pila: las cinco son $O(1)$ en el peor caso, cada
 llamada por separado. El script mide el costo máximo de cada operación sobre 200 000
 operaciones al azar, para las tres versiones de este documento: la paralela, la compacta
 de la sección 6 y la **codificada** de la sección 8, que no usa $M$:
 
 ```
-    estructura    push        pop   top     min
-      paralela       4          2     1       1
-      compacta       4          4     1       1
-    codificada       3          3     2       1
+    estructura    push        pop   top     min   empty
+      paralela       4          2     1       1       1
+      compacta       4          4     1       1       1
+    codificada       3          3     2       1       1
 ```
 
 La memoria es $n$ celdas más que una pila común. Las secciones 6 y 8 bajan ese extra.
@@ -233,15 +247,22 @@ récord, porque es menor o igual que todo lo de debajo. Y nada de lo que está p
 de ella es récord: ya no es el mínimo, así que es mayor que esa aparición, que tiene
 debajo.
 
+*Inicialización.* $S$ y $M$ empiezan vacías, y una pila vacía no tiene récords. Fíjate
+además en que $S[0]$ siempre es récord, porque no tiene nada debajo: con (R), $M$ está
+vacía si y solo si $S$ lo está.
+
 *Mantenimiento.* Que un elemento sea récord depende solo de lo que tiene debajo, así que
-un `push` o un `pop` no cambia la condición de los demás. En `push(x)`, $x$ es récord si
-y solo si $x \le \min(S)$, que por (R) es el tope de $M$: es exactamente la condición
+un `push` o un `pop` no cambia la condición de los demás. En `push(x)` sobre $S$ vacía,
+$x$ es récord y $M$ está vacía, así que entra por el `not self.M`. Si no, $x$ es récord
+si y solo si $x \le \min(S)$, que por (R) es el tope de $M$: es exactamente la condición
 del `if`. En `pop()`, el elemento $y$ que sale es récord si y solo si es menor o
 igual que todo lo de debajo, es decir, si y solo si $y = \min(S)$, que por (R) es el
 tope de $M$. Y si es récord, es el último, así que sacar el tope de $M$ lo saca a él.
 $\square$
 
-El costo sigue siendo constante, como mostró la tabla de la sección 5. Lo que cambia es
+El costo sigue siendo constante, porque tampoco aquí hay ciclos: `push` escribe en $S$,
+lee el tope de $M$, compara y a lo sumo escribe en $M$, 4 pasos; `pop` saca de $S$, lee
+el tope de $M$, compara y a lo sumo saca de $M$, otros 4. Lo que cambia es
 la memoria, y aquí el peor caso y el caso típico se separan mucho. La tabla cuenta
 cuántos valores guarda $M$ después de hacer `push` de $n$ elementos en orden
 decreciente, en una permutación al azar (promedio de muchas) y con valores al azar en
@@ -258,7 +279,7 @@ $0..9$; la columna $H_n$ es lo que predice el lema que sigue:
 **Lema.** Si se hace `push` de una permutación uniforme de $n$ elementos distintos, el
 número esperado de récords es $H_n = 1 + 1/2 + \dots + 1/n \approx \ln n$.
 
-*Demostración.* El elemento de la posición $i$ es récord si y solo si es el menor de
+*Demostración.* El $i$-ésimo elemento desde abajo es récord si y solo si es el menor de
 los $i$ primeros. En una permutación uniforme cada uno de esos $i$ tiene la misma
 probabilidad de ser el menor, $1/i$. Sumando sobre las posiciones, por linealidad de la
 esperanza, el número esperado de récords es $H_n$. $\square$
@@ -309,16 +330,25 @@ compara por valor: el 0 que sale es igual al tope de $M$, y se lleva de $M$ el p
 más corta que rompe la de $<$. En mejor calidad:
 [MP4](animaciones/ejercicio-03-repetidos.mp4).*
 
-**Lema.** En la versión con $<$, `pop` rompe el invariante exactamente cuando el
-elemento que sale es igual al mínimo y queda otra copia del mínimo debajo.
+Con $<$, el código ya no mantiene (R): después de `push 0, push 0`, $M$ tiene un solo
+0. Lo que mantiene usa **récords estrictos**, los elementos menores que todo lo que
+tienen debajo:
 
-*Demostración.* Con $<$, $M$ guarda los récords estrictos: los elementos menores que
-todo lo de debajo, y su tope sigue siendo el mínimo de $S$. Sea $y$ el elemento que
-sale. Si $y$ no es el mínimo, no es récord y el código no toca $M$. Si $y$ es el mínimo
-y es su única copia, es récord estricto, es el tope de $M$ y el código lo saca. Si $y$
-es el mínimo y hay otra copia debajo, $y$ no es récord estricto y no está en $M$, pero
-es igual al tope de $M$ y el código saca ese tope, que pertenece a la otra copia.
-$\square$
+**Invariante (R<).** $M$ es la sucesión de los récords estrictos de $S$, en el orden en
+que están en $S$.
+
+**Lema.** En la versión con $<$, `push` conserva (R<), y `pop` lo rompe exactamente
+cuando el elemento que sale es igual al mínimo y queda otra copia del mínimo debajo.
+
+*Demostración.* $S[0]$ es récord estricto, así que con (R<) $M$ está vacía si y solo
+si $S$ lo está. La primera aparición del mínimo es récord estricto, y nada de lo que
+tiene encima lo es, porque no es menor que ella: el tope de $M$ es el mínimo de $S$.
+En `push(x)`, $x$ es récord estricto si y solo si $S$ está vacía o $x < \min(S)$, que
+es exactamente la condición del `if`. Sea $y$ el elemento que sale. Si $y$ no es el
+mínimo, no es récord y el código no toca $M$. Si $y$ es el mínimo y es su única copia,
+es récord estricto, es el tope de $M$ y el código lo saca. Si $y$ es el mínimo y hay
+otra copia debajo, $y$ no es récord estricto y no está en $M$, pero es igual al tope de
+$M$ y el código saca ese tope, que pertenece a la otra copia. $\square$
 
 El script lo confirma en todos los fallos de la batería exhaustiva:
 
@@ -358,18 +388,29 @@ def pop(self):
 
 Sean $v_0, \dots, v_{k-1}$ los valores de la pila, de abajo hacia arriba, y
 $m_i = \min(v_0, \dots, v_i)$. La celda $i$ guarda $c_i = 2v_i - m_{i-1}$ si $i \ge 1$ y
-$v_i < m_{i-1}$ (un récord estricto), y $c_i = v_i$ en otro caso.
+$v_i < m_{i-1}$ (un récord estricto fuera del fondo), y $c_i = v_i$ en otro caso.
 
-**Lema.** $c_i < m_i$ si y solo si la celda $i$ es un récord estricto. En consecuencia
+**Lema.** $c_i < m_i$ si y solo si $i \ge 1$ y $v_i < m_{i-1}$. En consecuencia
 la versión codificada es correcta, y si los valores están en $[-V, V]$, las celdas
 guardan números en $[-3V, V]$.
 
-*Demostración.* Si es récord, $m_i = v_i$ y $c_i = v_i - (m_{i-1} - v_i) < v_i = m_i$.
-Si no, $c_i = v_i \ge m_i$. Así que al hacer `pop` de la celda de arriba, con
-$m = m_{k-1}$: si $c < m$, era un récord, su valor real es $m$, y el mínimo anterior es
-$m_{k-2} = 2m - c$; si no, el valor real es $c$ y el mínimo no cambia. `top` hace la
+*Demostración.* Si $i \ge 1$ y $v_i < m_{i-1}$, entonces $m_i = v_i$ y
+$c_i = v_i - (m_{i-1} - v_i) < v_i = m_i$. Si no, $c_i = v_i \ge m_i$.
+
+La versión es correcta si se mantiene esto: la celda $i$ guarda $c_i$ y la variable
+$m$ vale $m_{k-1}$. `push(x)` lo mantiene, porque el código es la definición: con la
+pila vacía guarda $x$ y pone $m = x$; si $x \ge m$ guarda $x$, y el mínimo no cambia;
+si $x < m$ guarda $2x - m$ y pone $m = x$, que es el mínimo nuevo. Al hacer `pop` de
+la celda de arriba, con $m = m_{k-1}$: si $c < m$, era un récord, su valor real es
+$m$, y el mínimo anterior es $m_{k-2} = 2m - c$; si no, el valor real es $c$ y el
+mínimo no cambia. Las demás celdas quedan como estaban, y si la pila queda vacía, el
+valor de $m$ ya no importa, porque el siguiente `push` lo reescribe. `top` hace la
 misma cuenta sin sacar nada. Por último, un récord guarda $2x - m$ con $x \ge -V$ y
 $m \le V$, que es al menos $-3V$. $\square$
+
+Tampoco aquí hay ciclos: `push` compara con $m$ y escribe a lo sumo la celda y $m$, y
+`pop` saca la celda, compara con $m$ y a lo sumo escribe $m$, 3 pasos cada una; `top`
+lee la celda y compara, 2, y `min` lee $m$, 1.
 
 El truco sale del modelo de comparaciones: usa restas y multiplicaciones sobre los
 valores. Y las celdas tienen que ser más anchas que los valores:
@@ -382,7 +423,7 @@ lo que se guarda en las celdas va de -2964 a 1000; la cota es [-3V, V] = [-3000,
 Antes de dibujar, el script se comprueba a sí mismo: las cuatro estructuras contra una
 lista común en 4 000 secuencias de hasta 80 operaciones, el invariante (R) de la
 compacta contra la sucesión de récords calculada por fuerza bruta en 3 000 secuencias,
-el costo constante de cada operación, y la versión con $\le$ en todas las secuencias
+el costo constante de `push` y `pop`, y la versión con $\le$ en todas las secuencias
 del exhaustivo:
 
 ```
@@ -401,16 +442,18 @@ queda debajo, y el invariante tiene que decirlo.
 - El invariante es $M[i] = \min(S[0..i])$ para **todo** $i$. Decirlo solo del tope es
   verdadero, pero no es inductivo: `pop` necesita saber qué hay en la penúltima
   posición.
-- Cada operación cuesta a lo sumo 4 pasos en el peor caso, sin amortizar. El primer
-  intento, con una sola variable, paga $\Theta(n)$ por `pop` y $\Theta(n^2)$ en
-  total en la secuencia decreciente.
+- Cada operación cuesta a lo sumo 4 pasos en el peor caso, sin amortizar, si $S$ y $M$
+  son pilas de peor caso $O(1)$; la `list` de Python no lo es. El primer intento, con
+  una sola variable, paga $\Theta(n)$ por `pop` y $\Theta(n^2)$ en total en la
+  secuencia decreciente.
 - Guardando solo los récords, la memoria extra es $H_n \approx \ln n$ en promedio con
-  datos al azar, pero sigue siendo $n$ en el peor caso.
-- Los récords tienen que ser con $\le$. Con $<$, la estructura falla en el 62,2 % de
+  valores distintos en orden al azar, pero sigue siendo $n$ en el peor caso.
+- En la compacta, los récords tienen que ser con $\le$. Con $<$, falla en el 62,2 % de
   las secuencias con valores en $0..9$ y en ninguna con valores distintos. El paso de
   `pop` en la demostración es el que dice que hay que probar con repetidos.
 - Con enteros y aritmética, una sola variable alcanza: un récord guarda $2x - m$. El
-  precio es salir del modelo de comparaciones y celdas que aguanten el triple del rango.
+  precio es salir del modelo de comparaciones y celdas que aguanten $[-3V, V]$ cuando
+  los valores están en $[-V, V]$.
 
 <details>
 <summary>Salida completa de <code>python ejercicio-03.py</code></summary>
@@ -446,10 +489,10 @@ queda debajo, y el invariante tiene que decirlo.
 
 §5. Costo máximo de cada operación sobre 200 000 operaciones al azar
 --------------------------------------------------------------------
-    estructura    push        pop   top     min
-      paralela       4          2     1       1
-      compacta       4          4     1       1
-    codificada       3          3     2       1
+    estructura    push        pop   top     min   empty
+      paralela       4          2     1       1       1
+      compacta       4          4     1       1       1
+    codificada       3          3     2       1       1
 
 §6. Cuántos récords guarda la pila compacta después de n push
 -------------------------------------------------------------

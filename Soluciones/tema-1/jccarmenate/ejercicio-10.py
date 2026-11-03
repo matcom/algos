@@ -124,7 +124,8 @@ def reconstrucciones():
     seccion("§5. Reconstrucciones y trabajo, con la permutación al azar")
     rng = random.Random(5)
     medidas = []
-    print(f"{'n':>8} {'reconstrucciones':>17} {'2(H_n - 1.5)':>13} {'trabajo / n':>12}")
+    print(f"{'n':>8} {'corridas':>9} {'reconstrucciones':>17} {'2(H_n - 1.5)':>13} "
+          f"{'trabajo / n':>12}")
     for n in [10**3, 10**4, 10**5]:
         xs = rng.sample(range(10**12), n)
         rs, ts = [], []
@@ -134,10 +135,17 @@ def reconstrucciones():
             rs.append(r.reconstrucciones)
             ts.append(r.trabajo / n)
         esperado = 2 * (sum(1 / k for k in range(1, n + 1)) - 1.5)
-        medidas.append((n, sum(ts) / len(ts)))
-        print(f"{miles(n):>8} {sum(rs) / len(rs):>17.1f} {esperado:>13.1f} "
-              f"{sum(ts) / len(ts):>12.2f}")
+        (mr, er), (mt, et) = media_y_error(rs), media_y_error(ts)
+        medidas.append((n, mt))
+        print(f"{miles(n):>8} {len(rs):>9} {mr:>11.1f} ± {er:.1f} {esperado:>13.1f} "
+              f"{mt:>5.2f} ± {et:.2f}")
     return medidas
+
+
+def media_y_error(v):
+    """El promedio de las corridas y su error estándar."""
+    m = sum(v) / len(v)
+    return m, math.sqrt(sum((x - m) ** 2 for x in v) / (len(v) - 1) / len(v))
 
 
 def sin_permutar():

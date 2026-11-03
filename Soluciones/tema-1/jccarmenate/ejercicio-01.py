@@ -78,8 +78,9 @@ def phi(k, L, s=S):
 
 def factor_nlogn(L, s=S, traza=None):
     """El factor k de un algoritmo c·n·log n, dado L = log2 n0. Se itera phi desde
-    k = s; la sección 4 demuestra que converge. Trabajar con L y no con n0 permite
-    n0 = 2^1000 sin desbordar."""
+    k = s. Con s = 1000, la sección 4 demuestra que converge en el escenario de una
+    hora, y la prueba (b) comprueba que el resultado satisface (★) para L de 2 a 60.
+    Trabajar con L y no con n0 permite n0 = 2^1000 sin desbordar."""
     k = s
     for _ in range(200):
         k_nuevo = phi(k, L, s)
@@ -157,6 +158,9 @@ def punto_fijo():
     print(f"punto fijo: k = {k:.2f}")
     print(f"cota inferior: {cota_inferior_nlogn(L):.1f}")
     print(f"|phi'(k)| = k / (1000 · L · ln 2) = {k / (S * L * math.log(2)):.4f}")
+    cota = cota_inferior_nlogn(L)
+    print(f"en [cota inferior, 1000]: |phi'| <= 1000 / (cota · L · ln 2) = "
+          f"{S / (cota * L * math.log(2)):.4f}")
     n1 = mayor_n(nlogn, S * HORA)
     print(f"comparación con la búsqueda binaria: n1 / n0 = {n1 / n0:.2f}")
 
@@ -194,7 +198,7 @@ def oscilante(n):
 
 
 def lo_que_theta_no_dice():
-    seccion("§5. Tres funciones Θ(n²) y sus factores, en el escenario de una hora")
+    seccion("§5. Cuatro funciones Θ(n²) y sus factores, en el escenario de una hora")
     casos = [
         ("n^2", cuadratico),
         ("7 n^2", lambda n: 7 * n * n),

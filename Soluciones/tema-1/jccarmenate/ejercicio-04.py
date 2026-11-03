@@ -211,12 +211,17 @@ def desde_msb():
     marcas = {2**k for k in range(4, 17, 2)}
     for m in range(1, (1 << 16) + 1):
         t1 += c1.incrementar()
-        t2 += c2.incrementar()
+        bits = len(leer(c2.cinta))
+        p2 = c2.incrementar()
+        assert p2 == 2 * bits + 2 + (m - 1 == (1 << bits) - 1)
+        t2 += p2
         assert leer(c2.cinta) == bin(m)[2:] and c2.cabezal == min(c2.cinta)
         if m in marcas:
             medidas.append((m, t1 / m, t2 / m))
             print(f"{miles(m):>8} {miles(t1):>30} {miles(t2):>28} {t2 / m:>15.2f} "
                   f"{2 * math.log2(m):>9.1f}")
+    print(f"cada uno de los {miles(1 << 16)} incrementos costó 2b + 2 pasos, o 2b + 3 "
+          f"si sus b bits eran unos")
     return medidas
 
 
@@ -233,6 +238,7 @@ def pruebas():
     for k in range(1, (1 << 16) + 1):
         c.incrementar()
         assert leer(c.cinta) == bin(k)[2:] and c.cabezal == 0
+        assert sorted(c.cinta) == list(range(1 - len(c.cinta), 1))
         assert c.cinta.get(1, BLANCO) == BLANCO
         comprobaciones += 1
 
@@ -266,6 +272,7 @@ def pruebas():
         bits = len(leer(c.cinta))
         p = c.incrementar()
         assert leer(c.cinta) == bin(v + 1)[2:] and c.cabezal == min(c.cinta)
+        assert sorted(c.cinta) == list(range(1 - len(c.cinta), 1))
         assert p >= bits
         comprobaciones += 2
 

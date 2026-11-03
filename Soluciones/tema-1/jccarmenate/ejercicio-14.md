@@ -47,8 +47,9 @@ Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
   $A[0] < A[1] < \dots < A[n-1]$, y es una entrada válida. La sección 10 muestra que es
   justo la que se olvida.
 - **Qué se cuenta.** El algoritmo solo accede a los datos comparando dos elementos,
-  $A[i]$ contra $A[j]$. Como son distintos, cada comparación contesta $<$ o $>$, nunca
-  $=$. Las cuentas con índices son gratis. El costo es el número de comparaciones.
+  $A[i]$ contra $A[j]$. Como son distintos, comparar dos posiciones diferentes contesta
+  $<$ o $>$, nunca $=$. Las cuentas con índices son gratis. El costo es el número de
+  comparaciones.
 
 ## 2. Un ejemplo chico antes del algoritmo
 
@@ -96,10 +97,10 @@ def brute_force(n, c):
     return 0
 ```
 
-Es correcta por la definición del problema y cuesta $n - 1$ comparaciones en el peor
-caso, el arreglo sin rotar. Sirve de oráculo para todo lo que sigue. `c` es un objeto
-que contesta las comparaciones y las cuenta, de modo que el script mide el costo en el
-modelo.
+Es correcta por la definición del problema y cuesta $k$ comparaciones si $k \ge 1$ y
+$n - 1$ si $k = 0$: $n - 1$ en el peor caso. Sirve de oráculo para todo lo que sigue.
+`c` es un objeto que contesta las comparaciones y las cuenta, de modo que el script
+mide el costo en el modelo.
 
 ## 4. El algoritmo
 
@@ -143,15 +144,17 @@ El invariante describe lo que se sabe de lo que quedó fuera de la ventana.
 **Invariante (I).** $0 \le \mathit{lo} \le \mathit{hi} \le n-1$, $A[i] > A[n-1]$ para
 todo $i < \mathit{lo}$, y $A[\mathit{hi}] \le A[n-1]$.
 
-Por el lema de la sección 4, (I) equivale a $\mathit{lo} \le k \le \mathit{hi}$.
+Por el lema de la sección 4, (I) equivale a
+$0 \le \mathit{lo} \le k \le \mathit{hi} \le n-1$.
 
 **Teorema.** (I) se cumple al comienzo de cada vuelta, el ciclo termina, y
 `rotation_point` devuelve $k$.
 
 *Demostración.* *Inicialización.* Con $\mathit{lo} = 0$, la primera afirmación es sobre
-un conjunto vacío. Con $\mathit{hi} = n-1$, la segunda es $A[n-1] \le A[n-1]$. **Aquí se
-usa la elección de la referencia**: hace falta una posición donde la respuesta sea "sí",
-y $n - 1$ siempre lo es.
+un conjunto vacío. Con $\mathit{hi} = n-1$, la segunda es $A[n-1] \le A[n-1]$, y
+$\mathit{lo} \le \mathit{hi}$ porque $n \ge 1$. **Aquí se usa la elección de la
+referencia**: hace falta una posición donde la respuesta sea "sí", y $n - 1$ siempre lo
+es.
 
 *Mantenimiento.* Supongamos (I) y $\mathit{lo} < \mathit{hi}$. Entonces
 $m = \lfloor (\mathit{lo} + \mathit{hi})/2 \rfloor$ cumple
@@ -190,9 +193,10 @@ entonces $2^{j-2} < \lceil s/2 \rceil \le 2^{j-1}$, así que
 $\lceil \log_2 \lceil s/2 \rceil \rceil = j - 1$; y $\lfloor s/2 \rfloor$ es a lo sumo
 $\lceil s/2 \rceil$, así que su techo de logaritmo tampoco pasa de $j - 1$. La
 recurrencia da $T(s) \le j = \lceil \log_2 s \rceil$. Con el arreglo sin rotar, $k = 0$
-y todas las respuestas son "sí": la ventana pasa siempre de $s$ a $\lceil s/2 \rceil$,
-el camino más largo, y se hacen exactamente $\lceil \log_2 n \rceil$ comparaciones. La
-memoria son dos índices. $\square$
+y todas las respuestas son "sí": la ventana pasa siempre de $s$ a $\lceil s/2 \rceil$.
+Como acabamos de ver, cada uno de esos pasos baja $\lceil \log_2 s \rceil$ en uno, de
+$\lceil \log_2 n \rceil$ hasta 0, así que se hacen exactamente $\lceil \log_2 n \rceil$
+comparaciones. La memoria son dos índices. $\square$
 
 El script lo comprueba con todas las rotaciones de todos los tamaños hasta 300:
 
@@ -211,7 +215,7 @@ La sección 6 dice cuánto cuesta **este** algoritmo. Ahora acotamos lo que cues
 comparaciones en el peor caso. En consecuencia, `rotation_point` es óptimo para todo
 $n$, sin ninguna constante de por medio.
 
-*Demostración.* Fijemos $n$ y un algoritmo de comparaciones. Su primera comparación no
+*Demostración.* Fijemos $n$ y un algoritmo determinista. Su primera comparación no
 depende de la entrada; la siguiente depende solo de la respuesta a la primera, y así.
 Todas las ejecuciones forman un árbol binario: cada nodo interno es una comparación, con
 una rama por respuesta ($<$ o $>$, porque los elementos son distintos), y cada hoja es
@@ -220,8 +224,10 @@ respuesta correcta es $k$: cualquier arreglo ordenado, rotado $k$ posiciones. Si
 entradas con respuestas distintas llegaran a la misma hoja, el algoritmo devolvería lo
 mismo para las dos y se equivocaría en una, así que el árbol tiene al menos $n$ hojas.
 Un árbol binario de altura $h$ tiene a lo sumo $2^h$ hojas, de modo que $2^h \ge n$ y,
-como $h$ es entero, $h \ge \lceil \log_2 n \rceil$. Con el teorema de la sección 6, el
-algoritmo alcanza la cota. $\square$
+como $h$ es entero, $h \ge \lceil \log_2 n \rceil$. Un algoritmo que tira monedas, con
+las monedas fijas, es determinista, así que su peor caso también es de al menos
+$\lceil \log_2 n \rceil$. Con el teorema de la sección 6, el algoritmo alcanza la cota.
+$\square$
 
 ![El árbol de decisión del algoritmo para n = 10](ejercicio-14-arbol.svg)
 
@@ -231,13 +237,13 @@ están en orden de $k$ de izquierda a derecha, y ninguna está a más de 4 compa
 que es $\lceil \log_2 10 \rceil$.*
 
 **El mismo argumento, como adversario.** Comparar $A[a]$ con $A[b]$, con $a < b$,
-contesta exactamente esta pregunta: ¿está $k$ entre $a+1$ y $b$? Porque $A[a] > A[b]$
-solo si entre las dos posiciones está el lugar donde el arreglo baja. Un adversario sin
-arreglo puede mantener el conjunto de rotaciones compatibles con todo lo que contestó y,
-a cada pregunta, contestar lo que deja más rotaciones vivas: al menos la mitad. Después
-de $c$ comparaciones quedan al menos $n / 2^c$, y el algoritmo solo puede contestar
-cuando queda una. El script corre ese adversario contra el algoritmo y contra la fuerza
-bruta.
+contesta exactamente esta pregunta: ¿está $k$ entre $a+1$ y $b$? Si $a < k \le b$,
+$A[a]$ está en el tramo alto y $A[b]$ en el bajo, así que $A[a] > A[b]$; si no, las dos
+están en el mismo tramo, que es creciente, y $A[a] < A[b]$. Un adversario sin arreglo
+puede mantener el conjunto de rotaciones compatibles con todo lo que contestó y, a cada
+pregunta, contestar lo que deja más rotaciones vivas: al menos la mitad. Después de $c$
+comparaciones quedan al menos $n / 2^c$, y el algoritmo solo puede contestar cuando
+queda una. El script corre ese adversario contra el algoritmo y contra la fuerza bruta.
 
 ![El adversario](animaciones/ejercicio-14-adversario.gif)
 
@@ -291,8 +297,8 @@ n = 1 000 000, A[0] = 876 544: k = (n - A[0]) mod n = 123 456, con 0 comparacion
 No contradice el teorema de la sección 7. Ese algoritmo no compara elementos: lee un
 valor, hace cuentas con él como número y usa el resultado como posición, y nada de eso
 existe en el modelo de comparaciones. La cota de $\lceil \log_2 n \rceil$ dice que no se
-puede hacer mejor **comparando**. Con más información sobre los valores, o con más
-operaciones, la pregunta es otra.
+puede hacer mejor **comparando elementos entre sí**. Con más información sobre los
+valores, o con más operaciones, la pregunta es otra.
 
 ## 9. Lo que el modelo escondía: los elementos distintos
 
@@ -308,9 +314,10 @@ arreglos ordenados y rotados con repetidos:
    512              510 de 512                  511                  256
 ```
 
-**El algoritmo deja de ser correcto.** Salvo cuando el 0 está en el primer o en el
-último lugar, $A[n-1] = 1$ y todos los elementos cumplen $A[i] \le A[n-1]$: la fila de
-respuestas es toda "sí", y el algoritmo devuelve 0.
+**El algoritmo deja de ser correcto.** Si el 0 no está en el último lugar,
+$A[n-1] = 1$ y todos los elementos cumplen $A[i] \le A[n-1]$: la fila de respuestas es
+toda "sí", y el algoritmo devuelve 0, que solo es correcto si el 0 está en el primer
+lugar.
 
 **Teorema.** Si se admiten elementos repetidos, todo algoritmo de comparaciones que
 encuentre la posición del mínimo necesita al menos $\lceil (n-1)/2 \rceil$ comparaciones
@@ -322,7 +329,7 @@ Si $2c \le n - 2$, quedan dos posiciones $p \ne q$ sin tocar, y "el 0 está en $
 "el 0 está en $q$" son compatibles con todas las respuestas, porque todas las posiciones
 tocadas valen 1. Las dos entradas tienen respuestas distintas, así que el algoritmo se
 equivoca en una. Por lo tanto $c \ge \lceil (n-1)/2 \rceil$. La cota superior $n - 1$ la
-da la fuerza bruta. $\square$
+da recorrer el arreglo guardando el menor. $\square$
 
 La versión que tolera repetidos compara con $A[\mathit{hi}]$ y, si son iguales, solo
 descarta $\mathit{hi}$:
@@ -334,10 +341,17 @@ elif r < 0: hi = m
 else:       hi -= 1              # A[m] = A[hi]: lo único seguro es soltar hi
 ```
 
-Es correcta, y las pruebas lo comprueban, pero sobre estas entradas hace $n - 1$
-comparaciones, lineal como dice el teorema. La cota de $\lceil \log_2 n \rceil$ no era
-una propiedad del problema "encontrar el mínimo de un arreglo ordenado y rotado", sino
-de ese problema **con elementos distintos**.
+Es correcta: la ventana, que se achica en cada vuelta, siempre contiene una posición del
+mínimo. Con repetidos, el arreglo sigue siendo un tramo alto seguido de uno bajo, los
+dos no decrecientes, con todo el alto mayor o igual que todo el bajo. Si
+$A[m] > A[\mathit{hi}]$, entre $m$ y $\mathit{hi}$ el arreglo baja, así que
+$A[\mathit{lo}..m]$ está en el tramo alto y $A[\mathit{hi}]$ en el bajo: si ahí había un
+mínimo, $A[\mathit{hi}]$ también lo es. Si $A[m] < A[\mathit{hi}]$, $A[m..\mathit{hi}]$
+está en un solo tramo y su menor es $A[m]$. Si son iguales y $\mathit{hi}$ es un mínimo,
+$m$ también lo es. Pero sobre estas entradas su peor caso es $n - 1$ comparaciones,
+lineal como dice el teorema. La cota de $\lceil \log_2 n \rceil$ no era una propiedad
+del problema "encontrar el mínimo de un arreglo ordenado y rotado", sino de ese problema
+**con elementos distintos**.
 
 ## 10. El error que el invariante anuncia
 
@@ -370,27 +384,29 @@ calidad: [MP4](animaciones/ejercicio-14-referencia-cero.mp4).*
 
 La inicialización de (I) necesita una posición donde la respuesta sea "sí", y con la
 referencia $A[0]$ esa posición existe solo si el arreglo está rotado. El invariante dice
-entonces cuál es la prueba que hay que escribir: el arreglo sin rotar. Las baterías al
-azar casi no lo generan:
+entonces cuál es la prueba que hay que escribir: el arreglo sin rotar. Con $k$ al azar,
+cada caso lo genera con probabilidad $1/n$, que es poca si $n$ es grande:
 
 ```
                batería  casos  con A[n-1]  con A[0]
     k al azar, n <= 10   2000        0.0%     18.3%
   k al azar, n <= 1000   2000        0.0%      0.6%
              sin rotar   2000        0.0%    100.0%
-exhaustiva con n de 1 a 59: con A[0] falla solo cuando k = [0] (y n >= 2)
+una batería de 100 casos como la de n <= 1000 no ve el error de A[0] con probabilidad 0.52
+exhaustiva con n de 1 a 59: con A[0] falla en 58 casos, los de k = 0 y n >= 2, y devuelve n - 1
 sobre A = 3 8 11 15 22 27 31 40 46 53 61 70: con A[0] devuelve 11, con A[n-1] devuelve 0
 ```
 
 ![Fallos según la batería de pruebas](ejercicio-14-errores.svg)
 
 *Figura 3. Porcentaje de respuestas mal de cada versión, según la batería. Con $k$ al
-azar, la versión con $A[0]$ falla con probabilidad $1/n$: se nota con arreglos chicos y
-casi nada con grandes.*
+azar, la versión con $A[0]$ falla con probabilidad $1/n$ si $n \ge 2$: se nota con
+arreglos chicos y casi nada con grandes.*
 
-Con $n$ hasta 1000, la batería al azar falla en el 0,6 % de los casos: hay que tener
-suerte para verlo. La batería exhaustiva sobre tamaños chicos sí lo encuentra, y dice
-exactamente dónde está: en $k = 0$, el único caso en que el tramo alto está vacío.
+Con $n$ hasta 1000, la batería al azar falla solo en el 0,6 % de los casos. Con 2000
+casos lo ve, pero una batería de 100 lo pasa por alto con probabilidad 0,52. La batería
+exhaustiva sobre tamaños chicos no depende de la suerte, y dice exactamente dónde está:
+en $k = 0$, el único caso en que el tramo alto está vacío.
 
 Antes de dibujar, el script se comprueba a sí mismo: 3000 arreglos de hasta 200
 elementos con valores y rotación al azar, en los que la búsqueda binaria, la fuerza
@@ -411,7 +427,7 @@ existe solo en algunas entradas, las que no la tienen son la prueba que falta.
 
 - El problema: la posición del mínimo de un arreglo de elementos distintos, ordenado y
   rotado. Modelo: comparaciones entre elementos.
-- La fuerza bruta busca dónde baja el arreglo: $n - 1$ comparaciones.
+- La fuerza bruta busca dónde baja el arreglo: $n - 1$ comparaciones en el peor caso.
 - "¿$A[i] \le A[n-1]$?" contesta "no" antes de $k$ y "sí" desde $k$. La búsqueda binaria
   del primer "sí" es correcta por el invariante $\mathit{lo} \le k \le \mathit{hi}$, y
   termina porque la ventana se parte en dos.
@@ -484,7 +500,8 @@ n = 1 000 000, A[0] = 876 544: k = (n - A[0]) mod n = 123 456, con 0 comparacion
     k al azar, n <= 10   2000        0.0%     18.3%
   k al azar, n <= 1000   2000        0.0%      0.6%
              sin rotar   2000        0.0%    100.0%
-exhaustiva con n de 1 a 59: con A[0] falla solo cuando k = [0] (y n >= 2)
+una batería de 100 casos como la de n <= 1000 no ve el error de A[0] con probabilidad 0.52
+exhaustiva con n de 1 a 59: con A[0] falla en 58 casos, los de k = 0 y n >= 2, y devuelve n - 1
 sobre A = 3 8 11 15 22 27 31 40 46 53 61 70: con A[0] devuelve 11, con A[n-1] devuelve 0
 
 Pruebas

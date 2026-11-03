@@ -7,9 +7,9 @@
 $O(nW)$ parece un costo excelente: dos letras multiplicadas, sin exponentes. La trampa
 está en qué es $W$. Es un número de la entrada, y lo que cuesta escribir un número no es
 su valor sino su cantidad de bits. Medido así, el algoritmo es exponencial, y vamos a
-verlo con experimentos en los que agregar dos bits a la entrada cuadruplica el trabajo.
-La mochila es uno de los problemas NP-completos de Karp (1972), y este algoritmo es el
-ejemplo estándar de algoritmo **pseudopolinomial** (Garey y Johnson, 1979). La
+verlo con experimentos en los que agregar dos bits a $W$ cuadruplica el trabajo.
+La versión de decisión de la mochila es NP-completa (Karp, 1972), y este algoritmo es
+el ejemplo estándar de algoritmo **pseudopolinomial** (Garey y Johnson, 1979). La
 primalidad por división tiene exactamente el mismo defecto, con una diferencia de fondo
 que también vamos a ver.
 
@@ -67,7 +67,9 @@ $c$ o no usa el objeto $i$, con valor $\texttt{best}[c]$ anterior, o lo usa, con
 $v_i$ más el mejor de peso a lo sumo $c - w_i$ **sin** el objeto $i$. Como el ciclo
 recorre $c$ de mayor a menor, al actualizar $\texttt{best}[c]$ la celda
 $\texttt{best}[c - w_i]$, con $c - w_i < c$, todavía no se actualizó, y guarda el valor
-sin el objeto $i$. Cada objeto recorre a lo sumo $W + 1$ celdas. $\square$
+sin el objeto $i$. Las celdas con $c < w_i$, que el ciclo no toca, siguen bien: ahí el
+objeto $i$ no cabe. Con $i = n$, $\texttt{best}[W]$ es el óptimo. Cada objeto recorre
+a lo sumo $W + 1$ celdas, así que el algoritmo termina. $\square$
 
 Cuatro objetos y capacidad 12:
 
@@ -85,12 +87,14 @@ parecidas. La pregunta es qué pasa cuando la entrada crece, y la respuesta depe
 Un algoritmo es polinomial si su costo es polinomial en la cantidad de bits que ocupa la
 entrada, porque eso es lo que hay que leer y guardar. Para escribir $W$ en binario hacen
 falta $\lfloor \log_2 W \rfloor + 1$ bits. Así que, si $b$ es el tamaño total de la
-entrada, $W < 2^b$, y lo único que se puede decir del costo en función de $b$ es
+entrada, $W < 2^b$, y como $n \le b$, el costo cumple
 
 $$nW \ < \ b \cdot 2^{b},$$
 
-que no es un polinomio en $b$. Veámoslo con los mismos 20 objetos (cada peso es una
-fracción fija de $W$), con $W$ cada vez con más bits:
+que no es un polinomio en $b$. Pero una cota superior sola no prueba que el algoritmo
+sea lento: para eso hacen falta entradas en las que el costo sea grande de verdad, y
+las da el teorema de más abajo. Veámoslo primero con los mismos 20 objetos (cada peso
+es una fracción fija de $W$), con $W$ cada vez con más bits:
 
 ```
  bits de W          W  bits de la entrada       celdas  celdas / anterior
@@ -105,30 +109,35 @@ fracción fija de $W$), con $W$ cada vez con más bits:
 
 Cada fila agrega 2 bits a $W$, y la entrada crece en unos 42 bits (2 por cada uno de
 los 20 pesos más 2 de la capacidad): entre un 8 % y un 14 % más de entrada. Las celdas
-se multiplican por 4. Si el algoritmo fuera polinomial en $b$, agregar tan poco a la
-entrada no podría cuadruplicar el trabajo una y otra vez.
+se multiplican por 4. Si el costo fuera un polinomio en $b$, sumarle siempre unos 42
+bits a la entrada lo multiplicaría por una razón que tiende a 1 cuando $b$ crece; aquí
+la razón sube hacia 4. Una tabla finita no lo prueba; el teorema que sigue sí.
 
 ![W en bits](animaciones/ejercicio-11-bits.gif)
 
 *Animación 1. Cada bit más de $W$ es un símbolo más en la entrada, y duplica la tabla.
 En mejor calidad: [MP4](animaciones/ejercicio-11-bits.mp4).*
 
-**Teorema.** Existe una familia de entradas de tamaño $b$ en la que el algoritmo
-actualiza del orden de $2^{\sqrt b}$ celdas. En consecuencia el algoritmo no es
-polinomial en el tamaño de la entrada.
+**Teorema.** Para cada $b \ge 3$, el peor caso del algoritmo sobre las entradas de $b$
+bits es de exactamente $2^{b-2} - 1$ actualizaciones. En consecuencia el algoritmo no
+es polinomial en el tamaño de la entrada.
 
-*Demostración.* Tomemos $n$ objetos con pesos de $n$ bits, valores de 10 bits y
-$W = 2^n$. La entrada ocupa del orden de $n^2$ bits, así que $n \approx \sqrt b$, y el
-costo $nW = n \cdot 2^n$ es del orden de $2^{\sqrt b}$, que crece más rápido que
-cualquier polinomio en $b$. $\square$
+*Demostración.* Cada uno de los $n$ pesos y de los $n$ valores ocupa al menos un bit,
+así que $W$ ocupa a lo sumo $b - 2n$ bits y vale a lo sumo $2^{b-2n} - 1$. Como los
+pesos son al menos 1, cada objeto actualiza a lo sumo $W$ celdas, y en total son a lo
+sumo $n(2^{b-2n} - 1) \le 2^{b-2} - n$, porque $n \le 4^{n-1}$. Con $n \ge 1$ eso es
+a lo sumo $2^{b-2} - 1$, y con $n = 0$ no hay ninguna. La cota se alcanza: la entrada
+con un objeto de peso 1 y valor 1 y $W = 2^{b-2} - 1$, que se escribe con $b - 2$ unos,
+ocupa $b$ bits, y el objeto actualiza las celdas de 1 a $W$. Como $2^{b-2} - 1$ crece
+más rápido que cualquier polinomio en $b$, el algoritmo no es polinomial. $\square$
 
 ```
-   n  bits de la entrada          n·W  2^sqrt(bits)
-   8                 153    2,05·10^3     5,29·10^3
-  16                 433    1,05·10^6     1,84·10^6
-  24                 841    4,03·10^8     5,37·10^8
-  32                1377   1,37·10^11    1,48·10^11
-  40                2041   4,40·10^13    3,98·10^13
+ bits de la entrada            W       celdas
+                  6           15           15
+                 10          255          255
+                 14        4 095        4 095
+                 18       65 535       65 535
+                 22    1 048 575    1 048 575
 ```
 
 **Lo que sí es.** El costo es polinomial en $n$ y en el **valor** de $W$, y eso es lo
@@ -149,10 +158,10 @@ n = 20, W = 2^30: tabla 2,15·10^10 celdas, fuerza bruta 2,10·10^7 pasos
 n = 20, W = 2^40: tabla 2,20·10^13 celdas, fuerza bruta 2,10·10^7 pasos
 ```
 
-Con $W = 2^{40}$ la tabla tendría unas $2 \cdot 10^{13}$ celdas, y la fuerza bruta
-resuelve el mismo problema en unos $2 \cdot 10^7$ pasos. Cada algoritmo es exponencial
-en algo distinto: la fuerza bruta en la cantidad de objetos, la tabla en los bits de la
-capacidad.
+Con $W = 2^{40}$ la tabla haría unas $2 \cdot 10^{13}$ actualizaciones, y la fuerza
+bruta resuelve el mismo problema en unos $2 \cdot 10^7$ pasos. Cada algoritmo es
+exponencial en algo distinto: la fuerza bruta en la cantidad de objetos, la tabla en
+los bits de la capacidad.
 
 ## 5. El parecido con la primalidad por división
 
@@ -179,14 +188,15 @@ la mochila:
 
 *Figura 1. Costo en función de los bits del número, en escala logarítmica. La mochila y
 la primalidad por división son rectas, es decir, exponenciales; un polinomio como $b^3$
-se curva hacia abajo. La línea punteada es la fuerza bruta de la mochila con 20
-objetos, que no depende de $b$.*
+se curva hacia abajo. La línea horizontal de trazos es la fuerza bruta de la mochila
+con 20 objetos, que no depende de $b$.*
 
 **En qué se parecen.** Los dos algoritmos tienen un ciclo que recorre todos los valores
 hasta un número de la entrada: los divisores hasta $\sqrt N$, las capacidades hasta
 $W$. Medidos contra el valor del número parecen polinomiales; medidos contra su
 escritura, que es lo que cuenta, son exponenciales. En la escala logarítmica de la
-figura 1 los dos son rectas, con pendiente $1/2$ la primalidad y 1 la mochila.
+figura 1 los dos son rectas, y la de la primalidad sube la mitad de rápido: por cada
+bit más, la mochila se multiplica por 2 y la primalidad por $\sqrt 2$.
 
 **En qué se diferencian.** Para la primalidad hay algoritmos polinomiales en $b$: el
 test de Miller y Rabin, aleatorio (Miller, 1976; Rabin, 1980), y el de Agrawal, Kayal y
@@ -201,8 +211,8 @@ por el problema.
 El ciclo interno recorre las capacidades **de mayor a menor**, y la demostración de la
 sección 2 dice por qué: al actualizar $\texttt{best}[c]$ se lee
 $\texttt{best}[c - w_i]$, que tiene que ser todavía el valor **sin** el objeto $i$. De
-menor a mayor, esa celda ya se actualizó, y el objeto $i$ se puede volver a usar.
-Probemos las dos versiones contra tres baterías:
+menor a mayor, si $c \ge 2w_i$ esa celda ya se actualizó, y el objeto $i$ se puede
+volver a usar. Probemos las dos versiones contra tres baterías:
 
 ```
              batería  casos  descendente  ascendente
@@ -222,18 +232,20 @@ se puede usar cualquier cantidad de veces. Si $W$ es menor que el doble del peso
 las dos versiones coinciden.
 
 *Demostración.* De menor a mayor, al actualizar $\texttt{best}[c]$ la celda
-$\texttt{best}[c - w_i]$ ya incluye al objeto $i$, así que la recurrencia es la de la
-mochila con repetición: el mejor de peso a lo sumo $c$ o no usa el objeto $i$, o lo usa
-una vez más sobre el mejor de peso a lo sumo $c - w_i$ con repetición. Si
-$W < 2 \min_i w_i$, ningún objeto cabe dos veces, y las dos mochilas tienen los mismos
-subconjuntos factibles. $\square$
+$\texttt{best}[c - w_i]$ ya tiene el mejor valor con repetición de los objetos
+$1, \dots, i$: si $c - w_i \ge w_i$, porque el ciclo ya pasó por ella, y si no,
+porque ahí el objeto $i$ no cabe. Así que la recurrencia es la de la mochila con
+repetición: el mejor de peso a lo sumo $c$ o no usa el objeto $i$, o lo usa una vez
+más sobre el mejor de peso a lo sumo $c - w_i$ con repetición. Si $W < 2 \min_i w_i$,
+ningún objeto cabe dos veces, y las dos mochilas tienen los mismos subconjuntos
+factibles. $\square$
 
 ![La fila al derecho y al revés](animaciones/ejercicio-11-fila.gif)
 
 *Animación 2. Un objeto de peso 3 y valor 5 sobre las capacidades 0 a 9. De mayor a
-menor, cada celda lee una que todavía no usó el objeto; de menor a mayor, lee una que ya
-lo usó, y en la capacidad 9 lo usa tres veces. En mejor calidad:
-[MP4](animaciones/ejercicio-11-fila.mp4).*
+menor, cada celda lee una que todavía no usó el objeto; de menor a mayor, desde la
+capacidad 6 lee una que ya lo usó, y en la capacidad 9 lo usa tres veces. En mejor
+calidad: [MP4](animaciones/ejercicio-11-fila.mp4).*
 
 Con un solo objeto de peso 3 y capacidad 9, la versión ascendente lo usa tres veces.
 Una batería en la que la capacidad es menor que el doble del peso más chico no lo ve
@@ -241,9 +253,9 @@ nunca, porque ahí ningún objeto cabe dos veces: es lo que dice el lema.
 
 Antes de dibujar, el script se comprueba a sí mismo: 3000 entradas de hasta 11 objetos
 en las que el valor coincide con probar todos los subconjuntos y la cantidad de celdas
-es exactamente $\sum_i (W - w_i + 1)$; 3000 entradas en las que la versión ascendente
-coincide con la mochila con repetición, calculada aparte; y entradas con $W$ menor que
-el doble del peso mínimo, donde las dos versiones coinciden siempre:
+es exactamente $\sum_i \max(0, W - w_i + 1)$; 3000 entradas en las que la versión
+ascendente coincide con la mochila con repetición, calculada aparte; y entradas con $W$
+menor que el doble del peso mínimo, donde las dos versiones coinciden siempre:
 
 ```
 12 000 comprobaciones, 0 fallos
@@ -258,13 +270,14 @@ inocente que se vea la fórmula.
 
 - El tamaño de una entrada de la mochila es la cantidad de bits de sus números: la
   capacidad $W$ aporta $\log_2 W$ bits, no $W$.
-- $O(nW)$ es exponencial en los bits de $W$: cada bit más duplica la tabla. En entradas
-  con pesos de $n$ bits, el costo es del orden de $2^{\sqrt b}$. El algoritmo es
-  pseudopolinomial, no polinomial.
+- $O(nW)$ es exponencial en los bits de $W$: cada bit más duplica la tabla. En el peor
+  caso, una entrada de $b$ bits le cuesta $2^{b-2} - 1$ actualizaciones. El algoritmo
+  es pseudopolinomial, no polinomial.
 - Escritos en unario, los números harían polinomial al mismo algoritmo: la diferencia es
   la escritura, no el ciclo.
 - La primalidad por división es el mismo fenómeno: $\sqrt N$ divisiones son $2^{b/2}$.
-  Pero la primalidad tiene algoritmos polinomiales, y la mochila es NP-completa.
+  Pero la primalidad tiene algoritmos polinomiales, y la versión de decisión de la
+  mochila es NP-completa.
 - Recorrer las capacidades de menor a mayor permite usar un objeto varias veces. El
   invariante de la tabla dice cuándo se nota: solo si algún objeto cabe dos veces.
 
@@ -288,14 +301,14 @@ bits de la entrada: 29
         17     65 536                 501      647 040               4.00
         19    262 144                 543    2 588 078               4.00
 
-§3. Una familia de entradas: n objetos con pesos de n bits
-----------------------------------------------------------
-   n  bits de la entrada          n·W  2^sqrt(bits)
-   8                 153    2,05·10^3     5,29·10^3
-  16                 433    1,05·10^6     1,84·10^6
-  24                 841    4,03·10^8     5,37·10^8
-  32                1377   1,37·10^11    1,48·10^11
-  40                2041   4,40·10^13    3,98·10^13
+§3. El peor caso: un objeto de peso 1 y valor 1
+-----------------------------------------------
+ bits de la entrada            W       celdas
+                  6           15           15
+                 10          255          255
+                 14        4 095        4 095
+                 18       65 535       65 535
+                 22    1 048 575    1 048 575
 
 §4. La fuerza bruta contra la tabla, con pocos objetos y W enorme
 -----------------------------------------------------------------

@@ -150,7 +150,12 @@ def posiciones_vigiladas(mu, lam):
         h, t = h1.next, t.next
         k += 1
         if t is h:
+            # el encuentro: la tortuga en x_k y potencial 0, que bajó en esta vuelta
+            assert t.indice == indice_real(k, mu, lam)
+            assert potencial(k, mu, lam) == 0 < previo
             return k
+    # sin ciclo, el estado final: la tortuga en x_k y potencial n - 2k = n mod 2
+    assert (t is None or t.indice == k) and potencial(k, mu, lam) == mu % 2
     return k
 
 
@@ -220,7 +225,7 @@ def comparar_con_conjunto():
         s1, s2, guardados = Lector(), Lector(), []
         floyd(lista(mu, lam), s1)
         busqueda_con_conjunto(lista(mu, lam), s2, guardados)
-        nombre = f"mu = {mu}, lambda = {lam}"
+        nombre = f"mu = {mu}, lambda = {lam}" if lam else f"sin ciclo, n = {mu}"
         print(f"{nombre:>20} {s1.lecturas:>16} {s2.lecturas:>19} {guardados[0]:>26}")
 
 
@@ -298,8 +303,8 @@ def errores_plantados():
         "con ciclo": [caso(rng.randint(0, 30), rng.randint(1, 30)) for _ in range(2000)],
         "sin ciclo, largo par": [caso(2 * rng.randint(0, 30), 0) for _ in range(2000)],
         "sin ciclo, largo al azar": [caso(rng.randint(0, 60), 0) for _ in range(2000)],
-        "exhaustivo, n <= 12": ([caso(mu, lam) for mu in range(13)
-                                 for lam in range(1, 13 - mu + 1)]
+        "exhaustivo, n <= 12": ([caso(mu, lam) for mu in range(12)
+                                 for lam in range(1, 12 - mu + 1)]
                                 + [caso(n, 0) for n in range(13)]),
     }
     variantes = [("correcta", lambda c: floyd(c, lambda x: x.next)[0]),
@@ -406,7 +411,7 @@ def _guardar(fig, nombre):
 
 
 def figura_rho(mu=3, lam=5):
-    k = k_estrella(mu, lam)
+    k = floyd(lista(mu, lam), Lector())[1]
     encuentro = indice_real(k, mu, lam)
     fig, ax = plt.subplots(figsize=(6.4, 3.0))
     radio = 1.35

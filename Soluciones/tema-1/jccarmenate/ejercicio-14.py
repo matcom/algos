@@ -302,13 +302,20 @@ def errores_plantados():
         f = [100 * m / len(casos) for m in malos]
         tabla[nombre] = f
         print(f"{nombre:>22} {len(casos):>6} {f[0]:>10.1f}% {f[1]:>8.1f}%")
-    rotaciones_malas = set()
+    # con n uniforme en 1..1000 y k uniforme en 0..n-1, un caso falla si y solo si
+    # k = 0 y n >= 2 (el lema de la sección 10; la exhaustiva de abajo lo comprueba)
+    p = sum(1 / m for m in range(2, 1001)) / 1000
+    print(f"una batería de 100 casos como la de n <= 1000 no ve el error de A[0] con "
+          f"probabilidad {(1 - p) ** 100:.2f}")
+    fallos = set()
     for n in range(1, 60):
         for k in range(n):
-            if rotation_point(n, Comparador(rotado(list(range(n)), k)), "primero") != k:
-                rotaciones_malas.add(k)
-    print(f"exhaustiva con n de 1 a 59: con A[0] falla solo cuando k = "
-          f"{sorted(rotaciones_malas)} (y n >= 2)")
+            salida = rotation_point(n, Comparador(rotado(list(range(n)), k)), "primero")
+            if salida != k:
+                fallos.add((n, k, salida))
+    assert fallos == {(n, 0, n - 1) for n in range(2, 60)}
+    print(f"exhaustiva con n de 1 a 59: con A[0] falla en {len(fallos)} casos, los de "
+          f"k = 0 y n >= 2, y devuelve n - 1")
     A = rotado(B12, 0)
     print(f"sobre A = {' '.join(map(str, A))}: con A[0] devuelve "
           f"{rotation_point(12, Comparador(A), 'primero')}, con A[n-1] devuelve "

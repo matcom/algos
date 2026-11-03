@@ -1,7 +1,7 @@
 # Ejercicio 12 ★★★ · Emparejamiento estable con listas incompletas
 
-> Gale-Shapley con listas incompletas: cada proponente lista solo a algunos receptores, y
-> prefiere quedarse solo antes que con uno que no listó. Adapta el algoritmo, su
+> Gale-Shapley con listas incompletas: cada proponente lista solo a algunos receptores,
+> y prefiere quedarse solo antes que con uno que no listó. Adapta el algoritmo, su
 > potencial y la definición de pareja bloqueante. ¿Sigue siendo estable el resultado?
 > Demuéstralo.
 
@@ -93,7 +93,9 @@ alguien mejor. Con listas completas eso no podía pasar, y aquí el algoritmo ti
 dejarlo solo. Además, $b_3$ queda solo aunque aceptaría a cualquiera, y ningún par con
 $b_3$ puede bloquear, porque para bloquear el proponente tiene que haber listado al
 receptor. Por último, el resultado es estable: $a_2$ listó a $b_1$ y a $b_2$, pero $b_1$
-tiene a $a_3$ y $b_2$ a $a_1$, que esos receptores prefieren a $a_2$. El oráculo, que
+tiene a $a_3$ y $b_2$ a $a_1$, que esos receptores prefieren a $a_2$. Los otros pares en
+que un proponente quiere cambiar, $(a_1, b_4)$ y $(a_4, b_1)$, tampoco bloquean: $b_4$
+prefiere a $a_4$ antes que a $a_1$, y $b_1$ a $a_3$ antes que a $a_4$. El oráculo, que
 prueba todos los emparejamientos, confirma que es el único estable de la instancia.
 
 ## 3. El algoritmo
@@ -104,13 +106,14 @@ La versión de listas completas, corrida tal cual sobre esta instancia, falla:
 la versión de listas completas: IndexError al buscar el siguiente receptor de un proponente que ya agotó su lista
 ```
 
-Con listas completas, todo proponente rechazado vuelve a la cola, y eso es seguro porque
-siempre le queda alguien: si un proponente libre ya le hubiera propuesto a todos, todos
-los receptores estarían comprometidos con tantos proponentes distintos como receptores
-hay, y no quedaría lugar para que él estuviera libre. Fíjate en que esa cuenta usa que
-la lista del proponente tiene a **todos** los receptores. Con listas incompletas, un
-proponente puede haberle propuesto a toda su lista mientras otros receptores siguen
-libres, y la cuenta no dice nada. No es un caso raro:
+Con listas completas y la misma cantidad de cada lado, todo proponente rechazado vuelve
+a la cola, y eso es seguro porque siempre le queda alguien: si un proponente libre ya le
+hubiera propuesto a todos, todos los receptores estarían comprometidos con tantos
+proponentes distintos como receptores hay, y no quedaría lugar para que él estuviera
+libre. Fíjate en que esa cuenta usa dos cosas: que no hay más proponentes que
+receptores, y que la lista del proponente tiene a **todos** los receptores. Con listas
+incompletas, un proponente puede haberle propuesto a toda su lista mientras otros
+receptores siguen libres, y la cuenta no dice nada. No es un caso raro:
 
 ```
    n  instancias  IndexError
@@ -147,19 +150,24 @@ def gale_shapley(pref_a, pref_b):
 La versión del script además deja elegir el orden de ejecución (cola, pila o al azar),
 porque todo lo que se demuestre tiene que valer para cualquier orden.
 
-**Invariante (Q).** Todo proponente que está en la cola de libres cumple
-$\texttt{next\_choice}[a] < |\text{lista}(a)|$.
+**Invariante (Q).** Todo proponente que está en la cola de libres no tiene pareja,
+aparece en ella una sola vez y cumple $\texttt{next\_choice}[a] < |\text{lista}(a)|$.
 
 **Lema.** (Q) se cumple en todo momento. En particular, cada lectura
-$\texttt{pref\_a}[a][\texttt{next\_choice}[a]]$ es válida. Además, un receptor
-comprometido no vuelve a quedar libre y su pareja solo mejora, y cada proponente propone
-en el orden de su lista.
+$\texttt{pref\_a}[a][\texttt{next\_choice}[a]]$ es válida, y un proponente con pareja no
+propone, así que el resultado es un emparejamiento. Además, un receptor comprometido no
+vuelve a quedar libre y su pareja solo mejora, y cada proponente propone en el orden de
+su lista.
 
-*Demostración.* *Inicialización.* Entran a la cola solo los de lista no vacía, con
-$\texttt{next\_choice} = 0$. *Mantenimiento.* Un proponente solo vuelve a entrar si
-`has_more`, y mientras está en la cola su `next_choice` no cambia. *Conclusión.* Cada
-vez que se lee la lista de $a$, el índice existe. Las otras dos afirmaciones se leen del
-código: un receptor solo cambia de pareja si llega alguien que prefiere, y
+*Demostración.* *Inicialización.* Entran a la cola, una vez cada uno, solo los de lista
+no vacía, sin pareja y con $\texttt{next\_choice} = 0$. *Mantenimiento.* Sale $a$, que
+no tiene otra copia en la cola, así que si $b$ lo acepta nadie de la cola gana pareja.
+Entra a lo sumo uno: $a$, o la pareja que $b$ deja, que tenía pareja y por eso no estaba
+en la cola. El que entra queda sin pareja, y entra solo si `has_more`. Y
+`next_choice[a]` solo cambia cuando $a$ sale, así que no cambia mientras espera en la
+cola. *Conclusión.* Cada vez que se lee la lista de $a$, el índice existe, y el que
+propone acaba de salir de la cola, así que no tiene pareja. Las otras dos afirmaciones
+se leen del código: un receptor solo cambia de pareja si llega alguien que prefiere, y
 `next_choice[a]` solo avanza. $\square$
 
 ## 4. Terminación y costo
@@ -196,6 +204,12 @@ seis proponentes que solo listan a b1: 6 propuestas = L = 6
 *Figura 2. Cada punto es una ejecución. Ninguno pasa la diagonal punteada, que es la
 cota del potencial. Con listas incompletas los puntos quedan más cerca de la diagonal:
 cuando las listas son cortas, una fracción mayor de cada lista se recorre entera.*
+
+¿Se puede hacer mejor? En el peor caso, no. Las listas completas con $n$ de cada lado
+son un caso particular, y Ng y Hirschberg (1990) demostraron que con ellas todo
+algoritmo que encuentre un emparejamiento estable necesita $\Omega(n^2)$ consultas a las
+listas de preferencias. Con $n$ de cada lado, este hace $O(n^2)$ operaciones, así que es
+óptimo salvo constantes.
 
 ## 5. La pareja bloqueante y la estabilidad
 
@@ -277,11 +291,13 @@ propuso, y prefiere $b$ a estar solo. En los dos casos $a'$ prefiere $b$ a su si
 en $M'$, y $b$ prefiere $a'$ a $a$, porque lo cambió por él: $(a', b)$ bloquea $M'$, que
 era estable. Contradicción.
 
-Entonces un proponente con parejas válidas nunca pasa de $\text{mejor}(a)$ en su lista,
-y termina con alguien al menos tan bueno. Como el resultado es estable, ese alguien es
-una pareja válida, así que es $\text{mejor}(a)$. Un proponente sin parejas válidas
-termina solo, porque cualquier pareja que tuviera en un emparejamiento estable sería
-válida. $\square$
+Entonces un proponente con parejas válidas nunca pasa de $\text{mejor}(a)$ en su lista.
+Tampoco termina solo: si terminara solo, le habría propuesto a toda su lista, por el
+segundo paso de la demostración de estabilidad, y $\text{mejor}(a)$ lo habría
+rechazado. Así que termina con alguien al menos tan bueno. Como el resultado es estable,
+ese alguien es una pareja válida, así que es $\text{mejor}(a)$. Un proponente sin
+parejas válidas termina solo, porque cualquier pareja que tuviera en un emparejamiento
+estable sería válida. $\square$
 
 **Teorema de los hospitales rurales.** Todos los emparejamientos estables dejan solos
 exactamente a los mismos proponentes y a los mismos receptores.
@@ -298,10 +314,10 @@ segundo $|M_0| \le |M|$. Así que son iguales, y las dos inclusiones son igualda
 $\square$
 
 El nombre viene de la asignación de residencias médicas (Roth, 1986): un hospital que no
-llena sus plazas en un emparejamiento estable no las llena en ninguno. En instancias al
-azar casi siempre hay un solo emparejamiento estable, y ahí los dos teoremas se cumplen
-sin decir nada. Por eso el script genera instancias hasta juntar trescientas con más de
-uno:
+llena sus plazas en un emparejamiento estable no las llena en ninguno. En las instancias
+chicas que genera el script, la mayoría tiene un solo emparejamiento estable, y ahí los
+dos teoremas se cumplen sin decir nada. Por eso el script genera instancias hasta juntar
+trescientas con más de uno:
 
 ```
 300 instancias con más de un emparejamiento estable (de 2686 generadas):
@@ -337,6 +353,7 @@ pares en los que los dos tienen pareja, no ve nada:
   listas completas   2000              0.0%              4.3%
     listas al azar   2000              0.0%             66.4%
      listas cortas   2000              0.0%             99.0%
+las tres baterías tienen 8 proponentes y 8 receptores
 ```
 
 ![Qué combinación de batería y verificador ve el error](ejercicio-12-errores.svg)
@@ -368,20 +385,24 @@ al último de su lista, mientras que las listas cortas lo detectan casi siempre.
 ## 8. Receptores con listas incompletas
 
 En la versión general, los receptores también tienen listas incompletas, y un receptor
-rechaza a quien no listó aunque esté libre. El algoritmo cambia en una línea: antes de
-comparar, si $a$ no está en la lista de $b$, $b$ lo rechaza. La definición de pareja
-bloqueante pide además que $b$ haya listado a $a$.
+rechaza a quien no listó aunque esté libre. El algoritmo cambia en una línea, que va
+antes de mirar si $b$ está libre: si $a$ no está en la lista de $b$, $b$ lo rechaza. La
+definición de pareja bloqueante pide además que $b$ haya listado a $a$.
 
 **Teorema.** Con listas incompletas en los dos lados, el teorema de estabilidad, el de
 optimalidad y el de los hospitales rurales siguen valiendo.
 
-*Demostración.* En "la contradicción" de la demostración de estabilidad, $b$ rechazó a
-$a$ en algún momento, y ahora puede haber sido porque no lo listó. Pero entonces
-$(a, b)$ no puede bloquear, porque $b$ prefiere quedarse solo antes que estar con $a$.
-En el otro caso el argumento es el de antes. En los otros dos teoremas, un receptor que
-es pareja válida de $a$ listó a $a$, porque un emparejamiento estable no pone a nadie
-con quien no aceptó. Así que nunca lo rechaza por no haberlo listado, y los argumentos
-no cambian. $\square$
+*Demostración.* Un proponente solo le propone a los de su lista, y por la línea nueva un
+receptor solo se queda con proponentes que listó: nadie termina con alguien que no
+aceptó. En "la contradicción" de la demostración de estabilidad, $b$ rechazó a $a$ en
+algún momento, y ahora puede haber sido porque no lo listó. Pero entonces $(a, b)$ no
+puede bloquear, porque $b$ prefiere quedarse solo antes que estar con $a$. En el otro
+caso el argumento es el de antes. En los otros dos teoremas, un receptor que es pareja
+válida de $a$ listó a $a$, porque un emparejamiento estable no pone a nadie con quien no
+aceptó. Así que nunca lo rechaza por no haberlo listado, y los argumentos no cambian:
+las parejas que bloquean en ellos, $(a', b)$ en la optimalidad y $(M_0(b), b)$ en los
+hospitales rurales, son de un receptor con alguien que tuvo en la ejecución, y por eso
+lo listó. $\square$
 
 ```
 1 500 instancias con listas incompletas en los dos lados: 0 resultados inestables o fuera del oráculo
@@ -390,19 +411,24 @@ no cambian. $\square$
 Antes de dibujar, el script se comprueba a sí mismo: 500 instancias con listas
 completas, en las que la versión adaptada devuelve lo mismo que la de listas completas,
 sin nadie solo y con a lo sumo $n^2$ propuestas; 300 instancias de hasta 60 por lado,
-con los tres órdenes y la mitad con receptores que tachan, siempre con a lo sumo $L$
-propuestas y resultado estable; y 500 instancias chicas en las que el resultado está
-entre los estables que enumera el oráculo, y todos esos emparejamientos dejan solos a
-los mismos proponentes:
+con los tres órdenes y 138 de ellas con receptores que tachan, siempre con a lo sumo
+$L$ propuestas y resultado estable; y 500 instancias chicas en las que el resultado
+está entre los estables que enumera el oráculo, y todos esos emparejamientos dejan
+solos a los mismos proponentes:
 
 ```
+(a) 500 instancias con listas completas, contra la versión de listas completas
+(b) 300 instancias de hasta 60 por lado, tres órdenes, 138 con receptores que tachan
+(c) 500 instancias de hasta 5 por lado, contra el oráculo
 3 800 comprobaciones, 0 fallos
 ```
 
 La regla práctica que te llevas: **para probar una adaptación hay que generar los casos
-que la adaptación agregó, y juzgarlos con la definición adaptada.** El error de la
-sección 7 pasa intacto por las pruebas de listas completas y por el verificador de
-listas completas, que son las dos cosas que uno ya tenía escritas.
+que la adaptación agregó, y juzgarlos con la definición adaptada.** Hace falta cada
+mitad. La versión de listas completas, sin la condición de `has_more`, pasa todas las
+pruebas con listas completas de $n$ por lado, y solo los casos nuevos la hacen caer. El
+error de la sección 7, al revés, aparece casi siempre con listas cortas, pero el
+verificador de listas completas no lo ve con ninguna batería.
 
 ## 9. Resumen
 
@@ -420,8 +446,8 @@ listas completas, que son las dos cosas que uno ya tenía escritas.
 - Sigue dando a cada proponente su mejor pareja válida, y todos los emparejamientos
   estables dejan solos a los mismos.
 - El error de rendirse una propuesta antes solo fabrica parejas bloqueantes con un
-  proponente solo. Un verificador con la definición vieja no lo ve nunca, y las pruebas
-  con listas completas casi nunca.
+  proponente solo. Un verificador con la definición vieja no lo ve nunca, y con listas
+  completas de ocho por lado aparece solo en el 4,3 % de las instancias.
 
 <details>
 <summary>Salida completa de <code>python ejercicio-12.py</code></summary>
@@ -484,6 +510,7 @@ seis proponentes que solo listan a b1: 6 propuestas = L = 6
   listas completas   2000              0.0%              4.3%
     listas al azar   2000              0.0%             66.4%
      listas cortas   2000              0.0%             99.0%
+las tres baterías tienen 8 proponentes y 8 receptores
 en el ejemplo de la sección 2: a1–b4, a2 solo, a3–b1, a4 solo
   bloqueantes con la definición nueva: (a2, b2), (a4, b4); con la vieja: ninguna
 
@@ -493,6 +520,9 @@ en el ejemplo de la sección 2: a1–b4, a2 solo, a3–b1, a4 solo
 
 Pruebas
 -------
+(a) 500 instancias con listas completas, contra la versión de listas completas
+(b) 300 instancias de hasta 60 por lado, tres órdenes, 138 con receptores que tachan
+(c) 500 instancias de hasta 5 por lado, contra el oráculo
 3 800 comprobaciones, 0 fallos
 
 figuras: ejercicio-12-instancia.svg, ejercicio-12-potencial.svg, ejercicio-12-errores.svg

@@ -1,8 +1,8 @@
 """Ejercicio 11: la mochila en O(nW) y el tamaño de la entrada. Dos escenas:
 
     Fila  un objeto de peso 3 y valor 5 sobre la fila de capacidades 0..9, recorrida de
-          mayor a menor y de menor a mayor: al revés, cada celda lee una que ya usó el
-          objeto, y lo usa tres veces
+          mayor a menor y de menor a mayor: al revés, desde la capacidad 6 cada celda
+          lee una que ya usó el objeto, y la 9 lo usa tres veces
     Bits  agregar un bit a W duplica la tabla, pero a la entrada solo le suma un bit:
           O(nW) es exponencial en lo que cuesta escribir W
 
@@ -62,7 +62,8 @@ class Fila(Scene):
             self.play(*narr.decir(
                 r"De mayor a menor: $c - 3$ todavía tiene el valor \emph{sin} el objeto"
                 if desc else
-                r"De menor a mayor: $c - 3$ ya se actualizó, \emph{con} el objeto",
+                r"De menor a mayor: desde $c = 6$, $c - 3$ ya se actualizó, "
+                r"\emph{con} el objeto",
                 color=VERDE if desc else ROJO))
             for c, leido, nuevo in pasos:
                 flecha = CurvedArrow(f[c - PESO].get_top() + UP * 0.05,

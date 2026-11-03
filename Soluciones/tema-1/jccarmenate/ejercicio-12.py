@@ -339,10 +339,11 @@ def optimalidad():
 def errores_plantados():
     seccion("§7. El error plantado: rendirse una propuesta antes")
     rng = random.Random(7)
+    n = 8
     baterias = {
-        "listas completas": lambda: instancia(8, 8, rng),
-        "listas al azar": lambda: instancia(8, 8, rng, largo=lambda r: r.randint(1, 8)),
-        "listas cortas": lambda: instancia(8, 8, rng, largo=lambda r: r.randint(1, 2)),
+        "listas completas": lambda: instancia(n, n, rng),
+        "listas al azar": lambda: instancia(n, n, rng, largo=lambda r: r.randint(1, n)),
+        "listas cortas": lambda: instancia(n, n, rng, largo=lambda r: r.randint(1, 2)),
     }
     tabla = {}
     print(f"{'batería':>18} {'casos':>6} {'definición vieja':>17} {'definición nueva':>17}")
@@ -356,6 +357,7 @@ def errores_plantados():
         f = [100 * viejo / len(casos), 100 * nuevo / len(casos)]
         tabla[etiqueta] = f
         print(f"{etiqueta:>18} {len(casos):>6} {f[0]:>16.1f}% {f[1]:>16.1f}%")
+    print(f"las tres baterías tienen {n} proponentes y {n} receptores")
     M, _ = gale_shapley(EJEMPLO_A, EJEMPLO_B, uno_antes=True)
     nuevos = [f"(a{a + 1}, b{b + 1})" for a, b in bloqueantes(M, EJEMPLO_A, EJEMPLO_B)]
     viejos = [f"(a{a + 1}, b{b + 1})" for a, b in bloqueantes_viejo(M, EJEMPLO_A, EJEMPLO_B)]
@@ -399,16 +401,23 @@ def pruebas():
         assert all(M[a] == b for b, a in enumerate(match_of_b))
         assert None not in M and k <= n * n
         comprobaciones += 2
+    print("(a) 500 instancias con listas completas, contra la versión de listas "
+          "completas")
 
     # (b) la cota del potencial y la estabilidad, con instancias grandes
+    tachan = 0
     for _ in range(300):
         n_a, n_b = rng.randint(1, 60), rng.randint(1, 60)
+        tacha = rng.random() < 0.5
+        tachan += tacha
         pa, pb = instancia(n_a, n_b, rng, largo=lambda r: r.randint(0, n_b),
-                           receptores_tachan=rng.random() < 0.5)
+                           receptores_tachan=tacha)
         for orden in ("cola", "pila", "azar"):
             M, k = gale_shapley(pa, pb, orden=orden, semilla=1)
             assert k <= sum(map(len, pa)) and es_estable(M, pa, pb)
             comprobaciones += 2
+    print(f"(b) 300 instancias de hasta 60 por lado, tres órdenes, {tachan} con "
+          f"receptores que tachan")
 
     # (c) el oráculo: el resultado está entre los estables, y todos los estables
     #     dejan solos a los mismos
@@ -422,6 +431,7 @@ def pruebas():
         assert len({frozenset(a for a, b in enumerate(E) if b is None)
                     for E in estables}) == 1
         comprobaciones += 2
+    print("(c) 500 instancias de hasta 5 por lado, contra el oráculo")
 
     print(f"{miles(comprobaciones)} comprobaciones, 0 fallos")
 

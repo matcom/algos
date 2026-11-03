@@ -162,7 +162,7 @@ def invariante_vigilado():
     print(f"{miles(busquedas)} búsquedas sobre arreglos ordenados con repetidos, "
           f"{miles(vueltas)} vueltas vigiladas, 0 fallos")
 
-    # sin la precondición: arreglos desordenados
+    # sin la precondición: arreglos en orden al azar
     rotos = mal = 0
     pruebas = 20_000
     for _ in range(pruebas):
@@ -173,9 +173,9 @@ def invariante_vigilado():
         except AssertionError:
             rotos += 1
         mal += not correcta(A, x, binary_search(A, x, Comparador()))
-    print(f"sobre {miles(pruebas)} arreglos desordenados: el invariante se rompe en "
-          f"{100 * rotos / pruebas:.1f}% de las búsquedas y la respuesta está mal en "
-          f"{100 * mal / pruebas:.1f}%")
+    print(f"sobre {miles(pruebas)} arreglos en orden al azar: el invariante se rompe "
+          f"en {100 * rotos / pruebas:.1f}% de las búsquedas y la respuesta está "
+          f"mal en {100 * mal / pruebas:.1f}%")
 
 
 def peor_caso_exhaustivo(n):
@@ -235,11 +235,11 @@ def cuenta_ingenua():
 
 
 def arbol_de_decision(n):
-    """Corre la búsqueda binaria sobre los 2n + 1 resultados posibles y pega los caminos
-    en un árbol: cada nodo interno es la posición con la que compara."""
+    """Corre la búsqueda binaria con un valor de cada hueco, x = 2g + 1, y pega los
+    caminos en un árbol: cada nodo interno es la posición con la que compara."""
     A = list(range(2, 2 * n + 1, 2))
     raiz = {}
-    for x in range(1, 2 * n + 2):
+    for x in range(1, 2 * n + 2, 2):
         camino = []
 
         def compare(x, y):

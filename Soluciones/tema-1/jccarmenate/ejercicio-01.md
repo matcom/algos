@@ -33,24 +33,25 @@ $$k = \frac{n(1000\,T)}{n(T)}.$$
 
 Tres precisiones que el enunciado tiene que dar, y que no da:
 
-- **Qué máquina y qué plazo.** Para $n^2$ el factor no depende de ninguno de los dos.
-  Para $n \log n$ depende, y la sección 4 dice cuánto.
+- **Qué máquina y qué plazo.** Para $n^2$ el factor, salvo el redondeo a enteros, no
+  depende de ninguno de los dos. Para $n \log n$ depende, y la sección 4 dice cuánto.
 - **Qué quiere decir $\Theta(n^2)$.** Es una familia entera de funciones, y el factor
   cambia según cuál de ellas sea el costo. Suponemos que el costo es $c \cdot g(n)$ más
   términos despreciables, donde $g(n)$ es la función de adentro de la $\Theta$ ($n^2$ o
   $n \log n$) y $c > 0$ es una constante. La sección 5 muestra qué pasa si no se supone
   nada más que $\Theta$.
-- **La base del logaritmo.** No importa: en la cuenta solo aparece un cociente de
-  logaritmos.
+- **La base del logaritmo.** En la ecuación del factor solo aparece un cociente de
+  logaritmos. Pero cambiar la base es cambiar la constante $c$, y eso decide qué $n_0$
+  cabe en una hora. Usamos $\log_2$.
 
 ## 2. Un ejemplo chico antes de la cuenta
 
 Supongamos que hoy se resuelve justo $n_0 = 1024$ en una hora, con cualquiera de los
 dos algoritmos. Para el de costo $n^2$, eso quiere decir que la hora alcanza para
 $1024^2 = 1\,048\,576$ operaciones. Para el de costo $n \log_2 n$, que alcanza para
-$1024 \cdot 10 = 10\,240$. Son dos máquinas de juguete distintas, pero el factor solo
-depende del presupuesto relativo. Ahora le damos a cada una mil veces más operaciones y
-buscamos el mayor $n$ que cabe:
+$1024 \cdot 10 = 10\,240$. Son dos máquinas de juguete distintas, pero, fijado el $n_0$
+de hoy, el factor solo depende de cuántas veces crece el presupuesto. Ahora le damos a
+cada una mil veces más operaciones y buscamos el mayor $n$ que cabe:
 
 ```
    costo      ops hoy      ops 1000x    n nuevo   factor
@@ -65,7 +66,7 @@ $n_0 \approx 1{,}9 \cdot 10^6$: el punto de partida no importa. Para $n \log n$ 
 $n \log_2 n$ operaciones, cada elemento cuesta $\log_2 n$. Los elementos de hoy cuestan
 10 cada uno y los de la entrada nueva cuestan 19, casi el doble. La máquina mil veces
 más rápida paga mil veces más operaciones, pero cada elemento nuevo le sale 1,9 veces
-más caro, así que compra unas $1000 / 1{,}9 \approx 525$ veces más elementos.
+más caro, así que compra unas $1000 / 1{,}9 \approx 526$ veces más elementos.
 
 Esa es toda la idea de la sección 4: **la máquina nueva tiene que pagar elementos más
 caros**. Con $n^2$ pasa lo mismo, pero ahí el encarecimiento es proporcional al tamaño
@@ -109,7 +110,8 @@ $$f(n(T)) \le T < f(n(T) + 1).$$
 La desigualdad de la izquierda da $(c - \varepsilon)\, n(T)^2 \le T$, o sea
 $n(T) \le \sqrt{T/(c - \varepsilon)}$. La de la derecha da
 $T < (c + \varepsilon)(n(T) + 1)^2$, o sea $n(T) > \sqrt{T/(c + \varepsilon)} - 1$.
-Aplicando las dos cotas a $T$ y a $1000\,T$,
+Si además $T > c + \varepsilon$, esta última cota es positiva, y aplicando las dos
+cotas a $T$ y a $1000\,T$,
 
 ```math
 \frac{\sqrt{1000\,T/(c + \varepsilon)} - 1}{\sqrt{T/(c - \varepsilon)}}
@@ -127,11 +129,12 @@ las dos constantes que encierran a $f(n)/n^2$ se puedan acercar tanto como se qu
 eso lo da el límite, no $\Theta$. Con $f \in \Theta(n^2)$ solo hay dos constantes
 fijas $c_1 \le c_2$, y la misma cuenta deja al factor encerrado en una banda de ancho
 fijo. La sección 5 muestra que esa banda no es un defecto del argumento: hay funciones
-que la recorren entera.
+que la recorren casi entera.
 
 ## 4. $\Theta(n \log n)$: el factor depende de dónde estés parado
 
-**La ecuación.** Sea $f(n) = c\,n \log n$ y escribamos $n_1 = k\,n_0$. La condición
+**La ecuación.** Sea $f(n) = c\,n \log n$, sean $n_0$ y $n_1$ los tamaños sin redondear
+que caben en $T$ y en $1000\,T$, y escribamos $n_1 = k\,n_0$. La condición
 $f(n_1) = 1000\, f(n_0)$ es
 
 $$c\, k n_0 (\log n_0 + \log k) = 1000\, c\, n_0 \log n_0 .$$
@@ -161,8 +164,9 @@ solución cumple
 $$\frac{1000}{1 + \log 1000 / \log n_0} \ <\ k\ <\ 1000 .$$
 
 *Demostración.* La función $g(x) = x \log x$ es estrictamente creciente en
-$[1, \infty)$, porque su derivada es $\log x + \log e > 0$. Como $g(n_0) > 0$, también
-$g(n_1) = 1000\, g(n_0) > g(n_0)$, así que $n_1$ existe, es único y es mayor que $n_0$:
+$[1, \infty)$, porque su derivada es $\log x + \log e > 0$. Como $g(n_0) > 0$, el valor
+$1000\, g(n_0)$ es mayor que $g(n_0)$, y como $g$ es continua y crece sin cota, lo toma
+en algún $n_1 > n_0$ (valor intermedio), y solo en ese porque crece estrictamente:
 $k > 1$. Entonces $\log k > 0$, el denominador de $(\star)$ es mayor que 1, y
 $k < 1000$. Y como $k < 1000$, $\log k < \log 1000$, el denominador es menor que
 $1 + \log 1000 / \log n_0$, y $k$ es mayor que la cota. $\square$
@@ -170,7 +174,10 @@ $1 + \log 1000 / \log n_0$, y $k$ es mayor que la cota. $\square$
 Cuando $n_0 \to \infty$ la cota inferior tiende a 1000, así que $k$ también. Pero la
 diferencia relativa con 1000 es de alrededor de
 $\log 1000 / \log n_0 \approx 10 / \log_2 n_0$, que decrece como el inverso del
-*logaritmo* de $n_0$. El script despeja la cota para tres objetivos:
+*logaritmo* de $n_0$. Despejando $\log_2 n_0$ en $(\star)$ queda
+$\log_2 n_0 = k \log_2 k / (1000 - k)$, que crece con $k$, así que $k \ge 900$ pide
+exactamente $\log_2 n_0 \ge 900 \log_2 900 / 100$. El script hace la cuenta para tres
+objetivos:
 
 ```
 factor >= 900: hace falta log2 n0 >= 88.3, o sea n0 con unas 27 cifras decimales
@@ -191,6 +198,7 @@ k:  1000 -> 785.62 -> 791.55 -> 791.36 -> 791.37 -> 791.37 -> ...
 punto fijo: k = 791.37
 cota inferior: 785.6
 |phi'(k)| = k / (1000 · L · ln 2) = 0.0313
+en [cota inferior, 1000]: |phi'| <= 1000 / (cota · L · ln 2) = 0.0503
 comparación con la búsqueda binaria: n1 / n0 = 791.37
 ```
 
@@ -205,9 +213,19 @@ fórmula. La iteración converge, y rápido, por dos razones que se ven derivand
 El valor absoluto es 0,0313, así que cada vuelta divide el error por más de 30. Y el
 signo es negativo: $\varphi$ es decreciente, así que los iterados caen alternadamente a
 un lado y al otro del punto fijo ($785{,}62 < 791{,}37 < 791{,}55$), y cada par de
-iterados consecutivos encierra la solución. El resultado coincide con lo que da buscar
-directamente, por búsqueda binaria, el mayor $n$ que cabe en $1000\,T$:
-$9{,}86 \cdot 10^{10}$ pasa a $7{,}80 \cdot 10^{13}$.
+iterados consecutivos encierra la solución.
+
+Las dos razones miran $\varphi'$ solo en el punto fijo. Para ver que la iteración
+converge desde $k = 1000$, sea $\ell = 785{,}6$ la cota inferior. Como $\varphi$ es
+decreciente, $\varphi(1000) = \ell$ y $\varphi(k) < 1000$ para todo $k > 1$, $\varphi$
+lleva $[\ell, 1000]$ en sí mismo, y por el lema el punto fijo está adentro. Ahí
+$\varphi(k) \le 1000$ y $k \ge \ell$, así que la fórmula de $\varphi'$ da
+$|\varphi'(k)| \le 1000 / (\ell \log_2 n_0 \ln 2) = 0{,}0503$. Por el teorema del valor
+medio, cada vuelta, desde la primera, multiplica la distancia al punto fijo por 0,0503
+o menos.
+
+El resultado coincide con lo que da buscar directamente, por búsqueda binaria, el mayor
+$n$ que cabe en $1000\,T$: $9{,}86 \cdot 10^{10}$ pasa a $7{,}80 \cdot 10^{13}$.
 
 **Si el plazo no es una hora.** Como el factor depende de $n_0$, depende del
 presupuesto. El de $n^2$ no:
@@ -258,10 +276,11 @@ con n^2 + 10^7 n y n0 = 3,48·10^5: 10^7 n0 / n0^2 = 28.7
 - **A veces importan.** Con $n^2 + 10^7\,n$ el factor es 158,69. En una hora se
   resuelve $n_0 = 3{,}48 \cdot 10^5$, y ahí el término "de orden menor" $10^7 n_0$ es
   28,7 veces más grande que $n_0^2$. A ese tamaño el algoritmo se comporta como uno
-  lineal, y por eso el factor está más cerca de 1000 que de 31,6. El teorema de la
-  sección 3 sigue valiendo para esta función, pero el límite solo se nota cuando $n_0$
-  pasa con holgura de $10^7$, que es donde $n^2$ alcanza a $10^7 n$ (figura 2, curva
-  azul).
+  lineal, y por eso el factor queda muy por encima de 31,6. No llega a 1000 porque el
+  tamaño nuevo, $5{,}52 \cdot 10^7$, ya pasó de $10^7$, y ahí manda $n^2$. El teorema
+  de la sección 3 sigue valiendo para esta función, pero el límite solo se nota cuando
+  $n_0$ pasa con holgura de $10^7$, que es donde $n^2$ alcanza a $10^7 n$ (figura 2,
+  curva azul).
 
 Sin la hipótesis del límite, la misma demostración da solo una banda.
 
@@ -286,7 +305,10 @@ $|h'| \le 0{,}5/n$ y $h \ge 1$, y eso da $(\ln f)' \ge 1{,}5/n > 0$: $f$ es crec
 Pero $f(n)/n^2 = h(n)$ se acerca a 1 y a 2 infinitas veces, así que no converge.
 $\square$
 
-Y el factor oscila con ella, para siempre:
+Y el factor oscila con ella, para siempre. Sin redondear, el factor es la solución $k$
+de $f(k\,n_0) = 1000\,f(n_0)$, o sea de $k^2\,h(k\,n_0) = 1000\,h(n_0)$, y es única
+porque $f$ es creciente. Multiplicar $n_0$ por $e^{2\pi}$ no cambia $h(n_0)$ ni
+$h(k\,n_0)$, así que el factor repite los mismos valores en cada vuelta de $\ln n_0$:
 
 ```
 n^2 (1,5 + 0,5 sen ln n), n0 entre 10^2 y 10^14: factor entre 22.4 y 44.0
@@ -297,15 +319,15 @@ Con $c_1 = 1$ y $c_2 = 2$, el lema de la banda deja al factor entre $\sqrt{500}$
 $\sqrt{2000}$, de 22,4 a 44,7. La curva roja de la figura 2 llena casi toda la banda y
 no se estabiliza nunca. Así que, si lo único que se sabe es que el costo está en
 $\Theta(n^2)$, la pregunta "¿por cuánto se multiplica el tamaño?" no tiene respuesta:
-puede ser cualquier número de esa banda, según el tamaño de partida.
+puede ser casi cualquier número de esa banda, según el tamaño de partida.
 
 ![El factor de tres funciones de Θ(n²)](ejercicio-01-theta.svg)
 
 *Figura 2. Tres funciones de $\Theta(n^2)$ y el factor que compra cada una con una
 máquina mil veces más rápida, según el tamaño que se resuelve hoy. $n^2$ da siempre
 31,6. $n^2 + 10^7 n$ empieza comportándose como lineal (factor cerca de 1000) y solo
-llega a 31,6 cuando $n_0$ pasa de $10^7$. La función oscilante nunca se estabiliza, y
-recorre casi toda la banda que permiten sus constantes.*
+se acerca a 31,6 cuando $n_0$ pasa con holgura de $10^7$. La función oscilante nunca se
+estabiliza, y recorre casi toda la banda que permiten sus constantes.*
 
 ## 6. Qué compra una máquina más rápida, y qué compra un algoritmo mejor
 
@@ -332,21 +354,22 @@ n log n en la máquina de siempre:        9,86·10^10
 cociente: 1 643
 ```
 
-Cambiar un algoritmo cuadrático por uno $n \log n$ en la máquina vieja resuelve
-entradas 1 643 veces más grandes que comprar la máquina mil veces más rápida y quedarse
-con el cuadrático.
+Cambiar un algoritmo de costo $n^2$ por uno de costo $n \log_2 n$, con la misma
+constante, en la máquina vieja resuelve entradas 1 643 veces más grandes que comprar la
+máquina mil veces más rápida y quedarse con el cuadrático. A diferencia de los
+factores, este cociente sí depende de las constantes y de la base del logaritmo.
 
 Todo lo anterior vale para cualquier aceleración $s$, no solo para 1000: el factor de
 $n \log n$ es la solución de $(\star)$ con $s$ en lugar de 1000, y el lema de la
 sección 4 vale igual, con $\log s$ en la cota inferior. La última fila de la tabla es la
 primalidad por división, que sobre un número de $b$ bits hace hasta $2^{b/2}$
-divisiones: mil veces más cómputo solo le suma 20 bits al número más grande que se
+divisiones: mil veces más cómputo solo le suma unos 20 bits al número más grande que se
 puede probar. Cuando el costo es exponencial en el tamaño, la máquina más rápida suma
 una constante en vez de multiplicar.
 
 Antes de dibujar, el script se comprueba a sí mismo. Compara la búsqueda binaria del
 mayor $n$ con un oráculo que prueba $n = 1, 2, 3, \dots$ hasta pasarse, para seis
-funciones de costo y todos los presupuestos hasta 2000. Comprueba que el $k$ de la
+funciones de costo y todos los presupuestos de $f(2)$ a 2000. Comprueba que el $k$ de la
 iteración satisface $(\star)$ y coincide con resolver $x \log x = 1000\, n_0 \log n_0$
 por bisección para $n_0 = 2^2, \dots, 2^{60}$, que las cotas del lema de la sección 4
 valen para $\log_2 n_0$ de 1 a 3000, que el cociente de los $n(T)$ enteros de $n^2$ se
@@ -369,7 +392,7 @@ $n^2$ y $n \log_2 n$ exactos hace esa suposición sin decirla.
   $\Theta(g(n))$.
 - Con $n^2$ el factor es $\sqrt{1000} \approx 31{,}6$. La constante y el presupuesto se
   cancelan, y el factor sigue tendiendo a $\sqrt{1000}$ para toda $f$ no decreciente con
-  $f(n)/n^2 \to c$.
+  $f(n)/n^2 \to c > 0$.
 - Con $n \log n$ el factor es la solución de $k = 1000/(1 + \log k / \log n_0)$: mil,
   dividido entre cuánto se encareció cada elemento. Con $10^9$ operaciones por segundo
   y una hora vale 791,4.
@@ -378,8 +401,8 @@ $n^2$ y $n \log_2 n$ exactos hace esa suposición sin decirla.
   cifras.
 - Con $\Theta$ a secas el factor no está determinado. $n^2 + 10^7 n$ da 158,7 en una
   hora, y $n^2(1{,}5 + 0{,}5 \sin \ln n)$ oscila entre 22,4 y 44,0 sin estabilizarse.
-- Cambiar $n^2$ por $n \log n$ en la máquina de siempre compra 1 643 veces más que la
-  máquina mil veces más rápida.
+- Cambiar $n^2$ por $n \log_2 n$, con la misma constante, en la máquina de siempre
+  compra 1 643 veces más que la máquina mil veces más rápida.
 
 <details>
 <summary>Salida completa de <code>python ejercicio-01.py</code></summary>
@@ -406,6 +429,7 @@ k:  1000 -> 785.62 -> 791.55 -> 791.36 -> 791.37 -> 791.37 -> ...
 punto fijo: k = 791.37
 cota inferior: 785.6
 |phi'(k)| = k / (1000 · L · ln 2) = 0.0313
+en [cota inferior, 1000]: |phi'| <= 1000 / (cota · L · ln 2) = 0.0503
 comparación con la búsqueda binaria: n1 / n0 = 791.37
 
 §4. El factor de n log n depende del presupuesto; el de n^2, no
@@ -424,8 +448,8 @@ factor >= 900: hace falta log2 n0 >= 88.3, o sea n0 con unas 27 cifras decimales
 factor >= 950: hace falta log2 n0 >= 187.9, o sea n0 con unas 57 cifras decimales
 factor >= 990: hace falta log2 n0 >= 985.2, o sea n0 con unas 297 cifras decimales
 
-§5. Tres funciones Θ(n²) y sus factores, en el escenario de una hora
---------------------------------------------------------------------
+§5. Cuatro funciones Θ(n²) y sus factores, en el escenario de una hora
+----------------------------------------------------------------------
                  costo          hoy        1000x   factor
                    n^2    1,90·10^6    6,00·10^7    31.62
                  7 n^2    7,17·10^5    2,27·10^7    31.62

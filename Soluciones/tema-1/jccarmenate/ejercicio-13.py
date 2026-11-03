@@ -211,6 +211,8 @@ def desglose():
           f"lema {sum(lema):.1f}; la cota del lema falla en {violaciones} de {n} accesos")
     pequenos = sum(1 for _, _, _, r_x in filas if 2 ** r_x <= 3 + 1e-9)
     print(f"accesos en que el nodo tenía un subárbol de a lo sumo 3 nodos: {pequenos} de {n}")
+    print(f"a cada uno, el lema le cobra al menos 3 (log2 n - log2 3) + 1 = "
+          f"{3 * (math.log2(n) - math.log2(3)) + 1:.1f}")
     print(f"la cuenta completa: n (3 log2 n + 1) + log2 n! = "
           f"{n * (3 * math.log2(n) + 1):.0f} + {phi0:.0f} = {cota_seccion_5(n, n):.0f}")
     phi = [phi0] + [despues for _, _, despues, _ in filas]

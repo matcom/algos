@@ -23,7 +23,8 @@ python ejercicio-02.py
 forma no decreciente y un valor $x$. La salida es una posición $i$ con $A[i] = x$ o, si
 $x$ no está, el **hueco** donde caería: la cantidad $g$ de elementos menores que $x$.
 Hay $n + 1$ huecos, $h_0, h_1, \dots, h_n$, y $h_g$ es el que queda entre $A[g-1]$ y
-$A[g]$.
+$A[g]$. Suponemos $n \ge 1$: con el arreglo vacío no hay nada que comparar, y la
+respuesta es $h_0$.
 
 El modelo es el de comparaciones: el algoritmo solo accede a los datos comparando $x$
 con un elemento $A[i]$. El costo es el número de comparaciones.
@@ -123,8 +124,8 @@ $i < \mathit{lo}$, y $A[i] > x$ para todo $i \ge \mathit{hi}$.
 (I) implica el primero: si $A[p] = x$, entonces $A[p]$ no es ni menor ni mayor que $x$,
 así que $\mathit{lo} \le p < \mathit{hi}$.
 
-**Teorema.** Si $A$ está ordenado, (I) vale al comienzo de cada vuelta, y la búsqueda
-devuelve una posición de $x$ si $x$ está, y el hueco correcto si no está.
+**Teorema.** Si $A$ está ordenado, (I) vale al comienzo de cada vuelta, y si la búsqueda
+termina, devuelve una posición de $x$ si $x$ está, y el hueco correcto si no está.
 
 *Demostración.* *Inicialización.* Con $\mathit{lo} = 0$ y $\mathit{hi} = n$, las dos
 afirmaciones sobre los elementos son sobre conjuntos vacíos.
@@ -161,12 +162,12 @@ sobre arreglos con repetidos:
 
 ```
 20 000 búsquedas sobre arreglos ordenados con repetidos, 54 438 vueltas vigiladas, 0 fallos
-sobre 20 000 arreglos desordenados: el invariante se rompe en 62.6% de las búsquedas y la respuesta está mal en 44.4%
+sobre 20 000 arreglos en orden al azar: el invariante se rompe en 62.6% de las búsquedas y la respuesta está mal en 44.4%
 ```
 
-La segunda línea muestra dónde se usa la precondición. Sobre arreglos desordenados, el
-mantenimiento falla en el 62,6 % de las búsquedas, porque $x < A[m]$ ya no dice nada de
-lo que hay a la derecha de $m$. La respuesta sale mal en el 44,4 %. La diferencia son
+La segunda línea muestra dónde se usa la precondición. Sobre arreglos en orden al azar,
+el mantenimiento falla en el 62,6 % de las búsquedas, porque $x < A[m]$ ya no dice nada
+de lo que hay a la derecha de $m$. La respuesta sale mal en el 44,4 %. La diferencia son
 búsquedas en las que el invariante se rompió y aun así la respuesta acertó por
 casualidad.
 
@@ -177,7 +178,8 @@ entero, y por (I) nunca es negativo. Llamemos $s \ge 1$ al tamaño al empezar un
 que no encuentra a $x$. Como $m - \mathit{lo} = \lfloor s/2 \rfloor$, el tamaño nuevo
 es $\lfloor s/2 \rfloor$ si $x < A[m]$, y $\lceil s/2 \rceil - 1$ si $x > A[m]$. Los
 dos son a lo sumo $\lfloor s/2 \rfloor$, que es menor que $s$. Así que $\Phi$ baja en
-cada vuelta, y el ciclo termina. Pero el valor inicial de $\Phi$ solo acota las vueltas
+cada vuelta, y el ciclo termina; con el teorema de la sección 4, la búsqueda siempre
+devuelve la respuesta correcta. Pero el valor inicial de $\Phi$ solo acota las vueltas
 en $n$, que es lo que cuesta la búsqueda lineal.
 
 Para contar comparaciones sirve un potencial más fino: $\Psi$, la cantidad de bits de
@@ -247,21 +249,23 @@ $>$, que forman un árbol binario.
 **Teorema.** Todo algoritmo de comparaciones hace, en el peor caso, al menos
 $\lceil \log_2 (n+1) \rceil$ comparaciones.
 
-*Demostración.* Primero, dos valores en huecos distintos llegan a hojas distintas. Sean
-$x_1$ y $x_2$ dos valores en huecos distintos, $x_1$ a la izquierda, y supongamos que
-un algoritmo correcto los lleva a la misma hoja. Entre sus huecos hay al menos un
-elemento $A[j]$, con $x_1 < A[j] < x_2$. El algoritmo no comparó con ningún elemento
-entre los dos huecos: si lo hubiera hecho, $x_1$ habría recibido $<$ y $x_2$ habría
-recibido $>$, y sus caminos se habrían separado. Tomemos ahora $x = A[j]$. Todo
-elemento con el que el algoritmo compara está a la izquierda de los dos huecos o a la
-derecha, y con cada uno $A[j]$ recibe la misma respuesta que $x_1$. Así que $x = A[j]$
-recorre el mismo camino y llega a la misma hoja, donde el algoritmo dice que $x$ no
-está. Pero $A[j]$ sí está, y el algoritmo se equivoca.
+*Demostración.* El peor caso se toma sobre todas las entradas de tamaño $n$, así que
+basta con mirar un arreglo. Fijemos $A = 2, 4, \dots, 2n$: no tiene repetidos, y cada
+hueco $h_g$ tiene un valor, $2g + 1$. Primero, dos valores en huecos distintos llegan a
+hojas distintas. Sean $x_1$ y $x_2$ dos valores en huecos distintos, $x_1$ a la
+izquierda, y supongamos que un algoritmo correcto los lleva a la misma hoja. Entre sus
+huecos hay al menos un elemento $A[j]$, con $x_1 < A[j] < x_2$. El algoritmo no comparó
+con ningún elemento entre los dos huecos: si lo hubiera hecho, $x_1$ habría recibido $<$
+y $x_2$ habría recibido $>$, y sus caminos se habrían separado. Tomemos ahora
+$x = A[j]$. Todo elemento con el que el algoritmo compara está a la izquierda de los dos
+huecos o a la derecha, y con cada uno $A[j]$ recibe la misma respuesta que $x_1$. Así
+que $x = A[j]$ recorre el mismo camino y llega a la misma hoja, donde el algoritmo dice
+que $x$ no está. Pero $A[j]$ sí está, y el algoritmo se equivoca.
 
 Entonces los $n + 1$ huecos necesitan $n + 1$ hojas distintas en la parte binaria del
 árbol. Un árbol binario de altura $h$ tiene a lo sumo $2^h$ hojas: con $h = 0$ es una
-sola hoja, y en general la raíz tiene a lo sumo dos subárboles de altura $h - 1$. Así
-que $2^h \ge n + 1$, y como la altura es un entero,
+sola hoja, y en general la raíz tiene a lo sumo dos subárboles, cada uno de altura a lo
+sumo $h - 1$. Así que $2^h \ge n + 1$, y como la altura es un entero,
 $h \ge \lceil \log_2 (n+1) \rceil$. $\square$
 
 ![El argumento del testigo](ejercicio-02-testigo.svg)
@@ -308,7 +312,8 @@ candidato $j$ de una ventana de $s$ deja $j$ candidatos a la izquierda y $s - 1 
 la derecha, y el $=$ termina. Así que el mejor peor caso posible con $s$ candidatos es
 
 $$\mathrm{opt}(0) = 0, \qquad
-\mathrm{opt}(s) = 1 + \min_{0 \le j < s} \max\big(\mathrm{opt}(j),\ \mathrm{opt}(s - 1 - j)\big),$$
+\mathrm{opt}(s) = 1 + \min_{0 \le j < s}
+\max\big(\mathrm{opt}(j),\ \mathrm{opt}(s - 1 - j)\big),$$
 
 que el script calcula para todo $s \le 1000$ y compara con lo que mide:
 
@@ -332,14 +337,16 @@ que el script calcula para todo $s \le 1000$ y compara con lo que mide:
 DP sobre todos los algoritmos: óptimo = ceil(log2(n+1)) para todo n <= 1000
 ```
 
-Las tres columnas son iguales en toda la tabla, y la programación dinámica coincide con
-la cota en los mil valores. El peor caso sube en $n = 2, 4, 8, 16, \dots, 256$: con
-$n = 2^k - 1$ elementos el árbol queda completo, y uno más obliga a agregar un nivel.
+Las columnas coinciden en todas las filas, y la programación dinámica coincide con la
+cota en los mil valores. En las dos últimas filas el script no recorre los $2n + 1$
+resultados: corre solo $x$ menor que todos, que por el lema de la sección 5 es un peor
+caso. El peor caso sube en $n = 2, 4, 8, 16, \dots, 256$: con $n = 2^k - 1$ elementos el
+árbol queda completo, y uno más obliga a agregar un nivel.
 
 ## 7. Los errores que el invariante y el potencial anuncian
 
-Las dos maneras más comunes de escribir mal la búsqueda binaria cambian un solo
-carácter: **`hi = m - 1`** en lugar de `hi = m`, cuando $x < A[m]$, y **`lo = m`** en
+Las dos maneras más comunes de escribir mal la búsqueda binaria se equivocan en un solo
+$\pm 1$: **`hi = m - 1`** en lugar de `hi = m`, cuando $x < A[m]$, y **`lo = m`** en
 lugar de `lo = m + 1`, cuando $x > A[m]$.
 
 Probémoslas contra el oráculo, que mira el arreglo entero, con cuatro baterías de
@@ -401,7 +408,8 @@ candidato con $A[\mathit{lo}] < x$, y ahí se queda. $\square$
 candidato menor que $x$, la ventana no cambia y el potencial se queda en 1 para siempre.
 En mejor calidad: [MP4](animaciones/ejercicio-02-estancada.mp4).*
 
-El script confirma las dos afirmaciones en todos los casos de las cuatro baterías:
+El script confirma las dos afirmaciones en todos los casos con $n \ge 1$ de las cuatro
+baterías:
 
 ```
 lo = m con x ausente: 3 356 de 4 000 no terminan
@@ -432,21 +440,25 @@ hace falta separar los casos en que $x$ no está.
 $\lceil \log_2 (2n+1) \rceil = \lceil \log_2 (n+1) \rceil + 1$ preguntas en el peor
 caso, una más que antes.
 
-*Demostración.* Hay $2n + 1$ resultados que necesitan hojas distintas. Las $n$
-posiciones tienen salidas distintas entre sí y distintas de "no está". Los $n + 1$
-huecos necesitan hojas distintas por el mismo argumento de la sección 6: preguntar por
-cualquier elemento entre dos huecos, en cualquiera de los dos sentidos, separa a $x_1$
-de $x_2$. Un árbol binario con $2n + 1$ hojas tiene altura al menos
-$\lceil \log_2 (2n+1) \rceil$. Si $\mathrm{bits}(m)$ es la cantidad de bits de $m$, se
-tiene $\lceil \log_2 m \rceil = \mathrm{bits}(m - 1)$, y entonces
+*Demostración.* Con el arreglo $A = 2, 4, \dots, 2n$ de la sección 6, hay $2n + 1$
+resultados que necesitan hojas distintas. Las $n$ posiciones tienen salidas distintas
+entre sí y distintas de "no está". Los $n + 1$ huecos necesitan hojas distintas por el
+mismo argumento de la sección 6: preguntar por cualquier elemento entre dos huecos, en
+cualquiera de los dos sentidos, separa a $x_1$ de $x_2$. Un árbol binario con $2n + 1$
+hojas tiene altura al menos $\lceil \log_2 (2n+1) \rceil$. Si $\mathrm{bits}(m)$ es la
+cantidad de bits de $m$, se tiene $\lceil \log_2 m \rceil = \mathrm{bits}(m - 1)$, y
+entonces
 
 $$\lceil \log_2 (2n+1) \rceil = \mathrm{bits}(2n) = \mathrm{bits}(n) + 1
 = \lceil \log_2 (n+1) \rceil + 1. \qquad \square$$
 
 **El algoritmo.** El ciclo busca la cantidad de elementos menores que $x$, con el
 invariante "$A[i] < x$ para $i < \mathit{lo}$ y $A[i] \ge x$ para $i \ge \mathit{hi}$" y
-el mismo potencial, así que da a lo sumo $\lceil \log_2 (n+1) \rceil$ vueltas. Una
-pregunta más decide si $A[\mathit{lo}]$ es $x$.
+el mismo potencial, así que da a lo sumo $\lceil \log_2 (n+1) \rceil$ vueltas. Si al
+salir $\mathit{lo} = n$, todo $A$ es menor que $x$, y $x$ cae en el hueco $h_n$. Si no,
+una pregunta más decide si $A[\mathit{lo}]$ es $x$. Si no lo es, $A[\mathit{lo}] > x$ y,
+por el orden, también todo lo que sigue: $x$ no está, y cae en el hueco
+$h_{\mathit{lo}}$.
 
 ```python
 def two_way_binary_search(A, x, less):
@@ -496,8 +508,8 @@ da la cota exacta. Y cambiar cuántas respuestas tiene cada pregunta cambia la c
   $\mathit{lo}$ es menor que $x$ y todo lo que está desde $\mathit{hi}$ es mayor. Es más
   fuerte que "si $x$ está, está en la ventana", y por eso justifica también el hueco.
 - El mantenimiento usa dos cosas que es fácil saltarse: que $m$ cae dentro de la
-  ventana, y que el arreglo está ordenado. Sin orden, el invariante se rompe en el
-  62,6 % de las búsquedas medidas.
+  ventana, y que el arreglo está ordenado. Con arreglos en orden al azar, el invariante
+  se rompe en el 62,6 % de las búsquedas medidas.
 - El potencial $\mathit{hi} - \mathit{lo}$ da la terminación. Su cantidad de bits baja
   al menos 1 por comparación, y da la cuenta exacta:
   $\lfloor \log_2 n \rfloor + 1 = \lceil \log_2 (n+1) \rceil$, que se alcanza con $x$
@@ -538,7 +550,7 @@ resultado: está en la posición 4, con 3 comparaciones
 §4. El invariante y los potenciales, vigilados con assert
 ---------------------------------------------------------
 20 000 búsquedas sobre arreglos ordenados con repetidos, 54 438 vueltas vigiladas, 0 fallos
-sobre 20 000 arreglos desordenados: el invariante se rompe en 62.6% de las búsquedas y la respuesta está mal en 44.4%
+sobre 20 000 arreglos en orden al azar: el invariante se rompe en 62.6% de las búsquedas y la respuesta está mal en 44.4%
 
 §5 y §6. Peor caso de la búsqueda binaria, cota y óptimo
 --------------------------------------------------------

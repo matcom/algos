@@ -5,7 +5,7 @@
 > correctitud con un invariante, y demuestra con un adversario que no se puede en
 > $o(n)$.
 
-El algoritmo cabe en ocho líneas, la búsqueda en escalera (*saddleback search*), que
+El algoritmo cabe en once líneas, la búsqueda en escalera (*saddleback search*), que
 Gries (1981) usa como ejemplo de derivación de programas y Bird (2006) vuelve a
 estudiar. Lo interesante es todo lo demás. El invariante dice qué parte de la matriz
 ya está descartada, y de ahí sale la correctitud. Un potencial cuenta las preguntas. Y
@@ -23,10 +23,10 @@ python ejercicio-06.py
 
 ## 1. El problema
 
-**Búsqueda en matriz ordenada.** La entrada es una matriz $M$ de $n \times n$ con
-$M[i][j] < M[i][j+1]$ y $M[i][j] < M[i+1][j]$, y un valor $x$. Hay que decidir si alguna
-celda vale $x$. Cada pregunta compara $x$ con una celda, y el costo es la cantidad de
-preguntas.
+**Búsqueda en matriz ordenada.** La entrada es una matriz $M$ de $n \times n$, con
+$n \ge 1$, $M[i][j] < M[i][j+1]$ y $M[i][j] < M[i+1][j]$, y un valor $x$. Hay que
+decidir si alguna celda vale $x$. Cada pregunta compara $x$ con una celda, y el costo es
+la cantidad de preguntas.
 
 Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
 
@@ -103,9 +103,12 @@ $M[i][c] \le M[i][j] < x$, porque la fila $i$ crece hacia la derecha, y las de $
 ya estaban descartadas. Así que $x$ no está en la fila $i$, e $i \leftarrow i + 1$
 conserva (I).
 
-*Conclusión.* Si devuelve `True`, encontró $x$. Si sale del ciclo, es porque $i = n$ o
-$j = -1$, y entonces toda celda cumple $r < i$ o $c > j$. Por (I), $x$ no está.
-$\square$
+*Terminación.* Cada vuelta que no devuelve sube $i$ o baja $j$, y el ciclo solo sigue
+mientras $i < n$ y $j \ge 0$, así que da a lo sumo $2n$ vueltas.
+
+*Conclusión.* Como el ciclo termina, o devuelve `True`, y entonces encontró $x$, o sale
+del ciclo. En ese caso $i = n$ o $j = -1$, y toda celda cumple $r < i$ o $c > j$. Por
+(I), $x$ no está. $\square$
 
 El paso delicado del mantenimiento es que cada comparación usa **solo uno** de los dos
 órdenes de la matriz: el de la columna para descartar hacia abajo, el de la fila para
@@ -129,9 +132,9 @@ El script vigila (I) y el potencial con `assert` en cada vuelta:
 
 ![El camino de la escalera en una matriz de 8 x 8](ejercicio-06-escalera.svg)
 
-*Figura 1. El camino de la escalera en una matriz de $8 \times 8$, buscando el valor
-que más le cuesta encontrar. Cada paso hacia abajo descarta una fila y cada paso hacia
-la izquierda una columna.*
+*Figura 1. El camino de la escalera en una matriz de $8 \times 8$, buscando uno de los
+valores que más le cuesta encontrar. Cada paso hacia abajo descarta una fila y cada
+paso hacia la izquierda una columna.*
 
 ![La búsqueda en escalera](animaciones/ejercicio-06-escalera.gif)
 
@@ -146,17 +149,19 @@ $n \lceil \log_2(n+1) \rceil$. Comparemos las tres opciones en el peor caso:
 
 ```
      n  escalera (adversario)  2n - 1  binaria por filas  n·ceil(log2(n+1))  fuerza bruta
-     2                      3       3                  3                  4             4
-     5                      9       9                 13                 15            25
-    10                     19      19                 35                 40           100
-   100                    199     199                673                700         10000
-  1000                   1999    1999               9977              10000       1000000
-en matrices al azar, el peor de 2000 búsquedas: n = 5: 9, n = 10: 19, n = 20: 32
+     2                      3       3                  4                  4             4
+     5                      9       9                 15                 15            25
+    10                     19      19                 40                 40           100
+   100                    199     199                700                700         10000
+  1000                   1999    1999              10000              10000       1000000
+en matrices al azar, el peor de 2000 búsquedas: n = 5: 9 de 9, n = 10: 19 de 19, n = 20: 32 de 39
 ```
 
 La columna de la escalera se mide sobre la matriz del adversario de la sección 5, donde
-alcanza exactamente $2n - 1$. En matrices al azar con $n = 20$, el peor de 2000
-búsquedas usó 32 de los 39 posibles: el caso típico queda por debajo de la garantía.
+alcanza exactamente $2n - 1$. La de la binaria se mide con $x$ menor que todas las
+celdas, su peor caso, donde cada fila paga $\lceil \log_2(n+1) \rceil$. En matrices al
+azar con $n = 20$, el peor de 2000 búsquedas usó 32 de los 39 posibles: el caso típico
+queda por debajo de la garantía.
 
 ## 5. La cota inferior: un adversario con dos antidiagonales
 
@@ -210,6 +215,19 @@ n = 50: 99 celdas en las antidiagonales; en 99 de ellas se puede poner x sin des
 antidiagonales, pueden valer $x$ sin desordenar nada. La escalera, en azul, las recorre
 todas en zigzag.*
 
+**Y si el algoritmo compara dos celdas entre sí.** La sección 1 solo deja comparar $x$
+con una celda. Si también se pueden comparar dos celdas, la demostración no alcanza:
+las celdas de una antidiagonal valen lo mismo, y la respuesta $=$ a una pregunta entre
+dos de ellas deja de ser verdadera si $x$ pasa a cualquiera de las dos. Se arregla
+desempatando: súmale $i/(10n)$ a cada celda de las antidiagonales, donde $i$ es su
+fila, y que el adversario conteste con esa matriz. Las de la antidiagonal $n - 1$
+quedan entre $n - 0{,}75$ y $n - 0{,}65$, y las de la $n$ entre $n - 0{,}25$ y
+$n - 0{,}15$, así que el lema vale con la misma demostración. Ahora, poner $x$ en una
+celda $c$ solo cambia la respuesta a una pregunta que comparó $c$ con $x$, o con otra
+celda de su antidiagonal más cercana a $x$. Así, cada pregunta le quita al adversario a
+lo sumo una celda, y con menos de $2n - 1$ preguntas le queda una donde poner $x$ sin
+cambiar ninguna respuesta.
+
 ## 6. Por qué dos antidiagonales
 
 La cota que pide el enunciado sale con una sola antidiagonal: $n$ celdas, cada una
@@ -222,9 +240,9 @@ la historia cambia, y la cota correcta es otra (Linial y Saks, 1985).
 ## 7. El error que el invariante anuncia
 
 Plantemos un error de un carácter: escribir `while i < n and j > 0`. La conclusión de
-(I) necesita que el ciclo termine con $j = -1$, es decir, con todas las columnas
-descartadas. Con `j > 0` se detiene con la columna 0 sin mirar. Probémoslo contra cuatro
-baterías:
+(I) necesita que el ciclo termine con $i = n$ o con $j = -1$. Con `j > 0` puede
+detenerse con $j = 0$ e $i < n$, y entonces la columna 0, de la fila $i$ para abajo,
+queda sin descartar: nunca la mira. Probémoslo contra cuatro baterías:
 
 ```
            batería  casos  correcta  sin columna 0
@@ -305,12 +323,12 @@ x = 14: M[0][4]=9 -> M[1][4]=14
 §4. Comparaciones en el peor caso
 ---------------------------------
      n  escalera (adversario)  2n - 1  binaria por filas  n·ceil(log2(n+1))  fuerza bruta
-     2                      3       3                  3                  4             4
-     5                      9       9                 13                 15            25
-    10                     19      19                 35                 40           100
-   100                    199     199                673                700         10000
-  1000                   1999    1999               9977              10000       1000000
-en matrices al azar, el peor de 2000 búsquedas: n = 5: 9, n = 10: 19, n = 20: 32
+     2                      3       3                  4                  4             4
+     5                      9       9                 15                 15            25
+    10                     19      19                 40                 40           100
+   100                    199     199                700                700         10000
+  1000                   1999    1999              10000              10000       1000000
+en matrices al azar, el peor de 2000 búsquedas: n = 5: 9 de 9, n = 10: 19 de 19, n = 20: 32 de 39
 
 §5. El adversario: las 2n - 1 celdas de las dos antidiagonales
 --------------------------------------------------------------

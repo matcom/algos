@@ -22,9 +22,9 @@ python ejercicio-10.py
 
 ## 1. El problema
 
-**Par más cercano en una dimensión.** Dados $n$ números reales, la menor distancia
-$|x_i - x_j|$ entre dos de ellos, con $i \ne j$. **Distinción de elementos.** Dados $n$
-números reales, decidir si hay dos iguales.
+**Par más cercano en una dimensión.** Dados $n \ge 2$ números reales, la menor
+distancia $|x_i - x_j|$ entre dos de ellos, con $i \ne j$. **Distinción de elementos.**
+Dados $n$ números reales, decidir si hay dos iguales.
 
 Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
 
@@ -35,7 +35,8 @@ Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
   comparar distancias, así que ordenar y recorrer, que resuelve el problema en
   $O(n \log n)$, está dentro.
 - **Qué hay que devolver.** La distancia. Devolver el par no cambia nada: con el par, la
-  distancia es una resta.
+  distancia es una resta. En el árbol, cada hoja nombra un par $(i, j)$ y devuelve
+  $|x_i - x_j|$.
 - **Reales o enteros.** La cota es para reales. Los puntos del script son enteros, para
   que la parte entera de la sección 4 sea exacta y ninguna celda reciba dos puntos por
   un redondeo.
@@ -53,10 +54,11 @@ de decisión algebraicos.
 
 *Demostración.* Dada una entrada $x_1, \dots, x_n$ de distinción, se la pasa tal cual al
 par más cercano: la distancia mínima es 0 si y solo si dos de los $x_i$ son iguales. Si
-hubiera un árbol de decisión algebraico de profundidad $T(n) = o(n \log n)$ para el par
-más cercano, agregándole al final la pregunta "¿el resultado es cero?" se obtendría uno
-para distinción de profundidad $T(n) + 1 = o(n \log n)$, contra el teorema de Ben-Or.
-$\square$
+un árbol de decisión algebraico de profundidad $T(n)$ resuelve el par más cercano,
+agregándole en cada hoja la pregunta por el signo de $x_i - x_j$, con el par de la hoja,
+se obtiene uno para distinción de profundidad $T(n) + 1$. Por el teorema de Ben-Or hay
+una constante $c > 0$ con $T(n) + 1 \ge c\, n \log n$ para todo $n$ grande, así que
+$T(n) = \Omega(n \log n)$. $\square$
 
 ```
 [31, 7, 19, 52, 7, 40]: par más cercano = 0; hay repetidos
@@ -77,13 +79,16 @@ distancia entre los puntos vistos hasta el momento, y parte la recta en celdas d
 $\delta$. Calcula $\lfloor x / \delta \rfloor$, la celda de un punto, y la parte entera
 no es un polinomio. Y usa ese número como **dirección**, buscando en una tabla hash la
 celda cuyo índice acaba de calcular, y un árbol de decisión no tiene direccionamiento
-indirecto. Vive en el modelo RAM, que tiene las dos cosas.
+indirecto. Vive en una RAM que tiene las dos cosas: la de palabras, si los números son
+enteros como en el script, o, si son reales, una RAM real a la que se le da además la
+parte entera con costo 1.
 
 El azar no está en esa lista: distinción de elementos sigue requiriendo
 $\Omega(n \log n)$ en árboles de decisión algebraicos aleatorizados (Grigoriev,
 Karpinski, Meyer auf der Heide y Smolensky, 1996). El azar le sirve al algoritmo para
 que se esperen pocas reconstrucciones, que es rehacer las celdas cada vez que $\delta$
-baja. Lo que lo saca del modelo son la parte entera y la tabla.
+baja, y pocos choques en la tabla hash. Lo que lo saca del modelo son la parte entera y
+la tabla.
 
 En una dimensión esto se ve todavía más claro: con una tabla hash, distinción de
 elementos se resuelve en tiempo esperado $O(n)$ sin ninguna rejilla, metiendo cada
@@ -124,22 +129,27 @@ def closest_pair(xs, seed=0):
     return d
 ```
 
-**Invariante (R).** Después de insertar cada punto, $\delta$ es la distancia mínima
-entre los puntos insertados, y cada celda de la tabla contiene a lo sumo un punto.
+**Invariante (R).** Después de insertar cada punto, si el algoritmo no devolvió 0,
+$\delta > 0$ es la distancia mínima entre los puntos insertados, y la tabla guarda cada
+uno, $q$, en la llave $\lfloor q / \delta \rfloor$, sin que dos compartan llave.
 
 **Teorema.** (R) se cumple después de cada inserción, y el algoritmo devuelve la
 distancia del par más cercano.
 
-*Demostración.* *Una celda, un punto.* Dos puntos en la misma celda están a distancia
-menor que su ancho, $\delta$, y $\delta$ es la distancia mínima entre los insertados. Al
-reconstruir con un $\delta$ más chico, la propiedad se mantiene por la misma razón.
-*Tres celdas bastan.* Si un punto $q$ ya insertado está a distancia menor que $\delta$
-de $p$, entonces $|p/\delta - q/\delta| < 1$, y sus celdas difieren en a lo sumo 1: $q$
-está en la celda de $p$ o en una de las dos vecinas. Así que, si ninguna de esas tres
-celdas tiene un punto más cerca que $\delta$, $\delta$ no cambia; y si alguna lo tiene,
-el algoritmo encuentra el más cercano entre ellos, que es la nueva distancia mínima. Por
-inducción sobre los puntos insertados, $\delta$ es siempre la distancia mínima.
-$\square$
+*Demostración.* *Repetidos.* Si `d` o `best` valen 0, dos de los puntos son iguales, y 0
+es la respuesta porque ninguna distancia es negativa. Si no, $\delta > 0$ y las celdas
+existen. *Una celda, un punto.* Dos puntos en la misma celda están a distancia menor que
+su ancho, $\delta$, y $\delta$ es la distancia mínima entre los insertados. Por eso los
+dos primeros caen en celdas distintas, y `grid[c] = p` nunca pisa una llave ocupada. Al
+reconstruir, la tabla se rehace con todos los insertados y el $\delta$ nuevo, y la
+propiedad se mantiene por la misma razón. *Tres celdas bastan.* Si un punto $q$ ya
+insertado está a distancia menor que $\delta$ de $p$, entonces
+$|p/\delta - q/\delta| < 1$, y sus celdas difieren en a lo sumo 1: $q$ está guardado en
+la celda de $p$ o en una de las dos vecinas. Así que, si ninguna de esas tres celdas
+tiene un punto más cerca que $\delta$, $\delta$ no cambia; y si alguna lo tiene, el
+algoritmo encuentra el más cercano entre ellos, que es la nueva distancia mínima. Por
+inducción sobre los puntos insertados, $\delta$ es siempre la distancia mínima. El
+algoritmo termina porque el ciclo recorre una lista finita. $\square$
 
 ![La rejilla en el momento de insertar un punto](ejercicio-10-rejilla.svg)
 
@@ -171,13 +181,21 @@ $$\sum_{i=3}^{n} \frac{2}{i} = 2(H_n - 1{,}5),$$
 donde $H_n$ es el número armónico.
 
 *Demostración.* Fijemos el conjunto de los primeros $i$ puntos insertados y olvidemos en
-qué orden llegaron. Es el análisis hacia atrás. El par más cercano entre ellos está
-determinado por el conjunto, y el paso $i$ reconstruye solo si el último punto en llegar
-es uno de los dos de ese par. Como el orden es una permutación uniforme, condicionado al
-conjunto, el último es cualquiera de los $i$ con la misma probabilidad, así que
-$\Pr[\text{reconstruir en el paso } i] \le 2/i$. Por linealidad de la esperanza, el
-trabajo esperado de las reconstrucciones es a lo sumo $\sum_i (2/i) \cdot i = O(n)$, y
-el de las inserciones es $O(n)$. $\square$
+qué orden llegaron. Es el análisis hacia atrás. Elijamos uno de sus pares más cercanos
+mirando solo el conjunto; si hay empates, cualquiera. El paso $i$ reconstruye solo si
+el último punto en llegar es uno de los dos de ese par: si no, el par ya estaba entre
+los anteriores y $\delta$ no baja. Como el orden es una permutación uniforme,
+condicionado al conjunto, el último es cualquiera de los $i$ con la misma probabilidad,
+así que $\Pr[\text{reconstruir en el paso } i] \le 2/i$. Por linealidad de la
+esperanza, el trabajo esperado de las reconstrucciones es a lo sumo
+$\sum_i (2/i) \cdot i = O(n)$, y el de las inserciones es $O(n)$. $\square$
+
+El teorema cuenta consultas a la tabla. Pasar a tiempo esperado $O(n)$ supone que cada
+consulta cuesta $O(1)$ esperado, y eso lo da una función hash elegida al azar de una
+familia universal (dos llaves distintas chocan con probabilidad a lo sumo $1/m$ si la
+tabla tiene $m$ casillas), con $m$ proporcional a los puntos guardados. Es un segundo
+uso del azar. El `dict` de Python no elige su función al azar para los enteros: el
+script cuenta consultas, no mide esa garantía.
 
 ![El análisis hacia atrás](animaciones/ejercicio-10-hacia-atras.gif)
 
@@ -186,14 +204,17 @@ el paso reconstruye solo si es uno de los dos del par más cercano. En mejor cal
 [MP4](animaciones/ejercicio-10-hacia-atras.mp4).*
 
 ```
-       n  reconstrucciones  2(H_n - 1.5)  trabajo / n
-   1 000              11.8          12.0         5.33
-  10 000              17.6          16.6         5.40
- 100 000              20.5          21.2         5.11
+       n  corridas  reconstrucciones  2(H_n - 1.5)  trabajo / n
+   1 000        10        11.8 ± 1.1          12.0  5.33 ± 0.42
+  10 000        10        17.6 ± 1.3          16.6  5.40 ± 0.49
+ 100 000         4        20.5 ± 0.9          21.2  5.11 ± 0.71
 ```
 
-Cien mil puntos con una veintena de reconstrucciones, y unas 5 operaciones por punto sin
-importar $n$: el algoritmo es lineal en la práctica, no solo en el análisis.
+Cada fila promedia unas pocas corridas, y el número después de $\pm$ es el error
+estándar de ese promedio. El teorema acota el valor esperado, no cada promedio: la fila
+de 10 000 pasa la cota por menos que su error. Cien mil puntos con una veintena de
+reconstrucciones, y unas 5 operaciones por punto sin importar $n$: el algoritmo es
+lineal en la práctica, no solo en el análisis.
 
 ## 6. El papel del azar
 
@@ -239,7 +260,7 @@ la suya y la de la derecha          16.3%
               solo la suya          28.8%
 ```
 
-Mirando solo la propia celda se equivoca en casi un tercio de los conjuntos, porque dos
+Mirando solo la propia celda se equivoca en casi el 30 % de los conjuntos, porque dos
 puntos a distancia menor que $\delta$ caen en celdas distintas muy a menudo: basta que
 haya un borde entre ellos. Y un par que no se detecta al insertar no se vuelve a mirar
 nunca, porque reconstruir la tabla no calcula distancias.
@@ -271,6 +292,11 @@ dos, la parte entera y la tabla hash; el azar no es una de ellas.
 - Con orden al azar, el paso $i$ reconstruye con probabilidad a lo sumo $2/i$, y el
   costo esperado es $O(n)$: unas 5 operaciones por punto. Sin el orden al azar, hay
   entradas que cuestan $\Theta(n^2)$.
+- Cada algoritmo es óptimo en su modelo. Ordenar y recorrer, $O(n \log n)$, lo es en los
+  árboles de decisión algebraicos, por la sección 2. La rejilla, $O(n)$ esperado, lo es
+  en la RAM, porque todo algoritmo correcto lee cada número: si en una entrada sin
+  repetidos no lee $x_k$, cambiar $x_k$ por otro de los números no cambia lo que
+  devuelve, pero la respuesta pasa a ser 0.
 
 <details>
 <summary>Salida completa de <code>python ejercicio-10.py</code></summary>
@@ -287,10 +313,10 @@ dos, la parte entera y la tabla hash; el azar no es una de ellas.
 
 §5. Reconstrucciones y trabajo, con la permutación al azar
 ----------------------------------------------------------
-       n  reconstrucciones  2(H_n - 1.5)  trabajo / n
-   1 000              11.8          12.0         5.33
-  10 000              17.6          16.6         5.40
- 100 000              20.5          21.2         5.11
+       n  corridas  reconstrucciones  2(H_n - 1.5)  trabajo / n
+   1 000        10        11.8 ± 1.1          12.0  5.33 ± 0.42
+  10 000        10        17.6 ± 1.3          16.6  5.40 ± 0.49
+ 100 000         4        20.5 ± 0.9          21.2  5.11 ± 0.71
 
 §6. Sin la permutación: el orden adversario
 -------------------------------------------

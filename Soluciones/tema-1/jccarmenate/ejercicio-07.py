@@ -64,6 +64,21 @@ def median(A, B, less_equal, centinela_python=False):
     return b if less_equal(a, b) else a
 
 
+def median_alternating(A, B, less_equal):
+    """La búsqueda de la sección 5 sobre la fila c_0, d_0, c_1, ..., d_{n-2}, c_{n-1}:
+    la posición t = 2k es c_k (A[k] <= B[n-1-k]) y t = 2k + 1 es d_k (A[k] <= B[n-2-k])."""
+    n = len(A)
+    lo, hi = 0, 2 * n - 1               # invariante: vale para t < lo, no vale para t >= hi
+    while lo < hi:
+        t = (lo + hi) // 2
+        k = t // 2
+        if less_equal(A[k], B[n - 1 - k - t % 2]):
+            lo = t + 1
+        else:
+            hi = t
+    return A[lo // 2] if lo % 2 == 1 else B[n - 1 - lo // 2]
+
+
 def oraculo(A, B):
     return sorted(A + B)[len(A) - 1]
 
@@ -149,6 +164,15 @@ def peor_del_algoritmo(n):
     return peor
 
 
+def peor_alternado(n):
+    peor = 0
+    for A, B in interleavings(n):
+        c = Comparador()
+        assert median_alternating(A, B, c) == oraculo(A, B)
+        peor = max(peor, c.veces)
+    return peor
+
+
 def optimo(n):
     """El menor peor caso de CUALQUIER algoritmo que compare elementos de A con
     elementos de B (las comparaciones dentro de un mismo arreglo ya se saben)."""
@@ -185,14 +209,15 @@ def comparaciones():
     seccion("§4 y §5. Comparaciones en el peor caso")
     filas = []
     print(f"{'n':>3} {'algoritmo':>10} {'ceil(log2(n+1)) + 1':>20} {'información':>12} "
-          f"{'óptimo':>7}")
+          f"{'óptimo':>7} {'alternada':>10}")
     for n in range(1, 9):
         alg = peor_del_algoritmo(n)
         info = techo_log2(2 * n)
         opt = optimo(n) if n <= 5 else None
-        filas.append((n, alg, info, opt))
+        alt = peor_alternado(n)
+        filas.append((n, alg, info, opt, alt))
         print(f"{n:>3} {alg:>10} {techo_log2(n + 1) + 1:>20} {info:>12} "
-              f"{'—' if opt is None else opt:>7}")
+              f"{'—' if opt is None else opt:>7} {alt:>10}")
     for n in [100, 1000, 10**6]:
         rng = random.Random(n)
         peor = 0
@@ -200,7 +225,7 @@ def comparaciones():
         # cortes al azar, más los dos extremos
         for i in [0, n] + [rng.randint(0, n) for _ in range(repeticiones)]:
             AA = [v * 4 for v in range(n)]
-            BB = sorted([4 * k - 1 for k in range(1, i + 1)] + [4 * n + 4 * k for k in range(n - i)])
+            BB = sorted([-4 * k - 1 for k in range(n - i)] + [4 * n + 4 * k for k in range(i)])
             c = Comparador()
             assert median(AA, BB, c) == oraculo(AA, BB)
             peor = max(peor, c.veces)
@@ -229,7 +254,7 @@ def errores_plantados():
         return (bajos, altos) if rng.random() < 0.5 else (altos, bajos)
 
     baterias = {
-        "n de 5 a 50, al azar": [al_azar(5, 50) for _ in range(4000)],
+        "n de 10 a 50, al azar": [al_azar(10, 50) for _ in range(4000)],
         "n de 1 a 3, al azar": [al_azar(1, 3) for _ in range(4000)],
         "exhaustivo, n <= 4": [(A, B) for n in range(1, 5) for A, B in interleavings(n)],
         "rangos disjuntos": [disjuntos() for _ in range(4000)],
@@ -273,6 +298,9 @@ def pruebas():
         c = Comparador()
         assert median(A, B, c) == oraculo(A, B)
         assert c.veces <= techo_log2(n + 1) + 1
+        c = Comparador()
+        assert median_alternating(A, B, c) == oraculo(A, B)
+        assert c.veces <= techo_log2(2 * n)
         comprobaciones += 1
 
     # (b) todos los intercalados para n <= 9
@@ -336,7 +364,7 @@ def figura_corte():
                 arrowprops={"arrowstyle": "->", "color": CALIDO, "lw": 1})
     ax.text(n + 0.2, 1.6, f"i* = {i}: A[{i - 1}] = {A[i - 1]} ≤ B[{j}] = {B[j]}",
             fontsize=8, color=CALIDO)
-    ax.text(n + 0.2, 0.4, f"j* = {j}: B[{j - 1}] = {B[j - 1]} < A[{i}] = {A[i]}",
+    ax.text(n + 0.2, 0.4, f"n - i* = {j}: B[{j - 1}] = {B[j - 1]} < A[{i}] = {A[i]}",
             fontsize=8, color=CALIDO)
     ax.set_xlim(-1.1, n + 5.2)
     ax.set_ylim(-0.3, 2.2)

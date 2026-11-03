@@ -35,10 +35,14 @@ Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
   apunta a sí mismo son entradas válidas, y el algoritmo tiene que contestarlas bien.
 
 Llamemos $x_i$ al nodo al que se llega con $i$ pasos desde la cabeza, así que $x_0$ es
-la cabeza y $x_{i+1}$ es el `next` de $x_i$. Como cada nodo tiene un solo `next`, hay
-solo dos formas posibles. **Sin ciclo**, $x_0, \dots, x_{n-1}$ son distintos y el `next`
-de $x_{n-1}$ es `None`. **Con ciclo**, hay una **cola** de $\mu \ge 0$ nodos
-$x_0, \dots, x_{\mu-1}$ y un **ciclo** de $\lambda \ge 1$ nodos
+la cabeza y $x_{i+1}$ es el `next` de $x_i$. Como hay finitos nodos, la sucesión
+$x_0, x_1, \dots$ llega a `None` o repite un nodo. Si lo repite, sea $x_q$ el primero
+que ya había salido, igual a $x_p$ con $p < q$; como cada nodo tiene un solo `next`,
+desde $x_q$ el camino repite lo que hizo desde $x_p$. Así que hay solo dos formas
+posibles. **Sin ciclo**, $x_0, \dots, x_{n-1}$ son distintos y el `next` de $x_{n-1}$
+es `None`, al que llamamos $x_n$ (con $n = 0$, la cabeza misma es `None`).
+**Con ciclo**, con $\mu = p$ y $\lambda = q - p$, hay una **cola** de $\mu \ge 0$
+nodos $x_0, \dots, x_{\mu-1}$ y un **ciclo** de $\lambda \ge 1$ nodos
 $x_\mu, \dots, x_{\mu+\lambda-1}$, cuyo último nodo apunta de nuevo a $x_\mu$. En total
 $n = \mu + \lambda$ nodos distintos, y para $i \ge \mu$ el camino da vueltas:
 $x_i = x_{\mu + (i - \mu) \bmod \lambda}$.
@@ -122,7 +126,7 @@ $$k^* = \lambda \left\lceil \frac{\max(\mu, 1)}{\lambda} \right\rceil.$$
 
 *Demostración.* *Inicialización.* Con $k = 0$ las dos están en la cabeza, $x_0$.
 
-*Mantenimiento.* Una vuelta completa encontró que $x_{2k+1}$ existe (si no, el ciclo
+*Mantenimiento.* Una vuelta completa encontró que $x_{2k+1}$ existe (si no, el `while`
 termina antes), y mueve la liebre a $x_{2k+2}$ y la tortuga a $x_{k+1}$. El paso que
 todo el mundo se salta es que la tortuga puede moverse: $x_{k+1}$ existe porque
 $k + 1 \le 2k + 1$ y la liebre ya pasó por ahí. **La tortuga nunca se cae de la lista
@@ -162,13 +166,16 @@ Eso es un potencial. Falta resolver qué baja antes de que la tortuga llegue a l
 y qué baja si no hay pista.
 
 **Teorema.** El algoritmo termina: sin ciclo, después de exactamente
-$\lfloor n/2 \rfloor$ vueltas; con ciclo, después de a lo sumo $n$.
+$\lfloor n/2 \rfloor$ vueltas completas; con ciclo, después de a lo sumo $n$.
 
 *Demostración.* *Sin ciclo.* Sea $\Phi = n - 2k$, la cantidad de nodos desde la liebre
 hasta el final, contando el suyo. Una vuelta completa necesita que $x_{2k+1}$ exista, o
 sea $2k + 1 \le n - 1$, así que $\Phi \ge 2$ al empezarla, y la vuelta lo baja en 2.
-Como $\Phi$ es un entero que no puede bajar para siempre, el ciclo termina, después de
-exactamente $\lfloor n/2 \rfloor$ vueltas.
+Como $\Phi$ es un entero que no puede bajar para siempre, el `while` termina. Y al
+revés, mientras $\Phi \ge 2$ el algoritmo da otra vuelta completa: $x_{2k+1}$ existe,
+y por el teorema de la sección 3, sin ciclo, no contesta "hay ciclo". Así que da una
+vuelta completa por cada $k \ge 0$ con $n - 2k \ge 2$, que son exactamente
+$\lfloor n/2 \rfloor$.
 
 *Con ciclo*, en dos fases. Mientras la tortuga está en la cola ($k < \mu$), sea
 $\Phi = (\mu - k) + \lambda$, que baja 1 por vuelta. Cuando la tortuga está en el ciclo
@@ -196,9 +203,9 @@ baja de a uno hasta 0. En mejor calidad: [MP4](animaciones/ejercicio-05-potencia
 ![El potencial de Floyd vuelta a vuelta](ejercicio-05-potencial.svg)
 
 *Figura 2. El potencial en cada vuelta, para tres listas con ciclo y una sin ciclo.
-Siempre baja y termina en 0. La caída brusca de la curva roja es el cambio de fase: en
-la vuelta 3 la tortuga entra al ciclo y el potencial pasa a ser la distancia que le
-falta a la liebre, que es 2.*
+Las cuatro curvas bajan en cada vuelta y terminan en 0. La caída brusca de la curva
+roja es el cambio de fase: en la vuelta 3 la tortuga entra al ciclo y el potencial pasa
+a ser la distancia que le falta a la liebre, que es 2.*
 
 ## 5. El costo
 
@@ -247,7 +254,7 @@ nodos:
 mu = 0, lambda = 1000             3000                1000                       1000
 mu = 500, lambda = 500             1500                1000                       1000
 mu = 999, lambda = 1             2997                1000                       1000
-mu = 1000, lambda = 0             1500                1000                       1000
+ sin ciclo, n = 1000             1500                1000                       1000
 ```
 
 Floyd cambia memoria por lecturas: paga hasta tres veces más punteros leídos, y a cambio
@@ -281,9 +288,11 @@ calidad: [MP4](animaciones/ejercicio-05-entrada.mp4).*
 
 Dos maneras de escribir mal el algoritmo, cada una contra una parte distinta de la
 demostración. **La liebre de un paso** comprueba solo que la liebre exista, y después da
-dos pasos con `h = h.next.next`. **Comparar valores** pregunta `t.value == h.value` en
-vez de `t is h`. Probemos las dos contra cuatro baterías de listas cuyos nodos guardan
-valores al azar en $0..9$. Una ejecución que revienta cuenta como fallo.
+dos pasos con `h = h.next.next`. **Comparar valores** pregunta
+`h is not None and t.value == h.value` en vez de `t is h`: la guarda evita que reviente
+cuando la liebre cae en `None`, así que solo falla por confundir valores. Probemos las
+dos contra cuatro baterías de listas cuyos nodos guardan valores al azar en $0..9$. Una
+ejecución que revienta cuenta como fallo.
 
 ```
 los nodos guardan valores al azar en 0..9
@@ -291,7 +300,7 @@ los nodos guardan valores al azar en 0..9
                 con ciclo    2000               0.0%               0.0%               0.0%
      sin ciclo, largo par    2000               0.0%               0.0%              65.8%
  sin ciclo, largo al azar    2000               0.0%              48.5%              66.8%
-      exhaustivo, n <= 12     104               0.0%               5.8%               2.9%
+      exhaustivo, n <= 12      91               0.0%               6.6%               1.1%
 ```
 
 ![Fallos de cada variante según la batería de pruebas](ejercicio-05-errores.svg)
@@ -305,10 +314,12 @@ exista antes de dar los dos pasos.
 **Lema.** La liebre de un paso revienta si y solo si la lista no tiene ciclo y su largo
 $n$ es impar.
 
-*Demostración.* Con ciclo no hay ningún `None`, así que nunca revienta. Sin ciclo, la
-liebre pisa solo índices pares, y revienta exactamente cuando está en el último nodo,
-$x_{n-1}$: el primer paso llega a `None` y el segundo intenta leer su `next`. Eso pasa
-si y solo si $n - 1$ es par. $\square$
+*Demostración.* Con ciclo no hay ningún `None`, así que nunca revienta. Sin ciclo,
+mientras no revienta mueve los punteros como Floyd, así que por el teorema de la
+sección 3 no contesta "hay ciclo", y la liebre pisa uno a uno los índices pares.
+Revienta exactamente cuando está en el último nodo, $x_{n-1}$: el primer paso llega a
+`None` y el segundo intenta leer su `next`. Eso pasa si y solo si $n - 1$ es par.
+$\square$
 
 ```
 la liebre de un paso revienta, entre las listas sin ciclo de 1 a 40 nodos, exactamente en las de largo impar: True
@@ -330,7 +341,7 @@ comparar valores, con valores todos distintos: 0 errores en 200 listas sin ciclo
 | variante | qué parte rompe | qué baterías la ven |
 |---|---|---|
 | liebre de un paso | el mantenimiento de (I): $x_{2k+1}$ tiene que existir | sin ciclo y de largo impar |
-| compara valores | la conclusión de (I): mismo nodo, no mismo valor | sin ciclo y con valores repetidos |
+| compara valores | la conclusión de (I): mismo nodo, no mismo valor | sin ciclo, con $x_k$ y $x_{2k}$ de igual valor, $k \ge 1$ |
 
 Las dos fallan solo en listas sin ciclo. La batería que casi todo el mundo escribe
 primero, la de listas con ciclo para ver si las detecta, no ve ninguna de las dos.
@@ -347,7 +358,7 @@ cota $k^* \le n$:
 
 La regla práctica que te llevas: **cada paso de la demostración es una prueba que hay
 que escribir.** El mantenimiento usa que $x_{2k+1}$ existe, así que hay que probar
-listas que terminan en índice impar; la conclusión usa que encontrarse es ser el mismo
+listas sin ciclo de largo impar; la conclusión usa que encontrarse es ser el mismo
 nodo, así que hay que probar valores repetidos. Las pruebas que salen del enunciado,
 "listas con ciclo", no tocan ninguno de los dos pasos.
 
@@ -367,8 +378,8 @@ nodo, así que hay que probar valores repetidos. Las pruebas que salen del enunc
 - Cuando se encuentran, avanzar desde la cabeza y desde el punto de encuentro a la misma
   velocidad lleva a la entrada del ciclo.
 - La liebre que mira un solo paso revienta en listas sin ciclo de largo impar, y
-  comparar valores da falsos positivos con valores repetidos. Ninguna de las dos falla
-  con listas que tienen ciclo.
+  comparar valores puede dar falsos positivos con valores repetidos. Ninguna de las dos
+  falla con listas que tienen ciclo.
 
 <details>
 <summary>Salida completa de <code>python ejercicio-05.py</code></summary>
@@ -411,7 +422,7 @@ invariante de posiciones y potencial vigilados en cada vuelta de cada lista
 mu = 0, lambda = 1000             3000                1000                       1000
 mu = 500, lambda = 500             1500                1000                       1000
 mu = 999, lambda = 1             2997                1000                       1000
-mu = 1000, lambda = 0             1500                1000                       1000
+ sin ciclo, n = 1000             1500                1000                       1000
 
 §7. De regalo: dónde empieza el ciclo y cuánto mide
 ---------------------------------------------------
@@ -424,7 +435,7 @@ los nodos guardan valores al azar en 0..9
                 con ciclo    2000               0.0%               0.0%               0.0%
      sin ciclo, largo par    2000               0.0%               0.0%              65.8%
  sin ciclo, largo al azar    2000               0.0%              48.5%              66.8%
-      exhaustivo, n <= 12     104               0.0%               5.8%               2.9%
+      exhaustivo, n <= 12      91               0.0%               6.6%               1.1%
 la liebre de un paso revienta, entre las listas sin ciclo de 1 a 40 nodos, exactamente en las de largo impar: True
 comparar valores, con valores todos distintos: 0 errores en 200 listas sin ciclo
 

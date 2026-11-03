@@ -73,13 +73,14 @@ sube a 1 por encima de dos nodos, y el camino queda partido a la mitad. En mejor
 calidad: [MP4](animaciones/ejercicio-13-primer-acceso.mp4).*
 
 El ejemplo deja ver tres hechos. El primer acceso es caro y deja el camino partido a la
-mitad. Acceder a 1 cuesta 15 rotaciones, todas en pasos zig-zig, y cada zig-zig sube a 1
-por encima de dos nodos del camino, dejando el de abajo en el camino nuevo y colgando el
-de arriba como su hijo derecho. En la figura 1 los pares quedan en el camino y cada
-impar cuelga del par anterior; por eso el acceso a 2 cuesta 8 y el acceso a 3 cuesta 5.
-Después, casi todos los accesos son baratos, porque la clave siguiente es siempre el
-mínimo del subárbol derecho de la raíz. Y fíjate en que la segunda ronda es idéntica a
-la primera: la sección 4 demuestra que eso pasa para todo $n$.
+mitad. Acceder a 1 cuesta 15 rotaciones, en pasos zig-zig salvo el último, que es un zig
+porque 15 es impar. Cada zig-zig sube a 1 por encima de dos nodos del camino, dejando el
+de abajo en el camino nuevo y colgando el de arriba como su hijo derecho. En la figura 1
+los pares quedan en el camino y cada impar cuelga del par anterior; por eso el acceso a
+2 cuesta 8 y el acceso a 3 cuesta 5. Después, casi todos los accesos son baratos, y la
+clave siguiente es siempre el mínimo del subárbol derecho de la raíz. Y fíjate en que la
+segunda ronda es idéntica a la primera: la sección 4 demuestra que eso pasa para todo
+$n$.
 
 ## 3. La cota del lema de acceso
 
@@ -145,16 +146,18 @@ clave más chica, su subárbol izquierdo está vacío: el camino de cero nodos.
 *Mantenimiento.* Supongamos (C) después de acceder a $i < n$. La clave $i+1$ está en el
 subárbol derecho de la raíz, y es su mínimo. Así que el camino de la raíz a $i+1$ va una
 vez a la derecha y después siempre a la izquierda, y el splay solo rota nodos de ese
-camino. Mientras sube, $i+1$ no tiene hijo izquierdo: al principio no lo tiene, porque
-es un mínimo, y en un zig-zig con $i+1$ hijo izquierdo las dos rotaciones le dan un hijo
-derecho sin tocarle el izquierdo. Como el camino desde la raíz dobla a la derecha una
-sola vez, arriba de todo, el último paso es un zig ($i+1$ hijo derecho de $i$) o un
-zig-zag ($i+1$ hijo izquierdo de un hijo derecho de $i$), nunca un zig-zig. En los dos
-casos la última rotación sube a $i+1$ desde el lado derecho de $i$: $i$ pasa a ser su
-hijo izquierdo, conserva su subárbol izquierdo, y su hijo derecho nuevo es el antiguo
-hijo izquierdo de $i+1$, que está vacío. Después del acceso, la raíz es $i+1$, su hijo
-izquierdo es $i$, sin hijo derecho, y debajo de $i$ sigue el camino $i-1, \dots, 1$: es
-(C) para $i+1$.
+camino. Cada zig-zig pone a $i+1$ en el lugar de su abuelo, así que el camino que le
+queda desde la raíz es el anterior sin sus dos últimas aristas, y tiene la misma forma.
+Mientras sube, $i+1$ no tiene hijo izquierdo: al principio no lo tiene, porque es un
+mínimo, y en un zig-zig con $i+1$ hijo izquierdo las dos rotaciones le dan un hijo
+derecho sin tocarle el izquierdo, igual que la primera rotación de un zig-zag. Como el
+camino desde la raíz dobla a la derecha una sola vez, arriba de todo, el último paso es
+un zig ($i+1$ hijo derecho de $i$) o un zig-zag ($i+1$ hijo izquierdo de un hijo derecho
+de $i$), nunca un zig-zig. En los dos casos la última rotación sube a $i+1$ desde el
+lado derecho de $i$: $i$ pasa a ser su hijo izquierdo, conserva su subárbol izquierdo, y
+su hijo derecho nuevo es el antiguo hijo izquierdo de $i+1$, que está vacío. Después del
+acceso, la raíz es $i+1$, su hijo izquierdo es $i$, sin hijo derecho, y debajo de $i$
+sigue el camino $i-1, \dots, 1$: es (C) para $i+1$.
 
 *Conclusión.* Después de acceder a $n$, la raíz es $n$ con el camino $n-1, \dots, 1$ a
 su izquierda, y nada a su derecha, porque $n$ es la clave más grande: es el camino
@@ -169,8 +172,8 @@ clave accedida y a su izquierda cuelga el camino de las anteriores. En mejor cal
 
 El script vigila (C) con un `assert` después de cada acceso, en las tres rondas y en las
 pruebas. Por el teorema, el costo por acceso que mide el experimento de tres rondas es
-el de una sola, y toda la distancia entre la cota y lo medido está en cómo el lema acota
-cada $\hat c_i$.
+el de una sola. La distancia entre la cota y lo medido está en cómo el lema acota cada
+$\hat c_i$, y en el $\Phi_0$ que la cuenta paga aparte y que aquí sobra entero.
 
 ## 5. Dónde pierde la cota
 
@@ -183,6 +186,7 @@ primer acceso: real 63, amortizado -77.4, lema 19.0
 accesos 2 a 64: real 193, amortizado 333.4, lema 831.2
 total: real 256, amortizado 256.0, lema 850.2; la cota del lema falla en 0 de 64 accesos
 accesos en que el nodo tenía un subárbol de a lo sumo 3 nodos: 35 de 64
+a cada uno, el lema le cobra al menos 3 (log2 n - log2 3) + 1 = 14.2
 la cuenta completa: n (3 log2 n + 1) + log2 n! = 1216 + 296 = 1512
 ```
 
@@ -191,8 +195,8 @@ la cuenta completa: n (3 log2 n + 1) + log2 n! = 1216 + 296 = 1512
 *Figura 2. Sumas acumuladas después de acceder a las claves 1 a $i$, con $n = 64$. El
 costo real y el amortizado terminan en el mismo punto, porque el potencial vuelve a su
 valor inicial. La línea roja continua es la cota que se puede afirmar después de $i$
-accesos; la punteada es la misma sin el potencial inicial, de la que trata la sección
-6.*
+accesos; la punteada es la misma sin $\Phi_0 - \Phi_i$: el error de la sección 6, aquí
+con los rangos verdaderos.*
 
 La salida dice dónde se va la diferencia entre 256 y 1512.
 
@@ -201,10 +205,11 @@ La salida dice dónde se va la diferencia entre 256 y 1512.
 - **Los accesos baratos son el problema.** Los accesos 2 a 64 cuestan 193 rotaciones en
   total, y el lema les permite 831,2. En 35 de los 64 accesos, el nodo accedido tenía un
   subárbol de a lo sumo 3 nodos, así que $r(x) \le \log_2 3$ y el lema le cobra al menos
-  $3(6 - \log_2 3) + 1 \approx 14{,}2$, aunque el nodo esté a uno o dos niveles de la
-  raíz. El lema mide qué tan **chico** es el subárbol de $x$, no qué tan **hondo** está
-  $x$. Y en el recorrido en orden la clave siguiente es siempre el mínimo del subárbol
-  derecho de la raíz, con un subárbol chico y cerca de la raíz.
+  $3(6 - \log_2 3) + 1 \approx 14{,}2$, aunque el nodo esté a pocos niveles de la raíz.
+  El lema mide qué tan **chico** es el subárbol de $x$, no qué tan **hondo** está $x$. Y
+  en el recorrido en orden la clave siguiente es siempre el mínimo del subárbol derecho
+  de la raíz, y muchas veces una hoja: a una hoja el lema le cobra 19, lo mismo que al
+  primer acceso, que cuesta 63.
 - **El resto lo pierde la cuenta.** Reemplazar $r(x)$ por 0 lleva la suma de 850,2 a
   $64 \cdot 19 = 1216$, y pagar $\Phi_0$ aparte suma otros 296, que aquí sobran enteros
   porque $\Phi_n = \Phi_0$.
@@ -227,10 +232,11 @@ nunca bajara de donde empezó. Plantemos ese error con $n = 1024$:
 ```
 
 La "cota" sin el potencial inicial es falsa: el primer acceso solo ya cuesta 1023
-rotaciones, contra 31, y sigue siendo falsa después de 64 accesos. Al final de la ronda
-vuelve a ser verdadera, y no por casualidad: ahí $\Phi_i = \Phi_0$, por el teorema de la
-sección 4, y las dos últimas columnas coinciden. La columna con $\Phi_0 - \Phi_i$ es
-siempre mayor que el costo real, como dice la identidad de la sección 3.
+rotaciones, contra 31, y sigue siendo falsa después de 64 accesos. Con 256 accesos ya se
+cumple, y al final de la ronda tiene que cumplirse: ahí $\Phi_i = \Phi_0$, por el
+teorema de la sección 4, y las dos últimas columnas coinciden. La columna con
+$\Phi_0 - \Phi_i$ es siempre mayor que el costo real, como dice la identidad de la
+sección 3.
 
 El término no sobra porque el camino es el árbol de potencial máximo, $\log_2 n!$, y el
 primer acceso se paga con esa reserva: su costo amortizado es negativo. Una cuenta que
@@ -253,19 +259,23 @@ de qué claves se acceden ni en qué orden: es la misma para cualquier secuencia
 accesos. Y hay secuencias que de verdad cuestan $\Omega(n \log n)$, no solo al splay
 tree sino a cualquier árbol binario de búsqueda.
 
-**Teorema.** Para cualquier árbol binario de búsqueda en el que acceder a una clave
-cuesta al menos su profundidad, $n$ accesos a claves uniformes e independientes cuestan
-en esperanza más de $n(\lfloor \log_2 n \rfloor - 1)/2$. En particular, alguna
-secuencia de $n$ accesos cuesta al menos eso.
+**Teorema.** Para cualquier árbol binario de búsqueda que se reorganiza sin conocer los
+accesos futuros, y en el que acceder a una clave cuesta al menos su profundidad, $n$
+accesos a claves uniformes e independientes cuestan en esperanza más de
+$n(\lfloor \log_2 n \rfloor - 1)/2$. En particular, alguna secuencia de $n$ accesos
+cuesta al menos eso.
 
-*Demostración.* Un árbol binario tiene a lo sumo $2^d$ nodos a profundidad $d$, así que
-a lo sumo $2^{d+1} - 1$ a profundidad menor o igual que $d$. Con
-$d = \lfloor \log_2 n \rfloor - 2$, eso es menos que
+*Demostración.* Si $n \le 3$, la cota es $-1/2$ o 0. Con $n = 1$ se cumple porque ningún
+costo es negativo. Con $n = 2, 3$, la clave accedida no está en la raíz con probabilidad
+$(n-1)/n > 0$, y entonces cuesta al menos 1, así que la esperanza es positiva. Sea
+entonces $n \ge 4$. Un árbol binario tiene a lo sumo $2^d$ nodos a profundidad $d$, así
+que a lo sumo $2^{d+1} - 1$ a profundidad menor o igual que $d$. Con
+$d = \lfloor \log_2 n \rfloor - 2$, que es al menos 0, eso es menos que
 $2^{\lfloor \log_2 n \rfloor - 1} \le n/2$. Si la clave accedida es uniforme e
-independiente del árbol actual, que solo depende de los accesos anteriores, con
-probabilidad mayor que $1/2$ está a profundidad al menos $d + 1$, y su profundidad
-esperada es mayor que $(d + 1)/2 = (\lfloor \log_2 n \rfloor - 1)/2$. Por linealidad de
-la esperanza, $n$ accesos cuestan en esperanza más de
+independiente del árbol actual, que por hipótesis solo depende de los accesos
+anteriores, con probabilidad mayor que $1/2$ está a profundidad al menos $d + 1$, y su
+profundidad esperada es mayor que $(d + 1)/2 = (\lfloor \log_2 n \rfloor - 1)/2$. Por
+linealidad de la esperanza, $n$ accesos cuestan en esperanza más de
 $n(\lfloor \log_2 n \rfloor - 1)/2$, y alguna secuencia cuesta al menos el promedio.
 $\square$
 
@@ -336,8 +346,9 @@ accesos a la vez.
 - Después de acceder a $i$, la raíz es $i$ con el camino $i-1, \dots, 1$ a la izquierda.
   Al terminar la ronda el árbol es el camino inicial, así que las rondas se repiten
   idénticas y el costo real es exactamente la suma de los costos amortizados.
-- La pérdida está en los accesos baratos: el lema cobra según el tamaño del subárbol del
-  nodo, no según su profundidad, y la clave siguiente tiene un subárbol chico.
+- La pérdida del lema está sobre todo en los accesos baratos: el lema cobra según el
+  tamaño del subárbol del nodo, no según su profundidad, y la clave siguiente es muchas
+  veces una hoja.
 - Olvidar el potencial inicial da una cota falsa: desde un camino, el primer acceso
   cuesta $n - 1$ y se paga con el potencial que el camino traía.
 - La cota no es ajustada para esta secuencia, pero sí para el peor caso: $n$ accesos al
@@ -378,6 +389,7 @@ primer acceso: real 63, amortizado -77.4, lema 19.0
 accesos 2 a 64: real 193, amortizado 333.4, lema 831.2
 total: real 256, amortizado 256.0, lema 850.2; la cota del lema falla en 0 de 64 accesos
 accesos en que el nodo tenía un subárbol de a lo sumo 3 nodos: 35 de 64
+a cada uno, el lema le cobra al menos 3 (log2 n - log2 3) + 1 = 14.2
 la cuenta completa: n (3 log2 n + 1) + log2 n! = 1216 + 296 = 1512
 
 §6. El error en la cuenta: olvidar el potencial inicial

@@ -6,9 +6,10 @@
 > generador de pruebas que no la atrape. Cuidado: el análogo del generador binario sí
 > la atrapa.
 
-El algoritmo de votación de Boyer y Moore (1991) encuentra la mayoría en una pasada, y
-Misra y Gries (1982) lo generalizaron a los elementos que aparecen más de $n/k$ veces
-con $k - 1$ contadores. Aquí hacemos el caso $k = 3$. El algoritmo es corto. Lo que
+El algoritmo de votación de Boyer y Moore, escrito en 1980 y publicado en 1991,
+encuentra en una pasada el único candidato posible a mayoría, y Misra y Gries (1982)
+lo generalizaron a los elementos que aparecen más de $n/k$ veces con $k - 1$
+contadores. Aquí hacemos el caso $k = 3$. El algoritmo es corto. Lo que
 pide cuidado es el invariante: el que uno escribe primero no es inductivo, y el
 reforzado tiene una cláusula que casi todo el mundo olvida y que es la que sostiene el
 orden de los `if`. Después estudiamos qué generadores de pruebas ven el atajo que se
@@ -111,8 +112,8 @@ def first_pass(A):
 
 def more_than_third(A):
     c1, k1, c2, k2 = first_pass(A)
-    candidatos = {c for c, k in ((c1, k1), (c2, k2)) if k > 0}
-    return {c for c in candidatos if 3 * A.count(c) > len(A)}
+    candidatos = [c for c, k in ((c1, k1), (c2, k2)) if k > 0]
+    return [c for c in candidatos if 3 * A.count(c) > len(A)]
 ```
 
 El invariante que uno escribe primero es la frase que queremos al final: "si el prefijo
@@ -155,8 +156,18 @@ y memoria $O(1)$.
 $k_1 + k_2 = n - 3t$ copias de los candidatos. Si $m$ aparece más de $n/3$ veces y no es
 un candidato vivo, solo aparece en los tríos, a lo sumo una vez en cada uno, así que a
 lo sumo $t \le n/3$ veces: contradicción. La segunda pasada, que cuenta, deja solo los
-candidatos que de verdad superan $n/3$. Son dos pasadas, y la memoria son dos
-candidatos y dos contadores. $\square$
+candidatos que de verdad superan $n/3$, y no repite ninguno, porque si los dos lugares
+están vivos, (T) dice que $c_1 \ne c_2$. El código recorre $A$ a lo sumo tres veces:
+una en la primera pasada y una por cada `count` de la segunda. Así que termina y hace
+$O(n)$ pasos. La memoria son dos candidatos y dos contadores. $\square$
+
+**Cota mínima.** Todo algoritmo tiene que leer $\Omega(n)$ posiciones. Toma $n = 3t$ y
+un arreglo con $t$ copias de $a$ y el resto de elementos distintos entre sí y de $a$.
+Ninguno aparece más de $n/3$ veces. Si un algoritmo no lee alguna de las $2t$
+posiciones sin $a$, cambiarla por $a$ da un arreglo en el que $a$ aparece
+$t + 1 > n/3$ veces, sobre el que el algoritmo hace exactamente lo mismo y responde lo
+mismo. Así que tiene que leer las $2n/3$ posiciones sin $a$, y `more_than_third` es
+óptimo salvo un factor constante.
 
 Para vigilar (T) con `assert` hace falta saber cuándo un multiconjunto se parte en
 tríos de distintos.
@@ -168,8 +179,8 @@ si y solo si ningún elemento aparece más de $t$ veces.
 cada elemento. Para la suficiencia, escribimos los elementos agrupados por valor en una
 grilla de 3 filas y $t$ columnas, llenándola por filas. Cada columna ocupa las
 posiciones $c$, $c + t$ y $c + 2t$, y un bloque de a lo sumo $t$ posiciones
-consecutivas no puede contener dos que difieran en $t$. Así que cada columna es un trío
-de distintos. $\square$
+consecutivas no puede contener dos que difieran en $t$ o más. Así que cada columna es
+un trío de distintos. $\square$
 
 Las pruebas comparan este criterio con una búsqueda de la partición por fuerza bruta.
 Con él, el script vigila (T) en cada prefijo:
@@ -187,7 +198,7 @@ la segunda pasada,
 ```python
 def unverified(A):
     c1, k1, c2, k2 = first_pass(A)
-    return {c for c, k in ((c1, k1), (c2, k2)) if k > 0}
+    return [c for c, k in ((c1, k1), (c2, k2)) if k > 0]
 ```
 
 entonces nunca deja afuera a uno correcto, pero puede devolver de más. Comprobémoslo en
@@ -272,10 +283,10 @@ inofensivo de los `if`, pero rompe la cláusula $c_1 \ne c_2$ de (T):
 A B B C B A: candidatos (B, 0) y (B, 0); verificado con el orden malo [], verdad ['B']
 ```
 
-Cuando llega la segunda $B$ de la posición 4, el primer lugar está libre y la variante
+Cuando llega la $B$ de la posición 4, el primer lugar está libre y la variante
 pone ahí a $B$, aunque $B$ ya es el segundo candidato. Quedan dos copias vivas de $B$ en
 lugares distintos, y la $A$ final las "cancela" juntas en un trío que no es de
-distintos. $B$ aparece 3 veces de 6, y el algoritmo verificado no la devuelve. Es un
+distintos. $B$ aparece 3 veces de 6, y la variante verificada no la devuelve. Es un
 error que deja **afuera** una respuesta correcta, y la verificación no lo puede
 arreglar, porque solo filtra. Los generadores lo detectan pocas veces, entre un 0 % y
 un 5,3 %. Lo que lo anuncia es la cláusula de (T) que dice que los dos candidatos vivos

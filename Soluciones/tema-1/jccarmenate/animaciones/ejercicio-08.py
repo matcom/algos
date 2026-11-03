@@ -9,7 +9,7 @@
 
     uv run --python 3.13 --with manim manim -ql ejercicio-08.py Trios
 
-El orden de los if es el de primera_pasada en ejercicio-08.py.
+El orden de los if es el de first_pass en ejercicio-08.py.
 """
 
 import sys
@@ -34,7 +34,7 @@ def ficha(letra, lado=0.6):
 
 
 def pasos_de(A, orden_malo):
-    """primera_pasada de ejercicio-08.py, anotando qué hace con cada elemento:
+    """first_pass de ejercicio-08.py, anotando qué hace con cada elemento:
     ("sube", lugar), ("nuevo", lugar) o ("trio", (i, copia de c1, copia de c2)),
     junto con los candidatos y contadores que quedan."""
     c, k, copias = [None, None], [0, 0], [[], []]

@@ -86,6 +86,10 @@ class MinStack:
         self.costo += 1
         return self.M[-1]
 
+    def empty(self):
+        self.costo += 1                              # comparar la altura con 0
+        return not self.S
+
 
 class CompactMinStack:
     """M guarda solo los récords: los S[i] que son <= todo lo que tienen debajo."""
@@ -119,6 +123,10 @@ class CompactMinStack:
         self.costo += 1
         return self.M[-1]
 
+    def empty(self):
+        self.costo += 1                              # comparar la altura con 0
+        return not self.S
+
 
 class EncodedMinStack:
     """Memoria extra O(1) para enteros: una sola variable m con el mínimo. Cuando
@@ -132,18 +140,21 @@ class EncodedMinStack:
         if not self.S:
             self.S.append(x)
             self.m = x
+            self.costo += 2                          # escribir la celda y m
         elif x >= self.m:
             self.S.append(x)
+            self.costo += 2                          # comparar y escribir la celda
         else:
             self.S.append(2 * x - self.m)
             self.m = x
-        self.costo += 3
+            self.costo += 3                          # comparar, escribir la celda y m
 
     def pop(self):
         c = self.S.pop()
-        self.costo += 3
+        self.costo += 2                              # leer c y compararlo con m
         if c < self.m:                               # era un récord: el valor real es m
             x, self.m = self.m, 2 * self.m - c
+            self.costo += 1                          # escribir m
             return x
         return c
 
@@ -155,6 +166,10 @@ class EncodedMinStack:
     def min(self):
         self.costo += 1
         return self.m
+
+    def empty(self):
+        self.costo += 1                              # comparar la altura con 0
+        return not self.S
 
 
 def seccion(titulo):
@@ -260,11 +275,12 @@ def costo_por_operacion():
     seccion("§5. Costo máximo de cada operación sobre 200 000 operaciones al azar")
     rng = random.Random(5)
     ops = secuencia_aleatoria(rng, 200_000, lambda r: r.randrange(1000))
-    print(f"{'estructura':>14} {'push':>7} {'pop':>10} {'top':>5} {'min':>7}")
+    print(f"{'estructura':>14} {'push':>7} {'pop':>10} {'top':>5} {'min':>7} "
+          f"{'empty':>7}")
     for nombre, clase in [("paralela", MinStack), ("compacta", CompactMinStack),
                           ("codificada", EncodedMinStack)]:
         p = clase()
-        peor = {"push": 0, "pop": 0, "top": 0, "min": 0}
+        peor = {"push": 0, "pop": 0, "top": 0, "min": 0, "empty": 0}
         for op, x in ops:
             antes = p.costo
             if op == "push":
@@ -272,13 +288,16 @@ def costo_por_operacion():
             else:
                 p.pop()
             peor[op] = max(peor[op], p.costo - antes)
+            antes = p.costo
+            p.empty()
+            peor["empty"] = max(peor["empty"], p.costo - antes)
             if p.S:
                 for consulta, metodo in [("top", p.top), ("min", p.min)]:
                     antes = p.costo
                     metodo()
                     peor[consulta] = max(peor[consulta], p.costo - antes)
         print(f"{nombre:>14} {peor['push']:>7} {peor['pop']:>10} "
-              f"{peor['top']:>5} {peor['min']:>7}")
+              f"{peor['top']:>5} {peor['min']:>7} {peor['empty']:>7}")
 
 
 def armonico(n):

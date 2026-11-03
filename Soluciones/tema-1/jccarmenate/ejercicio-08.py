@@ -48,14 +48,14 @@ def first_pass(A, orden_malo=False):
 def more_than_third(A, orden_malo=False):
     """El algoritmo completo: primera pasada y verificación."""
     c1, k1, c2, k2 = first_pass(A, orden_malo)
-    candidatos = {c for c, k in ((c1, k1), (c2, k2)) if k > 0}
-    return {c for c in candidatos if 3 * A.count(c) > len(A)}
+    candidatos = [c for c, k in ((c1, k1), (c2, k2)) if k > 0]
+    return [c for c in candidatos if 3 * A.count(c) > len(A)]
 
 
 def unverified(A):
     """El atajo: devolver los candidatos con contador positivo."""
     c1, k1, c2, k2 = first_pass(A)
-    return {c for c, k in ((c1, k1), (c2, k2)) if k > 0}
+    return [c for c, k in ((c1, k1), (c2, k2)) if k > 0]
 
 
 def oraculo(A):
@@ -159,8 +159,8 @@ def contraejemplos():
     seccion("§5. Los contraejemplos más cortos")
     for nombre, alfabeto in [("dos símbolos", "AB"), ("tres símbolos", "ABC")]:
         for n in range(1, 13):
-            malo = next((A for A in todas(n, alfabeto) if unverified(A) != oraculo(A)),
-                        None)
+            malo = next((A for A in todas(n, alfabeto)
+                         if set(unverified(A)) != oraculo(A)), None)
             if malo:
                 print(f"{nombre}: {' '.join(malo)} -> cuentas "
                       f"{dict(sorted(Counter(malo).items()))}, sin verificar "
@@ -196,9 +196,8 @@ def generadores():
     print(f"{'generador':>17} {'verificado':>11} {'sin verificar':>14} {'orden malo':>11}")
     for nombre, g in gens.items():
         casos = [g() for _ in range(4000)]
-        f = [100 * sum(more_than_third(A) != oraculo(A) for A in casos) / len(casos),
-             100 * sum(unverified(A) != oraculo(A) for A in casos) / len(casos),
-             100 * sum(more_than_third(A, True) != oraculo(A) for A in casos) / len(casos)]
+        f = [100 * sum(set(v(A)) != oraculo(A) for A in casos) / len(casos)
+             for v in (more_than_third, unverified, lambda A: more_than_third(A, True))]
         tabla[nombre] = f
         print(f"{nombre:>17} {f[0]:>10.1f}% {f[1]:>13.1f}% {f[2]:>10.1f}%")
     # los falsos del atajo son siempre de más, nunca de menos
@@ -206,7 +205,7 @@ def generadores():
     de_menos = 0
     for _ in range(20_000):
         A = [rng2.choice("ABCDE") for _ in range(rng2.randint(1, 30))]
-        de_menos += not oraculo(A) <= unverified(A)
+        de_menos += not oraculo(A) <= set(unverified(A))
     print(f"en 20 000 arreglos de cinco símbolos, el atajo deja afuera un elemento "
           f"correcto {de_menos} veces")
     return tabla
@@ -216,7 +215,7 @@ def orden_malo_minimo():
     seccion("§6. El orden de los if: el contraejemplo más corto")
     for n in range(1, 10):
         malo = next((A for A in todas(n, "ABC")
-                     if more_than_third(A, True) != oraculo(A)), None)
+                     if set(more_than_third(A, True)) != oraculo(A)), None)
         if malo:
             c1, k1, c2, k2 = first_pass(malo, True)
             print(f"{' '.join(malo)}: candidatos ({c1}, {k1}) y ({c2}, {k2}); "
@@ -237,21 +236,21 @@ def pruebas():
     # (a) el algoritmo contra el oráculo, en todos los arreglos chicos de 4 símbolos
     for n in range(0, 8):
         for A in todas(n, "ABCD"):
-            assert more_than_third(A) == oraculo(A)
+            assert sorted(more_than_third(A)) == sorted(oraculo(A))
             comprobaciones += 1
 
     # (b) y en arreglos al azar más grandes
     for _ in range(20_000):
         k = rng.choice([2, 3, 4, 10, 100])
         A = [rng.randrange(k) for _ in range(rng.randint(0, 60))]
-        assert more_than_third(A) == oraculo(A)
-        assert oraculo(A) <= unverified(A)          # el atajo nunca deja a nadie afuera
+        assert sorted(more_than_third(A)) == sorted(oraculo(A))
+        assert oraculo(A) <= set(unverified(A))     # el atajo nunca deja a nadie afuera
         comprobaciones += 2
 
     # (c) con dos plantados, el atajo no se equivoca nunca
     for _ in range(20_000):
         A = plantados(rng, 2, alfabeto=rng.choice([3, 5, 100]))
-        assert unverified(A) == oraculo(A)
+        assert sorted(unverified(A)) == sorted(oraculo(A))
         comprobaciones += 1
 
     # (d) el criterio de los tríos coincide con buscar la partición por fuerza bruta
