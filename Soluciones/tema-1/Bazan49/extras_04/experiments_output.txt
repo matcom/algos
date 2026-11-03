@@ -1,0 +1,59 @@
+A. n incrementos seguidos desde 0 (una sola cinta, simulando la maquina paso a paso)
+        n       T(n)  4n-2 s2(n)     T/n  peor operacion       n*peor  n*peor / T
+        1          2           2  2.0000               2            2        1.00
+        2          6           6  3.0000               4            8        1.33
+        4         14          14  3.5000               6           24        1.71
+        8         30          30  3.7500               8           64        2.13
+       16         62          62  3.8750              10          160        2.58
+       32        126         126  3.9375              12          384        3.05
+       64        254         254  3.9688              14          896        3.53
+      128        510         510  3.9844              16         2048        4.02
+      256       1022        1022  3.9922              18         4608        4.51
+      512       2046        2046  3.9961              20        10240        5.00
+     1024       4094        4094  3.9980              22        22528        5.50
+     2048       8190        8190  3.9990              24        49152        6.00
+     4096      16382       16382  3.9995              26       106496        6.50
+     8192      32766       32766  3.9998              28       229376        7.00
+    16384      65534       65534  3.9999              30       491520        7.50
+    32768     131070      131070  3.9999              32      1048576        8.00
+    65536     262142      262142  4.0000              34      2228224        8.50
+   131072     524286      524286  4.0000              36      4718592        9.00
+   262144    1048574     1048574  4.0000              38      9961472        9.50
+   524288    2097150     2097150  4.0000              40     20971520       10.00
+  1000000    3999986     3999986  4.0000              40     40000000       10.00
+  1048576    4194302     4194302  4.0000              42     44040192       10.50
+   verificado en cada n <= 2^20 = 1048576: T(n) = 4n - 2 s2(n)
+
+B. Primeros 32 incrementos: costo real c_i, potencial Phi_i = 2 (unos), costo amortizado c_i + Phi_i - Phi_(i-1)
+  i=  1        1  c= 2  Phi= 2  amortizado=4
+  i=  2       10  c= 4  Phi= 2  amortizado=4
+  i=  3       11  c= 2  Phi= 4  amortizado=4
+  i=  4      100  c= 6  Phi= 2  amortizado=4
+  i=  5      101  c= 2  Phi= 4  amortizado=4
+  i=  6      110  c= 4  Phi= 4  amortizado=4
+  i=  7      111  c= 2  Phi= 6  amortizado=4
+  i=  8     1000  c= 8  Phi= 2  amortizado=4
+  i=  9     1001  c= 2  Phi= 4  amortizado=4
+  i= 10     1010  c= 4  Phi= 4  amortizado=4
+  i= 11     1011  c= 2  Phi= 6  amortizado=4
+  i= 12     1100  c= 6  Phi= 4  amortizado=4
+  i= 13     1101  c= 2  Phi= 6  amortizado=4
+  i= 14     1110  c= 4  Phi= 6  amortizado=4
+  i= 15     1111  c= 2  Phi= 8  amortizado=4
+  i= 16    10000  c=10  Phi= 2  amortizado=4
+  i= 17    10001  c= 2  Phi= 4  amortizado=4
+  i= 18    10010  c= 4  Phi= 4  amortizado=4
+  i= 19    10011  c= 2  Phi= 6  amortizado=4
+  i= 20    10100  c= 6  Phi= 4  amortizado=4
+  i= 21    10101  c= 2  Phi= 6  amortizado=4
+  i= 22    10110  c= 4  Phi= 6  amortizado=4
+  i= 23    10111  c= 2  Phi= 8  amortizado=4
+  i= 24    11000  c= 8  Phi= 4  amortizado=4
+  i= 25    11001  c= 2  Phi= 6  amortizado=4
+  i= 26    11010  c= 4  Phi= 6  amortizado=4
+  i= 27    11011  c= 2  Phi= 8  amortizado=4
+  i= 28    11100  c= 6  Phi= 6  amortizado=4
+  i= 29    11101  c= 2  Phi= 8  amortizado=4
+  i= 30    11110  c= 4  Phi= 8  amortizado=4
+  i= 31    11111  c= 2  Phi=10  amortizado=4
+  i= 32   100000  c=12  Phi= 2  amortizado=4
