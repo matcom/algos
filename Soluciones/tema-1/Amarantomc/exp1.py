@@ -1,82 +1,167 @@
-import itertools
-from math import ceil, comb, log2
 import random
-def mediana(A, B):
-    """n-ésimo menor de A ∪ B (mediana inferior). Solo usa comparaciones entre elementos."""
-    n = len(A)
-    assert len(B) == n and n >= 1
-    lo, hi = 0, n                       # invariante: g(i) falso si i < lo; g(i) cierto si i >= hi
-    while lo < hi:                      # potencial: hi - lo
-        mid = (lo + hi) // 2
-        if A[mid] >= B[n - 1 - mid]:    # g(mid)
-            hi = mid
+from collections import deque
+import matplotlib.pyplot as plt
+import numpy as np
+
+def gale_shapley_incompletas(pref_a, pref_b):
+    """
+    Algoritmo de Gale-Shapley adaptado para listas incompletas.
+    pref_a: dict {proponente: lista_de_preferencias}
+    pref_b: dict {receptor: lista_de_preferencias}
+    """
+    # Truncar listas para asegurar aceptabilidad mutua
+    pref_a_filtrada = {}
+    for a, lista in pref_a.items():
+        pref_a_filtrada[a] = [b for b in lista if b in pref_b and a in pref_b[b]]
+        
+    n_a = len(pref_a)
+    n_b = len(pref_b)
+    
+    # Precomputar rangos de receptores para comparaciones O(1)
+    rango_b = {}
+    for b, lista in pref_b.items():
+        rango_b[b] = {a: i for i, a in enumerate(lista)}
+        
+    siguiente_propuesta = {a: 0 for a in pref_a}
+    pareja_de_b = {b: None for b in pref_b}
+    
+    libres = deque(list(pref_a.keys()))
+    propuestas_totales = 0
+    
+    while libres:
+        a = libres.popleft()
+        idx = siguiente_propuesta[a]
+        
+        # Si el proponente agotó su lista de aceptables, se queda solo
+        if idx >= len(pref_a_filtrada[a]):
+            continue
+            
+        b = pref_a_filtrada[a][idx]
+        siguiente_propuesta[a] += 1
+        propuestas_totales += 1
+        
+        actual = pareja_de_b[b]
+        if actual is None:
+            pareja_de_b[b] = a
+        elif rango_b[b][a] < rango_b[b][actual]:
+            pareja_de_b[b] = a
+            libres.append(actual)
         else:
-            lo = mid + 1
-    i, j = lo, n - lo                   # i elementos de A y j de B forman los n menores
-    if i == 0:
-        return B[j - 1]
-    if j == 0:
-        return A[i - 1]
-    return A[i - 1] if A[i - 1] > B[j - 1] else B[j - 1]
+            libres.append(a)
+            
+    # Construir emparejamiento final M (a -> b o None)
+    M_a = {a: None for a in pref_a}
+    for b, a in pareja_de_b.items():
+        if a is None:
+            continue
+        M_a[a] = b
+        
+    return M_a, pareja_de_b, propuestas_totales
 
-class Contado:
-    __slots__ = ("v",)
-    cuenta = 0
-    def __init__(self, v): self.v = v
-    def __ge__(self, o): Contado.cuenta += 1; return self.v >= o.v
-    def __gt__(self, o): Contado.cuenta += 1; return self.v > o.v
+def verificar_estabilidad(M_a, M_b, pref_a, pref_b):
+    """
+    Verifica individual rationality y parejas bloqueantes.
+    Devuelve lista de parejas bloqueantes encontradas.
+    """
+    bloqueantes = []
+    
+    # 1. Verificar Racionalidad Individual
+    for a, b in M_a.items():
+        if b is None:
+            continue
+        if b not in pref_a[a] or a not in pref_b[b]:
+            return [("Inestabilidad Individual", a, b)]
+            
+    # 2. Buscar parejas bloqueantes externas
+    for a, lista_a in pref_a.items():
+        actual_b = M_a[a]
+        # Elementos preferidos sobre actual_b
+        if actual_b in lista_a:
+            pref_a_superiores = lista_a[:lista_a.index(actual_b)]
+        else:
+            pref_a_superiores = lista_a  # Prefiere cualquiera de su lista sobre estar solo
+            
+        for b in pref_a_superiores:
+            if a not in pref_b[b]:  # No es aceptable para b
+                continue
+            actual_a = M_b[b]
+            if actual_a in pref_b[b]:
+                pref_b_superiores = pref_b[b][:pref_b[b].index(actual_a)]
+            else:
+                pref_b_superiores = pref_b[b]
+                
+            if a in pref_b_superiores:
+                bloqueantes.append((a, b))
+                
+    return bloqueantes
 
-def mediana_contada(A, B):
-    Contado.cuenta = 0
-    r = mediana([Contado(x) for x in A], [Contado(x) for x in B])
-    return r.v, Contado.cuenta
+def ejecutar_experimentos():
+    print("=" * 70)
+    print(f"{'Tamaño':<8} | {'Propuestas':<10} | {'Solos (A)':<10} | {'Estable':<8}")
+    print("=" * 70)
+    
+    random.seed(42)
+    instancias = [10, 20, 50, 100, 200]
+    propuestas_medid = []
+    
+    for n in instancias:
+        proponentes = [f"a_{i}" for i in range(n)]
+        receptores = [f"b_{j}" for j in range(n)]
+        
+        # Generar listas incompletas aleatorias (tamaño de lista entre 20% y 70% de n)
+        pref_a = {}
+        pref_b = {}
+        for a in proponentes:
+            k = random.randint(max(1, int(n * 0.2)), max(1, int(n * 0.7)))
+            pref_a[a] = random.sample(receptores, k)
+        for b in receptores:
+            k = random.randint(max(1, int(n * 0.2)), max(1, int(n * 0.7)))
+            pref_b[b] = random.sample(proponentes, k)
+            
+        M_a, M_b, props = gale_shapley_incompletas(pref_a, pref_b)
+        bloq = verificar_estabilidad(M_a, M_b, pref_a, pref_b)
+        
+        solos_a = sum(1 for b in M_a.values() if b is None)
+        es_estable = "SÍ" if len(bloq) == 0 else "NO"
+        
+        propuestas_medid.append(props)
+        print(f"{n:<8} | {props:<10} | {solos_a:<10} | {es_estable:<8}")
+    print("=" * 70)
 
-def oraculo(A, B):
-    return sorted(A + B)[len(A) - 1]
+import matplotlib.pyplot as plt
+import numpy as np
+import random
 
-def intercalaciones(n):
-    """Todas las formas de intercalar dos arreglos de largo n con valores distintos 0..2n-1."""
-    for pos in itertools.combinations(range(2 * n), n):
-        s = set(pos)
-        yield list(pos), [r for r in range(2 * n) if r not in s]
+# Datos de la simulación
+tamanios = np.array([10, 20, 50, 100, 150, 200])
+propuestas_observadas = []
+cotas_potencial = []
 
-def optimo_exacto(n):
-    """Mínimo, sobre todos los algoritmos de comparaciones, del peor caso para hallar la mediana.
-    Estado = conjunto de intercalaciones aún consistentes con las respuestas (bitmask)."""
-    from functools import lru_cache
-    inter = list(itertools.combinations(range(2 * n), n))     # posiciones (rangos) de A
-    # mediana = elemento de rango n-1; su identidad: ('A',k) o ('B',k)
-    ident = []
-    for pos in inter:
-        s = set(pos)
-        if (n - 1) in s: ident.append(("A", pos.index(n - 1)))
-        else: ident.append(("B", [r for r in range(2 * n) if r not in s].index(n - 1)))
-    preguntas = []
-    for i in range(n):
-        for j in range(n):
-            m = 0
-            for k, pos in enumerate(inter):
-                s = set(pos); b = [r for r in range(2 * n) if r not in s]
-                if pos[i] < b[j]: m |= 1 << k
-            preguntas.append(m)
-    ident_masks = {}
-    for k, idn in enumerate(ident): ident_masks[idn] = ident_masks.get(idn, 0) | (1 << k)
-    masks = list(ident_masks.values())
-    @lru_cache(maxsize=None)
-    def f(mask):
-        if any(mask & m == mask for m in masks): return 0       # una sola respuesta posible
-        mejor = 99
-        for q in preguntas:
-            si, no = mask & q, mask & ~q
-            if si and no: mejor = min(mejor, 1 + max(f(si), f(no)))
-        return mejor
-    return f((1 << len(inter)) - 1)
+random.seed(42)
+for n in tamanios:
+    proponentes = [f"a_{i}" for i in range(n)]
+    receptores = [f"b_{j}" for j in range(n)]
+    
+    pref_a = {a: random.sample(receptores, random.randint(int(n*0.2), int(n*0.6))) for a in proponentes}
+    pref_b = {b: random.sample(proponentes, random.randint(int(n*0.2), int(n*0.6))) for b in receptores}
+    
+    # Calcular cota del potencial (longitud total de listas filtradas)
+    cota = sum(len([b for b in pref_a[a] if a in pref_b[b]]) for a in pref_a)
+    cotas_potencial.append(cota)
+    
+    # Ejecutar algoritmo
+    M_a, M_b, props = gale_shapley_incompletas(pref_a, pref_b)
+    propuestas_observadas.append(props)
 
+# Generar Gráfico
+plt.figure(figsize=(9, 5))
+plt.plot(tamanios, cotas_potencial, 'ro--', label='Cota Teórica del Potencial (Φ₀)', linewidth=2)
+plt.plot(tamanios, propuestas_observadas, 'bs-', label='Propuestas Reales (Ejecución)', linewidth=2)
 
-
- 
-
-
-
-
-
+plt.title('Complejidad Empírica vs. Potencial Teórico en Gale-Shapley Incompleto', fontsize=12)
+plt.xlabel('Tamaño de la Instancia (n)', fontsize=11)
+plt.ylabel('Número de Propuestas', fontsize=11)
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.legend(fontsize=10)
+plt.tight_layout()
+plt.savefig('gale_shapley_incompleto_complejidad.png', dpi=300)
