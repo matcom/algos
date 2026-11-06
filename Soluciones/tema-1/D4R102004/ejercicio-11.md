@@ -1,4 +1,4 @@
-# Ejercicio 10: la mochila y el tamaño en bits
+# Ejercicio 11: la mochila y el tamaño en bits
 
 > La mochila entera se resuelve con programación dinámica en O(nW), donde W es la capacidad. Mide el tamaño de la entrada en bits, como en la sección 8 de la conferencia 1. ¿Es polinomial ese algoritmo? ¿En qué se parece a la primalidad por división? (C1)
 
@@ -35,7 +35,7 @@ Si W está acotado por algo polinomial en n, por ejemplo W ≤ 100·n (porque lo
 
 ## Experimentos
 
-`ej10_mochila.py` implementa la tabla, la compara con la fuerza bruta (probar los 2^n subconjuntos) en 500 instancias pequeñas sin fallos, y después fija n = 20 y le va agregando bits a W:
+`ej11_mochila.py` implementa la tabla, la compara con la fuerza bruta (probar los 2^n subconjuntos) en 500 instancias pequeñas sin fallos, y después fija n = 20 y le va agregando bits a W:
 
 ```
  bits de W          W     casillas    tiempo

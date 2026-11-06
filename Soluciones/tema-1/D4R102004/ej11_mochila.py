@@ -1,4 +1,4 @@
-"""Ejercicio 10: la mochila por programación dinámica cuesta Θ(n·W).
+"""Ejercicio 11: la mochila por programación dinámica cuesta Θ(n·W).
 Fijamos n y vamos agregando bits a W: si el algoritmo fuera polinomial en el
 tamaño de la entrada, un bit más no debería duplicar el trabajo."""
 import random
