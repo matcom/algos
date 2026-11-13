@@ -1,27 +1,4 @@
----
-theme: note
-css: notas.css
-title: "Conferencia 4: análisis amortizado"
-vars:
-  figure-label: "Figura"
-  figure-ref-label: "figura"
-execute:
-  interpreters:
-    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
----
-
-# Conferencia 4: análisis amortizado
-
-::: meta
-Diseño y Análisis de Algoritmos · Ciencia de la Computación · MatCom · 2026
-:::
-
-En la conferencia 3 usamos un potencial que solo bajaba, para demostrar que un
-algoritmo termina. Hoy el potencial sube y baja, y lo usamos para otra cosa: pagar las
-operaciones caras con lo que se ahorró en las baratas. La pregunta deja de ser "cuánto
-cuesta la peor operación" y pasa a ser "cuánto cuesta una secuencia de $m$ operaciones,
-en el peor caso, dividido por $m$". Vamos a verlo sobre tres estructuras, en orden de
-dificultad, y en la última el potencial ni siquiera va a ser una fórmula.
+# Análisis amortizado {#chap-amortizado}
 
 ```{python echo=false output=asis}
 import math
@@ -32,6 +9,13 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))   # Lectures/2026, donde vive figuras.py
 import figuras as F
 ```
+
+En el capítulo 3 usamos un potencial que solo bajaba, para demostrar que un
+algoritmo termina. Aquí el potencial sube y baja, y lo usamos para otra cosa: pagar las
+operaciones caras con lo que se ahorró en las baratas. La pregunta deja de ser "cuánto
+cuesta la peor operación" y pasa a ser "cuánto cuesta una secuencia de $m$ operaciones,
+en el peor caso, dividido por $m$". Vamos a verlo sobre tres estructuras, en orden de
+dificultad, y en la última el potencial ni siquiera va a ser una fórmula.
 
 ## 1. La peor operación miente
 
@@ -72,7 +56,7 @@ amortizado no es un caso promedio. No hay entradas aleatorias ni probabilidad en
 ninguna parte: la desigualdad vale para toda secuencia, incluida la peor que un
 adversario pueda construir. Es una garantía de peor caso, solo que sobre secuencias y
 no sobre operaciones sueltas. En Estructuras de Datos se enunció que `append` es
-$O(1)$ amortizado. Hoy lo demostramos, y demostramos cosas bastante más difíciles.
+$O(1)$ amortizado. Aquí lo demostramos, y demostramos cosas bastante más difíciles.
 
 ## 2. La cola con dos pilas: tres métodos
 
@@ -195,7 +179,7 @@ dejando pendiente esta estructura? En la cola, los elementos que todavía no se 
 En el arreglo dinámico, lo cerca que está de llenarse. En un árbol que se reorganiza
 solo, que viene ahora, los caminos largos que todavía nadie recorrió.
 
-Compara con la conferencia 3. Allí el potencial de Gale-Shapley solo bajaba, una unidad
+Compara con el capítulo 3, §7. Allí el potencial de Gale-Shapley solo bajaba, una unidad
 por propuesta, y servía para contar vueltas. Aquí baja en las operaciones caras y sube
 en las baratas, y el costo amortizado de cada operación es su costo real corregido por
 ese movimiento. Es la misma herramienta, una cantidad que no puede bajar de un piso,
@@ -412,9 +396,12 @@ for nombre, f in [("splay", splay), ("subir a la raíz", subir_a_la_raiz)]:
 ```
 
 El splay no viola la cota nunca, que es lo que dice el lema. Subir a la raíz la viola
-pocas veces, pero por mucho. No es un defecto de la demostración, que solo dice que la
-cuenta no cierra; el experimento dice que tampoco cierra el costo. La sección siguiente
-busca la secuencia que hace que las violaciones se repitan.
+pocas veces, pero por mucho. Eso no es un defecto de la demostración: con este
+potencial, la cota por acceso es falsa para subir a la raíz, no solo imposible de
+demostrar. Lo que el experimento no dice es que el costo real total sea malo, porque
+unas pocas violaciones pueden compensarse con accesos que bajan el potencial. La
+sección siguiente busca la secuencia que hace que las violaciones se repitan y el
+costo real se dispare.
 
 ## 6. El error que la demostración anuncia
 
@@ -595,7 +582,7 @@ print(F.compresion(_antes, list(_uf.padre), list(range(8)), _camino, ident="comp
           f"entero de la raíz."))
 ```
 
-La pregunta de esta conferencia es por qué, con las dos heurísticas juntas, el costo es
+La pregunta de este capítulo es por qué, con las dos heurísticas juntas, el costo es
 casi constante siempre, y no solo en las entradas que se nos ocurrió probar.
 
 ## 8. Union-find: la cota $O(m \log^* n)$
@@ -722,7 +709,7 @@ $n \le 2^{2048}$, un número de más de seiscientas cifras.
 demostraron que cualquier estructura para este problema necesita
 $\Omega(\alpha(m, n))$ por operación, amortizado, en el modelo de sondeo de celdas: un
 modelo que solo cuenta cuántas palabras de memoria se leen o escriben, y deja gratis
-todo el cómputo. La cota mínima vale incluso con ese regalo. Es la conferencia 5 la que
+todo el cómputo. La cota mínima vale incluso con ese regalo. Es el capítulo 5 el que
 se ocupa de cómo se demuestran cosas así.
 
 Para cualquier entrada real, $\alpha$ es a lo sumo 4, y union-find es constante en la
@@ -749,10 +736,10 @@ costo total de cualquier secuencia. No garantiza nada sobre una operación suelt
 `desencolar` puede costar $\Theta(n)$, y un acceso a un splay tree también. Si una
 aplicación necesita que **cada** operación sea rápida (un sistema de tiempo real, una
 interfaz que no puede congelarse), el costo amortizado no sirve, y el ejercicio 8
-pide un ejemplo. En la conferencia 8 aparece otra clase de garantía, la esperada, que
+pide un ejemplo. En el capítulo 8 aparece otra clase de garantía, la esperada, que
 sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
 
-## 11. Resumen
+## Resumen
 
 - El costo amortizado es una cota de peor caso sobre secuencias de operaciones. No es
   un caso promedio y no tiene probabilidad.
@@ -782,7 +769,9 @@ sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
    secuencia que cuesta $\Theta(k)$ por operación. ¿Qué cambia si solo se incrementa?
 3. Implementa una cola doble (con inserción y extracción por los dos extremos) usando
    dos pilas, y analízala. ¿Qué hay que cambiar en la mudanza para que siga siendo
-   $O(1)$ amortizado?
+   $O(1)$ amortizado? Mide el costo real promedio, como en la sección 2, sobre una
+   secuencia que alterne extracciones por los dos extremos, con tu mudanza y con la
+   mudanza ingenua que vuelca la pila entera.
 4. Demuestra que, empezando desde un camino de $n$ nodos, acceder a las claves
    $1, \dots, n$ en orden cuesta $\Theta(n^2)$ en total con subir a la raíz.
 5. Union-find con unión por rango, pero olvidando incrementar el rango cuando los dos
@@ -795,3 +784,16 @@ sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
    $n = 2^{16}$ y $n = 2^{65536}$.
 8. Da una aplicación donde una estructura con $O(1)$ amortizado por operación no sirve
    y hace falta $O(1)$ en el peor caso por operación. Explica qué se rompe.
+9. Un contador binario de $k = 4$ bits que empieza en 0 y solo se incrementa. El costo
+   real de un incremento es el número de bits que cambian. Haz una tabla con los
+   quince incrementos de 0 a 15, y en cada fila el costo real y el costo amortizado
+   según cada uno de los tres métodos de la sección 2: el agregado, una contabilidad
+   con una tarifa fija por incremento y un potencial que tú elijas. Comprueba en la
+   tabla que el crédito nunca es negativo y que la suma de los costos amortizados
+   acota la de los reales. ¿Qué pasa con el incremento número 16, que vuelve a 0?
+10. Un arreglo dinámico que, al llenarse, pide un bloque con 100 posiciones más en
+    lugar del doble, y copia todo. Construye una secuencia de $n$ operaciones que
+    cueste $\Theta(n^2)$ en total. Después toma el potencial
+    $\Phi = 2 \cdot \text{tamaño} - \text{capacidad}$, que sirve para el arreglo que
+    duplica, y repite la cuenta del costo amortizado de un `append` que expande con
+    esta nueva regla. ¿Qué paso de la cuenta deja de valer?
