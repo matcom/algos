@@ -1,28 +1,4 @@
----
-theme: note
-css: notas.css
-title: "Conferencia 5: cotas mínimas"
-vars:
-  figure-label: "Figura"
-  figure-ref-label: "figura"
-execute:
-  interpreters:
-    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
----
-
-# Conferencia 5: cotas mínimas
-
-::: meta
-Diseño y Análisis de Algoritmos · Ciencia de la Computación · MatCom · 2026
-:::
-
-En la conferencia 2 cambiamos una vez la pregunta, de "cuánto cuesta este algoritmo" a
-"cuánto cuesta cualquiera", y la respondimos con una reducción desde un teorema que
-citamos sin demostrar. Hoy aprendemos a demostrar cotas mínimas nosotros mismos. Vamos
-a trabajar en el modelo de comparaciones, que es el más simple donde todo se puede
-hacer con papel y lápiz, y a ver dos herramientas, cada una con su límite. Al final la
-cota mínima va a cambiar de papel: además de decir cuánto cuesta un problema, va a
-servir para detectar algoritmos que están mal.
+# Cotas mínimas {#chap-cotas-minimas}
 
 ```{python echo=false output=asis}
 import math
@@ -35,17 +11,25 @@ sys.path.insert(0, os.path.abspath(".."))   # Lectures/2026, donde vive figuras.
 import figuras as F
 ```
 
+En el capítulo 2 cambiamos una vez la pregunta, de "cuánto cuesta este algoritmo" a
+"cuánto cuesta cualquiera", y la respondimos con una reducción desde un teorema que
+citamos sin demostrar. Aquí aprendemos a demostrar cotas mínimas nosotros mismos. Vamos
+a trabajar en el modelo de comparaciones, que es el más simple donde todo se puede
+hacer con papel y lápiz, y a ver dos herramientas, cada una con su límite. Al final la
+cota mínima va a cambiar de papel: además de decir cuánto cuesta un problema, va a
+servir para detectar algoritmos que están mal.
+
 ## 1. De este algoritmo a cualquier algoritmo
 
 Para decir algo sobre **todos** los algoritmos hay que decir primero qué es un
-algoritmo. En esta clase, un algoritmo del **modelo de comparaciones** solo puede
+algoritmo. En este capítulo, un algoritmo del **modelo de comparaciones** solo puede
 acceder a los datos preguntando si $a_i < a_j$. Puede hacer todo el cómputo que quiera
 con los índices y con las respuestas, pero sobre los valores solo sabe lo que le
 dijeron las comparaciones. Su costo es el número de preguntas. Ordenamiento por
 inserción, mergesort, heapsort, la búsqueda binaria y el máximo por recorrido son
 todos algoritmos de este modelo.
 
-Recuerda la conferencia 2: una cota mínima vale en su modelo, y fuera de él puede
+Recuerda el capítulo 2: una cota mínima vale en su modelo, y fuera de él puede
 romperse. La sección 9 vuelve sobre esto con el ordenamiento.
 
 Hay tres maneras de demostrar una cota mínima, y las tres tienen nombre:
@@ -55,11 +39,11 @@ Hay tres maneras de demostrar una cota mínima, y las tres tienen nombre:
 - **Adversario**: imaginar un oponente que contesta las preguntas para que el
   algoritmo aprenda lo menos posible.
 - **Reducción**: mostrar que un algoritmo rápido para este problema daría uno rápido
-  para otro problema que ya sabemos difícil. Es lo que hicimos con Ben-Or en la
-  conferencia 2, y es la herramienta del Tema 3 entero.
+  para otro problema que ya sabemos difícil. Es lo que hicimos con Ben-Or en el
+  capítulo 2, y es la herramienta de toda la Parte III.
 
 La cota $\Omega(n \log n)$ para ordenar por comparaciones se suele enunciar sin
-demostración. Hoy se demuestra entera, paso por paso, y después vemos hasta dónde
+demostración. Aquí se demuestra entera, paso por paso, y después vemos hasta dónde
 llega esa técnica.
 
 ## 2. Árboles de decisión
@@ -471,7 +455,7 @@ entonces el máximo sería $x$, no $m$. Así que los $n - 1$ elementos distintos
 máximo tienen que perder al menos una vez. Cada comparación tiene un solo perdedor, así
 que hacen falta al menos $n - 1$ comparaciones.
 
-El adversario es la herramienta de contradicción de la conferencia 3 aplicada a todas
+El adversario es la herramienta de contradicción del capítulo 3 aplicada a todas
 las ejecuciones a la vez: si el algoritmo pregunta poco, existe una entrada donde se
 equivoca, y el adversario es la receta para construirla.
 
@@ -515,7 +499,7 @@ print(F.intercalado(5, [(_nombre(x), _nombre(y)) for x, y in _registro],
 
 La @fig-intercalado muestra las comparaciones que la mezcla hace sobre la entrada del
 adversario: son exactamente los pares de vecinos. Esta cota es también el problema
-8-6 de CLRS, que la plantea como ejercicio guiado.
+8-6 de la tercera edición de CLRS, que la plantea como ejercicio guiado.
 
 ## 7. El segundo mayor: $n + \lceil \log_2 n \rceil - 2$
 
@@ -604,7 +588,7 @@ print(F.cuadro_torneo(_cuadro(_A8), ident="torneo",
           f"es uno de ellos, y solo hay que compararlos entre sí."))
 ```
 
-El peor caso medido coincide con la fórmula. Ahora la pregunta de la clase: ¿se puede
+El peor caso medido coincide con la fórmula. Ahora la pregunta del capítulo: ¿se puede
 con menos?
 
 **Teorema.** Todo algoritmo de comparaciones que encuentra el segundo mayor de $n$
@@ -655,7 +639,7 @@ que el adversario permite.
 
 ## 8. La cota mínima como detector de errores
 
-En las conferencias 2, 3 y 4 plantamos un error en un algoritmo, y la demostración de
+En los capítulos 2, 3 y 4 plantamos un error en un algoritmo, y la demostración de
 correctitud o de costo decía dónde buscarlo. Aquí el error lo detecta la cota mínima.
 
 Mira de nuevo el torneo. El rival de la primera ronda del máximo perdió en el primer
@@ -727,18 +711,18 @@ print(f"⌈log₂ n!⌉: {math.ceil(math.lgamma(n + 1) / math.log(2)):,}")
 El ordenamiento por conteo cuesta $O(n + k)$, por debajo de $n \log n$ cuando
 $k = O(n)$. No contradice el teorema de la sección 3, porque no es un algoritmo de
 comparaciones: usa los valores como **índices** de un arreglo. Es el mismo truco que la
-rejilla de la conferencia 2, que usaba la parte entera como dirección para romper la
+rejilla del capítulo 2, que usaba la parte entera como dirección para romper la
 cota de Ben-Or.
 
-La regla es la de la conferencia 2, y ya la vimos aplicarse muchas veces: una cota
+La regla es la del capítulo 2, y ya la vimos aplicarse muchas veces: una cota
 mínima viene con su modelo pegado. La cota de ordenamiento vale en comparaciones. La de
-Ben-Or, en árboles de decisión algebraicos. La de Fredman y Saks de la conferencia 4,
+Ben-Or, en árboles de decisión algebraicos. La de Fredman y Saks del capítulo 4,
 en sondeo de celdas. Antes de citar una cota, hay que saber cuál es su modelo y qué
 deja fuera.
 
 ### Cotas mínimas polinomiales
 
-Todas las cotas de esta conferencia están entre $n$ y $n \log n$. Hay cotas
+Todas las cotas de este capítulo están entre $n$ y $n \log n$. Hay cotas
 demostradas más altas, de $n^2$ y de $n^3$, y siguen la misma regla: valen en un
 modelo restringido y dejan de valer fuera de él. Estas cuatro no necesitan nada que
 no hayas visto.
@@ -750,7 +734,7 @@ no hayas visto.
 | Producto de matrices booleanas | $n^3$ conjunciones | Circuitos con solo $\wedge$ y $\vee$ |
 | ¿Hay tres números que sumen cero? | $\Omega(n^2)$ preguntas | Preguntas sobre tres números a la vez |
 
-**Palíndromos.** Es la cota de Hennie (1965) que vimos en la conferencia 1. La cinta
+**Palíndromos.** Es la cota de Hennie (1965) que vimos en el capítulo 1. La cinta
 obliga al cabezal a ir y volver entre los dos extremos. En la RAM se lee cualquier
 posición en un paso, y $O(n)$ alcanza.
 
@@ -776,33 +760,32 @@ de Paterson no tiene.
 para cada número, recorre el resto con dos punteros, en $O(n^2)$. Cada pregunta que
 hace es el signo de $a_i + a_j + a_k$. Erickson (1995) demostró $\Omega(n^2)$ para
 los árboles de decisión donde cada nodo pregunta el signo de una combinación lineal
-de a lo sumo tres entradas. El modelo de comparaciones de esta conferencia es el caso
+de a lo sumo tres entradas. El modelo de comparaciones de este capítulo es el caso
 de dos entradas, porque $a_i < a_j$ es el signo de $a_j - a_i$. En ese modelo la cota
 es exacta. Grønlund y Pettie (2014) permitieron preguntas sobre cuatro entradas, y les
 alcanzaron $O(n^{3/2} \sqrt{\log n})$ preguntas. También dieron un algoritmo que baja
 de $n^2$ por un factor logarítmico. Nadie sabe si 3SUM se puede resolver en
 $O(n^{2 - \varepsilon})$ para algún $\varepsilon > 0$. Se cree que no, y esa creencia
-es una de las hipótesis con las que trabaja la conferencia 24.
+es una de las hipótesis con las que trabaja el epílogo.
 
 En las cuatro filas pasa lo mismo que con el ordenamiento por conteo. La cota es un
 teorema, y un algoritmo que usa una herramienta que el modelo no tiene, como el acceso
 directo, otra representación, la resta o una pregunta más grande, hace menos de lo que
 la cota permite.
 
-## 10. Cierre del Tema 1
+## 10. Cierre de la Parte I
 
-Con esta conferencia termina el Tema 1. Después de cinco conferencias tenemos las
-herramientas para las cinco preguntas del ciclo: medir en un modelo (conferencia 1),
-recorrer el ciclo entero (conferencia 2), demostrar correctitud (conferencia 3),
-analizar el costo de secuencias de operaciones (conferencia 4) y acotar por abajo
-(esta). El documento de cierre del tema junta todo en unas pocas páginas y trae
-ejercicios que mezclan las cinco conferencias.
+Con este capítulo termina la Parte I. Después de cinco capítulos tenemos las
+herramientas para las cinco preguntas del ciclo: medir en un modelo (capítulo 1),
+recorrer el ciclo entero (capítulo 2), demostrar correctitud (capítulo 3), analizar el
+costo de secuencias de operaciones (capítulo 4) y acotar por abajo (este). El resumen
+de ideas de la Parte I junta todo en unas pocas páginas.
 
-El Tema 2 cambia de eje. Las clases dejan de organizarse por pregunta y pasan a
+La Parte II cambia de eje. Los capítulos dejan de organizarse por pregunta y pasan a
 organizarse por técnica de diseño: divide y vencerás, golosos, programación dinámica,
 flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
 
-## 11. Resumen
+## Resumen
 
 - Una cota mínima es una afirmación sobre todos los algoritmos de un modelo. En el
   modelo de comparaciones, el costo es el número de preguntas $a_i < a_j$.
@@ -847,3 +830,22 @@ flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
 8. Alguien afirma tener un algoritmo de ordenamiento por comparaciones que hace a lo
    sumo $n \log_2 n - 2n$ comparaciones para todo $n$ grande. ¿Puede existir? Justifica
    con la sección 3.
+9. **Búsqueda ternaria.** En lugar de comparar $x$ con el elemento del medio, la
+   búsqueda ternaria lo compara con los elementos que están a un tercio y a dos
+   tercios del rango, y se queda con uno de los tres pedazos. Cada comparación responde
+   $<$, $=$ o $>$, como en la sección 3. Calcula su número de comparaciones en el peor
+   caso sobre un arreglo de $n$ elementos y compáralo con
+   $\lceil \log_2 (n+1) \rceil$ para $n = 8$, $80$ y $1000$. Alguien argumenta que,
+   como cada comparación tiene tres respuestas, el árbol de decisión es ternario y la
+   cota correcta es $\log_3 (n+1)$. ¿Qué parte del argumento falla? Después cambia el
+   modelo: si una sola pregunta dijera en cuál de los tres pedazos está $x$, ¿cuál
+   sería la cota de información, y la alcanza la búsqueda ternaria?
+10. **El adversario de pesos, en código.** Implementa el adversario de la sección 7
+    como una función `mayor(x, y)` que recibe dos índices, contesta y lleva los pesos y
+    las respuestas ya dadas. Córrelo contra el torneo, contra el algoritmo de fuerza
+    bruta de $2n - 3$ comparaciones y contra el atajo de la sección 8, para $n$ entre 2
+    y 64. Para cada uno mide el total de comparaciones y el número $k$ de elementos que
+    se compararon con el máximo, y compáralos con lo que exige la demostración. En el
+    caso del atajo, usa las respuestas del adversario para escribir una entrada
+    concreta, consistente con todas ellas, en la que el atajo devuelve un segundo mayor
+    equivocado.
