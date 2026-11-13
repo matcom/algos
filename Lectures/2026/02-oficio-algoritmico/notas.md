@@ -1,22 +1,6 @@
----
-theme: note
-css: notas.css
-title: "Conferencia 2: el oficio algorítmico"
-vars:
-  figure-label: "Figura"
-  figure-ref-label: "figura"
-execute:
-  interpreters:
-    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
----
+# El oficio algorítmico {#chap-oficio-algoritmico}
 
-# Conferencia 2: el oficio algorítmico
-
-::: meta
-Diseño y Análisis de Algoritmos · Ciencia de la Computación · MatCom · 2026
-:::
-
-La conferencia anterior fijó cómo se mide un algoritmo. Esta fija cómo se trabaja.
+El capítulo anterior fijó cómo se mide un algoritmo. Este fija cómo se trabaja.
 En vez de enunciar el método y pasar a otra cosa, lo vamos a recorrer entero, una
 vez, sobre un solo problema. Al terminar vas a haber visto las cinco etapas
 completas, y vas a saber por qué la última —demostrar que no se puede hacer mejor—
@@ -45,13 +29,13 @@ este orden:
 2. **¿Qué algoritmo lo resuelve?** Proponer un procedimiento.
 3. **¿Es correcto?** Demostrar que para toda entrada válida devuelve la salida
    correcta.
-4. **¿Cuánto cuesta?** Analizar tiempo y memoria en el modelo de la conferencia 1.
+4. **¿Cuánto cuesta?** Analizar tiempo y memoria en el modelo del capítulo 1.
 5. **¿Se puede hacer mejor?** Buscar una cota mínima: un costo por debajo del cual
    ningún algoritmo puede resolver el problema.
 
 ```{python continue echo=false output=asis}
-print(F.ciclo(ident="ciclo", pie="El ciclo que recorre cada conferencia del curso. "
-              "Hoy lo damos entero sobre un solo problema."))
+print(F.ciclo(ident="oficio-ciclo", pie="El ciclo que recorre cada capítulo del libro. "
+              "Este lo da entero sobre un solo problema."))
 ```
 
 Ninguna se puede saltar. Un algoritmo sin la tercera es una conjetura: funciona en
@@ -59,9 +43,9 @@ los casos que probaste. Un análisis sin la quinta no sabe si vale la pena segui
 buscando, y la mayor parte del esfuerzo desperdiciado en algoritmos se gasta
 optimizando cosas que ya eran óptimas, o abandonando búsquedas que tenían margen.
 
-Hoy recorremos el ciclo completo sobre el problema del par de puntos más cercanos.
-De la conferencia 6 en adelante el ciclo queda implícito y las clases se organizan
-por técnica, pero las cinco preguntas siguen ahí, y son las que se evalúan.
+Este capítulo recorre el ciclo completo sobre el problema del par de puntos más
+cercanos. Del capítulo 6 en adelante el ciclo queda implícito y los capítulos se
+organizan por técnica, pero las cinco preguntas siguen ahí, y son las que se evalúan.
 
 ## 2. El problema
 
@@ -72,17 +56,22 @@ $$d(p, q) = \sqrt{(p_x - q_x)^2 + (p_y - q_y)^2}.$$
 Tres precisiones que un enunciado tiene que dar, y que casi nunca se dan:
 
 - **Empates.** Si varios pares alcanzan el mínimo, devolvemos cualquiera. Si nos
-  interesaran todos, sería otro problema y podría haber $\Theta(n^2)$ pares
-  empatados: basta poner los $n$ puntos en los vértices de un polígono regular.
+  interesaran todos, sería otro problema, y la salida podría ser larga: en una
+  rejilla de $k \times k$ puntos hay $2k(k-1)$ pares a la distancia mínima. Lo que
+  no puede pasar en el plano es que haya $\Theta(n^2)$. Dos puntos a la distancia
+  mínima $\delta$ de un mismo punto forman con él un ángulo de al menos $60°$,
+  porque si no estarían entre sí a menos de $\delta$; cada punto tiene entonces a lo
+  sumo seis, y hay a lo sumo $3n$ pares empatados.
 - **Puntos repetidos.** Si $P$ es un conjunto, no los hay. Si es una lista y admite
   repeticiones, la respuesta es 0 y el problema se vuelve el de decidir si hay
   repetidos, que es exactamente de lo que trata la sección 8.
 - **La raíz cuadrada.** $d(p,q) < d(r,s)$ si y solo si $d(p,q)^2 < d(r,s)^2$, así que
   todos los algoritmos comparan distancias al cuadrado y sacan la raíz una sola vez,
-  al final. Ahorra $n^2$ raíces y evita el error de redondeo que introducen.
+  al final. En la fuerza bruta ahorra $\binom{n}{2}$ raíces, y evita el error de
+  redondeo que introducen.
 
-Conviene separarlo de un problema parecido y más caro: **para cada punto, hallar su
-vecino más cercano**. Ahí hay $n$ respuestas en lugar de una. El par más cercano es
+Conviene separarlo de un problema parecido y más exigente: **para cada punto, hallar
+su vecino más cercano**. Ahí hay $n$ respuestas en lugar de una. El par más cercano es
 el mínimo de esas $n$ respuestas, así que resolver el segundo resuelve el primero,
 pero no al revés. Distinguir dos problemas que suenan igual es parte del oficio, y
 es la primera cosa que se hace mal.
@@ -131,7 +120,7 @@ Lo importante del calentamiento es por qué no se traslada. En la recta hay un o
 total, y ese orden tiene una propiedad geométrica: si dos números están cerca,
 entonces están cerca *en el orden*. En el plano no hay ningún orden total con esa
 propiedad. Puedes ordenar por $x$, y dos puntos con el mismo $x$ pueden estar
-infinitamente lejos en $y$. Ahí empieza la dificultad, y ahí empieza la clase.
+arbitrariamente lejos en $y$. Ahí empieza la dificultad, y ahí empieza el capítulo.
 
 ## 4. Fuerza bruta
 
@@ -171,15 +160,15 @@ Fíjate en la frase exacta: *este algoritmo* cuesta $\Theta(n^2)$. No hemos dich
 sobre el problema. Esa distinción parece pedantería ahora y es el asunto central de
 las secciones 7 y 8.
 
-Los tiempos de la tabla duplican $n$ y multiplican el tiempo por cuatro, que es lo
-que predice el análisis. Extrapolando, un millón de puntos cuesta del orden de
-$10^{11}$ pares: días.
+Cada fila de la tabla duplica $n$ y multiplica el tiempo por cerca de cuatro, que
+es lo que predice el análisis. Extrapolando, un millón de puntos son unos
+$5 \cdot 10^{11}$ pares, más de sesenta mil veces los de la última fila: días.
 
 ## 5. Divide y vencerás: el algoritmo
 
 La estructura es la de siempre. Partir el problema, resolver las partes, combinar.
 
-Ordenamos los puntos por $x$ y cortamos por la mediana, dejando $\lceil n/2 \rceil$
+Ordenamos los puntos por $x$ y cortamos por la mediana, dejando $\lfloor n/2 \rfloor$
 puntos a la izquierda y el resto a la derecha. Llamemos $L$ a la recta vertical que
 pasa por la mediana. Resolvemos recursivamente cada mitad y obtenemos $\delta_I$ y
 $\delta_D$, las distancias mínimas dentro de cada una. Sea
@@ -220,7 +209,7 @@ print(F.corte_y_franja(_Q, _medio, _delta, _franja, _izq, _der, ident="franja",
           f"caen dentro."))
 ```
 
-Hace falta una observación más, y es el corazón de la clase.
+Hace falta una observación más, y es el corazón del capítulo.
 
 ## 6. Divide y vencerás: la correctitud
 
@@ -238,11 +227,15 @@ cada cuadrado es su diagonal, $\frac{\delta}{2}\sqrt{2} = \frac{\delta}{\sqrt 2}
 \delta$.
 
 Ahora usamos la hipótesis de inducción, y este es el paso que todo el mundo se salta.
-Cada cuadrado está entero de un solo lado de $L$, porque su lado $\delta/2$ es menor
-que $\delta$, la mitad del ancho de la franja. Los puntos de un mismo lado están a
-distancia al menos $\delta$ entre sí, por definición de $\delta_I$ y $\delta_D$. Como
-el diámetro del cuadrado es estrictamente menor que $\delta$, **cada cuadrado contiene
-a lo sumo un punto de $P$**.
+Las cuatro columnas de cuadrados están cortadas en $L - \delta$, $L - \delta/2$,
+$L$, $L + \delta/2$ y $L + \delta$, así que $L$ es una de las rectas que las separan:
+dos columnas quedan a la izquierda y dos a la derecha. A cada punto de $R$ le
+asignamos un cuadrado de su propio lado que lo contenga (un punto sobre $L$ puede ser
+de cualquiera de las dos mitades, y va a un cuadrado de la suya). Los puntos de un
+mismo lado están a distancia al menos $\delta$ entre sí, por definición de
+$\delta_I$ y $\delta_D$, que la hipótesis de inducción garantiza que son las
+distancias mínimas de verdad. Como el diámetro del cuadrado es estrictamente menor
+que $\delta$, **cada cuadrado tiene asignado a lo sumo un punto de $P$**.
 
 Entonces $R$ contiene a lo sumo 8 puntos, contando $p$ y $q$. Los puntos de $R$ con
 altura entre $p_y$ y $q_y$ son consecutivos en el orden por $y$, así que entre $p$ y
@@ -275,16 +268,16 @@ print(F.orden_por_y(len(_pts), _rango[_ip], _rango[_iq], ident="orden-y",
 En la figura, q está solo tres posiciones después de p, lejos de siete. Con los
 puntos de cada lado a distancia al menos $\delta$ entre sí caben pocos en cada mitad
 del rectángulo, así que la cuenta de la demostración es holgada y el peor caso real
-está por debajo de 7. En una nube
-uniforme la franja casi nunca llega a tener ocho puntos, y el par que la mejora
-resulta casi siempre consecutivo en el orden de $y$. Por eso el 7 es una garantía y no una descripción, y
-por eso, como vamos a medir en la sección 7, se puede escribir 1 en lugar de 7 y
-pasar las pruebas.
+está por debajo de 7. En una nube uniforme la franja puede tener muchos puntos (en
+los niveles profundos de la recursión suele contener el subproblema entero), pero el
+par que mejora a $\delta$ resulta casi siempre consecutivo en el orden de $y$. Por
+eso el 7 es una garantía y no una descripción, y por eso, como vamos a medir en la
+sección 7, se puede escribir 1 en lugar de 7 y pasar las pruebas.
 
 Dos comentarios sobre el 7. Primero, es una cota, no el óptimo: con un análisis más
 fino del rectángulo se baja, y el ejercicio 2 pide hacerlo. Segundo, la constante no
 cambia la complejidad, así que en la práctica nadie se molesta; Kleinberg y Tardos
-usan una caja distinta y llegan a 15. Lo que importa es que exista *alguna* constante,
+usan los mismos cuadrados con una cuenta más gruesa y llegan a 15. Lo que importa es que exista *alguna* constante,
 porque eso es lo que convierte la franja en trabajo lineal.
 
 ## 7. Divide y vencerás: la complejidad
@@ -356,7 +349,7 @@ for n in [1_000, 10_000, 100_000]:
     print(f"n = {n:>7,}   {seg:6.3f}s")
 ```
 
-Cien mil puntos en poco más de un segundo, contra los días que costaría la fuerza
+Cien mil puntos en segundos, contra los días que costaría la fuerza
 bruta. Verifiquemos que además da la respuesta correcta, comparando contra el oráculo
 de la sección 4 sobre entradas aleatorias.
 
@@ -427,15 +420,21 @@ print(F.arbol_decision(ident="arbol-decision",
 
 Ahora el resultado que vamos a usar, y que no demostramos.
 
-**Teorema (Ben-Or, 1983).** El problema de **distinción de elementos** —dados $n$
-reales, decidir si hay dos iguales— requiere $\Omega(n \log n)$ en el modelo de
-árboles de decisión algebraicos.
+**Teorema (Steele y Yao, 1982; Ben-Or, 1983).** El problema de **distinción de
+elementos** —dados $n$ reales, decidir si hay dos iguales— requiere
+$\Omega(n \log n)$ en el modelo de árboles de decisión algebraicos.
 
-La demostración acota el número de componentes conexas del conjunto de entradas que
-llevan a la respuesta "todos distintos", que son $n!$, por un teorema de Milnor y Thom
-sobre variedades algebraicas; un árbol de profundidad $h$ no puede separar más de
-$c^h$ componentes, y de ahí $h = \Omega(\log n!) = \Omega(n \log n)$. La citamos y
-seguimos.
+Steele y Yao lo demostraron para árboles de decisión de grado acotado, y Ben-Or lo
+extendió a un modelo más fuerte, el de árboles de cómputo algebraicos. La
+demostración cuenta las componentes conexas del conjunto de entradas que llevan a la
+respuesta "todos distintos", que son $n!$, una por cada orden posible de los $x_i$.
+Un teorema de Milnor y Thom sobre variedades algebraicas acota cuántas componentes
+puede separar un árbol de profundidad $h$ en $\mathbb{R}^n$: no más de $c^{n+h}$, con
+$c$ una constante que depende del grado. La dimensión $n$ aparece en el exponente, y
+no se puede quitar: un árbol de profundidad 1, con la sola prueba del signo de
+$\sum_i (x_i^2 - 1)^2 - \frac12$, un polinomio de grado 4, ya separa $2^n$
+componentes, una por cada elección de signos de los $x_i$. Entonces $n + h \ge \log_c n!$, o sea
+$h \ge \log_c n! - n = \Omega(n \log n)$. La citamos y seguimos.
 
 Lo que sí demostramos es que el par más cercano hereda esa cota.
 
@@ -464,12 +463,12 @@ print(F.reduccion([0.5, 2.1, 3.4, 5.0, 5.0, 7.2, 8.6], ident="reduccion",
 
 Conclusión: el algoritmo de la sección 7 es óptimo, y la búsqueda se acabó.
 
-Vale la pena mirar la forma del argumento, porque vuelve en el Tema 3 con otro
+Vale la pena mirar la forma del argumento, porque vuelve en la Parte III con otro
 objetivo. Una reducción del problema $A$ al problema $B$ transforma entradas de $A$ en
 entradas de $B$ de modo que la respuesta se preserva. Eso permite leerla en dos
 direcciones: **un algoritmo bueno para $B$ da uno bueno para $A$**, que es como se
 usa para diseñar, y **una cota mínima para $A$ da una cota mínima para $B$**, que es
-como la acabamos de usar. Las reducciones de la conferencia 16 en adelante son las
+como la acabamos de usar. Las reducciones del capítulo 16 en adelante son las
 mismas, leídas en la segunda dirección: si $A$ es difícil y $A$ se reduce a $B$,
 entonces $B$ es difícil.
 
@@ -498,7 +497,9 @@ distancia entre los puntos insertados. $\square$
 $p_{i+1}$ tiene coordenadas que difieren en menos de $\delta = 2 \cdot (\delta/2)$, o
 sea en menos de dos celdas en cada eje. Está entonces en el bloque de $5 \times 5$
 celdas centrado en la de $p_{i+1}$. Consultamos esas 25 celdas, cada una con a lo
-sumo un punto por el invariante: 25 accesos a la tabla hash, $O(1)$.
+sumo un punto por el invariante: 25 accesos a la tabla hash. Si cada acceso cuesta
+$O(1)$ esperado, que es lo que garantiza el hashing universal del capítulo 8, la
+consulta entera cuesta $O(1)$ esperado.
 
 - Si no hay ninguno más cerca que $\delta$, entonces $\delta$ no cambia. Insertamos
   $p_{i+1}$ en su celda y seguimos. Costo $O(1)$.
@@ -542,13 +543,18 @@ El costo del algoritmo es entonces $O(n)$ más el costo de las reconstrucciones,
 depende de cuántas haya.
 
 **Análisis hacia atrás.** Fijemos el conjunto $S = \{p_1, \dots, p_{i+1}\}$ y
-olvidemos en qué orden llegó. El par más cercano de $S$ está determinado por $S$: es
-un par, a lo sumo dos si contamos empates, y supongamos que es único. El paso $i+1$
-reconstruye si y solo si insertar $p_{i+1}$ hizo bajar a $\delta$, es decir, si y solo
-si $p_{i+1}$ es uno de los dos puntos de ese par. Como el orden de inserción es una
-permutación uniforme, condicionado a cuál es el conjunto $S$, el elemento $p_{i+1}$ es
-uniforme entre los $i+1$ de $S$. Luego
-$$\Pr[\text{reconstruir en el paso } i+1] \le \frac{2}{i+1}.$$
+olvidemos en qué orden llegó. Los pares a distancia mínima dentro de $S$ están
+determinados por $S$, y puede haber varios (la sección 2 cuenta hasta cuántos). El
+paso $i+1$ reconstruye si y solo si insertar $p_{i+1}$ hizo bajar a $\delta$, y eso
+pasa si y solo si $p_{i+1}$ está en **todos** los pares mínimos de $S$: si quedara uno
+sin él, ese par ya estaba entre $p_1, \dots, p_i$ y $\delta$ no baja. Elijamos uno de
+esos pares mirando solo a $S$, por ejemplo el primero en orden lexicográfico. Si el
+paso reconstruye, $p_{i+1}$ es uno de sus dos puntos. Como el orden de inserción es
+una permutación uniforme, condicionado a cuál es el conjunto $S$, el elemento
+$p_{i+1}$ es uniforme entre los $i+1$ de $S$, y cae en ese par con probabilidad
+$2/(i+1)$. Luego
+$$\Pr[\text{reconstruir en el paso } i+1] \le \frac{2}{i+1},$$
+con igualdad cuando el par mínimo de $S$ es único.
 
 El truco está en fijar el conjunto y preguntar quién fue el último, en lugar de
 seguir el proceso hacia adelante. De ahí el nombre.
@@ -557,8 +563,10 @@ seguir el proceso hacia adelante. De ahí el nombre.
 $$\mathbb{E}[\text{costo}] = O(n) + \sum_{i=2}^{n-1} \frac{2}{i+1} \cdot O(i) = O(n) +
 \sum_{i} O(1) = O(n).$$
 
-De paso, el número esperado de reconstrucciones es
-$\sum_i \frac{2}{i+1} \approx 2 \ln n$, un número tan pequeño que se puede medir.
+De paso, el número esperado de reconstrucciones es a lo sumo
+$\sum_{i=2}^{n-1} \frac{2}{i+1} = 2H_n - 3$, donde $H_n = 1 + \frac12 + \dots +
+\frac1n \le \ln n + 1$. Es menos que $2 \ln n$, y es un número tan pequeño que se
+puede medir. La tabla de abajo compara con $2 \ln n$, que es una cota holgada.
 
 ```{python continue}
 import math
@@ -615,13 +623,16 @@ print(F.grafica_barras([f"n = {n:,}".replace(",", " ") for n, _, _ in medidas],
       titulo_y="reconstrucciones", ident="reconstrucciones",
       pie="Lo que predice el análisis hacia atrás y lo que reconstruye el programa."))
 print(F.grafica_log_log(tiempos, "n", "segundos", ident="tiempos",
-      pie="Los tres algoritmos de la clase, en ejes logarítmicos, con los tiempos "
+      pie="Los tres algoritmos del capítulo, en ejes logarítmicos, con los tiempos "
           "que este documento acaba de medir. La pendiente es el exponente: 2 para "
           "la fuerza bruta, 1 para los otros dos."))
 ```
 
-Una veintena de reconstrucciones para cien mil puntos, del orden de $2 \ln n$, y la
-mitad del tiempo del algoritmo de la sección 7. El algoritmo lineal no es solo lineal
+Una veintena de reconstrucciones para cien mil puntos, del orden de $2 \ln n$, y menos
+tiempo que el algoritmo de la sección 7 con el mismo $n$. Cada fila promedia solo tres
+órdenes aleatorios, y la cuenta de un orden varía en unas cuantas reconstrucciones,
+así que una fila puede quedar por encima de $2 \ln n$ sin contradecir nada. Lo que la
+tabla muestra es el orden de magnitud: decenas de reconstrucciones, no miles. El algoritmo lineal no es solo lineal
 en la pizarra.
 
 ## 10. Qué escondía el modelo
@@ -647,9 +658,13 @@ reconstrucciones. Lo que lo saca del modelo son la parte entera y la tabla hash.
 
 La cota de Ben-Or vale para los árboles de decisión algebraicos. El algoritmo
 aleatorio no es uno. No hay contradicción: hay dos modelos distintos, y el segundo es
-estrictamente más poderoso para este problema.
+estrictamente más poderoso para este problema. Fortune y Hopcroft (1979) lo mostraron
+sin azar: en un modelo con la parte entera y una operación parecida al hashing que
+cuesta tiempo constante garantizado, dieron un algoritmo determinista de
+$O(n \log \log n)$ para el par más cercano, por debajo de la cota de los árboles de
+decisión.
 
-Esto conecta hacia atrás con la conferencia 1. Allí la máquina de Turing, la RAM y la
+Esto conecta hacia atrás con el capítulo 1. Allí la máquina de Turing, la RAM y la
 word RAM daban respuestas distintas a "cuánto cuesta esto", y la diferencia estaba en
 los exponentes. Aquí el modelo decide algo más fuerte: qué es posible. La misma
 pregunta, con dos modelos razonables, tiene dos respuestas separadas por un factor
@@ -660,12 +675,12 @@ y la primera pregunta ante una es cuál es ese modelo y qué deja fuera.** Una c
 mínima no dice "esto es imposible". Dice "esto es imposible con estas herramientas", y
 a veces el trabajo consiste en cambiar de herramientas.
 
-El curso vuelve sobre las tres piezas de hoy. Las cotas mínimas y los argumentos de
-adversario son la conferencia 5. Los algoritmos aleatorios y el análisis de su costo
-esperado son las conferencias 8 y 15. Las reducciones son el Tema 3 entero, leídas al
-revés.
+El libro vuelve sobre las tres piezas de este capítulo. Las cotas mínimas y los
+argumentos de adversario son el capítulo 5. Los algoritmos aleatorios y el análisis
+de su costo esperado son los capítulos 8 y 15. Las reducciones son la Parte III
+entera, leídas al revés.
 
-## 11. Resumen
+## Resumen
 
 - El oficio es responder cinco preguntas en orden: qué es el problema, qué algoritmo
   lo resuelve, por qué es correcto, cuánto cuesta y si se puede hacer mejor.
@@ -691,8 +706,12 @@ revés.
 
 ## Ejercicios
 
-1. Demuestra formalmente el lema de la sección 3, cubriendo el caso de empates: si
-   hay varios pares mínimos, ¿la demostración sigue funcionando?
+1. Un radar ve $n$ aviones como puntos del plano y tiene que dar la alarma si dos
+   están a menos de una distancia $r$. Plantea la tarea como uno de los problemas de
+   este capítulo y di cuánto cuesta. Después supón que los aviones aparecen uno a
+   uno y que la alarma tiene que sonar en cuanto aparece el segundo avión de un par
+   peligroso: ¿cuál de los algoritmos del capítulo se adapta a esa versión y cuál
+   no, y por qué?
 2. El lema de la franja da 7, y en la @fig-orden-y basta mirar 3. Mejora la
    constante con el mismo tipo de argumento: ¿cuántos puntos a distancia al menos
    $\delta$ entre sí caben de cada lado de $L$ dentro del rectángulo?
@@ -705,11 +724,25 @@ revés.
 5. **Par más cercano bicromático**: cada punto es rojo o azul, y se busca el par más
    cercano con un punto de cada color. ¿Sobrevive el lema de la franja? Justifica.
 6. Implementa el algoritmo de la sección 9, cuenta las reconstrucciones para
-   $n = 10^3, 10^4, 10^5$ y compara con $2 \ln n$. Después quita la permutación
+   $n = 10^3, 10^4, 10^5$, promediando 30 órdenes aleatorios por tamaño, y compara
+   con $2H_n - 3$. Después quita la permutación
    aleatoria. Explica por qué, con puntos uniformes, la cuenta no cambia, y qué
    clase de entrada sí la cambia (el ejercicio 7 la pide).
 7. Construye una entrada y un orden de inserción que fuercen al algoritmo de la
    sección 9 a $\Theta(n^2)$. ¿Por qué la permutación aleatoria lo hace
    improbable, y qué es exactamente lo que se vuelve improbable?
-8. La reducción de la sección 8 va de distinción de elementos a par más cercano. ¿Hay
-   una reducción en la dirección contraria? Si la hubiera, ¿qué se podría concluir?
+8. La reducción de la sección 8 va de distinción de elementos a par más cercano y
+   cuesta $O(n)$. ¿Hay una reducción en la dirección contraria que cueste $O(n)$? Si
+   la hubiera, ¿qué se podría concluir? Explica también por qué la pregunta no tiene
+   interés si no se fija el costo de la reducción.
+9. Traza el algoritmo de la sección 3 sobre los números 7,2; 0,5; 5,0; 3,4; 8,6;
+   2,1; 5,3: el orden que resulta, los huecos que mira y el par que devuelve.
+   Después demuestra que el par más cercano en la recta requiere $\Omega(n \log n)$
+   en árboles de decisión algebraicos, adaptando la reducción de la sección 8. ¿Qué
+   queda de la construcción cuando la entrada ya son números?
+10. El error plantado de la sección 7 usa 1 vecino. Con 2 vecinos el algoritmo
+    también es incorrecto. Construye a mano una entrada de cuatro puntos con coordenadas enteras sobre la
+    que `par_mas_cercano(P, vecinos=2)` devuelve una distancia equivocada, y traza
+    el algoritmo sobre ella para mostrar qué par se salta. La demostración del lema
+    de la franja te dice dónde poner los puntos; mira también qué hace el código con
+    los empates en $x$ y en $y$.
