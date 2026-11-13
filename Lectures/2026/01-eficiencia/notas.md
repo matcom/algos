@@ -1,19 +1,20 @@
----
-theme: note
-css: notas.css
-title: "Conferencia 1: qué significa que un algoritmo es eficiente"
----
+# Qué significa que un algoritmo es eficiente {#chap-eficiencia}
 
-# Conferencia 1: qué significa que un algoritmo es eficiente
+```{python echo=false output=asis}
+import itertools
+import math
+import os
+import sys
+import time
 
-::: meta
-Diseño y Análisis de Algoritmos · Ciencia de la Computación · MatCom · 2026
-:::
+sys.path.insert(0, os.path.abspath(".."))   # Lectures/2026: figuras.py y figuras_01.py
+import figuras_01 as F1
+```
 
 En este curso, cada vez que aparezca un algoritmo vamos a hacerle las mismas tres
 preguntas: si es correcto, cuánto cuesta y si se puede hacer mejor. Antes de
-responderlas hace falta ponerse de acuerdo en qué significa "cuánto cuesta". Esa es la
-clase de hoy. Al terminar vas a saber en qué modelo de computadora contamos, qué
+responderlas hace falta ponerse de acuerdo en qué significa "cuánto cuesta", y de eso
+trata este capítulo, que abre la Parte I. Al terminar vas a saber en qué modelo de computadora contamos, qué
 contamos, cómo se escribe el resultado, y por qué un algoritmo que parece rápido
 puede ser exponencial.
 
@@ -22,7 +23,7 @@ puede ser exponencial.
 ¿Cuánto cuesta decidir si un número $n$ es primo? El algoritmo que todos conocemos
 prueba los divisores desde 2 hasta $\sqrt{n}$. Si ninguno divide a $n$, es primo.
 
-```{python}
+```{python continue}
 def es_primo(n):
     divisiones = 0
     d = 2
@@ -41,8 +42,9 @@ for n in [97, 10_007, 1_000_003, 1_000_000_007]:
 Para $n$ primo hace unas $\sqrt{n}$ divisiones. Crece más despacio que $n$, así que
 parece un buen algoritmo. Sin embargo, este algoritmo no puede decidir si un número
 de 1024 bits es primo antes de que se apague el Sol, y esa operación la hace tu
-teléfono cada vez que abre una conexión segura, con otro algoritmo. Las dos
-afirmaciones son ciertas. Al final de la clase vamos a ver por qué, y para eso
+computadora, con otro algoritmo, cada vez que genera una clave RSA de 2048 bits, cuyos
+dos primos tienen 1024 bits cada uno. Las dos
+afirmaciones son ciertas. En la §8 vamos a ver por qué, y para eso
 necesitamos precisar qué es el tamaño de un problema y qué es una operación.
 
 ## 2. Medir en segundos no sirve
@@ -75,13 +77,111 @@ el cabezal tiene que caminar hasta ella, así que acceder a un dato cuesta tanto
 la distancia a la que está. Un ejemplo concreto: decidir si una cadena de longitud
 $n$ es un palíndromo. En cualquier computadora real se compara el primer carácter con
 el último, el segundo con el penúltimo, y se termina en $O(n)$. Una máquina de Turing
-de una cinta tiene que ir y volver de un extremo al otro, y Hennie demostró en 1965
-que ninguna máquina de una cinta lo resuelve en menos de $\Omega(n^2)$ pasos.
+de una cinta tiene que ir y volver de un extremo al otro, y Hennie demostró en 1965,
+con un argumento de secuencias de cruce, que toda máquina de una cinta que lo resuelve
+necesita $\Omega(n^2)$ pasos en el peor caso.
+
+Veamos el ir y venir con una máquina concreta. Sobre el alfabeto $\{a, b\}$, la
+máquina borra el primer símbolo y lo recuerda en su estado (`lleva_a` o `lleva_b`),
+camina a la derecha hasta el primer blanco, retrocede una celda y comprueba que el
+último símbolo sea el que recordaba. Si coincide, lo borra, vuelve a la izquierda hasta
+el blanco y empieza otra vez con una palabra dos símbolos más corta. Toda la máquina es
+la tabla `T`, y el simulador solo la aplica:
+
+```{python continue}
+BLANCO = "_"
+T = {("q0", "a"): (BLANCO, +1, "lleva_a"), ("q0", "b"): (BLANCO, +1, "lleva_b"),
+     ("q0", BLANCO): (BLANCO, 0, "acepta")}
+for c, otro in [("a", "b"), ("b", "a")]:
+    for s in "ab":
+        T[("lleva_" + c, s)] = (s, +1, "lleva_" + c)
+    T[("lleva_" + c, BLANCO)] = (BLANCO, -1, "mira_" + c)
+    T[("mira_" + c, c)] = (BLANCO, -1, "vuelve")
+    T[("mira_" + c, otro)] = (otro, 0, "rechaza")
+    T[("mira_" + c, BLANCO)] = (BLANCO, 0, "acepta")   # longitud impar
+for s in "ab":
+    T[("vuelve", s)] = (s, -1, "vuelve")
+T[("vuelve", BLANCO)] = (BLANCO, +1, "q0")
+
+def correr(w, tabla=T):
+    cinta, pos, estado, camino = dict(enumerate(w)), 0, "q0", [0]
+    while estado not in ("acepta", "rechaza"):
+        escribe, mueve, estado = tabla[(estado, cinta.get(pos, BLANCO))]
+        cinta[pos] = escribe
+        pos += mueve
+        camino.append(pos)
+    return estado == "acepta", camino   # pasos = len(camino) - 1
+
+# oráculo: todas las palabras de longitud hasta 12
+probadas = 0
+for n in range(13):
+    for letras in itertools.product("ab", repeat=n):
+        w = "".join(letras)
+        assert correr(w)[0] == (w == w[::-1])
+        probadas += 1
+print(f"{probadas:,} palabras, todas bien clasificadas")
+
+for n in [8, 64, 512, 4096]:
+    w = "ab" * (n // 4) + "ba" * (n // 4)          # un palíndromo de longitud n
+    pasos = len(correr(w)[1]) - 1
+    assert pasos == (n + 1) * (n + 2) // 2
+    print(f"n = {n:>5}   pasos = {pasos:>10,}   pasos / n² = {pasos / n**2:.4f}")
+```
+
+La máquina acierta en las 8 191 palabras de longitud hasta 12, y con un palíndromo de
+longitud $n$ par da exactamente $(n + 1)(n + 2)/2$ pasos, que el código comprueba con
+un `assert`. La cuenta sale así: cuando quedan $m$ símbolos, la ronda da $m$ pasos
+hacia la derecha hasta el blanco, uno para retroceder, uno para borrar el último
+símbolo, $m - 2$ sobre los símbolos que quedan y uno para volver a entrar, en total
+$2m + 1$. Sumando sobre $m = n, n - 2, \dots, 2$ y el paso final que lee la cinta vacía
+sale $(n+1)(n+2)/2$. La @fig-eficiencia-cinta dibuja la cinta y el camino del cabezal
+con $n = 8$.
+
+```{python continue echo=false output=asis}
+w = "abbaabba"
+print(F1.cinta(w, correr(w)[1], 5, pie=(
+    "Arriba, la cinta con la palabra <i>abbaabba</i>: para leer la celda 5 el cabezal "
+    "tiene que moverse 5 veces. Abajo, la posición del cabezal en cada paso de la "
+    "máquina de los palíndromos, con el tiempo hacia abajo: cada ronda cruza la "
+    "palabra que queda dos veces, y las rondas suman un área cuadrática.")))
+```
+
+La línea marcada `# longitud impar` parece un detalle, y es fácil equivocarla. Si
+uno piensa "si al ir a comparar ya no queda nada, algo salió mal" y la cambia por un
+rechazo, la máquina sigue pareciendo correcta:
+
+```{python continue}
+T_mala = dict(T)
+for c in "ab":
+    T_mala[("mira_" + c, BLANCO)] = (BLANCO, 0, "rechaza")
+
+errores = {"par": 0, "impar": 0}
+for n in range(13):
+    for letras in itertools.product("ab", repeat=n):
+        w = "".join(letras)
+        if correr(w, T_mala)[0] != (w == w[::-1]):
+            errores["par" if n % 2 == 0 else "impar"] += 1
+print(f"errores con longitud par: {errores['par']}   con longitud impar: {errores['impar']}")
+```
+
+Una batería que solo pruebe palabras de longitud par, como los palíndromos con los
+que medimos los pasos, pasa entera: la variante falla exactamente en los 126 palíndromos de longitud impar.
+La cuenta de pasos ya lo anunciaba. La suma recorre $m = n, n-2, \dots, 2$, y eso solo
+termina en 2 cuando $n$ es par; con $n$ impar la última ronda empieza con $m = 1$, la
+máquina borra el símbolo del medio y llega a `mira` sobre un blanco. Ese es el caso que
+la variante clasifica mal. Una demostración que separa los casos de paridad obliga a
+mirar esa línea; una batería de pruebas, no.
+
+Ojo con lo que demuestra el experimento. La tabla muestra que *esta* máquina hace unos
+$n^2/2$ pasos, y nada más. Que *ninguna* máquina de una cinta pueda hacerlo en
+$o(n^2)$ es el teorema de Hennie, y no se puede medir: habría que probar todas las
+máquinas. Una cota mínima es una afirmación sobre todos los algoritmos de un modelo, y
+el capítulo 5 está dedicado a demostrarlas.
 
 Los modelos razonables se simulan unos a otros con un costo polinomial: una máquina
 de $k$ cintas que tarda $t$ pasos se simula con una de una cinta en $O(t^2)$ pasos.
 Eso significa que la frontera entre polinomial y exponencial no depende del modelo,
-y vamos a usarlo en el Tema 3. Pero el exponente sí depende del modelo, y en este
+y vamos a usarlo en la Parte III. Pero el exponente sí depende del modelo, y en este
 curso nos importa la diferencia entre $n$, $n \log n$ y $n^2$. Necesitamos un modelo
 más parecido a una computadora.
 
@@ -98,7 +198,8 @@ secuencia de instrucciones de este tipo:
 Cada instrucción cuesta 1. El tiempo de un algoritmo con una entrada es el número de
 instrucciones que ejecuta, y la memoria es el número de celdas que usa. Acceder a la
 celda $10^9$ cuesta lo mismo que acceder a la celda 0, que es lo que hace un
-procesador real con su memoria.
+procesador real con su memoria salvo por la caché, que el modelo ignora a propósito. Donde la máquina de Turing de la @fig-eficiencia-cinta
+camina 5 celdas, la RAM ejecuta una sola instrucción.
 
 En la práctica nadie escribe programas en instrucciones RAM. Escribimos pseudocódigo o
 Python, y cada línea simple (una asignación, una comparación, una operación
@@ -130,7 +231,8 @@ Recordamos las definiciones. Sean $f, g : \mathbb{N} \to \mathbb{R}_{\ge 0}$.
 - $f \in \Theta(g)$ si $f \in O(g)$ y $f \in \Omega(g)$.
 - $f \in o(g)$ si para todo $c > 0$ existe $n_0$ tal que $f(n) < c \cdot g(n)$ para todo
   $n \ge n_0$. Cuando el límite existe, equivale a $\lim f(n)/g(n) = 0$.
-- $f \in \omega(g)$ si $g \in o(f)$, o sea $\lim f(n)/g(n) = \infty$.
+- $f \in \omega(g)$ si $g \in o(f)$, o sea, cuando el límite existe,
+  $\lim f(n)/g(n) = \infty$.
 
 | Notación | Se lee como | Ejemplo |
 |---|---|---|
@@ -160,9 +262,9 @@ Tres errores frecuentes:
 3. La base del logaritmo no importa dentro de $O$, porque $\log_a n = \log_b n /
    \log_b a$. La base de una exponencial sí importa: $3^n \notin O(2^n)$.
 
-Salvo que se diga otra cosa, en este curso el costo de un algoritmo es su costo en el
-peor caso. El costo amortizado aparece en la conferencia 4 y el costo esperado de los
-algoritmos aleatorios en la última conferencia.
+Salvo que se diga otra cosa, en este libro el costo de un algoritmo es su costo en el
+peor caso. El costo amortizado aparece en el capítulo 4 y el costo esperado de los
+algoritmos aleatorios en los capítulos 8 y 15.
 
 ## 6. Tiempo y memoria
 
@@ -170,13 +272,19 @@ Medimos dos recursos. El tiempo es el número de operaciones y la memoria es el 
 de celdas que el algoritmo usa además de la entrada.
 
 La memoria nunca supera al tiempo: cada operación toca una cantidad constante de
-celdas, así que un algoritmo que corre $T$ pasos usa $O(T)$ celdas. Al revés no hay
-cota, y en la práctica la memoria suele acabarse antes que la paciencia. La
-subsecuencia común más larga de dos cadenas de longitud $n$ se resuelve con una tabla
+celdas, así que un algoritmo que corre $T$ pasos usa $O(T)$ celdas. Al revés la cota
+es mucho más floja. En la word RAM de la §9, con celdas de $w$ bits, un algoritmo que
+usa $S$ celdas tiene a lo sumo $2^{wS}$ contenidos de memoria posibles, y si termina no
+puede pasar dos veces por la misma configuración (la memoria más la instrucción en
+curso), así que su tiempo es a lo sumo exponencial en $wS$. En la práctica la memoria
+suele acabarse antes que la paciencia. Para reconstruir la subsecuencia común más
+larga de dos cadenas de longitud $n$, la programación dinámica clásica guarda una tabla
 de $n \times n$. Con $n = 10^5$ son $10^{10}$ operaciones simples, del orden de
 segundos o decenas de segundos en C, y $10^{10}$ celdas de 4 bytes, 40 GB de memoria
-que tu computadora no tiene. En la conferencia 10 vamos a ver cómo resolver el mismo
-problema en tiempo $O(n^2)$ y memoria $O(n)$.
+que tu computadora no tiene. Su longitud sola se calcula guardando dos filas, en
+memoria $O(n)$; lo que pide la tabla entera es reconstruir la subsecuencia. En el
+capítulo 12, con el algoritmo de Hirschberg, vamos a reconstruirla en tiempo $O(n^2)$ y
+memoria $O(n)$.
 
 ## 7. Por qué la complejidad importa más cuando la computadora mejora
 
@@ -184,7 +292,7 @@ Supongamos una computadora que hace $10^9$ operaciones por segundo y le damos un
 ¿Cuál es la entrada más grande que resuelve un algoritmo de cada complejidad? ¿Y si la
 computadora es 10 veces o 1000 veces más rápida?
 
-```{python}
+```{python continue}
 import math
 
 def mayor_n(costo, presupuesto):
@@ -220,7 +328,19 @@ Con una computadora 1000 veces más rápida, el algoritmo lineal resuelve entrad
 veces más grandes. El cuadrático, solo $\sqrt{1000} \approx 32$ veces más grandes. El
 cúbico, 10 veces. El exponencial suma unas 10 unidades al tamaño de entrada, porque
 $2^{n + 10} \approx 1000 \cdot 2^n$. Para un algoritmo exponencial, mil veces más
-potencia de cómputo compra casi nada.
+potencia de cómputo compra casi nada. La @fig-eficiencia-hora pone las filas de la
+tabla en una misma escala logarítmica.
+
+```{python continue echo=false output=asis}
+factores = (1, 10, 1000)
+filas = {nombre: [mayor_n(costo, hora * k) for k in factores]
+         for nombre, costo in costos.items()}
+print(F1.hora(filas, factores, pie=(
+    "El mayor tamaño de entrada que cada algoritmo resuelve en una hora, con una "
+    "máquina de 10⁹ operaciones por segundo y con otras 10 y 1000 veces más "
+    "rápidas. El número de la derecha es cuánto crece el tamaño con la máquina mil "
+    "veces más rápida: en escala logarítmica, el segmento de 2ⁿ casi no se ve.")))
+```
 
 Ahora mira el problema desde el otro lado. Los datos también crecen. Si en diez años
 la computadora es 10 veces más rápida y los datos que hay que procesar son 10 veces
@@ -236,10 +356,12 @@ el valor de la entrada, no su tamaño. Para escribir $n$ en binario hacen falta
 $b = \lfloor \log_2 n \rfloor + 1$ bits, y un algoritmo se mide en función del tamaño
 de su entrada, porque eso es lo que ocupa en memoria y lo que hay que leer.
 
-En función de $b$, las $\sqrt{n}$ divisiones son $\sqrt{2^b} = 2^{b/2}$. El algoritmo
+En función de $b$, como $2^{b-1} \le n < 2^b$, las $\sqrt{n}$ divisiones son del orden
+de $2^{b/2}$, y el peor caso existe para todo $b$ porque siempre hay un primo de $b$
+bits (el postulado de Bertrand). El algoritmo
 es exponencial en el tamaño de la entrada. Con $10^9$ divisiones por segundo:
 
-```{python}
+```{python continue}
 segundos_por_año = 3600 * 24 * 365
 
 for bits in [32, 64, 128, 256, 1024]:
@@ -260,7 +382,8 @@ determinista polinomial en $b$, el de Agrawal, Kayal y Saxena.
 Un algoritmo es polinomial si su costo es polinomial en el tamaño de la entrada.
 Cuando el costo es polinomial en el valor de un número de la entrada pero no en su
 cantidad de bits, se dice pseudopolinomial. La mochila con su tabla de $O(nW)$ es el
-ejemplo clásico, y va a ser importante en el Tema 3.
+ejemplo clásico, y vuelve en el capítulo 19, donde se demuestra NP-completa, aunque la
+tabla pseudopolinomial la resuelve bien cuando los números son chicos.
 
 ## 9. Cuánto cuesta una multiplicación
 
@@ -268,7 +391,7 @@ El modelo RAM tiene un problema escondido. Cada celda guarda un entero, sin lím
 tamaño, y multiplicar dos enteros cuesta 1. Mira este programa, que eleva al cuadrado
 el mismo número $k$ veces:
 
-```{python}
+```{python continue}
 import time
 
 x = 2
@@ -283,9 +406,15 @@ for k in range(1, 23):
 Después de $k$ multiplicaciones, $x = 2^{2^k}$ tiene $2^k + 1$ bits. En el modelo RAM
 con multiplicación de costo 1, el programa hace $k$ operaciones y construye un número
 de tamaño exponencial en $k$. En una computadora real, cada multiplicación tarda más
-que la anterior. Esto no es solo una curiosidad: Hartmanis y Simon demostraron en 1974
-que una RAM con multiplicación de costo unitario resuelve en tiempo polinomial
-problemas que se consideran mucho más difíciles que los NP-completos del Tema 3.
+que la anterior. Y estos tiempos son de un caso favorable: $x$ es una potencia de 2,
+con un solo bit en 1. Elevar al cuadrado un número de los mismos bits con unos y ceros
+mezclados tarda bastante más, y el ejercicio 10 lo mide.
+
+Esto no es solo una curiosidad. Hartmanis y Simon demostraron en 1974 que una RAM con
+multiplicación de costo unitario y con operaciones lógicas bit a bit sobre los
+registros resuelve en tiempo polinomial exactamente los problemas que una máquina de
+Turing resuelve en espacio polinomial, una clase que contiene a los NP-completos de la
+Parte III y que se cree mucho más grande.
 
 La solución es limitar el tamaño de las celdas. En el modelo *word RAM*, cada celda
 guarda una palabra de $w$ bits, con $w \ge \log_2 n$ para que una palabra alcance para
@@ -303,45 +432,49 @@ esos casos contamos operaciones sobre bits. Sobre números de $b$ bits:
 |---|---|
 | suma y resta | $O(b)$ |
 | multiplicación de escuela | $O(b^2)$ |
-| Karatsuba | $O(b^{\log_2 3}) \approx O(b^{1.585})$ |
+| Karatsuba | $O(b^{\log_2 3}) \approx O(b^{1{,}585})$ |
 | basada en la transformada de Fourier | $O(b \log b \log \log b)$ |
 | Harvey y van der Hoeven (2019) | $O(b \log b)$ |
 
-La transformada de Fourier es el tema de la conferencia 6. Como ejemplo de análisis
+Karatsuba es del capítulo 6, y la transformada de Fourier, del capítulo 7. La fila
+basada en ella es el algoritmo de Schönhage y Strassen (1971); la de Harvey y van der
+Hoeven se publicó en *Annals of Mathematics* en 2021. Como ejemplo de análisis
 por bits, el algoritmo de Euclides sobre números de $b$ bits hace $O(b)$ iteraciones,
 cada una con una división de costo $O(b^2)$, lo que da $O(b^3)$. Un análisis más fino
 da $O(b^2)$.
 
-## 10. El curso
+## 10. El libro y el curso
 
-La asignatura tiene tres temas. Cada conferencia toma un problema y recorre el mismo
+El libro tiene tres partes. Cada capítulo toma un problema y recorre el mismo
 ciclo: proponer un algoritmo, demostrar que es correcto, analizar su costo y, cuando
 se pueda, demostrar que no se puede hacer mejor.
 
-- Tema 1, fundamentos: 1. Eficiencia y modelos de cómputo. 2. El oficio algorítmico.
+- Parte I, fundamentos: 1. Eficiencia y modelos de cómputo. 2. El oficio algorítmico.
   3. Correctitud. 4. Análisis amortizado. 5. Cotas mínimas.
-- Tema 2, técnicas: 6. Divide y vencerás y recurrencias. 7. Transformada rápida de
+- Parte II, estrategias: 6. Divide y vencerás y recurrencias. 7. Transformada rápida de
   Fourier. 8. Algoritmos aleatorios: Las Vegas. 9. Golosos y argumentos de
   intercambio. 10. Matroides. 11. Programación dinámica sobre árboles y subconjuntos.
   12. Optimizaciones de programación dinámica. 13. Flujo máximo con Dinic. 14. Flujo
   máximo con push-relabel. 15. Algoritmos aleatorios: Monte Carlo.
-- Tema 3, intratabilidad: 16. P, NP y reducciones. 17. Cook-Levin. 18. Reducciones a
+- Parte III, intratabilidad: 16. P, NP y reducciones. 17. Cook-Levin. 18. Reducciones a
   grafos. 19. Reducciones a secuencias y números. 20. Algoritmos exactos. 21.
   Aproximación. 22. TSP métrico y programación lineal. 23. Esquemas de aproximación.
-- Cierre: 24. Fronteras del diseño y análisis de algoritmos.
+- Epílogo: problemas abiertos.
 
-El curso asume la búsqueda binaria, que viste en Programación en primer año, y lo que
+Cada parte cierra con un resumen de sus ideas y ejercicios que cruzan sus capítulos.
+
+El libro asume la búsqueda binaria, que viste en Programación en primer año, y lo que
 viste en Estructuras de Datos y Algoritmos: ordenamientos, BFS y DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, árboles
 recubridores mínimos, union-find, heaps, tablas hash, el Teorema Maestro y la
 programación dinámica clásica. No asume nada sobre P, NP ni reducciones.
 
-La evaluación tiene cuatro partes:
+En la asignatura, la evaluación tiene cuatro componentes:
 
 - Evaluación continua, con los ejercicios para la casa que se orientan después de
-  cada conferencia.
-- Parcial 1, al cerrar el Tema 2.
-- Parcial 2, al cerrar el Tema 3.
-- Examen final escrito, sobre los tres temas.
+  cada capítulo.
+- Parcial 1, al cerrar la Parte II.
+- Parcial 2, al cerrar la Parte III.
+- Examen final escrito, sobre las tres partes.
 
 Puedes usar herramientas de IA para implementar algoritmos, generar casos de prueba y
 depurar, y tienes que declarar que las usaste. Las demostraciones de correctitud, los
@@ -352,11 +485,14 @@ y en el examen.
 La bibliografía básica es *Introduction to Algorithms* de Cormen, Leiserson, Rivest y
 Stein, y *Algorithm Design* de Kleinberg y Tardos.
 
-## 11. Resumen
+## Resumen
 
 - Medimos algoritmos contando operaciones en un modelo de cómputo, no en segundos.
-- La máquina de Turing define qué es computable, pero cambia los exponentes. Para
+- La máquina de Turing define qué es computable, pero cambia los exponentes: el
+  palíndromo, lineal en una computadora, cuesta $\Theta(n^2)$ en una cinta. Para
   distinguir $n$ de $n^2$ usamos el modelo RAM, donde acceder a cualquier celda cuesta 1.
+- Medir una máquina da una cota superior para esa máquina. Una cota mínima habla de
+  todas, y se demuestra.
 - Las constantes dependen de cómo se cuenta, así que describimos el costo con $O$,
   $\Omega$, $\Theta$, $o$ y $\omega$, en el peor caso salvo que se diga otra cosa.
 - Medimos tiempo y memoria. La memoria está acotada por el tiempo, y suele ser la que
@@ -379,9 +515,12 @@ Stein, y *Algorithm Design* de Kleinberg y Tardos.
 3. Da dos funciones $f$ y $g$ tales que $f \notin O(g)$ y $g \notin O(f)$.
 4. Una computadora 100 veces más rápida, ¿cuánto aumenta el tamaño de entrada que
    resuelve en una hora un algoritmo de costo $n \log_2 n$? Estima el factor y
-   compruébalo modificando el programa de la sección 7.
-5. Demuestra que un algoritmo que corre $T(n)$ pasos en el modelo RAM usa $O(T(n))$
-   celdas de memoria además de la entrada.
+   compruébalo modificando el programa de la §7.
+5. La §6 mide la memoria como el número de celdas distintas que se usan. Si en lugar
+   de eso se mide como la mayor dirección usada, ¿sigue valiendo que un algoritmo de
+   $T(n)$ pasos usa $O(T(n))$ de memoria? Da un programa de $O(1)$ pasos que lo
+   rompa, y explica cómo se simula cualquier programa de $T$ pasos con memoria
+   $O(T)$ en el sentido de la mayor dirección y tiempo esperado $O(T)$.
 6. El siguiente algoritmo calcula el $n$-ésimo número de Fibonacci con $n$ sumas.
 
    ```python
@@ -398,5 +537,35 @@ Stein, y *Algorithm Design* de Kleinberg y Tardos.
 7. Diseña una máquina de Turing de una cinta que sume 1 a un número escrito en
    binario, con el cabezal empezando en el bit menos significativo y volviendo a él al
    terminar. ¿Cuántos pasos da en el peor caso? Si se aplica $m$ veces seguidas
-   empezando desde 0, ¿cuántos pasos da en total? El ejercicio 4 del resumen del Tema 1
-   vuelve sobre esta pregunta con las herramientas de la conferencia 4.
+   empezando desde 0, ¿cuántos pasos da en total? El ejercicio 4 del resumen de la
+   Parte I vuelve sobre esta pregunta con las herramientas del capítulo 4.
+8. La mochila entera tiene $n$ objetos con pesos $w_i$ y valores $v_i$ enteros
+   positivos y una capacidad $W$, y la programación dinámica clásica la resuelve
+   llenando una tabla de $(n + 1) \times (W + 1)$ en tiempo $O(nW)$.
+   - (a) Escribe el tamaño de la entrada en bits, en función de $n$ y de los bits de los
+     pesos, los valores y $W$.
+   - (b) Construye una familia de entradas, una para cada $n$, con todos los números de
+     $n$ bits, y calcula cuántas celdas llena la tabla en función del tamaño de la
+     entrada. ¿Es polinomial el algoritmo?
+   - (c) Cambia la hipótesis: si se sabe que $W \le n^3$, ¿cambia tu respuesta?
+
+   La mochila vuelve en el capítulo 19.
+9. Ordena estas funciones de menor a mayor crecimiento y demuestra cada comparación
+   entre dos vecinas de la lista, con la definición de $o$:
+   $$n^{\log_2 n}, \quad (\log_2 n)^n, \quad 2^{\sqrt{\log_2 n}}, \quad
+   n^{1/\log_2 \log_2 n}, \quad n!$$
+   (para $n \ge 3$, donde todas están definidas).
+   Comparar logaritmos ayuda, pero con cuidado: demuestra que si $g(n) \to \infty$ y
+   $\log f \in o(\log g)$, entonces $f \in o(g)$, y da un ejemplo de que el recíproco
+   es falso.
+10. Mide en Python el tiempo de `x + y` y de `x * y` con enteros de $b$ bits, para
+    $b = 2^6, 2^8, \dots, 2^{20}$. Repite cada medición varias veces y quédate con el
+    mínimo. Grafica en escala log-log y estima la pendiente de cada tramo. ¿Desde qué
+    $b$ deja de ser razonable contar cada operación como $O(1)$? ¿A qué fila de la
+    tabla de la §9 se parece la multiplicación de Python para $b$ grande? Busca en el
+    código fuente de CPython (`Objects/longobject.c`) qué algoritmo usa, y explica con
+    eso la pendiente que mediste.
+11. Corre a mano la máquina de los palíndromos de la §3 sobre `abba`, `aba` y `abab`.
+    Escribe la cinta, la posición del cabezal y el estado después de cada paso, y
+    cuenta los pasos. Compara con la fórmula de la §3 donde se aplique, y encuentra la
+    fórmula para un palíndromo de longitud impar.
