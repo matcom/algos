@@ -1,26 +1,4 @@
----
-theme: note
-css: notas.css
-title: "Conferencia 3: demostrar que un algoritmo es correcto"
-vars:
-  figure-label: "Figura"
-  figure-ref-label: "figura"
-execute:
-  interpreters:
-    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
----
-
-# Conferencia 3: demostrar que un algoritmo es correcto
-
-::: meta
-Diseño y Análisis de Algoritmos · Ciencia de la Computación · MatCom · 2026
-:::
-
-La conferencia anterior terminó con una advertencia. Una batería de pruebas pasó en
-verde sobre un algoritmo incorrecto, y lo único que decía dónde buscar el error era la
-demostración. Esta conferencia trata de cómo se escribe esa demostración. Vamos a ver
-tres herramientas, cada una sobre un algoritmo cuya correctitud no se ve a simple
-vista, y al final vas a saber qué tipo de error atrapa cada una.
+# Demostrar que un algoritmo es correcto {#chap-correctitud}
 
 ```{python echo=false output=asis}
 import os
@@ -32,6 +10,12 @@ from itertools import permutations
 sys.path.insert(0, os.path.abspath(".."))   # Lectures/2026, donde vive figuras.py
 import figuras as F
 ```
+
+El capítulo anterior terminó con una advertencia. Una batería de pruebas pasó en
+verde sobre un algoritmo incorrecto, y lo único que decía dónde buscar el error era la
+demostración. Este capítulo trata de cómo se escribe esa demostración. Vamos a ver
+tres herramientas, cada una sobre un algoritmo cuya correctitud no se ve a simple
+vista, y al final vas a saber qué tipo de error atrapa cada una.
 
 ## 1. Qué significa "correcto"
 
@@ -55,7 +39,7 @@ devuelve algo incorrecto.
 
 ```{python continue echo=false output=asis}
 print(F.ciclo(resaltar=2, ident="ciclo",
-      pie="El ciclo de la conferencia 2. Hoy nos quedamos en la tercera etapa."))
+      pie="El ciclo del capítulo 2. Este capítulo se queda en la tercera etapa."))
 ```
 
 Para esas dos demostraciones el curso usa tres herramientas, y cada una responde una
@@ -72,9 +56,9 @@ pregunta distinta:
 3. **Contradicción sobre el primer fallo**: si el resultado fuera malo, habría un
    primer momento de la ejecución en que algo salió mal. Se muestra que ese momento no
    puede existir. Da propiedades globales del resultado, como la estabilidad y la
-   optimalidad de la segunda mitad de la clase.
+   optimalidad de la segunda mitad del capítulo.
 
-Las tres son la inducción de la conferencia 2 con otra ropa: el invariante es inducción
+Las tres son la inducción del capítulo 2 con otra ropa: el invariante es inducción
 sobre el número de vueltas, el potencial es inducción sobre los naturales en sentido
 descendente, y el primer fallo es inducción fuerte escrita al revés.
 
@@ -170,7 +154,7 @@ cosa, y la siguiente sección dice qué.
 
 El algoritmo es de Robert Boyer y J Strother Moore. Lo escribieron en 1980 y lo
 publicaron en 1991, y lo demostraron correcto con su propio demostrador automático de
-teoremas, lo que no deja de ser apropiado para una clase sobre demostraciones.
+teoremas, lo que no deja de ser apropiado para un capítulo sobre demostraciones.
 
 ## 4. Boyer-Moore: el invariante
 
@@ -347,7 +331,7 @@ mismo que ser mayoría. El atajo es **correcto** sobre alfabetos binarios, y una
 batería de pruebas binaria no puede atraparlo nunca. Con tres símbolos o más falla en
 una fracción grande de los casos.
 
-Compara con la conferencia 2. Allí el error del lema de la franja casi no se veía, porque
+Compara con el capítulo 2, §7. Allí el error del lema de la franja casi no se veía, porque
 las entradas que lo disparan son raras: cerca del 1 % de las pequeñas y ninguna de las
 grandes. Aquí las pruebas
 sí lo atrapan, pero solo si alguien prueba el caso en que no hay mayoría. ¿Quién te
@@ -517,7 +501,7 @@ primer invariante, desde entonces está comprometido. Entonces los $n$ receptore
 comprometidos con $n$ proponentes distintos. Pero $a$ está libre, así que solo hay
 $n - 1$ proponentes comprometidos. Contradicción.
 
-La conferencia 4 usa la palabra **potencial** para otra cosa: una cuenta que paga el
+El capítulo 4 usa la palabra **potencial** para otra cosa: una cuenta que paga el
 costo amortizado de una estructura de datos. Es la misma idea, una cantidad que se
 mueve en una sola dirección, usada para acotar costo en vez de para demostrar que
 algo termina.
@@ -573,7 +557,7 @@ instancias aleatorias: muy por debajo. Con listas al azar, casi todos los propon
 se quedan con uno de sus primeros receptores, y el número de propuestas crece
 aproximadamente como $n \ln n$. La cota $n^2$ es de peor caso: hay listas construidas
 para que el algoritmo haga del orden de $n^2$ propuestas, y el análisis tiene que
-cubrirlas. Otra vez, como en la conferencia 2, el caso típico y la garantía son cosas
+cubrirlas. Otra vez, como en el capítulo 2, el caso típico y la garantía son cosas
 distintas.
 
 ## 9. Gale-Shapley: optimalidad para quien propone
@@ -637,7 +621,7 @@ print(F.primer_rechazo(ident="primer-rechazo",
 La técnica tiene la forma de la @fig-primer-rechazo: tomar el **primer** contraejemplo
 en el tiempo y usar que es el primero, porque todo lo que pasó antes todavía está bien.
 En la demostración, "es el primero" es lo que dice que $a'$ no fue rechazado por $b'$.
-Sin esa elección el argumento no cierra. La misma forma vuelve en el Tema 2, en los
+Sin esa elección el argumento no cierra. La misma forma vuelve en el capítulo 9, en los
 argumentos de intercambio de los algoritmos golosos, donde se toma la primera decisión
 en que el goloso y una solución óptima difieren.
 
@@ -675,15 +659,15 @@ dos estructuras, y las dos están en el código:
   pretendientes sea comparar dos números. Sin esa tabla, cada comparación busca en la
   lista de $b$ y cuesta $O(n)$, y el peor caso sube a $O(n^3)$.
 
-Con las dos, Gale-Shapley cuesta $O(n^2)$ tiempo y $O(n^2)$ memoria. Como en la
-conferencia 2, la idea es la misma y el costo lo decide la implementación. La entrada
+Con las dos, Gale-Shapley cuesta $O(n^2)$ tiempo y $O(n^2)$ memoria. Como en el
+capítulo 2, la idea es la misma y el costo lo decide la implementación. La entrada
 son $2n$ listas de largo $n$, así que el algoritmo es lineal en el tamaño de la
 entrada.
 
 ¿Se puede mejor? No en el peor caso. Cheng Ng y Daniel Hirschberg demostraron en 1990
 que encontrar un emparejamiento estable requiere $\Omega(n^2)$ consultas a las listas de
 preferencias. No lo demostramos aquí, pero con eso Gale-Shapley es óptimo en ese modelo,
-y el ciclo de la conferencia 2 queda cerrado también para este problema.
+y el ciclo del capítulo 2 queda cerrado también para este problema.
 
 ## 11. Qué atrapa cada herramienta
 
@@ -701,12 +685,12 @@ la pena correr el algoritmo y mirar trazas antes de demostrar, como hicimos con 
 invariante vigilado de la sección 4. El experimento propone el enunciado, y la
 demostración lo convierte en teorema.
 
-Las tres vuelven. El potencial de la conferencia 4 paga costo amortizado en vez de
-contar vueltas. El primer fallo es la forma de los argumentos de intercambio del Tema
-2. Y la lección de la sección 5, que la hipótesis de un teorema es una lista de casos,
+Las tres vuelven. El potencial del capítulo 4 paga costo amortizado en vez de
+contar vueltas. El primer fallo es la forma de los argumentos de intercambio del
+capítulo 9. Y la lección de la sección 5, que la hipótesis de un teorema es una lista de casos,
 vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan.
 
-## 12. Resumen
+## Resumen
 
 - Correcto quiere decir correcto respecto a una especificación: precondición y
   postcondición. La correctitud total es correctitud parcial más terminación, y se
@@ -722,7 +706,7 @@ vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan
 - Gale-Shapley devuelve un emparejamiento estable, lo que demuestra que siempre existe,
   y le da a cada proponente su mejor pareja válida en cualquier orden de ejecución.
 - La demostración de optimalidad toma el primer rechazo hecho por una pareja válida y
-  usa que es el primero. Es la forma de los argumentos de intercambio del Tema 2.
+  usa que es el primero. Es la forma de los argumentos de intercambio del capítulo 9.
 - Gale-Shapley cuesta $O(n^2)$ con la tabla de rangos, que es óptimo por la cota de Ng y
   Hirschberg.
 
@@ -745,7 +729,21 @@ vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan
 7. Escribe la búsqueda binaria con el invariante de la sección 1. Después cambia
    `lo = mid + 1` por `lo = mid`, encuentra una entrada donde no termina y di en qué
    paso deja de bajar el potencial `hi - lo`.
-8. Un receptor miente sobre sus preferencias. Construye una instancia de $3 \times 3$
+8. ★ Un receptor miente sobre sus preferencias. Construye una instancia de $3 \times 3$
    en la que, con Gale-Shapley, consigue una pareja mejor que diciendo la verdad. (Un
    proponente, en cambio, nunca gana mintiendo. Es un teorema de Dubins y Freedman,
    de 1981, cuya demostración queda fuera del curso.)
+9. **La bandera holandesa.** Un arreglo tiene elementos de tres colores, rojo, blanco
+   y azul. Ordénalo en una sola pasada, con intercambios y memoria extra $O(1)$, para
+   que queden primero los rojos, después los blancos y al final los azules. Usa tres
+   índices que dividan el arreglo en cuatro zonas: rojos, blancos, sin mirar y azules.
+   Escribe el invariante que describe las cuatro zonas y demuéstralo con los tres
+   pasos de la sección 1. Después da un potencial que demuestre que la pasada termina
+   y que acote exactamente el número de vueltas.
+10. Escribe un verificador de estabilidad que cueste $O(n^2)$, usando tablas de rango
+    como las de `gale_shapley`, y compruébalo contra `pares_bloqueantes` de la sección 8.
+    Después planta en una copia de `gale_shapley` este error: `rango[b]` se toma como
+    copia de `pref_b[b]`, sin invertir la lista. Corre las dos versiones sobre 10 000
+    instancias aleatorias para cada $n \in \{2, 3, 5, 10\}$ y cuenta en cuántas el
+    verificador atrapa a la versión con error. Explica lo que ves para cada $n$, y di qué
+    instancias tendría que incluir una batería de pruebas que quiera atraparlo siempre.
