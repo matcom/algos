@@ -26,7 +26,9 @@ Cómo se construye el libro entero está en `Lectures/2026/libro/README.md`.
   capítulo.
 - Al final van `## Resumen`, en viñetas, y `## Ejercicios`, con al menos diez
   ejercicios numerados. El enunciado no trae la respuesta.
-- No hay `notas.pdf` por capítulo: el PDF es `libro/daa.pdf`.
+- No se sube un `notas.pdf` por capítulo. El PDF del libro, `daa.pdf`, lo construye el
+  CI y se publica en <https://matcom.github.io/algos/daa.pdf>; el de un capítulo suelto
+  sale de su comprobación (abajo).
 
 ## Las figuras: `figuras_NN.py`
 
@@ -79,13 +81,15 @@ otra vez. Cada número que cita la prosa tiene que aparecer en la salida del PDF
 ## Entrar al libro
 
 1. Agrega el capítulo a `files:` de `libro/scriptorium.yaml`, en su lugar.
-2. Construye el libro en `libro/` y cuenta tracebacks y figuras, como dice su README.
-   Comprueba también que ningún id de figura ni de capítulo se repita.
-3. Sube el capítulo, su `figuras_NN.py`, `libro/daa.pdf` y
-   `libro/.scriptorium/freeze.json` en el mismo commit.
+2. Construye el sitio en `libro/` (`scriptorium render scriptorium.yaml --only sitio`)
+   y cuenta tracebacks y figuras, como dice su README. Comprueba también que ningún id
+   de figura ni de capítulo se repita. El PDF completo necesita unos 3,5 GB de memoria:
+   constrúyelo con `--only libro` solo en una máquina que los tenga.
+3. Sube el capítulo, su `figuras_NN.py` y `libro/.scriptorium/freeze.json` en el mismo
+   commit. `daa.pdf` no se sube: lo construye el CI.
 
-Construye siempre en local antes del push: el push a `main` publica el sitio, y un
-bloque que falla en el workflow sale con su traceback en la web.
+Construye siempre el sitio en local antes del push: el push a `main` publica el sitio y
+el PDF, y un bloque que falla en el workflow sale con su traceback en la web.
 
 Los tiempos que mide un capítulo dependen de la carga de la máquina. La caché conserva
 los que se revisaron; si un bloque cambia y se vuelve a medir, relee la prosa que cita

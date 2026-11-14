@@ -5,9 +5,13 @@ como un capítulo: el capítulo N es la conferencia N de `../plan.md`. Este dire
 el proyecto de [scriptorium](https://github.com/gia-uh/scriptorium) que lo construye.
 Hay dos salidas:
 
-- `daa.pdf`, el libro completo. Se construye en local y se sube al repositorio.
-- `sitio/`, la documentación en línea. La construye el workflow `libro` en cada push a
-  `main` y la publica en <https://matcom.github.io/algos/>, con el PDF al lado.
+- `sitio/`, la documentación en línea, publicada en <https://matcom.github.io/algos/>.
+- `daa.pdf`, el libro completo, publicado en <https://matcom.github.io/algos/daa.pdf>.
+
+Las dos las construye el workflow `libro` en cada push a `main` y las publica en
+GitHub Pages. `daa.pdf` no se sube al repositorio: WeasyPrint arma el libro entero en
+memoria y necesita unos 3,5 GB, más de lo que tiene una sesión de agente en el
+servidor del curso.
 
 El libro tiene tres partes. Cada una abre con una página (`parte-N.md`) y cierra con un
 resumen de ideas: `../tema-1/resumen.md`, `../resumen-parte-2/notas.md` y
@@ -27,7 +31,7 @@ El procedimiento completo, con el formato y la comprobación por capítulo, est�
 4. Los bloques de código corren con este directorio como directorio de trabajo, y el
    primer bloque de cada capítulo pone `..` (`Lectures/2026`) en `sys.path`.
 5. Construye y verifica, como dice la sección siguiente.
-6. Sube el capítulo, `daa.pdf` y `.scriptorium/freeze.json`.
+6. Sube el capítulo, su `figuras_NN.py` y `.scriptorium/freeze.json`.
 
 ## Construir
 
@@ -37,10 +41,12 @@ bloques (Python 3.14 con tesserax):
 ```bash
 uv tool install --force 'scriptorium[pdf] @ git+https://github.com/gia-uh/scriptorium@v0.14.0'
 cd Lectures/2026/libro
-scriptorium render scriptorium.yaml          # daa.pdf y sitio/
+scriptorium render scriptorium.yaml --only sitio   # sitio/, con poca memoria
+scriptorium render scriptorium.yaml --only libro   # daa.pdf, unos 3,5 GB de memoria
 ```
 
-Después:
+El sitio basta para comprobar el texto antes de subir. El PDF solo se construye en local
+en una máquina con memoria de sobra; si no, lo construye el CI. Con el PDF:
 
 ```bash
 pdftotext daa.pdf - | grep -ci traceback     # los que el texto muestra a propósito
@@ -48,9 +54,11 @@ pdftotext daa.pdf - | grep -c '^Figura '     # una por figura
 ```
 
 Un bloque que falla no rompe el render: scriptorium pinta el traceback dentro del libro.
-Por eso hay que contar los tracebacks.
+Por eso hay que contar los tracebacks, en el PDF o en el texto del sitio. El workflow
+imprime los dos números en su registro.
 
-Construye siempre en local antes de subir a `main`: el push publica el sitio.
+Construye siempre el sitio en local antes de subir a `main`: el push publica el sitio
+y el PDF.
 
 ## La caché
 
