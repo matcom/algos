@@ -214,7 +214,7 @@ Dicen "si este se resuelve más rápido, aquel también": son reducciones como l
 capítulo 16 con el exponente medido, y valen lo que vale su hipótesis. La sección
 siguiente es lo que pasa cuando una de ellas cae.
 
-## 4. La ETH, refutada (octubre de 2026)
+## 4. Un manuscrito que refuta la ETH (octubre de 2026)
 
 El capítulo 20, §12, definió para cada $k$ el número $s_k$, el ínfimo de los $\delta$
 para los que $k$-SAT se resuelve en $O(2^{\delta n})$, y la **hipótesis del tiempo
@@ -613,7 +613,7 @@ hipótesis pegados, y con el estado de su demostración.** Antes de usar una cot
 pregunta en qué modelo vale, de qué hipótesis depende y quién comprobó la
 demostración.
 
-## Resumen
+## Resumen {#epilogo-resumen}
 
 - Las tres barreras (relativización, pruebas naturales y algebrización) descartan
   familias enteras de demostraciones de $P \ne NP$. Ninguna dice que la pregunta no

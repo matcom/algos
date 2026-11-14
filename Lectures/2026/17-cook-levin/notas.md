@@ -555,7 +555,7 @@ rama de $M$ sobre $w$. Por $\varphi_{\text{acepta}}$, $q_a$ está en alguna celd
 $(i, j)$, y como la fila $i$ es una configuración, su único estado es ese: la rama
 llega a $q_a$, y $M$ acepta $w$. $\square$
 
-## 9. El error plantado
+## 9. El error plantado {#cook-levin-9-el-error-plantado}
 
 La variante parece inofensiva: quitar de $\varphi_{\text{celda}}$ las cláusulas "a lo
 sumo uno". Uno puede pensar que $\varphi_{\text{inicio}}$ ya fija la fila 0 y que las
@@ -746,7 +746,7 @@ rompe.
 capítulo 21, una asignación al azar cumple en esperanza $7/8$ de las cláusulas, porque
 una cláusula de tres variables distintas es falsa en uno solo de sus ocho casos.
 
-## 12. La regla
+## 12. La regla {#cook-levin-12-la-regla}
 
 **Una fórmula solo dice lo que sus cláusulas prohíben.** La cláusula $x_{0,j,0}$
 afirma que la celda tiene un 0 y no prohíbe nada más. "Exactamente uno" son dos
@@ -758,7 +758,7 @@ Y la que hizo posible el teorema: **una condición global se vuelve una fórmula
 cuando se puede comprobar en pedazos de tamaño fijo.** La fila entera no cabe en una
 cláusula de tamaño constante, y la ventana sí.
 
-## Resumen
+## Resumen {#cook-levin-resumen}
 
 - El primer NP-completo no sale de una reducción: hay que reducirle todo NP usando solo
   la definición.
@@ -779,7 +779,7 @@ cláusula de tamaño constante, y la ventana sí.
 - SAT $\le_p$ 3-SAT partiendo una cláusula de $m$ literales en $m - 2$, con $m - 3$
   variables nuevas. 3-SAT es NP-completo; 2-SAT está en P.
 
-## Ejercicios
+## Ejercicios {#cook-levin-ejercicios}
 
 1. Para una máquina con $|Q|$ estados y alfabeto de cinta $\Gamma$ que corre $t$
    pasos, y $K$ cláusulas por ventana, escribe el número exacto de variables, de

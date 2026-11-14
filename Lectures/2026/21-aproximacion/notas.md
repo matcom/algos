@@ -787,7 +787,7 @@ todo $\varepsilon > 0$, aproximar MAX-3SAT con cláusulas de exactamente tres li
 con razón $7/8 + \varepsilon$ es NP-duro. Tirar monedas, sin mirar la fórmula, es lo
 mejor que un algoritmo polinomial puede garantizar si P ≠ NP.
 
-## 13. La regla
+## 13. La regla {#aproximacion-13-la-regla}
 
 Una razón de aproximación es una demostración contra una cota del óptimo que se puede
 calcular, y la cota decide la razón. Los cinco problemas del capítulo, con la cota que
@@ -803,13 +803,13 @@ usó cada uno:
 
 Cuando una razón no mejora, casi siempre es porque la cota no da más: el emparejamiento
 puede ser la mitad del óptimo, el promedio de carga puede estar lejos del makespan. Para
-mejorar la razón hay que mejorar la cota. El capítulo 22 cambia de cota: la solución de
-un programa lineal, que se calcula en tiempo polinomial y queda por debajo del óptimo
-entero, sirve para el vertex cover con pesos y para el TSP métrico. Y el capítulo 23
+mejorar la razón hay que mejorar la cota. El capítulo 22 cambia de cota: el árbol mínimo
+para el TSP métrico, y para el vertex cover con pesos la solución de un programa
+lineal, que se calcula en tiempo polinomial y queda por debajo del óptimo entero. Y el capítulo 23
 cambia de pregunta: en lugar de una razón fija, una familia de algoritmos, uno por cada
 $\varepsilon$, que llega a $1 + \varepsilon$ pagando más tiempo.
 
-## Resumen
+## Resumen {#aproximacion-resumen}
 
 - Una $\alpha$-aproximación corre en tiempo polinomial y cumple $c \le \alpha \cdot
   \mathrm{OPT}$ (minimizar) o $v \ge \alpha \cdot \mathrm{OPT}$ (maximizar) en **toda**
@@ -830,7 +830,7 @@ $\varepsilon$, que llega a $1 + \varepsilon$ pagando más tiempo.
 - MAX-3SAT: una asignación al azar satisface $7k/8$ cláusulas en esperanza, así que
   siempre existe una así, y repetir encuentra una en a lo sumo $8k$ intentos esperados.
 
-## Ejercicios
+## Ejercicios {#aproximacion-ejercicios}
 
 1. Ejecuta LPT a mano con $m = 3$ máquinas sobre las tareas de duraciones
    $5, 5, 4, 4, 3, 3, 3$, anotando las cargas después de cada tarea. Encuentra el

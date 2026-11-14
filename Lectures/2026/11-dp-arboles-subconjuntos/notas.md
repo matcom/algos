@@ -729,7 +729,7 @@ trataría igual, y paga por eso.
 El capítulo 12 parte de una recurrencia que ya es correcta y baja su costo sin cambiar
 el estado.
 
-## Resumen
+## Resumen {#dp-arboles-subconjuntos-resumen}
 
 - El principio de optimalidad es una propiedad del estado elegido, no del problema. El
   camino simple más largo lo viola con el estado "extremos", porque las dos mitades
@@ -752,7 +752,7 @@ el estado.
 - El estado justo está entre uno que cuenta menos (recurrencia falsa) y uno que cuenta
   más (tabla más grande que la necesaria).
 
-## Ejercicios
+## Ejercicios {#dp-arboles-subconjuntos-ejercicios}
 
 1. **[traza]** El árbol tiene los vértices $0, \dots, 8$, raíz $0$, y estos padres:
    $\text{padre}(1) = \text{padre}(2) = 0$, $\text{padre}(3) = \text{padre}(4) = 1$,

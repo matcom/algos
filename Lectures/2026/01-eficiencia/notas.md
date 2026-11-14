@@ -485,7 +485,7 @@ y en el examen.
 La bibliografía básica es *Introduction to Algorithms* de Cormen, Leiserson, Rivest y
 Stein, y *Algorithm Design* de Kleinberg y Tardos.
 
-## Resumen
+## Resumen {#eficiencia-resumen}
 
 - Medimos algoritmos contando operaciones en un modelo de cómputo, no en segundos.
 - La máquina de Turing define qué es computable, pero cambia los exponentes: el
@@ -505,7 +505,7 @@ Stein, y *Algorithm Design* de Kleinberg y Tardos.
 - La aritmética cuesta $O(1)$ sobre palabras de $O(\log n)$ bits. En algoritmos
   numéricos con números que crecen, contamos operaciones de bits.
 
-## Ejercicios
+## Ejercicios {#eficiencia-ejercicios}
 
 1. Demuestra con la definición, dando $c$ y $n_0$, que $3n^2 + 10 n \log_2 n + 7 \in
    \Theta(n^2)$.

@@ -6,7 +6,7 @@ mirándolos juntos, y termina con ejercicios que mezclan capítulos, en el estil
 preguntas del examen final. Cada vez que algo se cita, se dice de qué capítulo y
 sección sale, para que puedas volver a la demostración completa.
 
-## 1. El mapa de la parte
+## 1. El mapa de la parte {#resumen-parte-2-1-el-mapa-de-la-parte}
 
 La Parte I dio las herramientas para medir, demostrar y acotar. La Parte II las usó
 sobre cinco técnicas de diseño, dos capítulos por técnica, salvo el azar, que abre y
@@ -29,7 +29,7 @@ Cada capítulo recorrió el mismo ciclo del capítulo 2: un problema, un algorit
 correctitud, su costo y, cuando se pudo, qué tan lejos está de lo mejor posible. Y cada
 uno plantó un error en una variante que parecía correcta. La §4 los pone juntos.
 
-## 2. Lo que hay que llevarse de cada capítulo
+## 2. Lo que hay que llevarse de cada capítulo {#resumen-parte-2-2-lo-que-hay-que-llevarse-de-cada-capitulo}
 
 Cada capítulo tiene su resumen al final. Aquí va una sola idea por capítulo: la que los
 demás usan.
@@ -311,7 +311,7 @@ Y una vez escogida, la forma de la respuesta es la de la Parte I: enunciado con 
 algoritmo, correctitud con la demostración propia de la técnica, costo, y una cota
 mínima o una familia de entradas que muestre que el análisis es ajustado.
 
-## Ejercicios
+## Ejercicios {#resumen-parte-2-ejercicios}
 
 Cada ejercicio dice entre paréntesis qué capítulos usa. Ninguno pide material que no
 esté en el libro hasta el capítulo 15, o en Estructuras de Datos. No llevan solución:

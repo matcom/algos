@@ -193,7 +193,7 @@ print(F19.filas(3, phi, A, ciclo, valor, ident="rn-filas",
           "cada cláusula está dibujada debajo de la fila desde la que se desvía el ciclo."))
 ```
 
-## 4. El experimento
+## 4. El experimento {#reducciones-numeros-4-el-experimento}
 
 Antes de demostrar nada, contemos. Si la construcción hace lo que queremos, cada ciclo
 debería corresponder a una asignación que cumple la fórmula y a la elección, para cada
@@ -704,7 +704,7 @@ dirigido desde vertex cover (NODE COVER) y a KNAPSACK desde el problema de cubri
 exacto, y de KNAPSACK a PARTITION, que es el ejercicio 6. Elegimos partir de 3-SAT
 porque la elección binaria de una variable se ve directamente en la construcción.
 
-## 13. La regla
+## 13. La regla {#reducciones-numeros-13-la-regla}
 
 Los dos materiales del capítulo dejaron el mismo peligro. En el grafo, un ciclo podía
 entrar a una cláusula desde una fila y salir hacia otra; en los números, una columna
@@ -718,7 +718,7 @@ que hace falta. Cada una de esas piezas aparece en la demostración en la direcc
 ⇒ no", y por eso se comprueba con instancias no: es la única dirección en que una pieza
 olvidada se nota.
 
-## Resumen
+## Resumen {#reducciones-numeros-resumen}
 
 - Ciclo hamiltoniano y suma de subconjuntos están en NP: el certificado es el orden o
   el subconjunto.
@@ -744,7 +744,7 @@ olvidada se nota.
 - Once problemas NP-completos, todos desde SAT. Una reducción es correcta cuando sus
   piezas solo se comunican por donde la demostración dice.
 
-## Ejercicios
+## Ejercicios {#reducciones-numeros-ejercicios}
 
 1. Construye a mano el grafo de la §3 para $(x_1 \lor x_2 \lor \lnot x_3) \land
    (\lnot x_1 \lor \lnot x_2 \lor x_3)$: cuántos vértices y arcos tiene, y cuáles

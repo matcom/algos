@@ -6,7 +6,7 @@ mirándolos juntos, y termina con ejercicios que mezclan capítulos, en el estil
 preguntas del examen final. Cuando algo se cita, se dice de qué capítulo y sección
 sale, para que puedas volver a la demostración completa.
 
-## 1. El mapa de la parte
+## 1. El mapa de la parte {#resumen-parte-3-1-el-mapa-de-la-parte}
 
 La Parte III tiene dos mitades. Los capítulos 16 a 19 contestan una pregunta: ¿cómo se
 demuestra que un problema es difícil? Los capítulos 20 a 23 contestan la siguiente: si
@@ -23,7 +23,7 @@ lo es, ¿qué se puede hacer de todas formas?
 | 22 | ¿y si la cota es un programa lineal? | árbol mínimo, emparejamiento, relajación | TSP métrico, vertex cover con pesos | redondear con `round` |
 | 23 | ¿tan cerca como se quiera? | redondear la entrada, fuerte NP-dureza | mochila, makespan | el objeto que no cabe |
 
-## 2. Lo que hay que llevarse de cada capítulo
+## 2. Lo que hay que llevarse de cada capítulo {#resumen-parte-3-2-lo-que-hay-que-llevarse-de-cada-capitulo}
 
 Cada capítulo tiene su resumen al final. Aquí va una sola idea por capítulo: la que
 usan los demás.
@@ -58,7 +58,9 @@ todos desde SAT, entre ellos TSP y mochila.
 respuesta si la cota es una cota superior demostrada, y no garantiza el tiempo. El
 parámetro saca la exponencial de $n$ y la pone en $k$: vertex cover en
 $O(2^k(n + m))$. Una recurrencia demostrada da una base: $O(1{,}3803^n)$ para
-conjunto independiente. Y la ETH dice que alguna base mayor que 1 es inevitable.
+conjunto independiente. Y la ETH, si es cierta, dice que alguna base mayor que 1 es
+inevitable; un manuscrito de octubre de 2026 afirma que es falsa, y el epílogo, §4,
+cuenta qué cambiaría.
 
 **Capítulo 21. Una razón de aproximación es una demostración contra una cota del
 óptimo que se puede calcular.** El emparejamiento para vertex cover, $\max t_j$ y
@@ -252,7 +254,7 @@ Las dos mitades llevan a la misma regla que la Parte I: la variante pasa las pru
 entradas hacen falta. Pregúntale a cada paso de la demostración qué hipótesis usa, y
 construye la entrada donde esa hipótesis falla.
 
-## 4. Cómo se ve una respuesta completa
+## 4. Cómo se ve una respuesta completa {#resumen-parte-3-4-como-se-ve-una-respuesta-completa}
 
 Un ejercicio de la Parte III pide casi siempre una de dos cosas: demostrar que un
 problema es NP-completo, o dar un algoritmo con garantía para uno que lo es. Los dos
@@ -306,7 +308,7 @@ no tiene que ser más larga que esto para un problema de este tamaño, y no pued
 saltarse ninguno de esos pasos: los ocho errores de la tabla anterior viven cada uno
 en un paso que alguien pensó que era obvio.
 
-## Ejercicios
+## Ejercicios {#resumen-parte-3-ejercicios}
 
 Cada ejercicio dice entre paréntesis qué capítulos usa. No llevan solución.
 

@@ -745,7 +745,7 @@ print(sumas_de_pares({1, 3, 4}, {0, 2, 5}))
 El $3$ y el $6$ salen dos veces cada uno: $3 = 1 + 2 = 3 + 0$ y $6 = 1 + 5 = 4 + 2$. El
 costo es $O(n \log n)$ aunque haya $\Theta(n^2)$ parejas: nunca se miran una por una.
 
-## 13. La regla
+## 13. La regla {#fft-13-la-regla}
 
 La regla del capítulo es esta: **si una operación es cara en una representación,
 busca otra donde sea barata y paga el cambio con un algoritmo rápido**. Con puntos
@@ -762,7 +762,7 @@ $C = AB$ basta evaluar en un punto al azar de $\mathbb{Z}_p$, con error a lo sum
 $d/p$. El capítulo 15 lo hace con matrices (Freivalds). Y las sumas de
 pares reaparecen en el capítulo 24, con el problema 3SUM.
 
-## Resumen
+## Resumen {#fft-resumen}
 
 - Un polinomio de grado $d$ queda determinado por $d + 1$ valores. En valores,
   multiplicar cuesta una operación por punto, pero el producto pide
@@ -783,7 +783,7 @@ pares reaparecen en el capítulo 24, con el problema 3SUM.
 - Para enteros en el modelo por bit: $O(b \log b \log \log b)$ (Schönhage y Strassen)
   y $O(b \log b)$ (Harvey y van der Hoeven).
 
-## Ejercicios
+## Ejercicios {#fft-ejercicios}
 
 1. Calcula a mano la DFT de $(1, 2, 3, 4)$ con la recursión de la §5, escribiendo las
    DFT de los pares y de los impares antes de combinarlas.

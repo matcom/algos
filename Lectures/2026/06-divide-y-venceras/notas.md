@@ -800,7 +800,7 @@ caso**, y las pruebas miden las entradas que alguien eligió, mientras que el pe
 es justo la que nadie eligió. Solo la demostración lo verifica, y dice qué vigilar:
 que las fracciones sumen menos de 1.
 
-## 12. La regla
+## 12. La regla {#divide-y-venceras-12-la-regla}
 
 ```{python continue echo=false output=asis}
 random.seed(4)
@@ -832,7 +832,7 @@ $2T(n/2) + O(n)$; el capítulo 8 hace la selección con un pivote al azar; el 12
 divide y vencerás dentro de una programación dinámica (Hirschberg), y el 20 analiza
 recurrencias que restan en lugar de dividir, como $T(n) = T(n-1) + T(n-4)$.
 
-## Resumen
+## Resumen {#divide-y-venceras-resumen}
 
 - Divide y vencerás: partir, resolver por recursión, combinar. Su costo es una
   recurrencia, y lo difícil es resolverla.
@@ -848,7 +848,7 @@ recurrencias que restan en lugar de dividir, como $T(n) = T(n-1) + T(n-4)$.
 - Con grupos de 3 la suma es 1 y la demostración ya no da $O(n)$, aunque la respuesta
   siga siendo correcta: una garantía de peor caso solo la da la demostración.
 
-## Ejercicios
+## Ejercicios {#divide-y-venceras-ejercicios}
 
 1. Multiplica $1234 \times 5678$ a mano con el Karatsuba de la §3, que rellena con
    ceros el factor más corto antes de partir. Dibuja el árbol de llamadas con sus

@@ -712,7 +712,7 @@ punto. Cada recta entra una vez y sale a lo sumo una vez, como en el análisis a
 del capítulo 4, y si además las $a_i$ crecen, las consultas avanzan con un puntero: $O(n)$
 en total en lugar de $O(n^2)$.
 
-## 12. La regla
+## 12. La regla {#dp-optimizaciones-12-la-regla}
 
 Una optimización de programación dinámica es un teorema sobre la recurrencia, y su
 hipótesis es la lista de lo que el problema tiene que cumplir. Knuth pide que lo que se
@@ -720,7 +720,7 @@ suma no dependa del corte, cumpla la desigualdad del cuadrilátero y sea monóto
 inclusión. Hirschberg pide que el valor de un camino sea la suma de sus dos mitades, que
 es lo que usó el Lema 3. Que la recurrencia tenga la misma forma no basta.
 
-## Resumen
+## Resumen {#dp-optimizaciones-resumen}
 
 - Las optimizaciones de una DP bajan el tiempo (estados por transiciones) o la memoria
   sin tocar la recurrencia.
@@ -737,7 +737,7 @@ es lo que usó el Lema 3. Que la recurrencia tenga la misma forma no basta.
   hacia adelante y hacia atrás. La subsecuencia común se recupera en memoria
   $O(n + m)$ y con a lo sumo $2nm + m\lceil \log_2 n \rceil$ celdas.
 
-## Ejercicios
+## Ejercicios {#dp-optimizaciones-ejercicios}
 
 1. **[traza]** Cinco claves tienen frecuencias $f = (4, 2, 6, 3, 1)$. Llena a mano las
    tablas $c(i, j)$ y $K(i, j)$ (la mayor raíz óptima) y dibuja el árbol óptimo. Marca

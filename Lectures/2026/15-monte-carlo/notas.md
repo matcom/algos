@@ -622,7 +622,7 @@ Thorup para grafos simples (STOC 2015) y Henzinger, Li, Rao y Wang para grafos c
 grafos con pesos, el tiempo lineal salvo factores polilogarítmicos fue solo aleatorio
 durante casi tres décadas.
 
-## 12. Cierre
+## 12. Cierre {#monte-carlo-12-cierre}
 
 Los dos algoritmos tienen la misma forma: una corrida barata con fallo acotado para
 toda entrada, un error de un solo lado que deja combinar corridas ("no" si alguna dice
@@ -640,7 +640,7 @@ justamente con esa asimetría, con certificados que se verifican en tiempo polin
 El capítulo 21 vuelve a usar monedas, esta vez para aproximar MAX-3SAT con una
 asignación al azar.
 
-## Resumen
+## Resumen {#monte-carlo-resumen}
 
 - Un algoritmo **Monte Carlo** corre en tiempo acotado y puede responder mal, con
   probabilidad a lo sumo $\delta$ para toda entrada: el máximo sobre entradas, la
@@ -664,7 +664,7 @@ asignación al azar.
 - $\lceil \binom n2 \ln(1/\delta) \rceil$ corridas, quedándose con el menor corte, dan
   error $\le \delta$, en $O(n^2 m \log^* n \log(1/\delta))$.
 
-## Ejercicios
+## Ejercicios {#monte-carlo-ejercicios}
 
 1. En la ronda de Freivalds, sortea cada $r_j$ uniforme e independiente en
    $\{0, 1, \dots, q-1\}$ en lugar de $\{0, 1\}$. Demuestra que si $AB \ne C$ la ronda

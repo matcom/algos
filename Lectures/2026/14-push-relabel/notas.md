@@ -248,7 +248,7 @@ print(probadas, "redes al azar: el invariante se cumplió en cada paso y el fluj
       "coincidió con el corte mínimo")
 ```
 
-## 5. El error que la demostración anuncia
+## 5. El error que la demostración anuncia {#push-relabel-5-el-error-que-la-demostracion-anuncia}
 
 Después del capítulo 13 es tentador pensar así: $s$ solo tiene que estar "por encima
 de los caminos", y en Dinic lo que importa es la distancia de $s$ a $t$. Con
@@ -787,7 +787,7 @@ no dice qué hacer: dice qué se puede tocar.**
 El capítulo 15 vuelve sobre los cortes globales con un algoritmo aleatorio, y el 24
 sobre el flujo máximo en tiempo casi lineal.
 
-## Resumen
+## Resumen {#push-relabel-resumen}
 
 - Un **preflujo** respeta capacidades y deja que entre más de lo que sale; el sobrante
   es el **exceso**, y un vértice con exceso es **activo**.
@@ -807,7 +807,7 @@ sobre el flujo máximo en tiempo casi lineal.
   operaciones; su costo se cuenta aparte. En el embudo, hasta $V = 300$, bajan las
   operaciones de unas $1{,}5\,V^2$ a entre 8 y 15 por vértice.
 
-## Ejercicios
+## Ejercicios {#push-relabel-ejercicios}
 
 1. **Traza.** Ejecuta a mano el genérico sobre la red de vértices $s, a, b, c, t$ con
    aristas $s \to a$ (3), $s \to b$ (3), $a \to b$ (2), $a \to c$ (2), $b \to c$ (1),

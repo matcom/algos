@@ -612,7 +612,7 @@ print(F18.instancia(3, phi3, E3, col3, ident="red-instancia",
           "Las aristas de r₂ a F y a B van en gris."))
 ```
 
-## 9. El error plantado
+## 9. El error plantado {#reducciones-grafos-9-el-error-plantado}
 
 La variante cambia una arista de sitio: el segundo O toma su entrada de $p_1$ en lugar
 de $r_1$. Parece lo mismo, porque $p_1$ también está en el primer triángulo y también
@@ -698,7 +698,7 @@ print(F18.mapa(ident="red-mapa",
           "derecha de SAT es NP-completo."))
 ```
 
-## Resumen
+## Resumen {#reducciones-grafos-resumen}
 
 - Una reducción desde 3-SAT representa tres cosas: la elección de cada variable, la
   coherencia entre sus apariciones y que cada cláusula tenga un literal verdadero. Cada
@@ -722,7 +722,7 @@ print(F18.mapa(ident="red-mapa",
 - Un buen gadget tiene interfaz chica, especificación finita, prohíbe lo justo y tiene
   tamaño constante. Se verifica solo antes que la reducción entera.
 
-## Ejercicios
+## Ejercicios {#reducciones-grafos-ejercicios}
 
 1. Construye el grafo de conjunto independiente de la §2 para
    $(x_1 \lor x_2 \lor x_3) \land (x_1 \lor \lnot x_2 \lor x_4) \land

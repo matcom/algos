@@ -686,7 +686,7 @@ como antes. Al revés, $P \ne NP$ no quiere decir que todas las instancias sean
 difíciles: la frontera es sobre el peor caso. Los capítulos 20 a 23 viven en ese
 espacio, entre lo que la teoría prohíbe y lo que sí se puede garantizar.
 
-## 13. La regla
+## 13. La regla {#p-np-13-la-regla}
 
 La regla del capítulo tiene dos partes.
 
@@ -704,7 +704,7 @@ El capítulo 17 lo construye desde la definición de NP, con el teorema de Cook-
 el capítulo 18 reduce 3-SAT a conjunto independiente. Con eso, el corolario 7 hace el
 resto.
 
-## Resumen
+## Resumen {#p-np-resumen}
 
 - Un problema de decisión contesta sí o no. Basta estudiarlos: el valor óptimo sale de
   $\lceil \log_2(n + 1) \rceil$ llamadas a la decisión, y el objeto óptimo también se
@@ -726,7 +726,7 @@ resto.
 - Si $P \ne NP$, hay problemas intermedios (Ladner). Si $P = NP$, todo NP es
   NP-completo salvo $\emptyset$ y $\Sigma^*$.
 
-## Ejercicios
+## Ejercicios {#p-np-ejercicios}
 
 1. Da un certificado y un verificador polinomial para cada problema: clique ("¿tiene
    $G$ un clique de tamaño al menos $k$?"), ciclo hamiltoniano ("¿tiene $G$ un ciclo

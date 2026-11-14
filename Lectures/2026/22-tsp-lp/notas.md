@@ -25,7 +25,7 @@ triangular, el viajante no admite ninguna razón constante, salvo que P = NP.
 
 ## 1. El viajante, otra vez
 
-Es la cuarta vez que el libro se encuentra con el viajante. Un recorrido visita una vez
+Es la tercera vez que el libro trabaja con el viajante. Un recorrido visita una vez
 cada una de $n$ ciudades y vuelve al inicio, y cuesta la suma de las distancias de sus
 $n$ tramos. El capítulo 11, §9 lo resolvió exacto con Held-Karp en $O(2^n n^2)$. El
 capítulo 19, §7 demostró que la versión de decisión es NP-completa, aun con distancias
@@ -788,7 +788,7 @@ mide cuánto se puede perder. El capítulo 23 cambia de pregunta:
 una familia de algoritmos que se acerca al óptimo tanto como se quiera, pagando en
 tiempo.
 
-## Resumen
+## Resumen {#tsp-lp-resumen}
 
 - Sin desigualdad triangular, el TSP no admite ninguna razón constante si P ≠ NP: con
   peso $(\alpha - 1)n + 2$ en las no-aristas, una $\alpha$-aproximación decidiría ciclo
@@ -811,7 +811,7 @@ tiempo.
   $\{0, 1/2, 1\}$: redondear con `round` no devuelve un cubrimiento. Una batería que
   solo mide la razón no lo ve.
 
-## Ejercicios
+## Ejercicios {#tsp-lp-ejercicios}
 
 1. Sean las seis ciudades $a = (0, 5)$, $b = (2, 0)$, $c = (4, 0)$, $d = (4, 3)$,
    $e = (7, 6)$ y $f = (8, 4)$ del plano, con la distancia euclídea (todas las

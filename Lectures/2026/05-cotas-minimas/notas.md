@@ -785,7 +785,7 @@ La Parte II cambia de eje. Los capítulos dejan de organizarse por pregunta y pa
 organizarse por técnica de diseño: divide y vencerás, golosos, programación dinámica,
 flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
 
-## Resumen
+## Resumen {#cotas-minimas-resumen}
 
 - Una cota mínima es una afirmación sobre todos los algoritmos de un modelo. En el
   modelo de comparaciones, el costo es el número de preguntas $a_i < a_j$.
@@ -808,7 +808,7 @@ flujos. Las cinco preguntas siguen ahí, y siguen siendo las que se evalúan.
   matriz de adyacencia, matrices booleanas y 3SUM. Todas valen en un modelo
   restringido, y fuera de él hay algoritmos que hacen menos.
 
-## Ejercicios
+## Ejercicios {#cotas-minimas-ejercicios}
 
 1. **Máximo y mínimo a la vez.** Diseña un algoritmo que los encuentre con
    $\lceil 3n/2 \rceil - 2$ comparaciones, y demuestra con un adversario que no se

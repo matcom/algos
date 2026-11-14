@@ -686,7 +686,7 @@ hamiltoniano del original. Al revés, un ciclo hamiltoniano del original, abiert
 $v$, es un camino hamiltoniano de $v_{\text{sal}}$ a $v_{\text{ent}}$. Así que el común independiente máximo de tres matroides, aun
 sin pesos, no tiene algoritmo polinomial salvo que P = NP.
 
-## 12. La regla
+## 12. La regla {#matroides-12-la-regla}
 
 Antes de inventar un intercambio para un goloso, pregunta si los conjuntos factibles
 forman un matroide. Si lo forman, la demostración ya está hecha y el algoritmo es
@@ -696,7 +696,7 @@ que hay pesos donde el goloso falla, y la pregunta pasa a ser cuántos matroides
 falta para describir el problema: con uno basta el goloso, con dos hace falta un
 algoritmo de intersección, y con tres ya estamos en el terreno de la Parte III.
 
-## Resumen
+## Resumen {#matroides-resumen}
 
 - Un **sistema de independencia** cumple $\emptyset \in \mathcal I$ y la herencia. Un
   **matroide** cumple además el intercambio: un independiente chico se agranda con algún
@@ -716,7 +716,7 @@ algoritmo de intersección, y con tres ya estamos en el terreno de la Parte III.
   El goloso garantiza la mitad, y el óptimo pide otro algoritmo. Con **tres** matroides
   está el camino hamiltoniano dirigido.
 
-## Ejercicios
+## Ejercicios {#matroides-ejercicios}
 
 1. **[demostración]** Asigna a cada arista $uv$ de un grafo con $n$ vértices el vector de
    $\{0, 1\}^n$ con unos en las posiciones $u$ y $v$, con la suma módulo 2. Demuestra que

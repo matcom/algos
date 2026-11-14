@@ -730,7 +730,7 @@ Robert Tarjan («Network flow and testing graph connectivity», *SIAM Journal on
 4(4), 1975) demostraron además $O(V^{2/3} E)$ para ese caso y $O(\sqrt V E)$ para el caso
 con capacidades unitarias en los vértices, y que esas cotas son ajustadas para Dinic.
 
-## 13. La regla
+## 13. La regla {#dinic-13-la-regla}
 
 La regla del capítulo: **una cota de costo que sale de un invariante se comprueba con el
 invariante, no con la salida.** En la §10 las dos versiones dan el mismo flujo en todas
@@ -747,7 +747,7 @@ in Almost-Linear Time», FOCS 2022; versión completa en *Journal of the ACM* 72
 lo resolvieron en tiempo $E^{1+o(1)}$ para capacidades enteras acotadas por un
 polinomio en el tamaño del grafo. El epílogo vuelve sobre ese resultado.
 
-## Resumen
+## Resumen {#dinic-resumen}
 
 - El goloso de caminos se atasca porque no puede retirar lo que mandó.
 - La **red residual** tiene lo que sobra hacia adelante y lo que se puede devolver hacia
@@ -767,7 +767,7 @@ polinomio en el tamaño del grafo. El epílogo vuelve sobre ese resultado.
   Dinic hace menos de $2\sqrt V + 1$ fases de $O(E)$: $O(E\sqrt V)$. Sobre el
   emparejamiento bipartito es **Hopcroft-Karp**.
 
-## Ejercicios
+## Ejercicios {#dinic-ejercicios}
 
 1. **[traza]** Ejecuta Dinic a mano sobre la red $s{\to}a$ 4, $s{\to}b$ 8, $b{\to}a$ 1,
    $a{\to}c$ 4, $a{\to}d$ 2, $b{\to}c$ 7, $c{\to}t$ 9, $d{\to}t$ 9, $d{\to}b$ 2,

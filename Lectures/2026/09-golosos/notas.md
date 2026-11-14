@@ -737,7 +737,7 @@ Los golosos vuelven dos veces. El capítulo 10 dice cuándo un goloso es óptimo
 **cualquier** función de peso, sin inventar un intercambio para cada problema. El
 capítulo 21 los usa sin ser óptimos, con una razón de aproximación demostrada.
 
-## 12. La regla
+## 12. La regla {#golosos-12-la-regla}
 
 Un goloso no se defiende con un ejemplo, ni con dos mil. Se demuestra encontrando una
 medida que decrece mientras se transforma un óptimo cualquiera en la solución del
@@ -749,7 +749,7 @@ Si no aparece la medida, sospecha de la regla: en el Lema 3 la desigualdad compa
 plazos, y un intercambio por holguras no la tiene. Y cuando aparece, mira qué hipótesis
 usa cada paso, porque esa es la lista de lo que una implementación no puede cambiar.
 
-## Resumen
+## Resumen {#golosos-resumen}
 
 - Un goloso se demuestra con un **argumento de intercambio**: transformar un óptimo
   en la solución del goloso sin empeorarlo, con una medida que decrece.
@@ -766,7 +766,7 @@ usa cada paso, porque esa es la lista de lo que una implementación no puede cam
 - A toda regla en línea que no usa azar se le puede forzar un factor $k$ contra
   Belady, y LRU no pierde más que eso, salvo un término $k$ (Sleator y Tarjan, 1985).
 
-## Ejercicios
+## Ejercicios {#golosos-ejercicios}
 
 1. **[traza]** Seis tareas tienen duraciones $t = (3, 2, 1, 4, 3, 2)$ y plazos
    $d = (6, 8, 9, 9, 14, 15)$. Aplica el plazo más cercano, escribe el instante de

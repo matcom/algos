@@ -739,7 +739,7 @@ interfaz que no puede congelarse), el costo amortizado no sirve, y el ejercicio 
 pide un ejemplo. En el capítulo 8 aparece otra clase de garantía, la esperada, que
 sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
 
-## Resumen
+## Resumen {#amortizado-resumen}
 
 - El costo amortizado es una cota de peor caso sobre secuencias de operaciones. No es
   un caso promedio y no tiene probabilidad.
@@ -759,7 +759,7 @@ sí tiene probabilidad. Es otra cosa, y conviene no confundirlas.
 - La cota exacta es $\Theta(m\, \alpha(m, n))$ (Tarjan), y ninguna estructura puede
   hacerlo mejor (Fredman y Saks). $\alpha(n) \le 4$ para toda entrada real.
 
-## Ejercicios
+## Ejercicios {#amortizado-ejercicios}
 
 1. Un arreglo dinámico que duplica su capacidad al llenarse y la reduce a la mitad
    cuando queda a un cuarto. Encuentra un potencial y demuestra $O(1)$ amortizado. Luego

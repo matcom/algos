@@ -253,7 +253,7 @@ que no tienen `a`, cambiar esa posición por `a` produce un arreglo con mayoría
 el que el algoritmo hace exactamente lo mismo y responde lo mismo. Así que tiene que
 leer las $(n+1)/2$ posiciones sin `a`, y Boyer-Moore es óptimo.
 
-## 5. El error que la demostración anuncia
+## 5. El error que la demostración anuncia {#correctitud-5-el-error-que-la-demostracion-anuncia}
 
 La segunda pasada parece un desperdicio. Mira el contador: al final, $c$ cuenta las
 copias del candidato que sobrevivieron. Es tentador pensar que si sobrevivió alguna,
@@ -690,7 +690,7 @@ contar vueltas. El primer fallo es la forma de los argumentos de intercambio del
 capítulo 9. Y la lección de la sección 5, que la hipótesis de un teorema es una lista de casos,
 vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan.
 
-## Resumen
+## Resumen {#correctitud-resumen}
 
 - Correcto quiere decir correcto respecto a una especificación: precondición y
   postcondición. La correctitud total es correctitud parcial más terminación, y se
@@ -710,7 +710,7 @@ vuelve cada vez que un algoritmo tenga precondiciones que las pruebas no revisan
 - Gale-Shapley cuesta $O(n^2)$ con la tabla de rangos, que es óptimo por la cota de Ng y
   Hirschberg.
 
-## Ejercicios
+## Ejercicios {#correctitud-ejercicios}
 
 1. Traza Boyer-Moore sobre `C A B A A C A B A` y escribe, después de cada paso, la
    partición en parejas y copias que promete el invariante.

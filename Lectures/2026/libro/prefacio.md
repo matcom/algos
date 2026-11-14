@@ -20,8 +20,8 @@ puede, dar una cota mínima que diga que no se puede hacer mejor. Muchos capítu
 plantan además un error a propósito, en un algoritmo o en una demostración, para que
 se vea cómo falla y qué lo detecta.
 
-Todo el código del libro se ejecuta cada vez que el libro se construye. Lo que aparece
-debajo de cada bloque es lo que imprimió ese bloque, y las figuras que ilustran un
+Todo el código del libro se ejecutó para construirlo. Lo que aparece debajo de cada
+bloque es lo que imprimió ese bloque, y las figuras que ilustran un
 algoritmo se dibujan con el estado que ese algoritmo calculó. Los tiempos que se miden
 dependen de la máquina en que se construyó el libro: en la tuya serán otros, pero las
 razones entre ellos, que es lo que el texto discute, deberían parecerse.

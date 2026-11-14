@@ -680,7 +680,7 @@ argumentos de adversario son el capítulo 5. Los algoritmos aleatorios y el aná
 de su costo esperado son los capítulos 8 y 15. Las reducciones son la Parte III
 entera, leídas al revés.
 
-## Resumen
+## Resumen {#oficio-algoritmico-resumen}
 
 - El oficio es responder cinco preguntas en orden: qué es el problema, qué algoritmo
   lo resuelve, por qué es correcto, cuánto cuesta y si se puede hacer mejor.
@@ -704,7 +704,7 @@ entera, leídas al revés.
   direccionamiento indirecto, que el modelo de la cota no tiene. Toda cota mínima es
   relativa a un modelo.
 
-## Ejercicios
+## Ejercicios {#oficio-algoritmico-ejercicios}
 
 1. Un radar ve $n$ aviones como puntos del plano y tiene que dar la alarma si dos
    están a menos de una distancia $r$. Plantea la tarea como uno de los problemas de

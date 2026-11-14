@@ -14,7 +14,7 @@ mirándolos juntos, y termina con ejercicios que mezclan capítulos, en el estil
 preguntas del examen final. Cada vez que algo se cita, se dice de qué capítulo y
 sección sale, para que puedas volver a la demostración completa.
 
-## 1. El mapa de la parte
+## 1. El mapa de la parte {#resumen-parte-1-1-el-mapa-de-la-parte}
 
 El capítulo 2 organizó el trabajo en cinco preguntas: qué es el problema, qué
 algoritmo lo resuelve, si es correcto, cuánto cuesta y si se puede hacer mejor. Cada
@@ -28,7 +28,7 @@ capítulo de la parte dio la herramienta para una de ellas.
 | ¿cuánto cuesta? | 4 | análisis amortizado | cola, splay, union-find | subir a la raíz |
 | ¿se puede mejor? | 5 | información, adversario, reducción | ordenar, mezclar, segundo mayor | el torneo que se salta un rival |
 
-## 2. Lo que hay que llevarse de cada capítulo
+## 2. Lo que hay que llevarse de cada capítulo {#resumen-parte-1-2-lo-que-hay-que-llevarse-de-cada-capitulo}
 
 Cada capítulo tiene su resumen al final. Aquí va una sola idea por capítulo: la que
 los demás usan.
@@ -145,7 +145,7 @@ El experimento propone y la demostración decide. Ninguno reemplaza al otro.
 La garantía es la del peor caso, y el análisis tiene que cubrirlo aunque casi nunca
 ocurra.
 
-## 4. Cómo se ve una respuesta completa
+## 4. Cómo se ve una respuesta completa {#resumen-parte-1-4-como-se-ve-una-respuesta-completa}
 
 Un ejercicio del libro pide casi siempre lo mismo: el algoritmo, su correctitud, su
 costo y, cuando se puede, una cota mínima. El ejemplo que sigue es deliberadamente
@@ -217,7 +217,7 @@ Esa es la forma: enunciado con su modelo, algoritmo, invariante con sus tres pas
 terminación, costo exacto o asintótico, y cota mínima con su modelo. Una respuesta de
 examen no tiene que ser más larga que esto para un problema de este tamaño.
 
-## Resumen
+## Resumen {#resumen-parte-1-resumen}
 
 - Toda pregunta sobre un algoritmo se responde en un modelo: la word RAM por defecto,
   operaciones de bits cuando los números crecen, comparaciones para las cotas mínimas
@@ -234,7 +234,7 @@ examen no tiene que ser más larga que esto para un problema de este tamaño.
   hay que probar, y una cota mínima demostrada detecta algoritmos que hacen menos de lo
   que se puede.
 
-## Ejercicios
+## Ejercicios {#resumen-parte-1-ejercicios}
 
 Cada ejercicio dice entre paréntesis qué capítulos usa. Ninguno trae la solución:
 como dice el capítulo 1, una solución bien presentada es parte de la respuesta.

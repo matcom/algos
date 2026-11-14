@@ -636,7 +636,7 @@ universalidad. Si cada clave cayera en una cubeta uniforme e independiente de la
 demás, un modelo ideal y más exigente que la universalidad, la lista más larga sería mucho
 menor: el ejercicio 9 la mide en ese modelo.
 
-## 12. Cierre
+## 12. Cierre {#las-vegas-12-cierre}
 
 El algoritmo del capítulo 2, §9, tenía en realidad dos monedas. Una es la permutación
 de los puntos, que hace que se esperen pocas reconstrucciones. La otra está escondida
@@ -665,7 +665,7 @@ Hacia adelante, el capítulo 15 trata los algoritmos Monte Carlo, que fijan el t
 dejan que la respuesta falle, y la amplificación por repetición. El capítulo 21 vuelve
 a la linealidad de la esperanza con una asignación al azar para MAX-3SAT.
 
-## Resumen
+## Resumen {#las-vegas-resumen}
 
 - Un algoritmo **Las Vegas** siempre responde bien. Su tiempo es una variable
   aleatoria, y se garantiza $\max_x \mathbb{E}_r[T(x, r)]$: la peor entrada, el
@@ -690,7 +690,7 @@ a la linealidad de la esperanza con una asignación al azar para MAX-3SAT.
 - $((ax + b) \bmod p) \bmod m$, con $p$ primo y $a \ne 0$, es universal. Sin el primo,
   las claves congruentes módulo $m$ chocan siempre.
 
-## Ejercicios
+## Ejercicios {#las-vegas-ejercicios}
 
 1. Para $n = 3$ elementos distintos, enumera todas las maneras en que quicksort
    aleatorio puede elegir sus pivotes, con la probabilidad de cada una, y calcula

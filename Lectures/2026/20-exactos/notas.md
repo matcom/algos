@@ -168,7 +168,7 @@ y 2 la cota es al menos el valor de cualquier forma 0-1 de completarlo, en parti
 de la que lleva a la solución óptima. Entonces `mejor` ya era al menos el óptimo, y
 nunca baja. $\square$
 
-## 4. El experimento
+## 4. El experimento {#exactos-4-el-experimento}
 
 Lo que no dice el teorema es cuánto se ahorra. Medimos los nodos visitados, con la
 cota y sin ella, en el peor de 20 instancias al azar por tamaño, con pesos y valores
@@ -648,8 +648,9 @@ ejercicio 5 da el primer paso en esa dirección.
 
 ## 12. ETH y SETH
 
-¿Se puede bajar la base todo lo que se quiera, hasta un algoritmo en $2^{o(n)}$? Nadie
-lo sabe, y la respuesta estándar es una hipótesis.
+¿Se puede bajar la base todo lo que se quiera, hasta un algoritmo en $2^{o(n)}$? Hasta
+hace muy poco nadie lo sabía, y la respuesta estándar es una hipótesis. El final de
+esta sección cuenta qué cambió en octubre de 2026.
 
 Impagliazzo y Paturi, en "On the Complexity of $k$-SAT" (*Journal of Computer and
 System Sciences* 62(2), pp. 367–375, 2001), definen para cada $k \ge 3$
@@ -712,7 +713,17 @@ en la versión de conferencia de su artículo (CCC 1999). Si es cierta, para cl�
 largas la fuerza bruta es esencialmente lo mejor posible. Es más fuerte que la ETH y
 menos aceptada, y el epílogo vuelve sobre las cotas que dependen de ella.
 
-## 13. La regla
+Todo lo anterior hay que leerlo con una fecha. El 25 de octubre de 2026 apareció un
+manuscrito, "The Exponential Time Hypothesis is False", que afirma un algoritmo
+determinista para $k$-SAT con $k$ fijo en tiempo $2^{o(n)}$, con una demostración
+formalizada en Lean. Si es correcto, $s_3 = 0$, la ETH es falsa y la SETH también, y la
+pregunta del principio de esta sección tiene respuesta. El teorema 8 sigue siendo un
+teorema, porque es una implicación, pero su hipótesis ya no se puede dar por buena.
+Cuando se escribió este capítulo, el grupo que va a examinar la demostración no había
+publicado su informe. El epílogo, §4, cuenta qué afirma el manuscrito y qué cambia y
+qué no.
+
+## 13. La regla {#exactos-13-la-regla}
 
 Las tres técnicas del capítulo dieron tres garantías distintas. La poda garantiza la
 respuesta, con una demostración que vive en la cota, y no garantiza el tiempo. El
@@ -729,7 +740,7 @@ silencio.**
 El capítulo 21 renuncia a lo exacto: algoritmos polinomiales con una garantía de
 cuánto se alejan del óptimo, empezando por un vertex cover de razón 2.
 
-## Resumen
+## Resumen {#exactos-resumen}
 
 - Un algoritmo exacto para un problema NP-duro puede mejorar la fuerza bruta sin
   contradecir $P \ne NP$: lo prohibido es el tiempo polinomial, no una exponencial
@@ -748,11 +759,12 @@ cuánto se alejan del óptimo, empezando por un vertex cover de razón 2.
   ciclos se resuelven directo.
 - Una base se redondea hacia arriba: $O(1{,}3803^n)$, no $O(1{,}38^n)$.
 - ETH: $s_3 > 0$. Con el lema de esparcimiento y la reducción del capítulo 18,
-  conjunto independiente y vertex cover no tienen algoritmo en $2^{o(N)}$.
+  conjunto independiente y vertex cover no tienen algoritmo en $2^{o(N)}$. Un
+  manuscrito de octubre de 2026 afirma que la ETH es falsa (epílogo, §4).
 - SETH: $s_k \to 1$. Si vale, para $k$-SAT con $k$ grande la fuerza bruta es
   esencialmente óptima.
 
-## Ejercicios
+## Ejercicios {#exactos-ejercicios}
 
 1. [traza] Corre a mano `mochila_bb` sobre pesos $(8, 8, 2, 6, 10)$, valores
    $(9, 8, 14, 15, 6)$ y $W = 17$. Dibuja el árbol con lo ganado y la cota de cada

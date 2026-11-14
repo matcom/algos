@@ -742,7 +742,7 @@ Grassmann graph have near-perfect expansion" (*Annals of Mathematics* 198(1), 20
 pp. 1–92). Entre $\sqrt 2$ y 2 no se sabe. TSP métrico tiene casi $3/2$, y la
 imposibilidad publicada empieza en $123/122$.
 
-## 13. La regla
+## 13. La regla {#esquemas-13-la-regla}
 
 Un esquema de aproximación cambia precisión por tiempo, y la pregunta es dónde se paga
 $\varepsilon$. La respuesta la deciden los números:
@@ -761,7 +761,7 @@ una cota del óptimo que se puede calcular: $\mathrm{OPT} \ge v_{\max}$ en la mo
 y $\mathrm{OPT} \ge q\,t_j$ en el makespan, que dan las $m(q - 1) + 1$ tareas más
 largas.
 
-## Resumen
+## Resumen {#esquemas-resumen}
 
 - Un PTAS da $1 \pm \varepsilon$ en tiempo polinomial en $n$ para cada $\varepsilon$
   fijo; un FPTAS, en tiempo polinomial en $n$ y $1/\varepsilon$ a la vez.
@@ -784,7 +784,7 @@ largas.
   $1 + (1 - 1/m)\varepsilon$, en tiempo $O(n \log n + k\,m^k)$. Este algoritmo es un
   PTAS y no un FPTAS; el problema con $m$ fijo sí tiene FPTAS (ejercicio 6).
 
-## Ejercicios
+## Ejercicios {#esquemas-ejercicios}
 
 1. Ejecuta a mano `fptas_mochila` con $\varepsilon = 1/2$ sobre cinco objetos de pesos
    $7, 1, 8, 4, 4$, valores $46, 50, 54, 48, 9$ y capacidad $W = 10$. Calcula $\mu$ y
