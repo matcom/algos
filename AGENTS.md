@@ -26,6 +26,9 @@ proyecto se publican tal como están aquí.
 - `Lectures/2026/`: el curso actual. `plan.md` fija qué entra en cada conferencia y
   el orden. Cada conferencia vive en `NN-tema/`, y `figuras.py` es el módulo de
   figuras que comparten todas.
+- `Lectures/2026/libro/`: el libro del curso, con cada conferencia como un capítulo.
+  Construye `daa.pdf` y el sitio que se publica en <https://matcom.github.io/algos/>.
+  Cómo se agrega un capítulo está en `know-how/escribiendo-un-capitulo-del-libro.md`.
 - `Lectures/*.md`: notas de cursos anteriores, en inglés. Son material de consulta y
   no se editan como parte del curso 2026.
 - `Problems/`: problemas de práctica por tema.
@@ -37,8 +40,12 @@ proyecto se publican tal como están aquí.
 Los cambios van directo a `main`, sin issue ni PR. El material se publica al ritmo del
 curso, y un PR pendiente retrasaría una conferencia que los estudiantes ya esperan.
 
-No hay `make` ni CI. Las comprobaciones de una conferencia (render, trazas, figuras,
-páginas y números) están en el know-how.
+No hay `make`. El único workflow, `libro`, publica el libro en GitHub Pages en cada
+push a `main` que toque `Lectures/2026/`. Por eso, antes de subir a `main` un cambio en
+`Lectures/2026/`, se construye el libro en local (`scriptorium render scriptorium.yaml`
+en `Lectures/2026/libro/`) y se cuentan sus tracebacks y figuras: un push con un bloque
+roto publica el traceback en el sitio. Las comprobaciones de una conferencia (render,
+trazas, figuras, páginas y números) están en el know-how.
 
 El menú de procedimientos se imprime con:
 
