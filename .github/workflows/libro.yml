@@ -1,0 +1,42 @@
+name: libro
+# Construye el sitio del libro (Lectures/2026/libro) y lo publica en GitHub Pages
+# desde main. Los bloques de código salen de la caché que se sube con el libro
+# (libro/.scriptorium/freeze.json), así que el sitio muestra los mismos números
+# que el PDF; un bloque nuevo que no esté en la caché corre aquí.
+on:
+  push:
+    branches: [main]
+    paths: ["Lectures/2026/**", ".github/workflows/libro.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: libro-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Lectures/2026/libro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { enable-cache: true, python-version: "3.12" }
+      - run: uv tool install "scriptorium @ git+https://github.com/gia-uh/scriptorium@v0.14.0"
+      - run: scriptorium render scriptorium.yaml --only sitio
+      - run: cp daa.pdf sitio/
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: Lectures/2026/libro/sitio }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
