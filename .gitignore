@@ -1,2 +1,5 @@
 .scriptorium/
 __pycache__/
+Lectures/2026/_check-*/
+!Lectures/2026/libro/.scriptorium/
+Lectures/2026/libro/sitio/

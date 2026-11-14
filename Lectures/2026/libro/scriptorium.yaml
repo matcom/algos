@@ -1,0 +1,65 @@
+# Diseño y Análisis de Algoritmos, el libro del curso 2026. Cada conferencia es
+# un capítulo, y todos los bloques de código corren al construir el libro desde
+# este directorio: `..` es Lectures/2026, donde están figuras.py y figuras_NN.py.
+theme: book
+lang: es
+css: libro.css
+# Las referencias a figuras del sitio dicen "figura N" y no citan el pie entero.
+html-refs:
+  fig: "figura {figure}"
+base-url: https://matcom.github.io/algos/
+execute:
+  timeout: 600
+  interpreters:
+    python: ["uv", "run", "--quiet", "--python", "3.14", "--with", "tesserax", "python", "-"]
+
+vars:
+  title: "Diseño y Análisis de Algoritmos"
+  subtitle: "Estrategias, correctitud e intratabilidad"
+  author: "Facultad de Matemática y Computación, Universidad de La Habana"
+  figure-label: "Figura"
+  figure-ref-label: "figura"
+
+files:
+  - 00-titulo.md
+  - 00-indice.md
+  - prefacio.md
+  - parte-1.md
+  - ../01-eficiencia/notas.md
+  - ../02-oficio-algoritmico/notas.md
+  - ../03-correctitud/notas.md
+  - ../04-amortizado/notas.md
+  - ../05-cotas-minimas/notas.md
+  - ../tema-1/resumen.md
+  - parte-2.md
+  - ../06-divide-y-venceras/notas.md
+  - ../07-fft/notas.md
+  - ../08-las-vegas/notas.md
+  - ../09-golosos/notas.md
+  - ../10-matroides/notas.md
+  - ../11-dp-arboles-subconjuntos/notas.md
+  - ../12-dp-optimizaciones/notas.md
+  - ../13-dinic/notas.md
+  - ../14-push-relabel/notas.md
+  - ../15-monte-carlo/notas.md
+  - ../resumen-parte-2/notas.md
+  - parte-3.md
+  - ../16-p-np/notas.md
+  - ../17-cook-levin/notas.md
+  - ../18-reducciones-grafos/notas.md
+  - ../19-reducciones-numeros/notas.md
+  - ../20-exactos/notas.md
+  - ../21-aproximacion/notas.md
+  - ../22-tsp-lp/notas.md
+  - ../23-esquemas/notas.md
+  - ../resumen-parte-3/notas.md
+  - ../24-epilogo/notas.md
+
+outputs:
+  sitio:
+    format: docs
+    dir: sitio
+    repo-url: https://github.com/matcom/algos
+  libro:
+    format: pdf
+    file: daa.pdf
