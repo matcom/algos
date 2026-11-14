@@ -1,8 +1,11 @@
 name: libro
-# Construye el sitio del libro (Lectures/2026/libro) y lo publica en GitHub Pages
-# desde main. Los bloques de código salen de la caché que se sube con el libro
-# (libro/.scriptorium/freeze.json), así que el sitio muestra los mismos números
-# que el PDF; un bloque nuevo que no esté en la caché corre aquí.
+# Construye el libro (Lectures/2026/libro), el sitio y daa.pdf, y los publica en
+# GitHub Pages desde main: el sitio en https://matcom.github.io/algos/ y el PDF
+# en https://matcom.github.io/algos/daa.pdf. El PDF se construye aquí y no en
+# local porque WeasyPrint arma el libro entero en memoria (unos 3,5 GB).
+# Los bloques de código salen de la caché que se sube con el libro
+# (libro/.scriptorium/freeze.json), así que el sitio y el PDF muestran los
+# números que se revisaron; un bloque nuevo que no esté en la caché corre aquí.
 on:
   push:
     branches: [main]
@@ -21,10 +24,24 @@ jobs:
         working-directory: Lectures/2026/libro
     steps:
       - uses: actions/checkout@v4
+      # WeasyPrint dibuja con pango y harfbuzz. Las fuentes del tema vienen con
+      # scriptorium; DejaVu cubre los glifos que les faltan y el código.
+      - name: Librerías de WeasyPrint
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libharfbuzz-subset0 \
+            libfontconfig1 fonts-dejavu-core
       - uses: astral-sh/setup-uv@v5
         with: { enable-cache: true, python-version: "3.12" }
-      - run: uv tool install "scriptorium @ git+https://github.com/gia-uh/scriptorium@v0.14.0"
-      - run: scriptorium render scriptorium.yaml --only sitio
+      - run: uv tool install "scriptorium[pdf] @ git+https://github.com/gia-uh/scriptorium@v0.14.0"
+      - run: scriptorium render scriptorium.yaml
+      # Un bloque que falla no rompe el render: pinta su traceback en el libro.
+      - name: Contar tracebacks y figuras
+        run: |
+          pdftotext -v >/dev/null 2>&1 || sudo apt-get install -y --no-install-recommends poppler-utils
+          echo "tracebacks: $(pdftotext daa.pdf - | grep -ci traceback || true)"
+          echo "figuras: $(pdftotext daa.pdf - | grep -c '^Figura ' || true)"
       - run: cp daa.pdf sitio/
       - uses: actions/upload-pages-artifact@v3
         with: { path: Lectures/2026/libro/sitio }
